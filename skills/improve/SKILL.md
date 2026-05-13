@@ -152,11 +152,16 @@ Write `MARK.md`: a flat list of `<observation-file>#<N>` for every observation t
 4. Annotate each consumed observation in its source file (the `> reviewed ...` line). Archive any
    observation file all of whose observations are now resolved → `~/.claude/observations/archive/`.
 5. Update `~/.claude/improvements/last-review.txt` to today.
-6. **Housekeeping:** `git status --short` in any repo you touched; generate an imperative commit
-   message (e.g. `chore: apply /improve review {date} — N changes`); **ask before committing**;
-   on approval `git add` + `git commit` (never `reset`/`clean`/`checkout --` — the safety hook blocks
-   those anyway). The staged `~/.claude/improvements/` dir is not in a repo unless you've set up
-   Component 4 (cross-machine sync) — if it is, offer to commit+push it there too.
+6. **Housekeeping (with cross-machine sync routing):** `git status --short` in any repo you touched;
+   generate an imperative commit message (e.g. `chore: apply /improve review {date} — N changes`);
+   **ask before committing**; on approval `git add` + `git commit` (never `reset`/`clean`/`checkout --`
+   — the safety hook blocks those anyway). When applying changes, route each by target:
+   - Edits to a skill / command / agent / template land in `C:\ai-kit\` (public). **Run the
+     secret-scan before pushing — ai-kit's pre-commit hook does this automatically.**
+   - Edits to `CLAUDE.md` / `observations/` / `improvements/` / `hooks/` land in `~/.claude/`
+     (private, claude-home).
+   After local commits, propose `git push` for each repo separately. Suggestion-mode — ask before
+   each push. Never auto-push.
 7. Print a one-line close summary: `proposals: N · applied: N · declined: N · deferred: N · observations consumed: M · commit: <hash or "skipped">`.
 
 ## Staleness-fallback behaviour

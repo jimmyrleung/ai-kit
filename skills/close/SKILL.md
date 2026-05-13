@@ -115,7 +115,16 @@ the handoff pattern archives completed items).
 2. **Ask before committing.** Present the message; on approval run `git add <files>` + `git commit`
    (never `reset` / `clean` / `checkout --` / force-push — those are blocked by the safety hook anyway).
    If the user declines, leave the working tree as-is.
-3. **Print the close summary** — a one-liner with the counters: `memory: N updated · observations: N
+3. **Cross-machine sync routing.** If either of these git working trees exists, propose a commit +
+   push per repo, routed by content kind:
+   - `~/.claude/.git/` (claude-home, private) — for edits to: `CLAUDE.md`, `observations/`,
+     `improvements/`, `hooks/`, `statusline-command.sh`, `settings.example.json`.
+   - `C:\ai-kit\.git\` (ai-kit, public) — for edits to: `skills/`, `commands/`, `agents/`,
+     `templates/`, `docs/`. **Run the secret-scan before pushing ai-kit (its pre-commit hook does this
+     automatically; --no-verify is the bypass and should be used sparingly).**
+   One commit per repo when each has content. **Ask before each commit and before each push.** Never
+   auto-push. If either repo has unmerged paths from a prior pull, resolve them first.
+4. **Print the close summary** — a one-liner with the counters: `memory: N updated · observations: N
    written · SESSION_LOG: updated · commit: <hash or "skipped">`.
 4. **Print a session-rename suggestion** — `[YYYY-MM-DD] <short title>` — for copy-pasting as the
    session name.
