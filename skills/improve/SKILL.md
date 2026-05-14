@@ -3,6 +3,8 @@ name: improve
 description: Periodic self-improvement review. Reads the accumulated ~/.claude/observations/*.md (written by the close skill), finds friction patterns, audits skill/workflow fitness, and produces a STAGED review packet under ~/.claude/improvements/{date}/ — proposed edits to skills, agent-workflows orchestrators, MEMORY.md, and ~/.claude/CLAUDE.md, each with the exact diff and the observation it came from. NEVER edits a live file without per-item approval. Run weekly (via a scheduled task), when ~/.claude/improvements/last-review.txt is stale, or on demand — invoke as /improve.
 ---
 
+<!-- intentionally-long: 5-phase distiller with concrete templates for REVIEW.md, proposals/, MARK.md and procedural rules per phase. Splitting to references/ would fragment one logical procedure and add load latency for every phase. Tier 2.1 spec records the body as a documented design choice. -->
+
 # Improve — observation reviewer (suggestion mode, NOT auto-mutator)
 
 You are running the periodic self-improvement review. You read the evidence the `close` skill has
@@ -21,8 +23,9 @@ to look productive. The number of changes applied is NOT a success metric — it
   ACTIONED/DECLINED — i.e. since the last review. (Window: from the date in
   `~/.claude/improvements/last-review.txt`; if missing, last 14 days.)
 - **Always:** `~/.claude/observations/README.md` (the canonical tag list); the skill inventory —
-  `agent-workflows/**/SKILL.md`, `~/.claude/skills/**/SKILL.md`, the `agent-workflows/**/commands/*.md`
-  orchestrators; `MEMORY.md` + the auto-memory topic files; `~/.claude/CLAUDE.md`.
+  `C:\ai-kit\skills\**\SKILL.md` (resolves through `~/.claude/skills/` junction), the
+  `C:\ai-kit\commands\*.md` orchestrators, the `C:\ai-kit\agents\*.md` agents; `MEMORY.md`
+  + the auto-memory topic files; `~/.claude/CLAUDE.md`.
 - **On request (a "deep" review):** the period's `git log --oneline` in each repo named in the
   observations, and selected `~/.claude/projects/<dir>/<session-id>.jsonl` transcripts — to backfill
   observations the close skill missed, or to verify a pattern. (Read-only; safe.) Skip this for a

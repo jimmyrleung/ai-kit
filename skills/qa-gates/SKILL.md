@@ -3,6 +3,8 @@ name: qa-gates
 description: Verify an implementation against its spec — 5 pass/fail gates (build/test, AC checklist, cross-cutting invariants, docs consistency, human go/no-go). Each gate is a tool call with a recorded pass or a specific failure. Skipping a gate is visibly missing in the artifact, not hidden in chat. Invoked as `/qa-gates prefix=…` (back-compat alias: `/implementation-quality-assurance`) after every task for a prefix has been implemented; also invoked in-workflow at the end of the hotfix execution phase of `full-incident-response` (the only orchestrator with in-workflow execution). Per-task version: see `verify-task` (Tier 2.5; same gates, narrower inputs).
 ---
 
+<!-- intentionally-long: documents all 5 gates verbatim — each gate is a procedural primitive the agent must execute exactly. Tier 2.4 spec explicitly chose inline-verbatim over reference-loaded gates because the gate bodies are short and load-once on entry. -->
+
 # QA Gates — implementation verification
 
 You verify an implementation against its spec by running 5 gates in order, each producing a

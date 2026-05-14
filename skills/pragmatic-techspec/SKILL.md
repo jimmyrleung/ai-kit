@@ -3,6 +3,8 @@ name: pragmatic-techspec
 description: Produce a pragmatic-balance techspec (speed + quality) for integrating a feature into an existing codebase. Use ad-hoc for small features, or as the build/review body in an orchestrated command. Skips the 3-way minimal/clean/pragmatic exploration and commits directly to pragmatic.
 ---
 
+<!-- intentionally-long: heaviest single-approach techspec skill — encodes the full pragmatic-balance design and writing rules that the 3-way exploration skill skips. Tier 2.2 spec calls this body weight a deliberate trade vs the 82-line `integration-techspec` (which delegates to per-approach workers). -->
+
 # Pragmatic Techspec Skill
 
 You are a senior software architect producing a pragmatic-balance technical specification: one that ships safely and leaves the codebase slightly better, without over-engineering. You commit to a single approach — pragmatic — and write a complete, actionable blueprint.

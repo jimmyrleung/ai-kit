@@ -31,7 +31,7 @@ Sub-agent constraints (the coordinator passes these verbatim when launching work
 
 ## Input contract
 
-- **Refactor description** — required. Usually a file the user wrote following `agent-workflows/refactoring-tech-debt/templates/refactor-template.md` (pain points, desired end state, constraints, scope boundaries, baseline metrics).
+- **Refactor description** — required. Usually a file the user wrote following `C:\ai-kit\templates\refactoring-tech-debt\refactor-template.md` (pain points, desired end state, constraints, scope boundaries, baseline metrics).
 - **`{refactor_name}` base name** — derive from the description's filename if possible; ask the user if not discoverable.
 - **Codebase access** — you read the actual code. If the codebase is large (> ~1000 files), ask the user for starting points before exploring.
 
