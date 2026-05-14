@@ -68,6 +68,13 @@ yet, ask), **any partial/failed outcomes** (investigate), **trigger-description 
 suggest splitting reference content out). Exclude bundled/system skills from any deletion/restructure
 proposal.
 
+*Note:* the two thin checks above are a friction-driven sample. For a deep structural audit (10
+checks, including frontmatter validity, trigger-keyword coverage, cross-skill redundancy, dead
+references, and frontmatter-vs-directory mismatch), run `/audit-skills` — it's the on-demand
+sibling of this pass. When a recent `~/.claude/improvements/{date}/proposals/NN-[audit]-*.md`
+already covers a finding here, mark it `"already staged by audit-skills NN-..."` in the
+fitness-table flags column and do NOT restage as a separate proposal.
+
 ### Phase 3 — Lint (the health-check pass — Karpathy's third operation)
 
 Scan the *curated* layer (skills + orchestrators + `MEMORY.md` + `~/.claude/CLAUDE.md`) for:
