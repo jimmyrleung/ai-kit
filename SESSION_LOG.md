@@ -1,3 +1,24 @@
+## [2026-05-14] — Discussed SESSION_LOG centralization — deferred
+
+**Summary:** Discussion-only. User asked whether `SESSION_LOG.md` should move to a centralized `~/.claude/session_logs/{repo}/` for cross-repo analysis. Concluded: keep current in-repo behavior; revisit when a future knowledge base lands.
+
+**Done:** No code or skill changes.
+
+**Decisions:**
+
+- **Keep `SESSION_LOG.md` at the git root, committed with the work.** Rejected: moving it entirely to `~/.claude/session_logs/{repo}/`. Why: the commit-with-the-work handoff is half the point — a cross-machine teammate (or future-me on another box) sees the narrative in git history. Also rejected dual-write (repo + central mirror) for now — adds complexity ahead of need.
+- **For cross-repo *workflow* analysis, use `~/.claude/observations/` (already centralized).** SESSION_LOG = project narrative (per-repo); observations = workflow meta-evidence (already pooled across all projects). Different corpora, different questions.
+
+**Didn't work:** —
+
+**Next:** When the user builds the planned knowledge base (combines session logs + meeting notes + other non-technical notes), revisit whether `/close` should dual-write or whether the KB ingests from repos. No action until that project starts.
+
+**Blockers:** none
+
+**Artifacts:** none — discussion only.
+
+---
+
 ## [2026-05-14] — Broaden /close suggestion triggers in global CLAUDE.md
 
 **Summary:** Discussed how to use `/close` during mid-workflow context resets (user resets at ~200K because Opus degrades past 256K), then widened the `/close` trigger rules in `~/.claude/CLAUDE.md` to fire on more than just "user says they're wrapping up."
