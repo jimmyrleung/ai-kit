@@ -31,10 +31,15 @@ Exclude bundled/system skills and Anthropic-shipped skills from any proposal.
 ## Outputs you write
 
 - `~/.claude/improvements/{YYYY-MM-DD}/REVIEW.md` (one section per check; fitness table).
-- `~/.claude/improvements/{YYYY-MM-DD}/proposals/NN-[audit]-<slug>.md` — one per finding.
-  Use the same directory as `/improve`. Tag filenames with `[audit]` so `/improve` and
-  the human can tell audit-derived proposals from friction-derived ones.
-- `~/.claude/improvements/last-audit.txt` — today's date.
+- `~/.claude/improvements/{YYYY-MM-DD}/proposals/NN-[audit]-<slug>.md` — one per
+  **high-confidence finding (>90%)**, ready for one-at-a-time apply/skip/defer review.
+  Tag filenames with `[audit]` so `/improve` and the human can tell audit-derived
+  proposals from friction-derived ones.
+- `~/.claude/improvements/backlog/NN-<slug>.md` — one per **lower-confidence finding
+  (≤90%)**. **Persistent across audit runs** (NOT under the dated `{date}/` dir).
+  Re-evaluated every run — confidence may rise with more data and promote to a proposal,
+  or fall and close as won't-do.
+- `~/.claude/improvements/last-audit.txt` — today's date + run-summary counts.
 - Only on the user's explicit, per-item approval: the actual target files.
 
 If `REVIEW.md` already exists for today (because `/improve` ran earlier), append a
@@ -137,7 +142,51 @@ findings on a check is a valid result.
 Apply the keep-two rule (same as `/improve`): if there are already two or more dated
 dirs under `~/.claude/improvements/`, delete all but the most recent one (so after
 creating today's there are exactly two). The user is the only deleter — surface the
-candidate dirs and ask before removing.
+candidate dirs and ask before removing. The `backlog/` dir is NOT a dated dir and is
+NEVER pruned by the keep-two rule.
+
+**Disposition rule (confidence gate):** for each finding, score confidence per the
+project's "Score Confidence" guidance (CLAUDE.md). If **> 90%** (strictly greater —
+91% and up), stage as a `proposals/NN-[audit]-<slug>.md` file. If **≤ 90%**, write to
+`backlog/NN-<slug>.md` instead — same finding, but flagged for re-evaluation on the
+next audit run. Keep numbering stable across the two directories (a finding that
+started as proposal 04 stays numbered 04 if it moves to backlog) so audit-run history
+is traceable.
+
+**Walk the existing backlog before staging new items.** For each `backlog/NN-*.md`,
+re-score with current data:
+- Confidence rose to > 90% → move to today's `proposals/` (same number), update the
+  re-evaluation date.
+- Confidence still ≤ 90% but applicable → bump the `last-re-evaluated:` date and the
+  current-confidence line; leave in backlog.
+- No longer applicable (the target was rewritten, the rule changed, the user closed
+  it) → move to `backlog/closed/` with a one-line close reason. Don't delete.
+
+**Backlog file format** (lighter than the proposal format — no mechanical diff yet,
+because by definition the finding isn't ready to mechanically apply):
+
+```
+# Backlog NN: <title>
+
+**Target:** <path>
+**Type:** edit-skill | edit-orchestrator | edit-memory | edit-CLAUDE.md | design-question
+**Derived from:** <which Check, which audit run>
+**Original confidence:** X% — <why not >90% on first sighting>
+**Last re-evaluated:** YYYY-MM-DD
+**Current confidence:** X%
+
+## Finding
+<terse — what was observed>
+
+## Suggested change (sketch)
+<what to do; exact line ranges NOT required yet>
+
+## What would raise confidence
+- <signal A — what new data, observation, or user feedback would push this >90%>
+
+## What would lower confidence (or close as won't-do)
+- <signal A — what evidence would close this>
+```
 
 Create or append-to today's REVIEW.md:
 
