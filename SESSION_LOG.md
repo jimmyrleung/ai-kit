@@ -1,3 +1,36 @@
+## [2026-05-14] — Broaden /close suggestion triggers in global CLAUDE.md
+
+**Summary:** Discussed how to use `/close` during mid-workflow context resets (user resets at ~200K because Opus degrades past 256K), then widened the `/close` trigger rules in `~/.claude/CLAUDE.md` to fire on more than just "user says they're wrapping up."
+
+**Done:**
+
+- Edited `~/.claude/CLAUDE.md` `## Closing a session` to list four triggers: wrap-up language, pre-`/clear`/`/compact`, natural pause, stale `SESSION_LOG.md`. Added explicit `/compact` vs `/close` disambiguation.
+- Committed `ca49856` and pushed to `claude-home` main.
+- Wrote `user-context-management` memory + indexed it in `MEMORY.md`.
+- Logged two observations to `~/.claude/observations/2026-05-14-close-trigger-broadening.md` (skill description doc-drift; rule-design principle).
+
+**Decisions:**
+
+- **Content-based triggers, not token-threshold** for `/close` suggestions. Rejected: "suggest /close if context > 150K tokens" — I don't have a reliable token counter exposed, so a threshold rule would fire inconsistently. Chose intent signals I can actually observe (user message content, file state).
+- **`/compact` ≠ `/close`** explicitly called out in CLAUDE.md so future-me doesn't conflate "context is large" (→ compact) with "session is ending" (→ close).
+
+**Didn't work:**
+
+- Token-threshold trigger (proposed, rejected). Don't re-propose unless the harness starts exposing a live token counter to the model.
+
+**Next:** Consider mirroring the broadened triggers into the `close` skill's own `description:` frontmatter line — currently says only "end of a working session," which is narrower than the CLAUDE.md rule (see observation 1 in `2026-05-14-close-trigger-broadening.md`). `/improve` will likely surface this.
+
+**Blockers:** none
+
+**Artifacts:**
+
+- Commit `ca49856` (claude-home) — `docs: broaden /close suggestion triggers in CLAUDE.md`
+- `~/.claude/CLAUDE.md` — `## Closing a session` section
+- `~/.claude/observations/2026-05-14-close-trigger-broadening.md`
+- `~/.claude/projects/C--ai-kit/memory/user-context-management.md`
+
+---
+
 ## [2026-05-13] — Add INVENTORY quick-reference docs (Claude-Code-aware placement)
 
 **Summary:** Added quick-reference inventories for every component kind in the kit (agents, commands, skills, docs, templates). Routed through a discovery-vs-rendering trade-off and landed on a single `/INVENTORY/` folder at repo root.
