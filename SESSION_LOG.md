@@ -1,3 +1,50 @@
+## [2026-05-15] — Built docs-tasks-creator skill (decoupled, multi-stack, monorepo-aware)
+
+**Summary:** Built v1 of the `docs-tasks-creator` skill — the concrete bucket-1 gap from this morning's KB workflow iteration. Scans a codebase, detects HTTP/message/job handlers via pluggable detectors, emits a consumer-agnostic tasks doc (one task per handler) + a synthesized `project-overview.md`. Also deprioritized the `active-context.md` proposal (priorities-doc line 14) — user flagged it as a habit-sustainability risk.
+
+**Done:**
+
+- Read existing `document-workflow-loop`, `map-tasks`, and `document-workflow` skills to ground the design — confirmed how the output-path mechanism works (the consuming tool writes to `<repo>/workflows/...` where `<repo>` is its primary repo).
+- Authored `C:\ai-kit\skills\docs-tasks-creator\SKILL.md` (~280 lines):
+  - **10 v1 detectors**: Next.js (App Router / Pages API / Server Actions), Express, Fastify, NestJS, ASP.NET Core (attribute + minimal API), GRPC .NET, .NET BackgroundService.
+  - **Monorepo handling**: workspace detection (pnpm-workspace.yaml / package.json workspaces / nx.json / lerna.json / rush.json / turbo.json / multi-`.csproj`-from-.sln / heuristic fallback); interactive selection (AskUserQuestion for 2–4 workspaces, plain text for 5+); per-workspace artifacts under `$output_dir/<workspace-slug>/`.
+  - **Consumer-agnostic emitted tasks doc** — no cc-loop coupling; each task has `Status:`, `Reference:`, `Files affected:`, `Trigger:`, `Acceptance criteria:`.
+  - **Inline project-overview.md generation** in Phase 4 (not a separate cc-loop task).
+- Updated [[second-brain-kb-initiative]] memory to reflect docs-tasks-creator v1 built.
+- Wrote new feedback memory: [[prefer-decoupled-designs]].
+
+**Decisions:**
+
+- **Consumer-agnostic emitted tasks doc.** Rejected cc-loop-coupled v1 (initial draft included a `## How to run` block with `bun cc-loop ...`, a `**Repos**:` header, and `document-workflow-loop` references). Why: user explicitly said "if someone wants to generate doc tasks but do all of them manually that's fine" — the artifact should serve manual workflows too.
+- **Pluggable multi-stack detectors from v1.** Rejected my proposal of "pick one stack first, generalize later." Why: user works across React+TS, Node, .NET — locking to one stack would leave most of their surface unscanned.
+- **One tasks doc per workspace in monorepos.** Rejected one giant combined doc. Why: per-workspace isolation matches how docs are consumed (one workspace = one engagement boundary); a 30-workspace doc would be unworkable.
+- **One handler per task** (not per-class clustering). Why: matches "one doc per handler" output shape and the priorities-doc framing.
+- **Inline setup work, no `Task 0`.** Scaffolding + project-overview.md done by docs-tasks-creator itself in Phase 4, not emitted as a cc-loop task. Why: cc-loop's `document-workflow` action is for tracing workflows, not synthesizing overviews — a Task 0 would have no compatible runner.
+- **Deprioritized `active-context.md`** (line 14 of priorities doc). Why: user self-flagged habit-sustainability risk ("I'd stop doing it in a week or two"). Parked.
+
+**Didn't work:**
+
+- Initial Cline-style `active-context.md` proposal — rejected by user on habit-sustainability grounds. The hot/stable section split + decay rules + 300-line cap design was probably fine; the weekly-debrief dependency was the unworkable part.
+- Initial single-stack v1 framing — user redirected to multi-stack.
+- Initial cc-loop coupling in the emitted tasks doc — user flagged for removal.
+- Initial monorepo-blind v1 — missed entirely until user surfaced it.
+
+**Next:**
+
+- Real-world validation on `docs-tasks-creator` against an actual client codebase. Specifically validate: (a) the multi-`--repo` cc-loop invocation works (only inferred from map-tasks' `$repos` plural reference; not verified against `bun cc-loop` CLI); (b) Server Actions detector false-positive rate; (c) service-name derivation on real monorepo layouts; (d) heuristic-fallback workspace detection on `client/`+`server/`-style non-monorepo splits.
+- Remaining bucket-1 items: `raw/{client}/{project}/` folder skeleton + weekly debrief cadence.
+
+**Blockers:** none.
+
+**Artifacts:**
+
+- `C:\ai-kit\skills\docs-tasks-creator\SKILL.md` (new, ~280 lines)
+- `~/.claude/projects/C--ai-kit/memory/second-brain-kb-initiative.md` (updated — docs-tasks-creator v1 built)
+- `~/.claude/projects/C--ai-kit/memory/prefer-decoupled-designs.md` (new — feedback memory)
+- `~/.claude/observations/2026-05-15-docs-tasks-creator-build.md` (new — 3 observations on initial-draft missteps)
+
+---
+
 ## [2026-05-15] — KB workflow iteration 2: research + prioritized roadmap
 
 **Summary:** Un-parked the second-brain/LLM-wiki KB initiative for iteration 2. Ran three parallel research streams (SOTA / staleness tooling / skeptical), iterated through key design questions with the user, produced two artifacts: iteration 2 section appended to the main idea doc + a new prioritized roadmap doc.
