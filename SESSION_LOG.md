@@ -1,3 +1,47 @@
+## [2026-05-15] — Workflow-doc staleness signals (schema v1) + cc-looper integration check
+
+**Summary:** Added staleness-detection metadata to `document-workflow` (the interactive command) and `document-workflow-loop` (the cc-looper headless skill). Then confirmed the changes don't break cc-looper's runner — discovered ai-kit's loop-related skills/commands are symlinks to cc-looper's `claude-config/`, so edits already propagated. Two real concerns surfaced during the impact check; both fixed.
+
+**Done:**
+
+- Added `Created`, `Last Updated`, `Generated From` (short commit SHA), `Schema: v1` rows to the Summary table of produced workflow docs (in both the command and the loop skill).
+- Added `## Source Files` (machine-readable `Role | Path` table — the input to automated staleness detection) and `## Change Log` (`Date | Change | Reason` with an initial-creation row) sections at the end of produced docs.
+- Added populate instructions: command's Guidelines + loop skill's Workflow 2 (new step 4 = single Bash call `git rev-parse --short HEAD`, with a fallback clause for denied/failed cases → set `unknown` + `[TODO: verify SHA]` rather than pausing the task).
+- Updated `qa-loop-docs` Gate 0 hint list to include the new sections + the four doc-meta Summary rows, with an explicit acceptance rule (`unknown` Generated From with the marker is NOT a Gate 3 finding; literal placeholders left as `YYYY-MM-DD` or `<short-sha>` ARE findings).
+- Discovered via `Get-Item -Force` that `C:\ai-kit\skills\{document-workflow-loop, qa-loop-docs, qa-loop, implement-task-loop, map-tasks, review-checkpoint}` and `C:\ai-kit\commands\tasks-loop.md` are all Windows SymbolicLinks to cc-looper's canonical copies — wrote [[cc-looper-symlink-topology]] memory.
+- Updated [[second-brain-kb-initiative]] memory to reflect schema v1 + flag staleness detector as the next remaining gap.
+
+**Decisions:**
+
+- **Change Log columns: `Date | Change | Reason`** (chose recommended 3-col over 2-col minimal / 4-col with editor). Rejected the 4-col `Editor` field because no human-vs-skill distinction is needed yet; rejected 2-col because the `Reason` nudge gives future edits context without much cost.
+- **`Generated From` advances on every update**, doesn't stay frozen like `Created`. Why: the SHA represents "the state of the codebase this doc was last verified against," not "first generation" — the Change Log is the audit trail.
+- **Schema v1 explicit version row**, not implicit. Why: cheap insurance for future template migrations — a 1-line grep finds every doc on an old schema.
+- **`git rev-parse` denial → route-around with `unknown`, not pause.** Why: target repos (client codebases being documented) often won't have `Bash(git:*)` in their `.claude/settings.json`, and per the headless preamble a Bash denial would otherwise pause the task. The SHA is a nice-to-have, not load-bearing — the doc is still useful without it.
+- **Source Files table as a separate section** (not woven into Sequence of Calls). Why: machine-readable; future detector skill's `git log <generated-from>..HEAD -- <paths>` invocation needs a clean list.
+- **Edited via the cc-looper-target paths' ai-kit symlink aliases** once discovered — same physical file, but Read-tracking pinned to whichever path was first opened.
+
+**Didn't work:**
+
+- First Edit attempt on `~/projects/cc-looper/claude-config/skills/qa-loop-docs\SKILL.md` failed with `File has not been read yet` because I'd Read the ai-kit symlink path first. Recovered by re-issuing against the path I'd Read.
+
+**Next:**
+
+- **Build the staleness detector skill** (offered + parked this session). Sketch: read every `workflows/**/*.md`, extract `Last Updated` + `Generated From` + `## Source Files`, run `git log <generated-from>..HEAD -- <paths>` per doc, output a triage list (stale / probably-fresh / unknown). Pairs with `audit-skills` as a structural-quality check for the raw/ layer of the second-brain init.
+- Real-world validation of the schema-v1 metadata on a docs run (the `docs-tasks-creator` validation list from the prior session still applies — staleness signals just rode along).
+
+**Blockers:** none.
+
+**Artifacts:**
+
+- `C:\ai-kit\commands\document-workflow.md` — modified (Summary rows + Source Files + Change Log sections + Guidelines populate rule + git-denial fallback)
+- `~/projects/cc-looper/claude-config/skills/document-workflow-loop\SKILL.md` (via `C:\ai-kit\skills\document-workflow-loop` symlink) — modified (same additions + Workflow 2 step 4 git-SHA capture with fallback)
+- `~/projects/cc-looper/claude-config/skills/qa-loop-docs\SKILL.md` — modified (Gate 0 hint list updated with new sections + Summary doc-meta rows + `unknown` acceptance rule)
+- `~/.claude/projects/C--ai-kit/memory/cc-looper-symlink-topology.md` (new — reference memory)
+- `~/.claude/projects/C--ai-kit/memory/second-brain-kb-initiative.md` (updated — schema v1 milestone + detector as next gap)
+- `~/.claude/observations/2026-05-15-workflow-doc-staleness-signals.md` (new — 3 observations: symlink Read-tracking gotcha, triaged-brainstorm pattern win, runner-allowlist fact-check win)
+
+---
+
 ## [2026-05-15] — Built docs-tasks-creator skill (decoupled, multi-stack, monorepo-aware)
 
 **Summary:** Built v1 of the `docs-tasks-creator` skill — the concrete bucket-1 gap from this morning's KB workflow iteration. Scans a codebase, detects HTTP/message/job handlers via pluggable detectors, emits a consumer-agnostic tasks doc (one task per handler) + a synthesized `project-overview.md`. Also deprioritized the `active-context.md` proposal (priorities-doc line 14) — user flagged it as a habit-sustainability risk.

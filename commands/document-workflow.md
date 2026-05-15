@@ -177,6 +177,10 @@ Things that silently break full-stack flows and are worth capturing once:
 
 |                  |                                                   |
 | ---------------- | ------------------------------------------------- |
+| Created          | YYYY-MM-DD                                        |
+| Last Updated     | YYYY-MM-DD                                        |
+| Generated From   | `<short-sha>` (commit at gen/update time)         |
+| Schema           | v1                                                |
 | Mode             | Backend / Full-stack                              |
 | Trigger          | GRPC / REST / Service Bus / Cron / Client action  |
 | Client           | _(full-stack only)_ web app / mobile / device / … |
@@ -333,6 +337,26 @@ Repeat for each flagged complex logic section.
 
 - **DependencyA** — Brief description of what it provides
 - **DependencyB** — Brief description
+
+## Source Files
+
+> Machine-readable list of every source path traced when this doc was written. Used by staleness-detection tooling: `git log <generated-from>..HEAD -- <paths>` reveals exactly what's drifted since `Last Updated`. List one row per distinct path; use the `Role` column to label what it contributes (`Entry point`, `Handler`, `Service`, `Repository`, `External client`, `Message handler`, `Client UI`, etc.).
+
+| Role            | Path                                              |
+| --------------- | ------------------------------------------------- |
+| Entry point     | `src/Foo.Api/Controllers/BarController.cs`        |
+| Handler         | `src/Foo.Api/Handlers/BarHandler.cs`              |
+| Service         | `src/Foo.Domain/Services/BarService.cs`           |
+| Repository      | `src/Foo.Infra/Data/BarRepository.cs`             |
+| External client | `src/Foo.Infra/Clients/PaymentHttpClient.cs`      |
+
+## Change Log
+
+| Date       | Change                     | Reason        |
+| ---------- | -------------------------- | ------------- |
+| YYYY-MM-DD | Initial documentation pass | First version |
+
+> On future updates: bump `Last Updated` in the Summary table, append one row per update (group related edits into a single row), and leave `Created` alone. If the underlying workflow no longer matches the doc, that's the signal it's stale — compare `Last Updated` against the source file's most recent commit on the traced paths.
 ```
 
 ## Guidelines
@@ -344,3 +368,6 @@ Repeat for each flagged complex logic section.
 - Flag anything unclear with `[TODO: verify]` rather than guessing
 - If the workflow is exceptionally complex (10+ decision points), suggest breaking the doc into sections or separate flows
 - For complex logic sections, optimize for "could I explain this in a refinement session using just this doc?"
+- On first generation, set both `Created` and `Last Updated` to today's date (YYYY-MM-DD) and add one initial Change Log row (`Initial documentation pass` / `First version`). If a doc already exists at the target path and you're updating it: keep `Created`, bump `Last Updated`, append one row to the Change Log.
+- Populate `Generated From` with the short SHA of `HEAD` at the time of generation/update — run `git rev-parse --short HEAD` once at the start. Advance it on every update (it represents "the state of the codebase this doc was last verified against," not "first generation"). If the call fails or is denied (no git, no permission, detached state), set `Generated From: unknown` with a `[TODO: verify SHA]` marker rather than blocking the doc. `Schema` is the doc-template version — keep it at `v1` until this template itself materially changes shape.
+- Populate `## Source Files` with every distinct path traced during the writing pass — entry point + every handler/service/repository/external client/message handler/client UI you read while building Sequence of Calls. This is the input to automated staleness detection; missing paths = silent drift later.
