@@ -1,3 +1,32 @@
+## [2026-05-15] — Normalize tasks-overview table across task-gen skills
+
+**Summary:** User flagged that `/integration-balanced-tasks` and `/integration-create-tasks` produce a nice summary table (status, size, depends on) and asked to apply it to all task-generating skills. Audited 5 skills; 2 already conformed; updated 2; user opted to skip the 5th. Verified the downstream `map-tasks` parser is column-order agnostic before shipping.
+
+**Done:**
+
+- `skills/refactor-tasks/SKILL.md` — overview-table column spec: `Task | Complexity | Estimated Time | Status` → `Task | Title | Complexity | Est. Time | Depends On | Status`.
+- `skills/tasks-creation/templates/tasks_template.md` — greenfield template: added `Depends On` column; renamed `Est.` → `Est. Time` for consistency with the reference shape.
+- Verified `map-tasks/SKILL.md:24` reads the table with a wildcard middle (`| # | Title | … | Status |`), so the new column doesn't break the cc-loop runner.
+
+**Decisions:**
+
+- **Skip `docs-tasks-creator`.** Its tasks are uniform-size (one handler doc each) and inherently independent, so `Complexity='S'` and `Depends On='—'` rows would be filler. The existing `Trigger`/`Service` columns carry real domain signal; preserving them beats blind consistency. Rejected the "apply uniformly anyway" option.
+- **Normalize column headers to `Complexity` / `Est. Time`** across the touched skills (matches the two reference skills exactly). Rejected leaving the legacy `Estimated Time` / `Est.` headers in place.
+- **Didn't touch the worker agents (`integration-tasks-creator-agent`, `refactoring-tasks-creator-agent`) or wrapping commands.** They delegate to the skills ("follow the skill exactly"), so the skill body is the single source of truth — agents/commands inherit.
+
+**Didn't work:** —
+
+**Next:** none — change is self-contained. (The next time someone runs `/create-tasks` or `/refactor-techdebt-dev`'s tasks phase, the new shape will be produced.)
+
+**Blockers:** none.
+
+**Artifacts:**
+
+- `C:\ai-kit\skills\refactor-tasks\SKILL.md` (modified)
+- `C:\ai-kit\skills\tasks-creation\templates\tasks_template.md` (modified)
+
+---
+
 ## [2026-05-15] — Workflow-doc staleness signals (schema v1) + cc-looper integration check
 
 **Summary:** Added staleness-detection metadata to `document-workflow` (the interactive command) and `document-workflow-loop` (the cc-looper headless skill). Then confirmed the changes don't break cc-looper's runner — discovered ai-kit's loop-related skills/commands are symlinks to cc-looper's `claude-config/`, so edits already propagated. Two real concerns surfaced during the impact check; both fixed.

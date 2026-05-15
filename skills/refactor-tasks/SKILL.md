@@ -66,7 +66,7 @@ The final tasks document includes:
 
 - **Header / companion docs** — names the refactor, links the companion docs (refactor description, audit — *"authoritative for scope/files/dependencies"* — plan — *"authoritative for phases/rollback/metrics"*), and states the chosen sizing + task count: `**Approach:** Balanced (N tasks, mid-size grouping)` (or Granular / Pragmatic).
 - **Tasks overview** — a progress table:
-  | Task | Complexity | Estimated Time | Status |
+  | Task | Title | Complexity | Est. Time | Depends On | Status |
   with `**Overall Progress**: 0/N tasks completed (0%)`, `**Last Updated**: {YYYY-MM-DD}`, and a parallelism note if relevant.
 - **Tasks dependency graph** — short ASCII or numbered list showing the order; parallel opportunities called out explicitly.
 - **Detailed tasks** — per task:

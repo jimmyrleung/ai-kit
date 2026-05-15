@@ -17,11 +17,11 @@
 
 ## Tasks overview
 
-| #   | Title           | Complexity | Est. | Status      |
-| --- | --------------- | ---------- | ---- | ----------- |
-| 1   | [Title]         | S          | 1h   | Not started |
-| 2   | [Title]         | M          | 3h   | Not started |
-| ... | ...             | ...        | ...  | ...         |
+| #   | Title           | Complexity | Est. Time | Depends On | Status      |
+| --- | --------------- | ---------- | --------- | ---------- | ----------- |
+| 1   | [Title]         | S          | 1h        | —          | Not started |
+| 2   | [Title]         | M          | 3h        | 1          | Not started |
+| ... | ...             | ...        | ...       | ...        | ...         |
 
 **Progress:** 0/N (0%)
 
