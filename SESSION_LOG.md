@@ -1,3 +1,41 @@
+## [2026-05-15] — Explored second-brain/LLM-wiki KB; parked for think-time
+
+**Summary:** Design-only session. User asked for an honest assessment on a skill that "maps a tasks document but for documentation tasks." Investigation showed the entire docs-loop pipeline (`map-tasks` + `document-workflow-loop` + `qa-loop-docs` + `tasks-loop --action document-workflow`) was already wired end-to-end — the real gap is upstream (a docs-tasks-*creator* skill). Conversation expanded to the broader second-brain / LLM-wiki KB design (Karpathy gist, visual-explainer for HTML view, multi-client vault isolation). User parked the initiative pending more think-time.
+
+**Done:**
+
+- Confirmed existing docs-loop pipeline covers everything except task-list creation. No new skills authored.
+- Created `C:\ai-kit\ideas\` as a scratch folder for the parked initiative; gitignored via new `.gitignore` at repo root.
+- Wrote two memory files (`karpathy-llm-wiki-gist`, `second-brain-kb-initiative`) + indexed in `MEMORY.md`.
+- Logged two observations to `~/.claude/observations/2026-05-15-docs-kb-exploration.md` (pre-build investigation success; parked-initiative handoff).
+
+**Decisions:**
+
+- **Park the second-brain initiative; don't build the docs-tasks-creator yet.** Rejected: jumping straight to authoring the enumeration skill. Why: user wants more think-time on the broader KB design, and the recommended pilot path (handwrite one client's `docs-tasks.md`, run the existing loop, validate output, *then* design the creator) hasn't been run yet. Building upstream tooling before the downstream loop is validated is the wrong order.
+- **If/when built, the docs-tasks-creator should be single-approach, not 3-way.** Rejected: cloning the granular/balanced/pragmatic structure from `integration-tasks` / `refactor-tasks`. Why: docs task size is effectively fixed (one workflow = one task), so the 3-way exploration would be cargo-culting. The real value lives in the *enumeration* phase (codebase audit for entry points) — closer to `refactor-audit` than to a tasks decomposer.
+- **For the KB layout (when initiative resumes): markdown is canonical; HTML via visual-explainer is a *view* for select high-value docs.** Rejected: HTML-as-canonical. Why: breaks grep/RAG affordance and breaks incremental edit — the two things Karpathy's wiki pattern leans on hardest. HTML earns its keep for onboarding overviews, system maps, complex full-stack workflows — not meeting notes or simple workflow docs.
+- **Split trees inside the KB:** machine-owned (`workflows/`, cc-loop overwrites freely) vs human-owned (`docs/meetings`, `docs/decisions`, `docs/runbooks`, never overwritten). Rejected: mixing both in single files. Why: code-derived docs are point-in-time snapshots that get re-derived; human-authored content is source-of-truth and must survive re-runs.
+
+**Didn't work:**
+
+- Initial framing of the new skill as a "tasks doc mapper for docs" — `map-tasks` is already action-agnostic, no docs-specific mapper needed. Cleared by reading `map-tasks/SKILL.md` and asking a clarifying question.
+- "LLM persistent memory" framing — collapsed honestly into "well-structured markdown that the LLM can grep / RAG over." No vector store, no special MCP plumbing required.
+
+**Next:** When user returns to this — read `second-brain-kb-initiative` memory first (do not restart the design conversation), then pilot: pick one client app, handwrite `docs-tasks.md`, run `/tasks-loop --tasks docs-tasks.md --action document-workflow`, see what cc-loop actually produces. Only then design the enumeration skill — informed by what the loop's output actually needs.
+
+**Blockers:** none — user is taking think-time, not waiting on external input.
+
+**Artifacts:**
+
+- `C:\ai-kit\ideas\` (scratch folder, gitignored)
+- `C:\ai-kit\.gitignore` (new — single entry: `ideas/`)
+- `~/.claude/projects/C--ai-kit/memory/second-brain-kb-initiative.md`
+- `~/.claude/projects/C--ai-kit/memory/karpathy-llm-wiki-gist.md`
+- `~/.claude/observations/2026-05-15-docs-kb-exploration.md`
+- Karpathy gist: https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f
+
+---
+
 ## [2026-05-14] — Discussed SESSION_LOG centralization — deferred
 
 **Summary:** Discussion-only. User asked whether `SESSION_LOG.md` should move to a centralized `~/.claude/session_logs/{repo}/` for cross-repo analysis. Concluded: keep current in-repo behavior; revisit when a future knowledge base lands.
