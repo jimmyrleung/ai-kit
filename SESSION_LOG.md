@@ -1,3 +1,45 @@
+## [2026-05-15] — KB workflow iteration 2: research + prioritized roadmap
+
+**Summary:** Un-parked the second-brain/LLM-wiki KB initiative for iteration 2. Ran three parallel research streams (SOTA / staleness tooling / skeptical), iterated through key design questions with the user, produced two artifacts: iteration 2 section appended to the main idea doc + a new prioritized roadmap doc.
+
+**Done:**
+
+- Three parallel research-agent streams (general-purpose with WebSearch): SOTA for LLM-consumable codebase KBs, doc staleness tooling, critical / failure-history pass.
+- Surfaced key findings: Karpathy LLM Wiki pattern is mainstream (~5k stars, ~1:1 to user's `raw/+kb/` design); HackerNoon 6-Rails case study at $10–20/mo; DORA 2024 (AI doc adoption +7.5% quality but −1.5% throughput and −7.2% stability); Karpathy v1 documented month-1 failures + v2 fork by rohitg00; Hansen/Nohria/Tierney HBR 1999 (personalization > codification for customized-engagement consulting).
+- Appended **Iteration 2** section to `C:\ai-kit\ideas\knowledge-and-docs-wf.md` (research approach, findings, 4 decisions, kill criteria, strategic reframe, v2-vs-v1, out-of-scope, open items, references).
+- Created `C:\ai-kit\ideas\knowledge-and-docs-wf-priorities.md` — 4-bucket prioritized roadmap (do now / do soon / good-to-have / don't do) + sequencing logic + kill-criteria reminder.
+
+**Decisions:**
+
+- **`kb/` is a build artifact, not source of truth.** Rejected SSOT framing. Why: defuses both the staleness rot problem (regenerate, don't maintain) and the Hansen-codification anti-pattern. Contradictions resolve to primary source.
+- **Kill criteria ordered c > b > a** (maintenance cost > trust events > re-query rate). Rejected equal weighting. Why: the KB's primary consumer is the user, not the LLM — LLM query rate is a use-pattern indicator, not a fitness test. A KB the LLM ignores but the human uses is still doing its job.
+- **Strategic reframe: personal knowledge augmentation, not team codification.** Rejected "this is a docs project for the LLM." Why: weakens DORA / Hansen concerns which are about *teams* producing doc volume for *other readers*.
+- **Sequence: build `raw/` + `active-context.md` + `docs-tasks-creator` FIRST; `kb/` consolidation is an experiment LATER.** Rejected "build kb/ first as foundation." Why: minimum viable version delivers value with zero buy-in to the risky bet. If `kb/` never works, the rest still earns its keep.
+- **If/when `kb/` is built, adopt Karpathy v2 affordances from day 1.** Rejected v1 unmodified. Why: v1 has documented month-1 failure modes (identity collisions, level collapse, link cascade); v2 (rohitg00 fork) adds confidence scoring, supersession, provenance to address these.
+- **HTML output is for the user, not clients.** Relaxes freshness contract since user is the only consumer who knows which pages are stale.
+
+**Didn't work:**
+
+- Visual-explainer integration for HTML output (already rejected iteration 1, re-confirmed: wrong shape — re-generates everything when only incremental updates are needed).
+- "kb/ as source of truth" framing — rejected explicitly in iteration 2.
+- My initial framing of kill criteria as equally-weighted — user's reordering (c > b > a) was sharper and required reshaping the operational design.
+
+**Next:** Build the `docs-tasks-creator` skill — most concrete bucket-1 item; independent of the `kb/` bet. Scans codebase, emits one document-workflow task per endpoint/job + setup task, feeds cc-loop. Single-approach (not 3-way) per prior memory. See `C:\ai-kit\ideas\knowledge-and-docs-wf-priorities.md` for full sequencing.
+
+**Blockers:** none — iteration 2 captured; #5 (personalization fallback) explicitly parked for further thought with a starting question.
+
+**Artifacts:**
+
+- `C:\ai-kit\ideas\knowledge-and-docs-wf.md` (iteration 2 appended)
+- `C:\ai-kit\ideas\knowledge-and-docs-wf-priorities.md` (new)
+- `~/.claude/projects/C--ai-kit/memory/second-brain-kb-initiative.md` (updated — un-parked, iteration 2 decisions)
+- `~/.claude/projects/C--ai-kit/memory/karpathy-llm-wiki-gist.md` (updated — v2 fork + failure modes)
+- `~/.claude/observations/2026-05-15-kb-iteration-2.md` (new — primary-consumer reframe observation)
+- Karpathy v2 fork: https://gist.github.com/rohitg00/2067ab416f7bbe447c1977edaaa681e2
+- HackerNoon case study: https://hackernoon.com/how-i-built-a-self-maintaining-knowledge-base-for-6-projects-using-claude-code-and-karpathys-llm-wiki
+
+---
+
 ## [2026-05-15] — Explored second-brain/LLM-wiki KB; parked for think-time
 
 **Summary:** Design-only session. User asked for an honest assessment on a skill that "maps a tasks document but for documentation tasks." Investigation showed the entire docs-loop pipeline (`map-tasks` + `document-workflow-loop` + `qa-loop-docs` + `tasks-loop --action document-workflow`) was already wired end-to-end — the real gap is upstream (a docs-tasks-*creator* skill). Conversation expanded to the broader second-brain / LLM-wiki KB design (Karpathy gist, visual-explainer for HTML view, multi-client vault isolation). User parked the initiative pending more think-time.
