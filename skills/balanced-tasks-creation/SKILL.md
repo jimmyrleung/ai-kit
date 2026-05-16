@@ -72,6 +72,7 @@ If the **integration analysis is missing** but the techspec is present, proceed 
 6. **Define testing per task.**
    - Every task either contains tests or explicitly says "tests covered in Task X". No task silently has zero test coverage.
    - Specify unit vs. integration vs. manual, and name the target test file.
+   - **Enumeration-coupling check.** If a task adds or removes an artifact that an *existing* test enumerates or counts — a skill/route/plugin/fixture inventory, a hardcoded entry-count, a snapshot, a golden file, a generated manifest — that **same task** owns updating those assertions. List the existing test file in its "Files involved" and add an explicit AC ("the `<file>` inventory/count assertions reflect the added/removed `<artifact>`"). Do **not** let this fall to a sibling "tests" task: that task's "full suite green" AC does not transfer ownership of a regression a different task introduced, and at execution time the gap gets rationalized away as "another task's scope" while the suite stays red.
 
 7. **Call out critical operational steps**, where applicable (deploy order, NuGet publish, feature flag enablement, seed data verification, smoke test). Give these their own final task rather than burying them in acceptance criteria.
 
