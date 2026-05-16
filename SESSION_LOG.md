@@ -1,3 +1,32 @@
+## [2026-05-16] — close-tasks skill: feedback-loop blind-spot fix (ai-kit half) + cc-looper handoff
+
+**Summary:** Started from a user question about when to `/close` for task-implementation vs design sessions. Diagnosed (at source level) a real blind spot: multi-session manual + cc-looper headless runs emit ZERO observations, so loop skills are invisible to `/improve`. Designed and shipped the consumer-independent half (`/close-tasks`) in ai-kit; wrote a cc-looper integration analysis for the run-end hook half (Part B) as a separate-session handoff.
+
+**Done:**
+
+- `ai-kit/skills/close-tasks/SKILL.md` (new) — artifact-aggregation closeout (NOT context-distillation): reconstructs a tasks-doc run from completion notes / `## Verify`/`## Review`/`## QA` blocks / `_qa.md` / `.cc-loop/state.json` / `git log`; idempotent via a `<!-- close-tasks: harvested through <sha> -->` marker; emits observations tagged with the *detected* skill_or_workflow + a roll-up SESSION_LOG entry; consumer-agnostic (manual or cc-looper).
+- `ai-kit/skills/close/SKILL.md` (mod) — `/close` ↔ `/close-tasks` split pointer in Notes (+ "don't stack both on the same window" guard).
+- `~/.claude/observations/README.md` (mod) — documents two writers; flags `/close-tasks` observations as artifact-reconstructed for `/improve` weighting.
+- `cc-looper/specs/close-tasks-loop_integration.md` (new) — reference map for Part B (entry points w/ file:line, `runFinalQA` as copy-from template, the binding decoupling constraint, Heavy-vs-Light fork left for the techspec).
+- Auto-memory: new `close-tasks-skill-initiative` (project) + reinforced `prefer-decoupled-designs`. One observation logged (verify-task buffer-flush durability hole).
+
+**Decisions:**
+
+- **Separate `/close-tasks` skill, not a `/close` mode.** `/close` = live-context distillation; `/close-tasks` = artifact aggregation (multi-session/headless context is gone by run-end). Rejected: a `--tasks` flag on `/close` (bloats the single-purpose skill), `/close-tasks` subsuming per-session `/close`.
+- **One end-of-run `/close-tasks`, skip per-session `/close` during implementation runs.** User consciously accepted the tradeoff: lossier for *narrative* friction (cleared-session detail gone) but *structured* friction (gate fails, completion notes, `_qa.md`) survives in artifacts. Matches the "10 tasks across 2-3 sessions" workflow.
+- **Binding contract:** cc-looper's future `close-tasks-loop` writes an in-repo `<base>_close.md` digest ONLY, never `~/.claude/observations/` (spawn cwd = target repo; private path in a public symlinked skill is the anti-pattern + permission-fragile). ai-kit `/close-tasks` is the on-machine promoter.
+- **Repo-boundary split** (user's call): build ai-kit now; cc-looper Part B is a handoff doc, picked up in a cc-looper-initiated session.
+
+**Didn't work / rejected:** loop skills emitting observations directly (portability leak); deciding Heavy-vs-Light now (deferred to cc-looper techspec); full `/integration-feature-dev` (too heavy for ~11 items); free-handing both repos in one session (scope-discipline violation).
+
+**Next:** in a session **initiated within cc-looper**, open `specs/close-tasks-loop_integration.md` → run a techspec to settle **Heavy vs Light** → implement (new `close-tasks-loop` skill + ai-kit symlink + `runCloseTasks` phase + `runEndDeliverables` hook; Heavy adds `state.json` schema bump 6→7). Also: `/close-tasks` is unproven until first real use against a finished tasks-doc.
+
+**Blockers:** none.
+
+**Artifacts:** `ai-kit/skills/close-tasks/SKILL.md`, `cc-looper/specs/close-tasks-loop_integration.md`, memory `close-tasks-skill-initiative`, observation `2026-05-16-close-tasks-skill.md`. Nothing committed (working trees clean for review).
+
+---
+
 ## [2026-05-15] — Normalize tasks-overview table across task-gen skills
 
 **Summary:** User flagged that `/integration-balanced-tasks` and `/integration-create-tasks` produce a nice summary table (status, size, depends on) and asked to apply it to all task-generating skills. Audited 5 skills; 2 already conformed; updated 2; user opted to skip the 5th. Verified the downstream `map-tasks` parser is column-order agnostic before shipping.

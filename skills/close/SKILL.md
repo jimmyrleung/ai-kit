@@ -138,6 +138,13 @@ the handoff pattern archives completed items).
   `close` triages: certain → memory now; ambiguous skill-performance evidence → observations for the
   periodic `/improve` review (it reads `~/.claude/observations/*.md`).
   They're a pipeline, not a duplicate.
+- **`/close` vs `/close-tasks`.** `/close` is the **live-context distiller** — it scans *this
+  session's* conversation, so it needs the work to have happened in-context. For an **implementation
+  tasks-doc run that spanned multiple sessions or ran headless under cc-looper** (where this
+  session has no memory of the earlier work), use **`/close-tasks`** instead — it is
+  artifact-aggregation (reconstructs the run from completion notes / `_qa.md` / `.cc-loop/state.json`
+  / `git log`, idempotent via a harvest marker) and is the half of the pipeline that closes the
+  headless / multi-session blind spot. Don't stack both on the same window — pick one per run.
 - **This skill is read-only on git history.** It reads (`status`, `diff`, `log`, `rev-parse`) and at
   most `add` + `commit`. It never rewrites history.
 - **Project-agnostic.** Works for the study pipeline too — at the end of a study session, log "topic X
