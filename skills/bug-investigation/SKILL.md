@@ -30,7 +30,7 @@ Sub-agent constraints (the coordinator passes these verbatim when launching work
 
 ## Input contract
 
-- **Bug report** — required. Usually a file the user wrote (`bug_XXXX_short_description.md` — see `C:\ai-kit\templates\bugfix\bug-report-template.md` for the shape: description, expected vs actual, reproduction steps, error messages, logs, suspected files).
+- **Bug report** — required. Usually a file the user wrote (`bug_XXXX_short_description.md` — see the kit's `templates/bugfix/bug-report-template.md` for the shape: description, expected vs actual, reproduction steps, error messages, logs, suspected files).
 - **`{bug_id}` base name** — derive from the bug report's filename if possible; ask the user if not discoverable.
 - **Codebase access** — you read the actual code. If the codebase is large (> ~1000 files), ask the user for starting points before exploring.
 

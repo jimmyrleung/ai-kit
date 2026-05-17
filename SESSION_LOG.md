@@ -1,3 +1,27 @@
+## [2026-05-17] — Codex adapter BUILT (Category-1) + §4 path fix + assessment doc corrected from verified binary facts
+
+**Summary:** Implemented Category-1 of the Codex portability initiative. Re-verified Codex specifics on the installed binary (caught a materially-wrong assessment fact), fixed the §4 path defect, corrected the assessment doc, and built the additive Codex adapter. Structurally verified; behavioral pilot deferred. Continuation of the same-day assessment+decision sessions below.
+
+**Done:**
+
+- **Verified `codex-cli 0.130.0`:** skills root `~/.codex/skills`; `SKILL.md` spec identical; **agent binding = per-skill `agents/openai.yaml`, NOT `<name>.toml`** (a *skill IS the agent unit*; no `~/.codex/agents`); `quick_validate.py` allowed frontmatter keys; `codex exec --json`/`--output-schema`; plugin system; `codex mcp-server` exists.
+- **§4 path fix:** `skills/bug-investigation/SKILL.md` + `skills/refactor-audit/SKILL.md` absolute `C:\ai-kit\templates\…` → kit-relative (behavior-invariant prose pointers; user-approved).
+- **Assessment doc corrected** (`docs/codex-portability-assessment.md`, 14 sites) — `VERIFIED v0.130.0` markers; honest `[verify]` residuals kept; status/decision-log updated.
+- **Adapter built:** `adapters/codex/{sync.ps1,sync.sh,AGENTS.md,README.md}` — 34 skills per-skill directory-junctioned + 18 agents **generated as explicit-only Codex skills** (`policy.allow_implicit_invocation:false`); strategy C as `AGENTS.md` instruction (no kit harness); idempotent; **canonical tree pristine** (git-verified zero adapter-caused canonical edits; `.system` untouched).
+- Memory `codex-portability` + `MEMORY.md` updated (stale "not implemented"/implied-TOML → Category-1 built + correction). Observations Obs 3–5.
+
+**Decisions:** packaging = **junction** not Codex-plugin bundle (least coupled; rejected plugin: new coupling) [user]. Session scope = doc+pathfix→checkpoint→adapter; **model-tier deferred** (Category-2, edits 18 junctioned agents) [user]. Agents = **generated explicit-only Codex skills** not TOML (verified skill-is-agent-unit; implicit-off prevents 52-desc context bloat; rejected assessment's MD→TOML — falsified on binary). Canonical-skill `openai.yaml` **deferred** (recommended-not-required; would pollute pristine tree / need fragile file-symlinks). Validation **advisory, self-test-gated, fail-open** (rejected first cut that gated the deliverable).
+
+**Didn't work:** assessment's "agents→TOML/`developer_instructions`" (falsified on binary). First validation design (gated sync → 52 false FAILs on a broken host Python) → self-test + graceful degrade. Live `quick_validate.py` — host `C:\Python311` segfaults (`0xC0000005`, kit-independent) → static-validated instead.
+
+**Next:** §8 **pilot** — run `bugfix` on Codex end-to-end with the *unchanged* `review-artifact` (Codex-only, no gate risk). Needs a working Python/Codex env for the live validator. **NOT more building**; do **NOT** resurrect "refactor `review-artifact` now" (quarantined).
+
+**Blockers:** none for the initiative (Category-1 done, Claude-risk-free). Live-validator only: broken host Python (kit-independent).
+
+**Artifacts:** `ai-kit/adapters/codex/*`; `docs/codex-portability-assessment.md` (§3a Decision + §8 = authoritative handoff); memory `codex-portability`; observations `2026-05-17-codex-portability.md` (Obs 3–5). Uncommitted pending this close's commit step.
+
+---
+
 ## [2026-05-17] — Codex §3a decision recorded (B dropped; C + externalised verdict-contract; review-artifact quarantined)
 
 **Summary:** Continuation of the same-day Codex portability work. Drove the §3a fan-out decision to a conclusion with the user and recorded it into the assessment doc + memory. Still assessment-only — nothing implemented; user will implement in a fresh session.

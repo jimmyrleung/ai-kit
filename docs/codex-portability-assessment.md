@@ -7,11 +7,29 @@
 >
 > **Decision log (updated 2026-05-17):** §3a now carries a committed direction — strategy **B
 > dropped**; **C + externalised verdict-contract + A-default**, with `review-artifact`
-> **quarantined**. Still assessment-only: the decision is *recorded*, not implemented.
+> **quarantined**. Implementation 2026-05-17 (Category-1): packaging fork resolved to
+> **junction** (Codex plugin bundle deferred); model-tier abstraction **deferred** (Category-2
+> — see §4); §4 absolute-path defect **fixed**; **Codex adapter built** —
+> `adapters/codex/{sync.ps1,sync.sh,AGENTS.md,README.md}`, exposes 34 skills (per-skill
+> junction) + 18 agents (generated as explicit-only Codex skills) into `~/.codex/skills`,
+> canonical tree pristine (Claude provably unaffected), `review-artifact` frozen, no kit
+> harness. Strategy C realized as instruction in `adapters/codex/AGENTS.md`.
+>
+> **Verification log — installed binary, Codex CLI `0.130.0`, 2026-05-17:** several
+> `[verify on installed binary]` tags are now **resolved** (skills root, `SKILL.md` spec, agent
+> binding format, the named feature flags, `codex mcp-server`, MCP TOML, plugin system, **and
+> `codex exec --json`/`--output-schema`/`--output-last-message`** — confirmed in `codex exec
+> --help`) — these read **VERIFIED v0.130.0** below. Items not directly probed
+> (`project_doc_max_bytes`, `$ARGUMENTS`/`$1` arg mapping, `agents.max_depth` counting
+> semantics, hook field-level parity, `AGENTS.md` global read-location) **keep the [verify]
+> tag**. **Caveat:** Codex's own `quick_validate.py` could **not** be run live on this host
+> (`C:\Python311` segfaults `0xC0000005`, kit-independent) — canonical skills were
+> **statically** validated (frontmatter keys within the allowed set; no `<`/`>` in any
+> `description`); live validator pass is deferred to a working-Python / Codex env.
 >
 > Companion to `model-assignments.md`. Codex facts are dated 2026-05-17 from official docs
 > (`developers.openai.com/codex`, `github.com/openai/codex`) — Codex ships weekly; every
-> version-sensitive fact below is tagged **[verify on installed binary]**.
+> still-unverified version-sensitive fact below is tagged **[verify on installed binary]**.
 
 ---
 
@@ -43,11 +61,12 @@ fixed path `~/.claude/…`, which is filesystem-absolute and tool-independent, s
 Three facts make a shared-standard canonical layer (not a Claude-native one) the lowest-drift
 choice:
 
-1. **Codex consumes the same `SKILL.md` format Claude Code does**, and `.agents/skills` is the
-   emerging cross-agent skills directory shared by Codex CLI, Claude Code, Cursor, et al.
-   [`developers.openai.com/codex/skills`] **[verify on installed binary — directory root is
-   version-dependent: `.agents/skills` (current official) vs `~/.codex/skills` (Dec-2025
-   experimental) vs `.codex/skills` (community-reported)]**
+1. **Codex consumes the same `SKILL.md` format Claude Code does** — **VERIFIED v0.130.0**:
+   `~/.codex/skills/.system/*/SKILL.md` natives carry the identical spec (`name`/`description`
+   frontmatter + markdown body + progressive disclosure via `references/`/`scripts/`/`assets/`).
+   The two roots are **scopes, not alternatives**: `~/.codex/skills/<name>/` = user/home (the
+   adapter target — mirrors today's `~/.claude` junction), `.agents/skills/<name>/` = repo-scoped.
+   [`developers.openai.com/codex/skills`]
 2. **The canonical-source + symlink precedent already exists in your setup.** The README
    documents junctioning `ai-kit/{skills,commands,agents}` into `~/.claude/`; the
    `cc-looper-symlink-topology` memory records loop skills already being symlinks to a canonical
@@ -60,12 +79,14 @@ choice:
 ```
 ai-kit/                         # canonical, single source of truth
   skills/<name>/SKILL.md        # shared SKILL.md spec — consumed by BOTH tools
-  agents/<name>.md              # canonical agent spec (Claude form; adapter emits Codex TOML)
+  agents/<name>.md              # canonical agent spec (Claude form; adapter emits a thin
+                                #   per-skill agents/openai.yaml — VERIFIED v0.130.0, NOT TOML)
   commands/<name>.md            # Claude-only UX layer (see §2 — Codex needs no separate layer)
   templates/                    # plain markdown — already tool-agnostic
   adapters/
     claude/ -> junction ~/.claude/{skills,commands,agents}     (today's mechanism)
-    codex/  -> junction .agents/skills  +  agents/*.toml  +  AGENTS.md
+    codex/  -> junction ~/.codex/skills + per-skill agents/openai.yaml + AGENTS.md
+             #  packaging = junction (decided 2026-05-17); Codex-plugin bundle deferred
 ```
 
 The "adapter" is therefore deliberately *thin*: a deterministic build/junction step, not a
@@ -82,14 +103,14 @@ analog) · **Anchored** (stays Claude by your explicit call).
 
 | ai-kit primitive | Evidence (repo-wide grep) | Codex target | Class | Effort |
 |---|---|---|---|---|
-| **Skills** (`skills/*/SKILL.md`, ~28) | methodology is ~90% tool-agnostic prose (`qa-gates`, `triage`, `bug-investigation` read end-to-end) | Native skills, **same `SKILL.md` spec**, implicit+explicit invocation | **Clean** | **Low** |
+| **Skills** (`skills/*/SKILL.md`, ~28) | methodology is ~90% tool-agnostic prose (`qa-gates`, `triage`, `bug-investigation` read end-to-end) | Native skills, **same `SKILL.md` spec** (**VERIFIED v0.130.0**), implicit+explicit invocation | **Clean** | **Low** |
 | **Templates** (`templates/**`) | plain markdown | copied as-is | **Clean** | **None** |
 | **`CLAUDE.md` confidence/convention refs** | ~2–3 refs in workflow skills | `AGENTS.md` (same concept, nested cascade) | **Mechanical** | **Low** |
 | **Command frontmatter + args** | `$ARGUMENTS`/`argument-hint`/`arguments:` — **97 occ / 55 files** | `$ARGUMENTS`/`$1`/`$KEY` map ~1:1 | **Mechanical** | **Low** |
 | **Thin per-phase commands** (`investigate-bug.md` = 5-line shim → skill) | ~25 of ~34 commands are shims | **collapse into the skill** — a Codex skill is directly invokable (`$name`/implicit); the shim's job disappears | **Semantic** | **Low** |
 | **Orchestrator commands** (`full-bug-fix-workflow`, `integration-feature-dev`, …) | ~5 multi-phase; "create a todo list", phase gates | become **orchestrating skills** (skills may sequence phases, invoke skills/subagents) | **Semantic** | **Med** |
 | **Tool-name refs in bodies** (`Bash`/`Grep`/`Read`/`TodoWrite`) | only **5 literal `TodoWrite`/`AskUserQuestion` tokens / 5 files**; rest is soft prose | `shell`/`apply_patch`/`update_plan` (1:1; `update_plan` *is* TodoWrite) | **Mechanical** | **Low** |
-| **Subagent *definitions*** (`agents/*.md`, 18) | `name`/`description`/`model`/`tools`/`color` frontmatter + (mostly) thin "follow the skill" bodies | Native subagents — but **TOML not MD**, body→`developer_instructions` | **Mechanical** | **Med** |
+| **Subagent *definitions*** (`agents/*.md`, 18) | `name`/`description`/`model`/`tools`/`color` frontmatter + (mostly) thin "follow the skill" bodies | **VERIFIED v0.130.0:** thin per-skill **`agents/openai.yaml`** interface manifest (`display_name`/`short_description`/icons/`default_prompt` + optional `dependencies.tools`). **No body transform** — SKILL.md body is consumed natively (NOT TOML, NOT `developer_instructions`) | **Mechanical** | **Low** |
 | **Coordinator/worker *fan-out idiom*** ("the skill launches 1–3 `@x-agent` for breadth, then consolidates") | `@x-agent`/sub-agent — **63 occ / 41 files**; core to `review-artifact`, `bug-investigation` M-path, the `*-reviewer` agents | **no autonomous-spawn analog** — Codex subagents are explicit-by-name only; `max_depth=1` default kills nesting | **Redesign** | **High** |
 | **`AskUserQuestion` structured-choice** | light in *bodies* (soft "ask the user"); but mandated by global `CLAUDE.md` clarification rule | **no native analog** — degrade to plain-text Q&A / `/plan` review / custom MCP | **Redesign** | **Med** |
 | **Feedback loop** (`close`/`close-tasks`/`improve`/`audit-skills`) | path/tool refs — **131 occ / 24 files**, concentrated here (improve 24, audit-skills 16, close 8) | writes to fixed `~/.claude/…` — **runs from Codex unchanged**; minor prose touch-ups (`/compact`, `Skill`/`Agent` names) | **Anchored** | **None** (by your call) |
@@ -112,6 +133,11 @@ confidence-weighted). This is the most-coupled pattern in the kit (**63 occ / 41
 it has **no Codex analog**: Codex subagents exist and are first-class, but the model does **not
 autonomously spawn** them — they're referenced by name and Codex orchestrates; `agents.max_depth`
 defaults to **1**, so orchestrator→skill→subagent chains don't nest. [`/codex/subagents`]
+**VERIFIED v0.130.0** (`codex features list`): `multi_agent` = **stable/on** (named subagents
+available — strategy C is viable today); `enable_fanout` **exists but is under-development/off**
+and `multi_agent_v2` is under-development — i.e. a native fan-out primitive is being built but is
+not yet usable, so the no-autonomous-spawn gap holds for stable use **and may close natively
+later** (does not change the recorded decision; `agents.max_depth` counting still **[verify]**).
 
 Three substitution strategies were on the table; the decision is now recorded (see **Decision** below):
 
@@ -189,17 +215,22 @@ list"), not 28 skill rewrites.
 Independent of Codex — surfaced by this assessment, aligned with the `ai-kit-is-public`
 path-hygiene rule:
 
-- **Hard-coded absolute paths in skill bodies.** `skills/bug-investigation/SKILL.md:33` and
-  `skills/refactor-audit/SKILL.md:34` reference templates by absolute Windows path
-  (`C:\ai-kit\templates\…`). A canonical source consumed from two tool homes **cannot** carry an
-  absolute path to one machine's checkout. Make these repo-relative (`templates/…`) or
-  `~`-anchored. (`improve`/`audit-skills`/`close` also use `C:\ai-kit\…` — those are meta-skills
-  that operate on the repo itself; lower priority but same fix.)
-- **Model pins are vendor-specific.** `model: opus|sonnet` in 18 agents + the entire
-  `model-assignments.md` methodology is Claude-vendor. For a canonical set, abstract to
-  **capability tiers** ("deep-reasoning" / "fast-structured"); each adapter maps tier→vendor
-  model (Claude: opus/sonnet; Codex: `model` + `model_reasoning_effort`, inherits if omitted).
-  This makes `model-assignments.md` a tier policy, not a Claude artifact.
+- **Hard-coded absolute paths in skill bodies. — FIXED 2026-05-17.**
+  `skills/bug-investigation/SKILL.md:33` and `skills/refactor-audit/SKILL.md:34` referenced
+  templates by absolute Windows path (`C:\ai-kit\templates\…`); both are documentation pointers
+  ("see X for the shape"), now kit-relative (`templates/…`) — behavior-invariant for Claude,
+  tool-agnostic for Codex. No other `C:\ai-kit\…` leaks remain in non-meta skill bodies (grep
+  confirmed). (`improve`/`audit-skills`/`close`/`close-tasks` still use `C:\ai-kit\…` — meta-skills
+  that operate on the repo itself; lower priority, **still pending**, same fix.)
+- **Model pins are vendor-specific. — DEFERRED 2026-05-17 (Category-2, out of near-term scope).**
+  `model: opus|sonnet` in 18 agents + the entire `model-assignments.md` methodology is
+  Claude-vendor. For a canonical set, abstract to **capability tiers** ("deep-reasoning" /
+  "fast-structured"); each adapter maps tier→vendor model (Claude: opus/sonnet; Codex: `model`
+  + `model_reasoning_effort`, inherits if omitted). This makes `model-assignments.md` a tier
+  policy, not a Claude artifact. **§4 grouped this with the path fix as "lowest-risk," but it
+  edits 18 agent files junctioned into `~/.claude/` — that is Category-2 (Claude-affecting),
+  which the §3a recorded decision keeps out of near-term scope.** Re-homed as a tracked
+  follow-up, behind the same regression discipline as the verdict-contract refactor.
 
 ---
 
@@ -207,15 +238,19 @@ path-hygiene rule:
 
 Deterministic unless marked:
 
-1. **Skills:** symlink/junction `ai-kit/skills` → the active Codex skills root **[verify root]**.
+1. **Skills:** symlink/junction `ai-kit/skills` → **`~/.codex/skills`** (**VERIFIED v0.130.0** —
+   user/home root, mirrors today's `~/.claude` junction; `.agents/skills` is the repo-scoped root).
    No body transform (shared spec). Frontmatter `allowed-tools`-style restriction, if ever added,
    moves to `agents/openai.yaml` `dependencies.tools`.
 2. **Commands:** *do not* port to `~/.codex/prompts/` (deprecated **and** user-only, no project
    scope). Thin shims collapse into their skill; orchestrators become orchestrating skills.
    Claude Code keeps `commands/` for its `/x` UX via the existing junction.
-3. **Agents:** generate `<name>.toml` from `<name>.md` — `name`/`description` map directly, body
-   → `developer_instructions`, `model` → tier→vendor map (§4), drop `color`. *(Semantic where the
-   body assumes autonomous spawn — see §3a.)*
+3. **Agents:** **VERIFIED v0.130.0** — generate a thin per-skill **`<skill>/agents/openai.yaml`**
+   (`interface:` → `display_name`/`short_description`/`icon_*`/`default_prompt`; optional
+   `dependencies.tools`). `name`/`description` map directly; **the SKILL.md body is consumed
+   natively — no body transform, no `developer_instructions`, no `<name>.toml`**; `model` → §4
+   tier policy (deferred); drop `color`. *(Semantic where the body assumes autonomous spawn —
+   see §3a.)*
 4. **Instructions:** emit/junction `AGENTS.md` from the `CLAUDE.md` conventions; add the
    Codex-conditional `AskUserQuestion` clause (§3b).
 5. **In-body tool names:** mechanical remap (`Bash`→`shell`, `TodoWrite`→`update_plan`, …) — or,
@@ -240,10 +275,17 @@ assessment); `ariccb/sync-claude-skills-to-codex` is symlink-based and mirrors y
   Until it is done (re-homed to the cc-looper-runner effort, in isolation, behind a Claude
   golden-transcript regression gate) `review-artifact`'s canonical file stays frozen and Codex
   runs it in C-mode from the unchanged file.
-- **Version drift (high-churn risk):** the Codex **skills directory root**, `project_doc_max_bytes`
-  (32 KiB vs 8192 across sources), and hook field-level parity all vary by Codex build. **Verify
-  on the installed binary** (`/skills`, `docs/skills.md`) before bulk-placing files. Does not
-  change the top-line conclusion; does change exact paths.
+- **Version drift (high-churn risk) — partially retired 2026-05-17.** The **skills root** is
+  resolved (`~/.codex/skills`, VERIFIED v0.130.0) and the agent-binding format correction
+  (`openai.yaml` not TOML) is a *fact fix*, not residual risk. Still build-variable and **[verify
+  on installed binary]**: `project_doc_max_bytes` (32 KiB vs 8192), `$ARGUMENTS`/`$1` arg mapping,
+  `codex exec --json`/`--output-schema` flags, `agents.max_depth` counting, hook field-level
+  parity. Does not change the top-line conclusion; does change exact adapter details.
+- **Plugin system exists (new — not in the original assessment).** **VERIFIED v0.130.0:**
+  `plugins` = stable/on; `.codex-plugin/plugin.json` + `.agents/plugins/marketplace.json` +
+  `codex plugin marketplace`; a plugin can bundle `skills/ hooks/ scripts/ mcp`. **Packaging fork
+  resolved to junction (decided 2026-05-17)** — least Codex-coupled, extends the existing
+  `~/.claude` precedent; a Codex-plugin bundle is a tracked follow-up, not near-term scope.
 - **Two-consumer test debt:** any change to a canonical skill must be sanity-checked from *both*
   tools. The symlink topology means "edit once," but verification is now 2×.
 - **Codex prompts are deprecated:** committing the command layer to skills (not
@@ -259,30 +301,44 @@ shared-standard canonical recommendation, the Anchored feedback loop — are rob
 side is file-grounded (end-to-end reads + repo-wide greps with counts, Appendix), and the Codex
 side is from official docs with sources.
 
-**8% uncertainty:** (a) Codex is version-volatile — skills-root, doc-byte-cap, and hook
-field parity are **[verify on installed binary]** and could shift the *exact* adapter paths
-(not the classes); (b) §3a is now decided (B dropped → no kit harness; C + externalised
-verdict-contract + A-default), so effort is no longer a wide range — the residual is whether
-interactive-Codex C-mode for `review-artifact` is *fully* equivalent to today's Claude
-human-confirmation points or merely close (a Codex-only, file-unchanged pilot observation —
-carries no Claude/gate risk); (c) whether Codex can act *as* an MCP server (relevant only if
-you later expose ai-kit itself as a tool) is unconfirmed in official docs.
+**8% uncertainty (reduced 2026-05-17 — structural confidence holds at 92%):** (a) Codex is
+version-volatile — skills-root is now **resolved** (`~/.codex/skills`, v0.130.0), but doc-byte-cap,
+arg-mapping, `exec --json` flags, `max_depth` counting and hook field parity remain **[verify on
+installed binary]** and could shift *exact* adapter details (not the classes); (b) §3a is decided
+(B dropped → no kit harness; C + externalised verdict-contract + A-default), so effort is no
+longer a wide range — the residual is whether interactive-Codex C-mode for `review-artifact` is
+*fully* equivalent to today's Claude human-confirmation points or merely close (a Codex-only,
+file-unchanged pilot observation — carries no Claude/gate risk); (c) **RESOLVED** — `codex
+mcp-server` exists (Codex *can* act as an MCP server; relevant only if you later expose ai-kit
+itself as a tool). Net: the agent-format correction is a *fact fix* (assessment was wrong, the
+reality is simpler), not a confidence reduction; structural conclusions are unchanged.
 
 ---
 
-## 8. Recommended next steps (decision recorded 2026-05-17; nothing implemented)
+## 8. Recommended next steps (decision recorded 2026-05-17; Category-1 implemented)
 
 §3a now carries a committed direction (see §3a "Decision"). Sequenced to keep the only
 shared-canonical-file change (the quality gate) out of near-term scope:
 
-1. **Do-now = Category-1 only (provably Codex-only):** the 3-way explorers via **C** + the
-   additive Codex adapter (agent-def generation, junction, Codex-side A/C selection). Zero
-   canonical-skill edits; `review-artifact`'s file stays frozen.
-2. **Verify Codex specifics on the installed binary** — skills root, `/skills`,
-   `docs/skills.md`, hook fields, and how `max_depth` counts skill-invocation vs
-   subagent-spawn — replaces every **[verify on installed binary]** tag.
-3. **Fix the §4 pre-existing defects** (absolute paths → relative; model pins → capability
-   tiers) — valuable regardless; lowest-risk.
+1. **Do-now = Category-1 only (provably Codex-only) — DONE 2026-05-17 (adapter built).**
+   `adapters/codex/{sync.ps1,sync.sh,AGENTS.md,README.md}`. Mechanism (fresh design, verified
+   facts): per-skill **directory junction** `~/.codex/skills/<name>` → canonical (34 skills,
+   no body transform); the 18 `agents/*.md` **generated as explicit-only Codex skills**
+   (`policy.allow_implicit_invocation:false` — no per-session context bloat) since a skill *is*
+   the unit of agent invocation (no `~/.codex/agents`). **`openai.yaml` for the 34 canonical
+   skills deferred** — recommended-not-required (verified); injecting it would either pollute
+   the pristine canonical tree or need privilege-fragile Windows file-symlinks. Strategy C =
+   instruction in `AGENTS.md` (no kit harness). Idempotent, canonical tree pristine (Claude
+   provably unaffected), `review-artifact` frozen.
+2. **Verify Codex specifics on the installed binary — DONE 2026-05-17 (v0.130.0).** Resolved:
+   skills root (`~/.codex/skills`), `SKILL.md` spec (identical), agent binding (`openai.yaml`,
+   not TOML), feature flags (`multi_agent` stable, `enable_fanout` under-dev, `hooks`/`plugins`
+   stable), `codex mcp-server` exists, MCP TOML, plugin system, `codex exec
+   --json`/`--output-schema`/`--output-last-message`. **Still [verify]:** `project_doc_max_bytes`,
+   arg-mapping, `max_depth` counting, hook field parity, `AGENTS.md` global read-location.
+3. **Fix the §4 pre-existing defects — partially DONE 2026-05-17.** Absolute paths → kit-relative
+   **FIXED** (2 primitive bodies; meta-skills still pending). Model pins → capability tiers
+   **DEFERRED** (Category-2 — edits 18 junctioned agent files; out of near-term scope).
 4. **Pilot `bugfix` on Codex** end-to-end with the *unchanged* `review-artifact` — observe
    C-mode interactive behaviour vs Claude (Codex-only, no gate risk).
 5. **Deferred & re-homed (NOT this initiative):** the convergent-review verdict-contract
@@ -317,3 +373,17 @@ shared-canonical-file change (the quality gate) out of near-term scope:
 [`/codex/noninteractive`]; tool surface incl. `update_plan`, no `AskUserQuestion` analog
 [`/codex/cli/features`]; MCP TOML parity [`/codex/mcp`]. Community: `zuharz/ccode-to-codex`,
 `ariccb/sync-claude-skills-to-codex` (unofficial).
+
+**Codex side — VERIFIED on installed binary, `codex-cli 0.130.0`, 2026-05-17 (supersedes docs
+where they differ):** skills root **`~/.codex/skills`** (home; `.system/` natives present) +
+`.agents/skills` (repo scope) — *scopes, not alternatives*; `SKILL.md` spec **identical**
+(`name`/`description` + body + `references/`/`scripts/`/`assets/`); agent binding = per-skill
+**`agents/openai.yaml`** `interface:` manifest + optional `dependencies.tools` — **NOT
+`<name>.toml`, NOT `developer_instructions`** (docs were stale here); `codex features list`:
+`multi_agent` stable/on, `multi_agent_v2` & `enable_fanout` under-development/off, `hooks`
+stable/on, `plugins` stable/on, `plugin_hooks`/`child_agents_md` under-dev; subcommands incl.
+`codex exec`, `codex review --base/--uncommitted`, `codex mcp {add,list,get,remove}`, **`codex
+mcp-server`** (Codex-as-MCP-server confirmed), `codex plugin marketplace`; `~/.codex/config.toml`
+carries `[mcp_servers.<n>]` TOML (MCP-TOML parity confirmed). Not probed on binary (still
+`[verify]`): `project_doc_max_bytes`, `$ARGUMENTS`/`$1` mapping, `exec --json`/`--output-schema`
+flags, `agents.max_depth` counting, hook field-level names, `AskUserQuestion`-analog absence.
