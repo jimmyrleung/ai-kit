@@ -15,6 +15,19 @@
 > canonical tree pristine (Claude provably unaffected), `review-artifact` frozen, no kit
 > harness. Strategy C realized as instruction in `adapters/codex/AGENTS.md`.
 >
+> **Decision-log addendum (2026-05-17, post-build):** the §2 "orchestrators become
+> orchestrating skills" row is now **realized within Category-1**. The adapter additionally
+> **generates 8 Codex-only skills** from `commands/` — the 5 family orchestrators
+> (`full-bug-fix-workflow`, `integration-feature-dev`, `refactor-techdebt-dev`,
+> `full-incident-response`, `greenfield-dev`) + 3 per-task executors (`implement-task`,
+> `gf-implement-task`, `implement-bug-fix`) — `implicit_invocation:false`. Reads `commands/`,
+> writes only Codex's root; canonical `commands/` is **never modified** (still Category-1,
+> Claude provably unaffected). The ~25 thin shims are deliberately **not** generated (their
+> skill is already junctioned). `AGENTS.md` gained a *Generated orchestrator / executor
+> skills* section (the `/x` → `$skill` interpretation map). Driven by user Q (2026-05-17):
+> commands ≠ skills (3 distinct primitives; the Claude-side reason to keep `commands/` is
+> zero always-on context cost + no implicit auto-trigger — recorded in §2 reading notes).
+>
 > **Verification log — installed binary, Codex CLI `0.130.0`, 2026-05-17:** several
 > `[verify on installed binary]` tags are now **resolved** (skills root, `SKILL.md` spec, agent
 > binding format, the named feature flags, `codex mcp-server`, MCP TOML, plugin system, **and
@@ -243,8 +256,12 @@ Deterministic unless marked:
    No body transform (shared spec). Frontmatter `allowed-tools`-style restriction, if ever added,
    moves to `agents/openai.yaml` `dependencies.tools`.
 2. **Commands:** *do not* port to `~/.codex/prompts/` (deprecated **and** user-only, no project
-   scope). Thin shims collapse into their skill; orchestrators become orchestrating skills.
-   Claude Code keeps `commands/` for its `/x` UX via the existing junction.
+   scope). The ~25 thin shims collapse into their (already-junctioned) skill — not generated.
+   The 5 family orchestrators + 3 per-task executors **are generated as Codex-only
+   orchestrating skills** (BUILT 2026-05-17 post-build addendum; implicit-off; reads
+   `commands/`, canonical `commands/` never modified). Claude Code keeps `commands/` for its
+   `/x` UX via the existing junction — at zero always-on context cost (a command body is not
+   in-context until run; a skill description always is — they are *not* interchangeable).
 3. **Agents:** **VERIFIED v0.130.0** — generate a thin per-skill **`<skill>/agents/openai.yaml`**
    (`interface:` → `display_name`/`short_description`/`icon_*`/`default_prompt`; optional
    `dependencies.tools`). `name`/`description` map directly; **the SKILL.md body is consumed
@@ -325,11 +342,14 @@ shared-canonical-file change (the quality gate) out of near-term scope:
    facts): per-skill **directory junction** `~/.codex/skills/<name>` → canonical (34 skills,
    no body transform); the 18 `agents/*.md` **generated as explicit-only Codex skills**
    (`policy.allow_implicit_invocation:false` — no per-session context bloat) since a skill *is*
-   the unit of agent invocation (no `~/.codex/agents`). **`openai.yaml` for the 34 canonical
+   the unit of agent invocation (no `~/.codex/agents`). **The 5 family orchestrators + 3
+   per-task executors are also generated** (same mechanism, from `commands/`,
+   `implicit_invocation:false`; the ~25 thin shims are not — their skill is junctioned).
+   **`openai.yaml` for the 34 canonical
    skills deferred** — recommended-not-required (verified); injecting it would either pollute
    the pristine canonical tree or need privilege-fragile Windows file-symlinks. Strategy C =
    instruction in `AGENTS.md` (no kit harness). Idempotent, canonical tree pristine (Claude
-   provably unaffected), `review-artifact` frozen.
+   provably unaffected — canonical `commands/` read-only too), `review-artifact` frozen.
 2. **Verify Codex specifics on the installed binary — DONE 2026-05-17 (v0.130.0).** Resolved:
    skills root (`~/.codex/skills`), `SKILL.md` spec (identical), agent binding (`openai.yaml`,
    not TOML), feature flags (`multi_agent` stable, `enable_fanout` under-dev, `hooks`/`plugins`

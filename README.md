@@ -6,12 +6,17 @@ A collection of skills, slash commands, agents, and templates for [Claude Code](
 
 ```
 ai-kit/
-├── skills/        25 skill bodies — methodology lives here
-├── commands/      34 slash commands — thin shims that invoke skills with the right inputs
-├── agents/        18 agent definitions — single-shot personas with pinned models
+├── skills/        Skill bodies — methodology lives here
+├── commands/      Slash commands — mostly thin shims onto skills; a handful are
+│                  multi-phase family orchestrators and per-task executors
+├── agents/        Agent definitions — single-shot personas with pinned models
 ├── templates/     Per-family scaffolds (PRDs, techspecs, bug reports, post-mortems, …)
-└── docs/          Methodology notes (model assignment rationale, …)
+├── adapters/      Per-tool adapters (codex/ — make the canonical source Codex-consumable)
+└── docs/          Methodology notes (model assignment rationale, Codex portability, …)
 ```
+
+> **Primarily a Claude Code kit.** It also runs on **OpenAI Codex CLI** via a thin,
+> additive adapter (`adapters/codex/`) — see [Codex](#codex-openai-codex-cli) below.
 
 ## Five workflow families
 
@@ -47,7 +52,10 @@ Not sure which to run? `/triage` routes a free-text request to the right workflo
 
 **Composable closeout.** Per-task: `verify-task` runs 3 gates. Per-prefix: `/qa-gates` runs all 5. Per-session: `/close` writes a retrospective + observations. Per-week (or on demand): `/improve` mines patterns from those observations.
 
-## Install
+## Install (Claude Code)
+
+> For Codex CLI, skip this section — see [Codex](#codex-openai-codex-cli) below (it has its
+> own sync, not these junctions).
 
 ### Option A — Directory junction (one disk location, two filesystem names)
 
@@ -73,6 +81,43 @@ Pros: edits in `ai-kit/` are immediately live in Claude Code; no mirror discipli
 
 Copy the three subdirs into `~/.claude/`. Pros: no junction surface area. Cons: you have to re-copy after every update.
 
+## Codex (OpenAI Codex CLI)
+
+The kit is Claude-first but runs on Codex from the **same canonical source** via a thin,
+additive adapter. Run it, then restart Codex:
+
+```powershell
+pwsh adapters/codex/sync.ps1 -WhatIf   # dry run
+pwsh adapters/codex/sync.ps1           # bash adapters/codex/sync.sh on macOS/Linux
+```
+
+What it does: junctions the skills into Codex's skills root, and **generates Codex-only
+skills** for the 18 agents and the 8 multi-phase orchestrators/executors (Codex has no
+command primitive). The canonical tree is never modified — Claude is provably unaffected.
+Design + recorded decision: [`docs/codex-portability-assessment.md`](docs/codex-portability-assessment.md).
+
+**End state in Codex — one primitive.** `~/.codex/skills/` holds **34 junctioned canonical
+skills** (auto-discovered, implicit-capable, exactly as in Claude) + **18 agent-skills** +
+**8 orchestrator/executor skills**. The 26 generated ones are **explicit-only `$name`** —
+they never auto-trigger. The ~28 thin shims are intentionally *not* generated (their
+methodology skill is already among the 34). Contrast Claude: three separate primitives
+(skills + commands + agents), where commands carry orchestration at **zero always-on
+context cost** — which is *why* the kit keeps `commands/` on the Claude side rather than
+collapsing it into skills.
+
+**Gotchas (read before relying on it):**
+
+- **Invocation differs:** `/full-bug-fix-workflow` (Claude command) → `$full-bug-fix-workflow`
+  (Codex generated skill). Thin per-phase shims have no Codex form — invoke the skill they
+  wrapped (`/investigate-bug` → `$bug-investigation`).
+- **Your `~/.claude/CLAUDE.md` conventions do not transfer** — Codex never reads `~/.claude`.
+  The kit ships only a Codex-*mechanics* `AGENTS.md`; you must mirror your personal
+  conventions into a private `AGENTS.md` yourself. See
+  [`adapters/codex/README.md`](adapters/codex/README.md) → *Your personal conventions do not transfer*.
+- **`review-artifact` is frozen** for the Codex initiative (it's the quality gate for 4 of 5
+  families); it runs from the unchanged file. Full rationale + the `[verify on installed
+  binary]` list are in the adapter README.
+
 ## Concrete example — the self-improving loop
 
 1. **In-session:** `/verify-task` runs after each implemented task, recording pass/fail per gate.
@@ -81,6 +126,11 @@ Copy the three subdirs into `~/.claude/`. Pros: no junction surface area. Cons: 
 4. **You review and apply.** The applied edits flow back into the skills that run the next session. The loop closes.
 
 This is `ai-kit` operating on itself: the skills here are the same skills that propose changes to themselves.
+
+> **From Codex:** the same loop runs as `$verify-task` / `$close` / `$improve`, and the
+> artifacts still write to `~/.claude/…` — the feedback loop is **Anchored** to Claude by
+> design (it works unchanged when driven from Codex; this is the recorded §3a decision, not
+> a limitation).
 
 ## License
 

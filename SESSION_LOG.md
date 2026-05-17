@@ -1,3 +1,26 @@
+## [2026-05-17] — Codex adapter EXTENDED + APPLIED: 8 orchestrators generated, personal AGENTS.md created (global-bet), docs synced
+
+**Summary:** Follow-on to the Category-1 build. User returned with 3 questions (command orchestration in Codex / CLAUDE.md→AGENTS.md / README gotchas). Extended the adapter to generate the 8 multi-phase commands as Codex-only skills, applied the sync (52→60 on disk), created the user's private Codex conventions file, and de-stale'd the top-level README. Still Category-1 (Claude provably unaffected); §8 pilot still the next move.
+
+**Done:**
+
+- **Q1 — orchestration:** `sync.ps1`/`sync.sh` now generate **5 family orchestrators + 3 per-task executors** from `commands/` as Codex-only skills (`allow_implicit_invocation:false`; reads `commands/`, canonical `commands/` never modified). Prune/idempotency extended to the new source. Header/section renumber + summary-label fix. `AGENTS.md` gained a *Generated orchestrator / executor skills* section (the `/x`→`$skill` + `the X skill`→`$X` interpretation map). Dry-run then **apply**: 60 exposed, 0 issues; generated `full-bug-fix-workflow` artifact inspected (SKILL.md/openai.yaml/marker correct).
+- **Q2 — conventions:** adapter README "Your personal conventions do not transfer" section + `sync` output warning (chosen: doc+warning). **Then** created `~/.codex/AGENTS.md` — faithful Codex-idiomatic mirror of the *live* `~/.claude/CLAUDE.md` (confidence-scoring verbatim; risky-cmd overrides Codex sandbox; AskUserQuestion deferred to kit-mechanics layer, no drift; command refs → `$qa-gates`/`$triage`/`$close`; close/improve paths flagged Anchored). Carries a kit-mechanics include-point.
+- **Q3 — READMEs:** main README — added `adapters/`, de-numbered the stale counts (25/34→prose), corrected the "thin shims" line, added a Codex section + gotchas; +3 clarity edits (`## Install (Claude Code)`, "End state in Codex — one primitive" inventory, Anchored-loop note). Adapter README command-claim split into 3 classes. Assessment §5.2/§8.1/decision-log + `codex-portability` memory + `MEMORY.md` propagated.
+- Two-perspective filesystem snapshot delivered (Claude = 3 junctions onto `C:\ai-kit`; Codex = 60 one-primitive: 34 implicit-capable + 26 explicit-only).
+
+**Decisions:** **commands ≠ skills — keep `commands/` on Claude, generate only the 8 for Codex** (rejected "collapse commands→skills": loses zero-context-cost + no-implicit-trigger; Codex has no command primitive so it's the only side that mapping is forced) [drove Q1]. **AGENTS.md wiring = global-bet, leave as-is** (rejected per-project / both — user chose zero-maintenance + future-proof over guaranteed-active) [user] — consequence: at codex-0.130.0 global `~/.codex/AGENTS.md` read is `[verify]`, so neither layer is active in Codex yet; fallback documented in-file. ~25 thin shims deliberately **not** generated (their skill is already junctioned).
+
+**Didn't work:** — (no dead ends; verification — dry-run + `bash -n` + apply + artifact inspection — passed first time; the only self-catch was a cosmetic summary-label undercount, fixed immediately).
+
+**Next:** §8 **pilot** — run a family (e.g. `bugfix`) on Codex end-to-end with the *unchanged* `review-artifact` (Codex-only, no gate risk). Re-verify global-AGENTS.md read-location after the next Codex update (flips both layers active if supported). **NOT more building**; `review-artifact` stays quarantined.
+
+**Blockers:** none. The global-AGENTS.md dormancy at 0.130.0 is a known documented `[verify]`, not a blocker (fallback exists).
+
+**Artifacts:** `ai-kit/{README.md, adapters/codex/*, docs/codex-portability-assessment.md}` (6 files, uncommitted pending this close); private `~/.codex/AGENTS.md` (not version-controlled — user's Codex home); memory `codex-portability` + `MEMORY.md`; observations `2026-05-17-codex-portability.md` (Obs 6).
+
+---
+
 ## [2026-05-17] — Codex adapter BUILT (Category-1) + §4 path fix + assessment doc corrected from verified binary facts
 
 **Summary:** Implemented Category-1 of the Codex portability initiative. Re-verified Codex specifics on the installed binary (caught a materially-wrong assessment fact), fixed the §4 path defect, corrected the assessment doc, and built the additive Codex adapter. Structurally verified; behavioral pilot deferred. Continuation of the same-day assessment+decision sessions below.

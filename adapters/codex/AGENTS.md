@@ -37,6 +37,34 @@ orchestration script for it (the kit owns no fan-out harness, by decision):
 - **Small / skip-checked** — `review-artifact` Step-0, small-bug paths: **single-thread**
   (strategy A). The skill's own skip-checks already short-circuit these; no fan-out needed.
 
+## Generated orchestrator / executor skills (how to read their bodies)
+
+Codex has no command primitive. The kit's **5 family orchestrators**
+(`$full-bug-fix-workflow`, `$integration-feature-dev`, `$refactor-techdebt-dev`,
+`$full-incident-response`, `$greenfield-dev`) and **3 per-task executors**
+(`$implement-task`, `$gf-implement-task`, `$implement-bug-fix`) are installed as
+**generated Codex skills** (implicit-invocation **off** — they never auto-trigger; you
+invoke them explicitly by `$name`, exactly as you typed `/name` in Claude). The ~25 thin
+per-phase shims are **not** generated — invoke their methodology skill directly.
+
+Their bodies are the canonical command prose verbatim, written in Claude terms. Read them
+with this mapping:
+
+- **`use the X skill` / `the X skill`** → invoke the Codex skill `$X` (same name).
+- **`/x` (a slash reference to another step)** → invoke the Codex skill that owns that
+  step's methodology. For thin per-phase shims the skill name **differs from the command
+  name** — map by methodology, e.g. `/investigate-bug` → `$bug-investigation`,
+  `/review-investigation` → `$review-artifact`, `/create-roadmap` → `$roadmap-creation`,
+  `/create-techspec` → `$techspec-creation`, `/analyze-impact` → `$impact-analysis`.
+- **`@x-agent`** → `$x-agent` (the 18 agents are generated explicit-only skills); apply
+  the fan-out A/C mapping above.
+- **`create a todo list` / phase gates** → use `update_plan`; honor the gate as written
+  (e.g. "confidence ≥ 90%" — surface it, do not silently pass).
+
+This is *interpretation by instruction*, not a per-file transform — consistent with the
+no-kit-harness decision. The command→skill name divergence for shims is a known v1 rough
+edge (the orchestrators themselves increasingly reference skills by skill-name already).
+
 ## Structured user questions (no Codex `AskUserQuestion` analog)
 
 The kit and the global Claude rule prefer a structured "ask the user" tool. **Codex has no
