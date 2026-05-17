@@ -1,3 +1,56 @@
+## [2026-05-17] — Codex §3a decision recorded (B dropped; C + externalised verdict-contract; review-artifact quarantined)
+
+**Summary:** Continuation of the same-day Codex portability work. Drove the §3a fan-out decision to a conclusion with the user and recorded it into the assessment doc + memory. Still assessment-only — nothing implemented; user will implement in a fresh session.
+
+**Done:**
+
+- Decision discussion: walked 3 real fan-out sites (`review-artifact` re-run loop / `bug-investigation` disagreement-signal / the 3-way exploration) through options A/B/C to drive the choice.
+- Recorded the decision in `docs/codex-portability-assessment.md`: new `#### Decision (recorded 2026-05-17)` block in §3a (two-fan-out-shapes table, dynamic-count-without-harness, the Claude-impact boundary, the `review-artifact` quarantine + re-homing); propagated to header decision-log, §3a intro, §6, §7, §8.
+- Memory `codex-portability.md` + `MEMORY.md` pointer updated (stale "open decision blocks implementation" → recorded decision + do-now guidance). Observation 2 logged.
+
+**Decisions:**
+
+- **B (codex-exec fan-out harness) dropped** — user constraint: no kit-owned fan-out harness; rely on the native harness or a cc-looper-class runner *on top of* the native CLI, never an orchestration script in a skill. (Rejected B for permanent harness-maintenance cost.)
+- **Per-shape resolution, not a global pick:** divergent + fixed-roster (3-way explorers) → **C** native subagents (no loss); convergent + stateful (`review-artifact`, `bug-investigation` M, `qa-loop`/`review-checkpoint`) → **C** for the parallel passes + the multi-round loop *externalised* as a structured verdict consumed by a human (interactive) or a cc-looper-class runner (headless); small/skip-checked → **A**. Dynamic 1–3 count recovered via conditional by-name invocation off the existing S/M/L/XL classifier (no harness). (Rejected: one global option — convergent vs divergent fan-out genuinely want different answers.)
+- **`review-artifact` quarantined** — it's the quality gate for 4/5 families; broken-gate failure = silent quality erosion, not a crash. Canonical file **frozen for this initiative**; Codex runs it from the *unchanged* file in C-mode. The verdict-contract refactor is re-homed to the future cc-looper-runner effort, done later in isolation behind a Claude golden-transcript regression gate. (Rejected: doing the refactor now inside the Codex rollout.)
+- **Claude-impact boundary is load-bearing:** Category 1 (additive Codex artifacts) = Claude provably unaffected; Category 2 (verdict-contract refactor of single-source skills junctioned into `~/.claude/`) = no Codex-only copy *by construction* → "Claude unaffected" is only a regression-gated invariant. ⇒ near-term scope = **Category 1 only**.
+
+**Didn't work / superseded:** the earlier same-session "do now: refactor convergent-review skills to emit a verdict" recommendation — superseded by the quarantine decision after the user flagged `review-artifact`'s gate blast-radius. **Do NOT resurrect "just refactor review-artifact now" in the implementation session.**
+
+**Next:** fresh session — implement **Category-1 only** per §8: 3-way explorers via **C** + the additive Codex adapter (agent-def generation, junction, Codex-side A/C selection) — zero canonical-skill edits, `review-artifact` frozen. Prereqs: verify Codex specifics on the installed binary; fix the §4 pre-existing defects (lowest-risk). **Start here:** `docs/codex-portability-assessment.md` §3a "Decision" + §8.
+
+**Blockers:** none — decision made; Category-1 is unblocked and Claude-risk-free.
+
+**Artifacts:** `ai-kit/docs/codex-portability-assessment.md` (§3a "Decision" + §8 = authoritative handoff); memory `codex-portability`; observations `2026-05-17-codex-portability.md` (Obs 1+2). All uncommitted in the ai-kit working tree (user skip-committed earlier this session).
+
+---
+
+## [2026-05-17] — Codex portability assessment for ai-kit (one canonical set + adapters)
+
+**Summary:** User is trialing Codex and asked whether ai-kit's commands/skills/subagents can be reused there from one canonical source (feedback loop OK to stay Claude-anchored for now). Scoped to a **portability assessment**. Delivered an evidence-grounded doc; up-to-date research reframed the problem from a feared big rewrite to a thin-adapter problem.
+
+**Done:**
+
+- `ai-kit/docs/codex-portability-assessment.md` (new) — file-grounded coupling audit (repo-wide greps w/ counts × files read end-to-end) × up-to-date Codex capabilities; 4-tier portability map (Clean/Mechanical/Semantic/Redesign/Anchored); the 2 genuine gaps; pre-existing defects; thin-adapter transform inventory; risks; next steps. Confidence 92%.
+- Background general-purpose agent → up-to-date Codex CLI capability research (official docs, 2026-05-17): native skills (same `SKILL.md` spec), native subagents (GA 2026-03-14), Claude-shaped hooks, `AGENTS.md`/`.agents/skills` cross-agent standards.
+- Auto-memory: new `codex-portability` (project) + `MEMORY.md` pointer. One observation (`capability_gap` — kit lacks an *inward* meta-analysis skill).
+
+**Decisions:**
+
+- **Canonical = the cross-agent open standard (`SKILL.md` + `AGENTS.md` + `.agents/skills`), NOT "Claude-native source + a Codex transform."** Rejected the Claude-native+adapter framing because Codex now *natively consumes the same `SKILL.md` spec* (+ `AGENTS.md`, native subagents, hooks reusing Claude's field names) — the shared standard is the lowest-drift canonical form and shrinks the adapter to junction/symlink + agent-MD→TOML + 2 gap-rewrites. Extends the existing junction/symlink precedent.
+- **Assessment-only scope** (user chose via question): no implementation, defects not fixed, adapter not built — next steps listed, not executed.
+- Wrote the durable project memory **in-session** (not deferred to `/close`) because it was clearly durable + matches the established `*-initiative` memory pattern; `/close` found it current and did not duplicate.
+
+**Didn't work / rejected:** the training-data prior "Codex has no skills/subagents → big rewrite" (obsolete — verified obsolete via up-to-date research; this flip is the whole reason the conclusion changed). First absolute-path grep used `\\\\` → matched `\\`, false "no matches"; corrected to `C:\\(ai-kit|Users)`.
+
+**Next:** **Decide §3a** — the subagent autonomous-fan-out substitution: A) degrade to single-thread, B) `codex exec` parallel fan-out, C) explicit named subagents. This is the only decision gating any implementation. Lowest-risk independent first move: fix §4 pre-existing defects (absolute `C:\ai-kit\…` paths → relative; vendor model pins → capability tiers). Then verify the `[verify on installed binary]` Codex specifics; then pilot the `bugfix` family end-to-end on Codex.
+
+**Blockers:** §3a is an unresolved judgment call for the user (a decision, not a technical blocker).
+
+**Artifacts:** `ai-kit/docs/codex-portability-assessment.md`; memory `codex-portability`; observation `2026-05-17-codex-portability.md`. ai-kit (public): assessment doc untracked — commit proposed at close. claude-home: no tracked changes (auto-memory is gitignored-local by design — `.gitignore:13 /*`).
+
+---
+
 ## [2026-05-16] — close-tasks skill: feedback-loop blind-spot fix (ai-kit half) + cc-looper handoff
 
 **Summary:** Started from a user question about when to `/close` for task-implementation vs design sessions. Diagnosed (at source level) a real blind spot: multi-session manual + cc-looper headless runs emit ZERO observations, so loop skills are invisible to `/improve`. Designed and shipped the consumer-independent half (`/close-tasks`) in ai-kit; wrote a cc-looper integration analysis for the run-end hook half (Part B) as a separate-session handoff.
