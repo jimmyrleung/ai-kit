@@ -1,3 +1,29 @@
+## [2026-05-18] — document-terraform: v1→v2 hardened over 5 regen cycles, whole-estate-fact guard, anonymized for public repo
+
+**Summary:** Continued `document-terraform` from its v1 build. Hardened it across **5 dogfood→assess→refine cycles** against the real (private) landing zone, landed at **Schema v2**, then anonymized the worked examples to a synthetic `acme` estate and archived the design draft — because `ai-kit` is public and the validation repo is a client's.
+
+**Done:**
+- 5 cycles, each verified by regenerating the real doc-set then honest-assessing: (1) v1 baseline → (2) module-provenance chain + per-component "role in architecture" narrative + newcomer on-ramp, **Schema v1→v2** → (3) Option-A consolidated role block + `(×N)` notation + count-integrity → (4) `[entry]/[wrap]/[priv]` tag taxonomy pinned deterministically + count-integrity widened doc-wide → (5) **whole-estate-fact reconciliation guard**.
+- Anonymized SKILL.md (2 spots) + `reference/heuristics.md` (5 spots) → synthetic `acme`; residue grep clean. Methodology was already generic — only example names changed.
+- Archived draft → `drafts/20260518_02_document-terraform-skill.md` (original masked + `## What we ended up building` summary, per the drafts convention from `20260518_01`). User deleted the root `document-terraform-skill.md` (move complete).
+- Pull handling: stashed only the local uncommitted SESSION_LOG v1 stub to clear a pull conflict; pulled to `8ce7400`.
+
+**Decisions:**
+- **Schema v1→v2** (provenance tree + role block + on-ramp) — doc-contract change, hence the explicit version bump so staleness tracking survives.
+- **Role block consolidated per single-orchestrator root** (rejected per-sub-module: fragments the architecture story + bloats; rejected a distinct Q4: unnecessary contract churn — folded the on-ramp into Q1).
+- **Whole-estate-fact guard = 4 structural touchpoints** (mandatory rule + consolidation ledger-diff + gate hard-stop + worked example), because a prose warning doesn't bind multi-worker behavior (observations evidence: shape-match warnings already failed twice). Overview must DERIVE shared facts from per-env docs, never re-assert independently.
+- **Anonymize to a synthetic estate, keep the architecture shape** (rejected gutting the examples — the realistic 3-layer Spacelift shape is the pedagogical value). Established that "methodology coupled" and "contains client strings" are *separate* checks → memory `ai-kit-public-repo-anonymization`.
+
+**Didn't work:** First narrow client-token grep undercounted (made heuristics look ~2 lines) — corrected with a comprehensive pattern. First `git pull` was a no-op (other session hadn't pushed yet); the retry aborted on the uncommitted SESSION_LOG conflict (resolved via stash-only-that-file).
+
+**Next:** (1) Commit the untracked skill set + drafts archive (pending user OK, below). (2) **Propagate `document-terraform` to Codex via `adapters/codex/sync.ps1`** — per the standing rule the user set in the lay-of-the-land session (every new skill gets synced). (3) Deferred: `INVENTORY/{skills,commands}.md` + `README.md` family mentions; optional dedicated `terraform-documentation-agent`; `/audit-skills` structural pass over the new skill.
+
+**Blockers:** `git stash@{0}` holds the prior-session v1 SESSION_LOG stub — superseded by this entry + the `## v1` section inside the archived draft (no data loss); drop it after the commit. Needs a decision: commit + which repos to push.
+
+**Artifacts:** `skills/document-terraform/{SKILL.md, reference/heuristics.md}`, `commands/document-terraform.md`, `drafts/20260518_02_document-terraform-skill.md`; memory `ai-kit-public-repo-anonymization`; observations appended (`2026-05-18-document-terraform-lz.md` Obs 3–4, `…-skill.md` Obs 3).
+
+---
+
 ## [2026-05-18] — lay-of-the-land skill: Phase-0 pre-workflow recon, superseding trigger-discovery-phase
 
 **Summary:** Honest-assessed a draft spec for a "thorough explore" skill, converged via 4 clarification rounds, and shipped it as `lay-of-the-land` — Phase-0 pre-workflow reconnaissance — superseding the `trigger-discovery-phase` command and retiring `discovery-agent`.
