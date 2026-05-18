@@ -44,5 +44,4 @@ Subagents invoked by skills/commands. Each row: file → registered `name` (used
 
 | File                     | Name              | Model  | Role                                                      |
 | ------------------------ | ----------------- | ------ | --------------------------------------------------------- |
-| `discovery-agent.md`     | `discovery-agent` | sonnet | Build codebase understanding before a workflow starts     |
 | `code-reviewer-agent.md` | `code-reviewer`   | sonnet | Confidence-filtered code review (bugs, security, quality) |

@@ -2,6 +2,12 @@
 
 Slash commands users invoke from Claude Code. Grouped by workflow family. Orchestrators run the full multi-phase flow; per-phase commands run a single skill standalone.
 
+## Discovery (pre-workflow)
+
+| Command            | Role                                                                                                                       |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------------- |
+| `/lay-of-the-land` | Pre-workflow recon: sourced current-state map of an unfamiliar area, no-assumptions / every finding cited. Feeds the workflow you run next. (was `/trigger-discovery-phase`) |
+
 ## Greenfield / new project (mode-aware iterative slicing)
 
 | Command                    | Role                                                    |
@@ -14,7 +20,6 @@ Slash commands users invoke from Claude Code. Grouped by workflow family. Orches
 | `/create-tasks`            | Decompose techspec into vertically-ordered tasks        |
 | `/gf-implement-task`       | Implement one task (runs `verify-task` at end)          |
 | `/create-qa-scenarios`     | QA scenarios for a slice (or end-of-project)            |
-| `/trigger-discovery-phase` | Kick off discovery phase                                |
 
 ## Feature integration into an existing codebase
 

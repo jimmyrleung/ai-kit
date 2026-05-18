@@ -1,3 +1,24 @@
+## [2026-05-18] — lay-of-the-land skill: Phase-0 pre-workflow recon, superseding trigger-discovery-phase
+
+**Summary:** Honest-assessed a draft spec for a "thorough explore" skill, converged via 4 clarification rounds, and shipped it as `lay-of-the-land` — Phase-0 pre-workflow reconnaissance — superseding the `trigger-discovery-phase` command and retiring `discovery-agent`.
+
+**Done:**
+- New `skills/lay-of-the-land/SKILL.md` (~95 lines): Understanding gate + coverage ledger + sourced-findings contract; parallel built-in `Explore` fan-out.
+- `commands/trigger-discovery-phase.md` → `commands/lay-of-the-land.md` (git-renamed, history preserved; body rewritten as a thin shim; broken frontmatter `description:` fixed).
+- New "Discovery (pre-workflow)" section in `INVENTORY/commands.md` + `INVENTORY/skills.md`; `discovery-agent` row removed from `INVENTORY/agents.md` (user deleted `agents/discovery-agent.md`).
+- Draft archived: `create-explore-skill.md` → `drafts/20260518_01_create-explore-skill.md` with an appended outcome summary (new drafts-tracking convention).
+- Memory: created `lay-of-the-land-skill` + `drafts-archiving-convention`; `MEMORY.md` indexed. Observations: 3 written.
+
+**Decisions:** Name `lay-of-the-land` because the existing command already used that phrase (rejected leave-no-stone / tear-it-apart / ground-truth / receipts). Built-in `Explore` as the recon worker, retiring `discovery-agent` (rejected a bespoke agent — redundant indirection; instance of prefer-decoupled-designs). Evolve-not-replace (the old command body was sound, only its description was broken). Reframed the draft's exhortations into mechanisms (rejected shipping the spec literally — would've been a low-leverage skill).
+
+**Didn't work:** Initial read that `trigger-discovery-phase` was *mis-wired* — wrong; only its frontmatter `description:` was copy-paste-broken, the body was already a sound recon command. Corrected by reading the body before acting.
+
+**Next:** If Codex parity is wanted, add `lay-of-the-land` to the Category-1 Codex adapter (`adapters/codex/`) + sync README/AGENTS — explicitly deferred this session. `/audit-skills` was offered and the user skipped it.
+
+**Blockers:** none.
+
+**Artifacts:** `skills/lay-of-the-land/SKILL.md` · `commands/lay-of-the-land.md` · `drafts/20260518_01_create-explore-skill.md` · memory `lay-of-the-land-skill.md` / `drafts-archiving-convention.md` · observations `2026-05-18-lay-of-the-land-skill.md`
+
 ## [2026-05-17] — Codex adapter EXTENDED + APPLIED: 8 orchestrators generated, personal AGENTS.md created (global-bet), docs synced
 
 **Summary:** Follow-on to the Category-1 build. User returned with 3 questions (command orchestration in Codex / CLAUDE.md→AGENTS.md / README gotchas). Extended the adapter to generate the 8 multi-phase commands as Codex-only skills, applied the sync (52→60 on disk), created the user's private Codex conventions file, and de-stale'd the top-level README. Still Category-1 (Claude provably unaffected); §8 pilot still the next move.

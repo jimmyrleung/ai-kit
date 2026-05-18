@@ -2,6 +2,12 @@
 
 Skills are the methodology — each is one `SKILL.md` (some carry a `templates/` subdir). Skills run ad-hoc, or as phases inside an orchestrator command. Grouped by workflow family.
 
+## Discovery (pre-workflow)
+
+| Skill             | Role                                                                                                                                              |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `lay-of-the-land` | Pre-workflow recon: sourced current-state map; no-assumptions, every finding cited. Phase 0 feeding integration-analysis / refactor-audit / bug-investigation. |
+
 ## Greenfield / new project
 
 | Skill               | Role                                                                                                              |
