@@ -20,7 +20,7 @@ orchestration script for it (the kit owns no fan-out harness, by decision):
 - **Divergent + fixed roster** — the 3-way explorers (`integration-techspec`,
   `integration-tasks`, `refactor-plan`, `refactor-tasks`): run the approach/sizing passes by
   **invoking the matching worker skills by name** (e.g. `$integration-techspec-creator-agent`).
-  The kit's 18 agents are installed as explicit-only skills (`$name`, implicit-invocation
+  The kit's 17 agents are installed as explicit-only skills (`$name`, implicit-invocation
   off). The worker **count is conditional on the S/M/L/XL classifier the skill already
   computes** (S → 1 pass; M → up to 3) — static definitions, model-chosen invocation. Then do
   the skill's **existing one-shot consolidation** step. *(Strategy C — no behavioural loss.)*
@@ -56,7 +56,7 @@ with this mapping:
   name** — map by methodology, e.g. `/investigate-bug` → `$bug-investigation`,
   `/review-investigation` → `$review-artifact`, `/create-roadmap` → `$roadmap-creation`,
   `/create-techspec` → `$techspec-creation`, `/analyze-impact` → `$impact-analysis`.
-- **`@x-agent`** → `$x-agent` (the 18 agents are generated explicit-only skills); apply
+- **`@x-agent`** → `$x-agent` (the 17 agents are generated explicit-only skills); apply
   the fan-out A/C mapping above.
 - **`create a todo list` / phase gates** → use `update_plan`; honor the gate as written
   (e.g. "confidence ≥ 90%" — surface it, do not silently pass).

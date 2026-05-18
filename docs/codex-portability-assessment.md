@@ -28,6 +28,17 @@
 > commands ≠ skills (3 distinct primitives; the Claude-side reason to keep `commands/` is
 > zero always-on context cost + no implicit auto-trigger — recorded in §2 reading notes).
 >
+> **Decision-log addendum (2026-05-18):** ai-kit gained the `lay-of-the-land` skill
+> (Phase-0 pre-workflow recon; supersedes the `trigger-discovery-phase` command) and
+> **retired** `discovery-agent` (built-in `Explore` covers recon fan-out). Net Codex
+> exposure unchanged at **60** — skills **34 → 35**, agents **18 → 17**, 8
+> orchestrators/executors unchanged. `sync.ps1`'s `-Prune` was corrected to resolve
+> agent existence by frontmatter `name` (not `<name>.md`) — it had mis-flagged
+> `code-reviewer` / `integration-review-agent` / `integration-validator-agent` as
+> orphans. Still Category-1 (canonical tree pristine; Claude provably unaffected).
+> Standing rule: re-run `adapters/codex/sync.ps1` for any new skill/agent (skills
+> auto-discover; agents/orchestrators regenerate; `-Prune -Force` removes true orphans).
+>
 > **Verification log — installed binary, Codex CLI `0.130.0`, 2026-05-17:** several
 > `[verify on installed binary]` tags are now **resolved** (skills root, `SKILL.md` spec, agent
 > binding format, the named feature flags, `codex mcp-server`, MCP TOML, plugin system, **and

@@ -7,17 +7,18 @@
 - `commands/trigger-discovery-phase.md` → `commands/lay-of-the-land.md` (git-renamed, history preserved; body rewritten as a thin shim; broken frontmatter `description:` fixed).
 - New "Discovery (pre-workflow)" section in `INVENTORY/commands.md` + `INVENTORY/skills.md`; `discovery-agent` row removed from `INVENTORY/agents.md` (user deleted `agents/discovery-agent.md`).
 - Draft archived: `create-explore-skill.md` → `drafts/20260518_01_create-explore-skill.md` with an appended outcome summary (new drafts-tracking convention).
-- Memory: created `lay-of-the-land-skill` + `drafts-archiving-convention`; `MEMORY.md` indexed. Observations: 3 written.
+- Memory: created `lay-of-the-land-skill` + `drafts-archiving-convention` + `codex-sync-on-skill-change`; updated `codex-portability`; `MEMORY.md` indexed. Observations: 4 written.
+- **Codex propagation (same session, post-`/close`):** ran `adapters/codex/sync.ps1` — `lay-of-the-land` junctioned into `~/.codex/skills`, `discovery-agent` orphan pruned; 60 exposed (35 skills + 17 agents + 8 orch). Fixed a latent `sync.ps1 -Prune` bug (resolve agent existence by frontmatter `name`, not `<name>.md` — it had mis-flagged `code-reviewer` / `integration-review-agent` / `integration-validator-agent`; `-Prune -Force` would have deleted 3 valid agent-skills). Counts propagated in adapter README/AGENTS + top README; dated 2026-05-18 addendum in the assessment.
 
-**Decisions:** Name `lay-of-the-land` because the existing command already used that phrase (rejected leave-no-stone / tear-it-apart / ground-truth / receipts). Built-in `Explore` as the recon worker, retiring `discovery-agent` (rejected a bespoke agent — redundant indirection; instance of prefer-decoupled-designs). Evolve-not-replace (the old command body was sound, only its description was broken). Reframed the draft's exhortations into mechanisms (rejected shipping the spec literally — would've been a low-leverage skill).
+**Decisions:** Name `lay-of-the-land` because the existing command already used that phrase (rejected leave-no-stone / tear-it-apart / ground-truth / receipts). Built-in `Explore` as the recon worker, retiring `discovery-agent` (rejected a bespoke agent — redundant indirection; instance of prefer-decoupled-designs). Evolve-not-replace (the old command body was sound, only its description was broken). Reframed the draft's exhortations into mechanisms (rejected shipping the spec literally — would've been a low-leverage skill). Codex: established the standing rule "propagate every new/removed skill/agent via sync" (user); fixed the prune bug rather than work around it (rejected targeted-delete-only — leaving the footgun would break the standing rule's safety).
 
 **Didn't work:** Initial read that `trigger-discovery-phase` was *mis-wired* — wrong; only its frontmatter `description:` was copy-paste-broken, the body was already a sound recon command. Corrected by reading the body before acting.
 
-**Next:** If Codex parity is wanted, add `lay-of-the-land` to the Category-1 Codex adapter (`adapters/codex/`) + sync README/AGENTS — explicitly deferred this session. `/audit-skills` was offered and the user skipped it.
+**Next:** Codex §8 pilot — run a workflow (e.g. `bugfix`) end-to-end on Codex with the unchanged `review-artifact` (the recorded next move; *not* more building). `/audit-skills` remains offered-but-skipped.
 
 **Blockers:** none.
 
-**Artifacts:** `skills/lay-of-the-land/SKILL.md` · `commands/lay-of-the-land.md` · `drafts/20260518_01_create-explore-skill.md` · memory `lay-of-the-land-skill.md` / `drafts-archiving-convention.md` · observations `2026-05-18-lay-of-the-land-skill.md`
+**Artifacts:** `skills/lay-of-the-land/SKILL.md` · `commands/lay-of-the-land.md` · `drafts/20260518_01_create-explore-skill.md` · memory `lay-of-the-land-skill.md` / `drafts-archiving-convention.md` / `codex-sync-on-skill-change.md` · observations `2026-05-18-lay-of-the-land-skill.md` · `adapters/codex/sync.ps1` (prune fix) · `adapters/codex/README.md` + `AGENTS.md` + top `README.md` (counts) · `docs/codex-portability-assessment.md` (2026-05-18 addendum)
 
 ## [2026-05-17] — Codex adapter EXTENDED + APPLIED: 8 orchestrators generated, personal AGENTS.md created (global-bet), docs synced
 

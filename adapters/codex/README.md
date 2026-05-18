@@ -23,16 +23,16 @@ Claude Code, from one source of truth — extending the existing `~/.claude` jun
 
 | ai-kit primitive | Codex realization |
 |---|---|
-| `skills/<name>/` (34) | per-skill **directory junction** → `${CODEX_HOME:-~/.codex}/skills/<name>`. Codex enumerates `<root>/<name>/SKILL.md` and auto-discovers; the `SKILL.md` spec is identical, so **no body transform**. |
-| `agents/<name>.md` (18) | Codex has **no `~/.codex/agents`** — a *skill is the unit of agent invocation*. Each agent is **generated** as a Codex skill at `${CODEX_HOME:-~/.codex}/skills/<name>/` (Codex-only; never written into the canonical tree) so every `@x-agent` reference resolves as `$x-agent`. Generated with `policy.allow_implicit_invocation: false` — workers, never user-triggered, so they don't bloat every session's context. |
+| `skills/<name>/` (35) | per-skill **directory junction** → `${CODEX_HOME:-~/.codex}/skills/<name>`. Codex enumerates `<root>/<name>/SKILL.md` and auto-discovers; the `SKILL.md` spec is identical, so **no body transform**. |
+| `agents/<name>.md` (17) | Codex has **no `~/.codex/agents`** — a *skill is the unit of agent invocation*. Each agent is **generated** as a Codex skill at `${CODEX_HOME:-~/.codex}/skills/<name>/` (Codex-only; never written into the canonical tree) so every `@x-agent` reference resolves as `$x-agent`. Generated with `policy.allow_implicit_invocation: false` — workers, never user-triggered, so they don't bloat every session's context. |
 | Claude `CLAUDE.md` conventions | `AGENTS.md` (this dir) — the Codex-side fan-out mapping (A/C selection), the `AskUserQuestion` plain-text degradation, model-pin note. Additive instruction; no canonical edit. |
 | `commands/*` (3 classes) | The command layer is **not one thing.** **~25 thin per-phase shims** (`investigate-bug` = *"use the bug-investigation skill"*): not generated — their skill is already junctioned, invoke `$bug-investigation` directly. **5 family orchestrators** (`full-bug-fix-workflow`, `integration-feature-dev`, `refactor-techdebt-dev`, `full-incident-response`, `greenfield-dev`) + **3 per-task executors** (`implement-task`, `gf-implement-task`, `implement-bug-fix`): these carry real wiring (phase sequencing, S/M/L/XL classifier, gates, Workflow 1/2/3) **no skill owns** — each is **generated** as a Codex skill at `${CODEX_HOME:-~/.codex}/skills/<name>/` (Codex-only; `policy.allow_implicit_invocation:false` — a multi-phase workflow must never auto-trigger). Canonical `commands/` is **untouched**: Claude keeps the `/x` UX at **zero context cost** (a command's body is never in-context until run; a skill's description always is — which is *why* the two stay separate primitives, not why one replaces the other). |
 
-**`openai.yaml` for the 34 canonical skills is intentionally deferred** (v1): it is
+**`openai.yaml` for the 35 canonical skills is intentionally deferred** (v1): it is
 *recommended, not required* (verified) — bare `SKILL.md` skills are auto-discovered and trigger
 off `description`. Injecting `openai.yaml` would either pollute the pristine canonical tree or
 require privilege-fragile per-file symlinks on Windows. The *functionally* important case
-(implicit-invocation off for the 18 worker agents **and the 8 generated orchestrator/executor
+(implicit-invocation off for the 17 worker agents **and the 8 generated orchestrator/executor
 skills** — neither should ever auto-trigger) is handled, because those are generated, not
 junctioned.
 

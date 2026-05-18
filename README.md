@@ -92,15 +92,15 @@ pwsh adapters/codex/sync.ps1           # bash adapters/codex/sync.sh on macOS/Li
 ```
 
 What it does: junctions the skills into Codex's skills root, and **generates Codex-only
-skills** for the 18 agents and the 8 multi-phase orchestrators/executors (Codex has no
+skills** for the 17 agents and the 8 multi-phase orchestrators/executors (Codex has no
 command primitive). The canonical tree is never modified — Claude is provably unaffected.
 Design + recorded decision: [`docs/codex-portability-assessment.md`](docs/codex-portability-assessment.md).
 
-**End state in Codex — one primitive.** `~/.codex/skills/` holds **34 junctioned canonical
-skills** (auto-discovered, implicit-capable, exactly as in Claude) + **18 agent-skills** +
-**8 orchestrator/executor skills**. The 26 generated ones are **explicit-only `$name`** —
+**End state in Codex — one primitive.** `~/.codex/skills/` holds **35 junctioned canonical
+skills** (auto-discovered, implicit-capable, exactly as in Claude) + **17 agent-skills** +
+**8 orchestrator/executor skills**. The 25 generated ones are **explicit-only `$name`** —
 they never auto-trigger. The ~28 thin shims are intentionally *not* generated (their
-methodology skill is already among the 34). Contrast Claude: three separate primitives
+methodology skill is already among the 35). Contrast Claude: three separate primitives
 (skills + commands + agents), where commands carry orchestration at **zero always-on
 context cost** — which is *why* the kit keeps `commands/` on the Claude side rather than
 collapsing it into skills.

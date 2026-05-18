@@ -301,12 +301,23 @@ if ($valOk) {
 if ($Prune) {
   Write-Host ""
   Write-Host "Prune (kit-owned orphans)" -ForegroundColor Cyan
+  # A generated agent-skill's dir name is the agent's frontmatter `name`, which
+  # is NOT always the .md filename (e.g. code-reviewer-agent.md -> name
+  # 'code-reviewer'). Resolve agent existence by frontmatter name, never by
+  # "<name>.md", or valid agents get mis-flagged as orphans and -Force deletes them.
+  $AgentNames = @{}
+  if (Test-Path $AgentsSrc) {
+    foreach ($af in (Get-ChildItem $AgentsSrc -Filter '*.md')) {
+      $ap = Read-Frontmatter $af.FullName
+      if ($ap -and $ap.Fm.ContainsKey('name')) { $AgentNames[$ap.Fm['name']] = $true }
+    }
+  }
   foreach ($d in (Get-ChildItem $SkillsRoot -Directory -Force | Where-Object { $_.Name -ne '.system' })) {
     $kitSkill = (Test-Reparse $d.FullName) -and ((Get-ReparseTarget $d.FullName) -like (Join-Path $SkillsSrc '*'))
     $kitAgent = Test-Path (Join-Path $d.FullName $GenMarker)
     if (-not ($kitSkill -or $kitAgent)) { continue }
     $srcName = $d.Name
-    $stillThere = (Test-Path (Join-Path $SkillsSrc $srcName)) -or (Test-Path (Join-Path $AgentsSrc "$srcName.md")) -or (Test-Path (Join-Path $CmdSrc "$srcName.md"))
+    $stillThere = (Test-Path (Join-Path $SkillsSrc $srcName)) -or $AgentNames.ContainsKey($srcName) -or (Test-Path (Join-Path $CmdSrc "$srcName.md"))
     if ($stillThere) { continue }
     if ($Force -and -not $WhatIf) {
       if ($kitSkill) { [System.IO.Directory]::Delete($d.FullName, $false) }   # reparse point only
