@@ -11,12 +11,14 @@ ai-kit/
 │                  multi-phase family orchestrators and per-task executors
 ├── agents/        Agent definitions — single-shot personas with pinned models
 ├── templates/     Per-family scaffolds (PRDs, techspecs, bug reports, post-mortems, …)
-├── adapters/      Per-tool adapters (codex/ — make the canonical source Codex-consumable)
+├── adapters/      Per-tool adapters (codex/, cursor/ — make the canonical source
+│                  Codex- and Cursor-CLI-consumable from one source)
 └── docs/          Methodology notes (model assignment rationale, Codex portability, …)
 ```
 
-> **Primarily a Claude Code kit.** It also runs on **OpenAI Codex CLI** via a thin,
-> additive adapter (`adapters/codex/`) — see [Codex](#codex-openai-codex-cli) below.
+> **Primarily a Claude Code kit.** It also runs on **OpenAI Codex CLI** and the
+> **Cursor CLI** via thin, additive adapters (`adapters/codex/`, `adapters/cursor/`)
+> — see [Codex](#codex-openai-codex-cli) and [Cursor](#cursor-cursor-cli) below.
 
 ## Five workflow families
 
@@ -117,6 +119,47 @@ collapsing it into skills.
 - **`review-artifact` is frozen** for the Codex initiative (it's the quality gate for 4 of 5
   families); it runs from the unchanged file. Full rationale + the `[verify on installed
   binary]` list are in the adapter README.
+
+## Cursor (Cursor CLI)
+
+The kit also runs on the **Cursor CLI** (`cursor-agent`) from the same canonical
+source. Run it, then restart `cursor-agent`:
+
+```bash
+bash adapters/cursor/sync.sh --dry-run   # WSL/Linux — the PRIMARY path
+bash adapters/cursor/sync.sh             # pwsh adapters/cursor/sync.ps1 on native Windows
+```
+
+What it does: per-skill **symlinks** the skills into Cursor's *native* skills
+root (`~/.cursor/skills`), **generates** the 8 multi-phase orchestrators/executors
+as explicit-only skills (`disable-model-invocation: true`), and **generates** the
+17 agents as **native Cursor subagents** (`~/.cursor/agents/`). The canonical tree
+is never modified — Claude is provably unaffected. Design + recorded decision:
+[`docs/cursor-portability-assessment.md`](docs/cursor-portability-assessment.md).
+
+**Why smaller than the Codex adapter.** Cursor natively consumes the same
+`SKILL.md` spec *and* has a native subagent primitive *and* treats explicit
+commands as skills — so there is no `openai.yaml`, no validator step, and no
+agent-as-skill workaround. Skills auto-discover exactly as in Claude.
+
+**Gotchas (read before relying on it):**
+
+- **The original symptom was an environment gap, not a format one.**
+  `cursor-agent` resolves config against the invoking shell's home; run under
+  **WSL** it uses `/home/<you>/.cursor`, not the Windows `~/.claude` junctions.
+  Run `sync.sh` *inside* the WSL environment you launch `cursor-agent` from.
+- **Invocation keeps the slash:** `/full-bug-fix-workflow` (Claude) →
+  `/full-bug-fix-workflow` (Cursor explicit-only skill) — same key, unlike
+  Codex's `$name`. Thin shims have no Cursor form — invoke their skill
+  (`/investigate-bug` → the `bug-investigation` skill).
+- **Cursor has no explicit-only flag for subagents** — the 17 agents *may*
+  auto-delegate (governed by `description`). Documented caveat, not suppressed
+  (forcing it would edit canonical agent files = Category-2).
+- **Your `~/.claude/CLAUDE.md` conventions do not transfer** — the Cursor CLI
+  reads a *project-root* `CLAUDE.md`/`AGENTS.md`, not `~/.claude` globally.
+  Mirror them into a private `AGENTS.md` yourself. See
+  [`adapters/cursor/README.md`](adapters/cursor/README.md).
+- **`review-artifact` is frozen** (same rationale as the Codex initiative).
 
 ## Concrete example — the self-improving loop
 

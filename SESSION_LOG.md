@@ -1,3 +1,31 @@
+## [2026-05-19] — Cursor CLI adapter built; agents CLI-blocked on upstream bug #160426 (wait/monitor)
+
+**Summary:** Researched + built `adapters/cursor/` (ai-kit → Cursor CLI, mirroring the Codex adapter's Category-1 contract), debugged it empirically on the user's `cursor-agent` (WSL). Skills + 8 orchestrators work and list (51, no dupes); agents are blocked by a staff-acknowledged Cursor CLI parity bug — decision: wait, don't pivot.
+
+**Done:**
+- `adapters/cursor/{sync.sh,sync.ps1,AGENTS.md,README.md}` + `docs/cursor-portability-assessment.md`; root `README.md` Cursor section; `docs/codex-portability-assessment.md` cross-ref addendum.
+- Empirically established the real picture on the binary: Cursor CLI natively reads `~/.claude`/`~/.cursor` skills; the original "lists nothing" was a **WSL `$HOME` mismatch** (cursor-agent under WSL, junctions in Windows home), not a format gap. Cross-checked by installing Claude Code in WSL — it saw all three via the same symlinks, proving links sound.
+- Adapter applied + verified in `cursor-agent`: 30 skill symlinks + 8 explicit-only orchestrator skills (`disable-model-invocation:true`) = 51 with built-ins, no duplicates.
+- Memories: `cursor-adapter-agents-blocked-160426` (project), `wsl-invocation-from-windows-harness` (feedback). 3 observations written.
+
+**Decisions:**
+- **Skills-unified, not `~/.cursor/commands/`** — Cursor deprecated standalone slash-commands (folded into Skills; `/migrate-to-skills` uses `disable-model-invocation:true`); orchestrators generated as explicit-only skills. Rejected the `~/.cursor/commands/` plan after research showed it's a dead primitive.
+- **Agents: keep native `~/.cursor/agents/` generation, do NOT pivot to agents-as-skills** — CLI can't load user-level subagents (bug #160426, staff-ack 2026-05-13, no fix date); it works in the IDE and self-heals when fixed. User chose wait/monitor (uses Cursor IDE / cc-looper meanwhile). Rejected Path B (agents→skills) and per-project `.cursor/agents/` bootstrap (user runs cursor-agent from arbitrary repos → per-repo chore). CLI fan-out fallback: invoke the methodology skill by name.
+- **Adapter owns exactly one discovery root (`~/.cursor`)** — the diagnostic `~/.claude` WSL symlinks caused double-listing (81 vs 51); torn down.
+
+**Didn't work:**
+- Native `~/.cursor/agents/` for the Cursor *CLI* — abandoned (upstream bug #160426; IDE-only until fixed).
+- Diagnostic `~/.claude/{skills,agents,commands}` WSL symlinks — served their purpose (proved links sound), then caused duplicate discovery; removed.
+- A research sub-agent's claim that `/create-subagent` doesn't exist in the CLI — wrong; user screenshot corrected it (doc lag vs daily-shipping binary).
+
+**Next:** Monitor Cursor bug #160426 on updates; when fixed the 17 subagents work in `cursor-agent` with a one-line doc flip, no rework. Nothing committed yet (awaiting approval).
+
+**Blockers:** Agents in Cursor CLI blocked on upstream #160426 (external; no fix date) — accepted, not blocking the shipped skills/orchestrators.
+
+**Artifacts:** `adapters/cursor/`, `docs/cursor-portability-assessment.md`, memories `cursor-adapter-agents-blocked-160426` / `wsl-invocation-from-windows-harness`, `~/.claude/observations/2026-05-19-cursor-adapter.md`. Loose ends (user): remove `Met.ServiceApps/.cursor/agents/test-subagent.md`; optional WSL Claude Code (`~/.local/bin/claude`) cleanup.
+
+---
+
 ## [2026-05-18] — document-terraform: v1→v2 hardened over 5 regen cycles, whole-estate-fact guard, anonymized for public repo
 
 **Summary:** Continued `document-terraform` from its v1 build. Hardened it across **5 dogfood→assess→refine cycles** against the real (private) landing zone, landed at **Schema v2**, then anonymized the worked examples to a synthetic `acme` estate and archived the design draft — because `ai-kit` is public and the validation repo is a client's.

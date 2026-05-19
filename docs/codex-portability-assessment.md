@@ -39,6 +39,15 @@
 > Standing rule: re-run `adapters/codex/sync.ps1` for any new skill/agent (skills
 > auto-discover; agents/orchestrators regenerate; `-Prune -Force` removes true orphans).
 >
+> **Decision-log addendum (2026-05-19):** a **Cursor CLI** companion adapter was
+> built on the same Category-1, additive, canonical-untouched contract —
+> `adapters/cursor/{sync.sh,sync.ps1,AGENTS.md,README.md}` +
+> `docs/cursor-portability-assessment.md`. It reuses this assessment's
+> 8-orchestrator allowlist and the `review-artifact`-frozen / feedback-loop-Anchored
+> decisions verbatim; it is *smaller* (Cursor has native `SKILL.md` + a native
+> subagent primitive, so no `openai.yaml`/validator/agent-as-skill workaround).
+> The Codex facts below are unchanged.
+>
 > **Verification log — installed binary, Codex CLI `0.130.0`, 2026-05-17:** several
 > `[verify on installed binary]` tags are now **resolved** (skills root, `SKILL.md` spec, agent
 > binding format, the named feature flags, `codex mcp-server`, MCP TOML, plugin system, **and
