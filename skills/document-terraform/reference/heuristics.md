@@ -109,7 +109,7 @@ Record per distinct source: the string, the version/`ref` pin, and a status — 
 
 ## Module provenance & architectural-role rendering
 
-Two Schema-`v2` deliverables. Both are _renderings of evidence already gathered_ (the module call graph + the Phase-2 producer index) — neither introduces a new claim, so neither costs confidence. They exist because the `v1` inventory reads well only to someone who already holds the estate's shape in their head; these make it legible to a newcomer.
+Schema-`v3` ships **three** newcomer-legibility deliverables. A and B (below) are _renderings of evidence already gathered_ (the module call graph + the Phase-2 producer index) — neither introduces a new claim, so neither costs confidence. The third, **C — the _Integration & permissioning (incident-triage)_ matrix** — is mandated by SKILL Rule 9 and specified in its own section below (_Identity & permissioning (declared ≠ effective)_); it re-presents role-assignment / membership / access-policy facts with an **effectiveness verdict**, so it costs no confidence beyond the auth-mode checks Rule 9 requires. All three exist because the `v1` inventory reads well only to someone who already holds the estate's shape in their head.
 
 ### A. The module-provenance chain + tree
 
@@ -138,7 +138,7 @@ environments/dev/main.tf
    ├─ module.container_app_web   → [wrap] local ../container_app
    │                              ├→ [priv] application-insights/azurerm@4.0.0
    │                              └→ [priv] container-app/azurerm@4.0.0
-   └─ module.container_app_pollers → [wrap] local ../container_app_func   ⟂ INERT (count=0)
+   └─ module.container_app_pollers (×1) → [wrap] local ../container_app_func   (count = enable_pollers ? len(regions) : 0 — resolve the toggle from HCL at the SHA; never assume inert)
 ```
 
 An unresolved `[priv]` hop (private module not in workspace, Phase 3) is rendered `[priv?] <source>@<ver> — unresolved`; its would-be resources stay `indeterminate`, never invented into the tree.
@@ -153,15 +153,48 @@ The hard fence (this is the failure mode to police — it's the one place this s
 
 | Allowed (it's evidence)                                                                                 | Banned (it's opinion / recall)                            |
 | ------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
-| "Consumed by `module.container_user_web` (`container_user/main.tf:64`)" — a producer-index/Phase-2 edge | "central to the security architecture" — no edge          |
-| "web app cannot start without it" — follows from the runtime KV-Secrets-User edge                       | "follows landing-zone best practice" — recommendation     |
+| "Consumed by `module.container_app_web` — Terraform writes the `AzureAd--*` secrets (`container_app/main.tf:64`)" — a producer-index/Phase-2 edge | "central to the security architecture" — no edge          |
+| "web app cannot start without it" — follows from a **verified** runtime grant (the matrix row, with its effectiveness verdict) — never from an access policy on an RBAC vault | "follows landing-zone best practice" — recommendation     |
 | "`default_action=Deny`, Tier-1 PII (`scaffold:147`)" — quoted HCL                                       | "should probably also have a private endpoint" — redesign |
 
 If a component has no consumer edge in the producer index, say so explicitly ("_Consumed by:_ no in-repo consumer found — terminal/told-to-exist") rather than inventing a purpose. The block **renders Phase-2 output**; it never sources a new dependency.
 
 ### Worked example (illustrative — do not couple)
 
-`module.key_vault[0]` in `terraform/dev`. Chain: `environments/dev/main.tf` → `module.main` `[entry]` (`../../modules/scaffold`) → `module.key_vault` `[wrap]` (`../key_vault`) → `[priv] key-vault/azurerm@4.2.0` → `azurerm_key_vault.vault`. `azuread_group.admin_group` in the same module is tagged `[wrap]` (the local `../key_vault` body creates it; it is _not_ in the upstream `key-vault/azurerm`), making "what did the wrapper add" answerable at a glance. Role block: `terraform/dev` is a single-orchestrator root (`module.main`), so KV does **not** get its own block — its role folds into the **consolidated `module.main`** block as evidence lines: _Provides_ …KV `acme-d-cus-secrets-1-kv`…; _Consumed by_ the `container_user_web` identity edge (`container_user/main.tf:NN`, a producer-index hit) + Terraform-written `AzureAd--*` secrets; _Blast radius_ web app cannot start without KV/CAE/ACR; _Posture_ `Deny`+RBAC+purge-protection, Tier-1 PII (`scaffold/main.tf:147-149`). Every token traces to HCL or a Phase-2 edge — zero generic commentary.
+`module.key_vault[0]` in `terraform/dev`. Chain: `environments/dev/main.tf` → `module.main` `[entry]` (`../../modules/scaffold`) → `module.key_vault` `[wrap]` (`../key_vault`) → `[priv] key-vault/azurerm@4.2.0` → `azurerm_key_vault.vault`. `azuread_group.admin_group` in the same module is tagged `[wrap]` (the local `../key_vault` body creates it; it is _not_ in the upstream `key-vault/azurerm`), making "what did the wrapper add" answerable at a glance. Role block: `terraform/dev` is a single-orchestrator root (`module.main`), so KV does **not** get its own block — its role folds into the **consolidated `module.main`** block as evidence lines: _Provides_ …KV `acme-d-cus-secrets-1-kv`…; _Consumed by_ Terraform-written `AzureAd--*` secrets (`container_app/main.tf:NN`) — the web app's runtime **read** grant is **not asserted here**, it is a row in the Integration & permissioning matrix with its own effectiveness verdict; _Blast radius_ web app cannot start without KV/CAE/ACR; _Posture_ `Deny`+RBAC+purge-protection, Tier-1 PII (`scaffold/main.tf:147-149`). Every token traces to HCL or a Phase-2 edge — zero generic commentary, and no permission claimed without the Rule-9 effectiveness check.
+
+---
+
+## Identity & permissioning (declared ≠ effective)
+
+SKILL **Rule 9**. The deliverable is a mandated per-(root,env) **Integration & permissioning (incident-triage) matrix**: every cross-component link and identity→resource grant, as a row, so that on an infra incident the reader's first question — _"is a link broken / is there a permission gap?"_ — is answered without re-deriving it from prose.
+
+### Matrix columns
+
+`Link / grant · Mechanism · Identity · Target · Exact role/perm · Status · Evidence (file:line)`
+
+- **Status is trichotomous and load-bearing:** `✅ wired` (traced to the binding resource **and** effective for the target's auth mode) · `⚠️` (effective but note the mechanism — e.g. account-key connection string instead of a managed identity; works, but it's a posture finding) · `🔴` (declared-but-ineffective, or missing entirely).
+- **Deploy-time identity and runtime identity are separate rows.** The principal Terraform authenticates as (writes secrets, creates RGs) is not the app's runtime MI. A green deploy row says nothing about runtime access.
+- The headline `🔴` (and incident-relevant `⚠️`) is **also** surfaced in the overview Q3 + on-ramp.
+
+### The effectiveness check (why "declared" is not "effective")
+
+A binding resource existing in HCL does **not** mean the grant works. Before a row is `✅`, confirm **all three**:
+
+1. **Auth-mode match.** The binding's mechanism must be the one the target honours. Canonical trap: `azurerm_key_vault_access_policy` is **silently inert** on a vault created with `enable_rbac_authorization = true` — Azure ignores access policies in RBAC mode; the operative grant must be an `azurerm_role_assignment` (e.g. `Key Vault Secrets User`). The reverse holds for a non-RBAC vault. (Storage/SQL/etc. have analogous mode splits — verify from provider docs, don't assume.)
+2. **Principal actually plumbed.** A module that *can* grant access only does so for principals it is *given*. Trace the producing module's variable: a key-vault module whose RBAC readonly assignment is `for_each = toset(concat(var.read_only, var.default_read_only))` grants **nothing to the app** unless the calling wrapper passes the app principal into `read_only` (and `default_read_only` defaults are often an unrelated platform SP, not the app). Read the wrapper's argument list — absence of the argument is the finding.
+3. **Right principal.** System-assigned vs user-assigned MI, the app SP vs the deploy SP. The access policy/role must target the identity the workload actually runs as.
+
+If any of the three is unconfirmed → `🔴` or `indeterminate` (the latter only if a producer plausibly lives in an unresolved private module). **Never** upgrade to `✅` from the presence of a `key_vault_ids`-style input, an access-policy block, or a worker's "looks wired" — this is the one place the skill most easily ships a false green, and it is exactly the row an incident responder trusts most.
+
+### Worked example (illustrative — do not couple)
+
+A web Container App must read secrets from `acme-d-cus-secrets-1-kv` at runtime.
+
+- The container-app private module emits `azurerm_key_vault_access_policy.readonly` (Get/List secrets) for the app's system-assigned MI, gated `var.key_vault.grant_read_permissions` (which the wrapper sets true). **Declared.**
+- The vault wrapper sets `enable_rbac_authorization = true` (`modules/key_vault/main.tf:NN`). → the access policy is **inert** (check 1 fails). The vault module *does* have an RBAC path (`azurerm_role_assignment … "Key Vault Secrets User"`, `for_each = toset(concat(var.read_only, var.default_read_only))`), but the wrapper passes **no** `read_only`, and `default_read_only` defaults to an unrelated ADO SP (check 2 fails). No role assignment targets the app MI in any root.
+- Matrix row: `Web app → KV read | (intended) access policy | web CA system-assigned MI | acme-d-cus-secrets-1-kv | (Get/List) | 🔴 INEFFECTIVE — access policy inert on RBAC vault; no Key Vault Secrets User for the app MI; wrapper passes no read_only | container-app/main.tf:NN; key_vault/main.tf:NN`. Contrast the Service Bus rows in the same matrix, which *are* `✅` (MI → data-sender/receiver AD group → namespace RBAC, all three checks pass) — that contrast is itself the triage signal: same estate, one link proven, one proven broken.
+- Resolution: either a `Key Vault Secrets User` role assignment for the app MI is **missing from Terraform** (a real defect), or it is granted **out-of-band by a platform RBAC/DINE-style policy** (classify as external/cross-stack *with evidence* — analogous to platform-managed private-DNS; **do not** assume it exists to make the row green). Ask the user/team which; keep the row `🔴`-pending until evidenced.
 
 ---
 
