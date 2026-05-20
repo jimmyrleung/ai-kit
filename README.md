@@ -1,6 +1,6 @@
 # ai-kit
 
-A collection of skills, slash commands, agents, and templates for [Claude Code](https://claude.com/claude-code) that codify a disciplined, evidence-based approach to software engineering workflows — feature addition, bug fixing, refactoring, incident response, greenfield projects — plus a self-improving meta-layer that turns session friction into refined skills over time.
+A collection of skills, slash commands, agents, and templates for [Claude Code](https://claude.com/claude-code) that codify a disciplined, evidence-based approach to software engineering workflows — feature addition, bug fixing, refactoring, incident response, greenfield projects — plus a self-improving meta-layer that turns session friction into refined skills over time, and an engineering-ownership layer that keeps your own judgment sharp while you lean on AI.
 
 ## What's in here
 
@@ -22,13 +22,13 @@ ai-kit/
 
 ## Five workflow families
 
-| Family                  | When to use                                          | Entry command                |
-| ----------------------- | ---------------------------------------------------- | ---------------------------- |
-| **greenfield-dev**      | New project from scratch                             | `/greenfield-dev`            |
-| **feature-addition**    | Integrate a feature into an existing codebase        | `/integration-feature-dev`   |
-| **bugfix**              | Investigate, fix, and verify a bug                   | `/full-bug-fix-workflow`     |
-| **refactoring-tech-debt** | Audit-plan-tasks refactor of an existing area      | `/refactor-techdebt-dev`     |
-| **incident-response**   | Diagnose, hotfix, post-mortem                        | `/full-incident-response`    |
+| Family                    | When to use                                   | Entry command              |
+| ------------------------- | --------------------------------------------- | -------------------------- |
+| **greenfield-dev**        | New project from scratch                      | `/greenfield-dev`          |
+| **feature-addition**      | Integrate a feature into an existing codebase | `/integration-feature-dev` |
+| **bugfix**                | Investigate, fix, and verify a bug            | `/full-bug-fix-workflow`   |
+| **refactoring-tech-debt** | Audit-plan-tasks refactor of an existing area | `/refactor-techdebt-dev`   |
+| **incident-response**     | Diagnose, hotfix, post-mortem                 | `/full-incident-response`  |
 
 Not sure which to run? `/triage` routes a free-text request to the right workflow or to "just do it directly."
 
@@ -41,6 +41,30 @@ Not sure which to run? `/triage` routes a free-text request to the right workflo
 - **`close`** — End-of-session retrospective. Distills decisions/learnings/friction into auto-memory + an observations log + a session log entry. Not a context dump.
 - **`improve`** — Periodic self-improvement review. Reads accumulated observations, finds friction patterns, audits skill fitness, and produces a STAGED packet of proposed edits — never edits a live file without per-item approval.
 - **`migrate-notion`** — Guide a Notion-to-Obsidian migration via the Notion MCP tool.
+
+## Engineering ownership (retention)
+
+A layer orthogonal to the workflow families: small, deliberately friction-adding rituals that keep your staff-level judgment sharp while you use AI to move fast. The families multiply _execution_; this layer protects _understanding_ — so you can still explain the design, failure modes, and trade-offs of code you shipped, without the chat history.
+
+> **Outsource the typing, not the understanding.** The skills make you _generate before you consume_ (predict / hypothesize / write the rationale yourself), then _test that it stuck_ (get quizzed, walk unfamiliar terrain). They're honest about their limits: a prompt can't verify you predicted before peeking — the retention is yours to earn. The friction is the feature.
+
+| Skill           | When                                    | What it does                                                                                                                                                                                                         |
+| --------------- | --------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `predict-first` | Before _and_ after AI-assisted work     | You predict what the change touches / the invariant / the risky edge case / the shape / your unknowns — it won't fill it in for you. Re-run afterward to reconcile against what actually shipped and tag every miss. |
+| `debug-first`   | Before AI on a **non-incident** bug     | You write Observed / Hypotheses / Tried / Question-for-AI first; then the AI engages each hypothesis with evidence instead of bypassing it. (Prod on fire → `/full-incident-response`, not this.)                    |
+| `adr-first`     | A consequential decision                | **Critique-only** — you write the rationale, the AI never drafts it; it steelmans the alternative you rejected first, polishes a distant second.                                                                     |
+| `challenge-me`  | A feature is code-complete              | ~5 questions targeting judgment (failure modes / rejected alternatives / invariants / blast radius); won't answer until you try, then grades you against the code _and your saved prediction_.                       |
+| `onboard-me`    | **Unfamiliar** code you must understand | A staff-engineer cold-read walkthrough — one step at a time, Socratic, lists its assumptions every message. (Not for code you wrote — that's `challenge-me`.)                                                        |
+
+**Durable artifacts.** Each skill writes to `~/.claude/ownership/{topic}/` (private — your claude-home, **not** this public repo). `{topic}` resolves identically across the skills (arg → git branch → doc basename → ask), so `predict-first` and `challenge-me` form a matched pair: the prediction you saved is the answer key you're later graded against.
+
+```
+~/.claude/ownership/{topic}/
+  predict.md      challenge.md      onboarding.md
+  debug-{date}-{slug}.md            adr-NNNN-{slug}.md
+```
+
+These are invoked **deliberately** (`/predict-first`, `/challenge-me`, …) — they don't auto-trigger mid-work. Reconciliation and debug misses are tagged (`blast-radius` / `missed-invariant` / `unknown-unknown` / …) so the artifacts stay mineable if a longitudinal "retention review" is ever added.
 
 ## Design principles
 
@@ -98,13 +122,13 @@ skills** for the 17 agents and the 8 multi-phase orchestrators/executors (Codex 
 command primitive). The canonical tree is never modified — Claude is provably unaffected.
 Design + recorded decision: [`docs/codex-portability-assessment.md`](docs/codex-portability-assessment.md).
 
-**End state in Codex — one primitive.** `~/.codex/skills/` holds **35 junctioned canonical
+**End state in Codex — one primitive.** `~/.codex/skills/` holds **41 junctioned canonical
 skills** (auto-discovered, implicit-capable, exactly as in Claude) + **17 agent-skills** +
 **8 orchestrator/executor skills**. The 25 generated ones are **explicit-only `$name`** —
-they never auto-trigger. The ~28 thin shims are intentionally *not* generated (their
-methodology skill is already among the 35). Contrast Claude: three separate primitives
+they never auto-trigger. The ~28 thin shims are intentionally _not_ generated (their
+methodology skill is already among the 41). Contrast Claude: three separate primitives
 (skills + commands + agents), where commands carry orchestration at **zero always-on
-context cost** — which is *why* the kit keeps `commands/` on the Claude side rather than
+context cost** — which is _why_ the kit keeps `commands/` on the Claude side rather than
 collapsing it into skills.
 
 **Gotchas (read before relying on it):**
@@ -113,12 +137,12 @@ collapsing it into skills.
   (Codex generated skill). Thin per-phase shims have no Codex form — invoke the skill they
   wrapped (`/investigate-bug` → `$bug-investigation`).
 - **Your `~/.claude/CLAUDE.md` conventions do not transfer** — Codex never reads `~/.claude`.
-  The kit ships only a Codex-*mechanics* `AGENTS.md`; you must mirror your personal
+  The kit ships only a Codex-_mechanics_ `AGENTS.md`; you must mirror your personal
   conventions into a private `AGENTS.md` yourself. See
-  [`adapters/codex/README.md`](adapters/codex/README.md) → *Your personal conventions do not transfer*.
+  [`adapters/codex/README.md`](adapters/codex/README.md) → _Your personal conventions do not transfer_.
 - **`review-artifact` is frozen** for the Codex initiative (it's the quality gate for 4 of 5
   families); it runs from the unchanged file. Full rationale + the `[verify on installed
-  binary]` list are in the adapter README.
+binary]` list are in the adapter README.
 
 ## Cursor (Cursor CLI)
 
@@ -130,7 +154,7 @@ bash adapters/cursor/sync.sh --dry-run   # WSL/Linux — the PRIMARY path
 bash adapters/cursor/sync.sh             # pwsh adapters/cursor/sync.ps1 on native Windows
 ```
 
-What it does: per-skill **symlinks** the skills into Cursor's *native* skills
+What it does: per-skill **symlinks** the skills into Cursor's _native_ skills
 root (`~/.cursor/skills`), **generates** the 8 multi-phase orchestrators/executors
 as explicit-only skills (`disable-model-invocation: true`), and **generates** the
 17 agents as **native Cursor subagents** (`~/.cursor/agents/`). The canonical tree
@@ -138,7 +162,7 @@ is never modified — Claude is provably unaffected. Design + recorded decision:
 [`docs/cursor-portability-assessment.md`](docs/cursor-portability-assessment.md).
 
 **Why smaller than the Codex adapter.** Cursor natively consumes the same
-`SKILL.md` spec *and* has a native subagent primitive *and* treats explicit
+`SKILL.md` spec _and_ has a native subagent primitive _and_ treats explicit
 commands as skills — so there is no `openai.yaml`, no validator step, and no
 agent-as-skill workaround. Skills auto-discover exactly as in Claude.
 
@@ -147,16 +171,16 @@ agent-as-skill workaround. Skills auto-discover exactly as in Claude.
 - **The original symptom was an environment gap, not a format one.**
   `cursor-agent` resolves config against the invoking shell's home; run under
   **WSL** it uses `/home/<you>/.cursor`, not the Windows `~/.claude` junctions.
-  Run `sync.sh` *inside* the WSL environment you launch `cursor-agent` from.
+  Run `sync.sh` _inside_ the WSL environment you launch `cursor-agent` from.
 - **Invocation keeps the slash:** `/full-bug-fix-workflow` (Claude) →
   `/full-bug-fix-workflow` (Cursor explicit-only skill) — same key, unlike
   Codex's `$name`. Thin shims have no Cursor form — invoke their skill
   (`/investigate-bug` → the `bug-investigation` skill).
-- **Cursor has no explicit-only flag for subagents** — the 17 agents *may*
+- **Cursor has no explicit-only flag for subagents** — the 17 agents _may_
   auto-delegate (governed by `description`). Documented caveat, not suppressed
   (forcing it would edit canonical agent files = Category-2).
 - **Your `~/.claude/CLAUDE.md` conventions do not transfer** — the Cursor CLI
-  reads a *project-root* `CLAUDE.md`/`AGENTS.md`, not `~/.claude` globally.
+  reads a _project-root_ `CLAUDE.md`/`AGENTS.md`, not `~/.claude` globally.
   Mirror them into a private `AGENTS.md` yourself. See
   [`adapters/cursor/README.md`](adapters/cursor/README.md).
 - **`review-artifact` is frozen** (same rationale as the Codex initiative).

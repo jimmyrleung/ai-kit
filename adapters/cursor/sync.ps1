@@ -18,7 +18,7 @@
 
   What it does (NOTHING touches the canonical ai-kit tree; Claude unaffected):
 
-    1. Skills (35) : per-skill directory JUNCTION
+    1. Skills (41) : per-skill directory JUNCTION
                      $CursorHome\skills\<name> -> <repo>\skills\<name>
                      (Cursor's native user-level skills root; self-contained,
                      does NOT depend on the ~/.claude compat root.)

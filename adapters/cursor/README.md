@@ -33,7 +33,7 @@ skill workaround.
 
 | ai-kit primitive | Cursor realization |
 |---|---|
-| `skills/<name>/` (35) | per-skill **junction/symlink** → `${CURSOR_HOME:-~/.cursor}/skills/<name>`. Cursor's *native* user-level skills root (self-contained — does **not** depend on the `~/.claude` compat root). `SKILL.md` spec identical, **no body transform**. |
+| `skills/<name>/` (41) | per-skill **junction/symlink** → `${CURSOR_HOME:-~/.cursor}/skills/<name>`. Cursor's *native* user-level skills root (self-contained — does **not** depend on the `~/.claude` compat root). `SKILL.md` spec identical, **no body transform**. |
 | `commands/*` (3 classes) | Cursor **deprecated standalone slash-commands** (folded into Skills; the built-in `/migrate-to-skills` converts them with `disable-model-invocation:true`). **~25 thin shims**: not generated — their skill is already junctioned, invoke its skill directly. **5 family orchestrators + 3 per-task executors**: **generated** as Cursor skills with `disable-model-invocation: true` (explicit-only `/name`, never auto-trigger). Canonical `commands/` untouched — Claude keeps the `/x` UX at zero context cost. |
 | `agents/<name>.md` (17) | **generated** as native Cursor subagents at `${CURSOR_HOME:-~/.cursor}/agents/<name>.md` (`name`+`description`+body; `model`/`tools`/`color` dropped → `model: inherit`). Works in the Cursor **IDE**; **not in the CLI** until parity bug #160426 is fixed (see *Subagents: Cursor CLI parity gap* below). |
 | Claude `CLAUDE.md` conventions | `AGENTS.md` (this dir) — fan-out A/C mapping, the `AskUserQuestion` plain-text degradation, model-pin note, the subagent caveat. Additive instruction; no canonical edit. |

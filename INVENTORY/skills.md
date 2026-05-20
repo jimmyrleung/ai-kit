@@ -60,6 +60,18 @@ Skills are the methodology — each is one `SKILL.md` (some carry a `templates/`
 | `verify-task`     | Per-task version: gates 1+2+3 only. Runs at end of each per-task implement command.                   |
 | `review-artifact` | Generic "review the artifact" sub-phase — launches 1–3 reviewer agents, gates at confidence threshold |
 
+## Engineering ownership (retention)
+
+Personal-practice rituals — keep staff-level judgment sharp while using AI heavily: generate-before-consume, then test-after. Deliberately friction-adding (that's the point), invoked by hand, writing durable artifacts to `~/.claude/ownership/{topic}/`. `predict-first` ↔ `challenge-me` are a matched pair (the saved prediction is the answer key).
+
+| Skill           | Role                                                                                                                              |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `predict-first` | Before AI: predict (touches/invariant/edge/shape/unknowns); re-run after to reconcile vs. reality and tag misses. Answer key for `challenge-me`. |
+| `debug-first`   | Before AI on a NON-incident bug: form hypotheses yourself (Observed/Hypotheses/Tried/Question); AI then engages each with evidence.              |
+| `adr-first`     | Critique-only ADR: you write the rationale, AI challenges (steelman the rejected option) first, polishes a distant second.                       |
+| `challenge-me`  | Feature code-complete: ~5 judgment questions (failure modes/alternatives/invariants/blast radius); won't answer until you try; grades vs. code + your prediction. |
+| `onboard-me`    | Cold-read walkthrough of UNFAMILIAR code by a "staff engineer" — one step at a time, Socratic, lists assumptions every message.                  |
+
 ## Meta / session lifecycle
 
 | Skill            | Role                                                                                                            |

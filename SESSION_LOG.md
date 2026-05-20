@@ -1,3 +1,32 @@
+## [2026-05-20] — Engineering-ownership (retention) skill layer: 5 skills shipped
+
+**Summary:** Assessed the user's draft for a retention/engineering-ownership layer, then built all 5 skills (predict-first/debug-first/adr-first/challenge-me/onboard-me), documented them, synced to Codex, fixed a stale skill-count drift, and ran /audit-skills (1 proposal applied). Layer is live; Cursor sync + a real-use test-drive are the open items.
+
+**Done:**
+- 5 new skills at `skills/<name>/SKILL.md` (no command shims — matches close/improve/triage). Deliberately-invoked, friction-adding rituals: generate-before-consume (predict/debug/adr) + test-after (challenge/onboard).
+- Persistence: durable artifacts in `~/.claude/ownership/{topic}/`; `{topic}` resolves arg→branch→doc→ask identically across skills → predict-first ↔ challenge-me matched pair (saved prediction = answer key). Misses tagged for future mining.
+- Design fixes folded in vs the draft: predict-first reconciliation back-half; challenge-me question-types + grade-vs-prediction; adr-first critique-only / challenge-first; onboard-me Socratic + scoped to unfamiliar code + dated append-only onboarding.md.
+- Docs: README new "Engineering ownership" section + intro line; INVENTORY/skills.md new section; "what we built" summary appended to `drafts/20260520_01_engineering-ownership.md`.
+- Codex sync applied: 5 skills + a document-terraform catch-up linked; issues 0.
+- Drift fix: stale "35 junctioned canonical skills" → 41 in 7 current-state spots (README + codex/cursor adapter READMEs + cursor sync scripts). Left the 2 dated *portability-assessment* snapshots untouched (rewriting a record falsifies it).
+- /audit-skills: clean run; proposal 01 applied (onboard-me desc 849→~620, a kit-max regression introduced this session); backlog 16 = kit-wide description-budget question; 2026-05-14 kept (4 unapplied proposals).
+
+**Decisions:**
+- Build all 5 now (not sequence one) because scoping debug-first to non-incident bugs and onboard-me to others' code neutralized the two adherence risks raised in review.
+- Persistence = durable artifacts; rejected ephemeral templates (no longitudinal loop) and rejected the full retention-review loop / "option C" (defer until rituals prove sticky — month-1 graveyard risk).
+- Ownership artifacts live in private claude-home, NOT the public ai-kit repo.
+
+**Didn't work:** —
+
+**Next:**
+- **Cursor sync for the 5 new skills — run in WSL** (`bash adapters/cursor/sync.sh --dry-run`, then real); cursor-agent reads the WSL `$HOME`, so the Windows pwsh session can't do it correctly.
+- Test-drive `predict-first` on a real change — the actual validation; month-1 adherence is the open risk, not the build.
+- Revisit backlog 16 (description budget) at the next /improve.
+
+**Blockers:** none (Cursor sync just needs a WSL shell).
+
+**Artifacts:** `skills/{predict-first,debug-first,adr-first,challenge-me,onboard-me}/SKILL.md` · `drafts/20260520_01_engineering-ownership.md` · `~/.claude/improvements/2026-05-20/` · memory `engineering-ownership-skills`.
+
 ## [2026-05-19] — Cursor CLI adapter built; agents CLI-blocked on upstream bug #160426 (wait/monitor)
 
 **Summary:** Researched + built `adapters/cursor/` (ai-kit → Cursor CLI, mirroring the Codex adapter's Category-1 contract), debugged it empirically on the user's `cursor-agent` (WSL). Skills + 8 orchestrators work and list (51, no dupes); agents are blocked by a staff-acknowledged Cursor CLI parity bug — decision: wait, don't pivot.
