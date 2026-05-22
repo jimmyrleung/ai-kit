@@ -45,7 +45,7 @@ Exclude bundled/system skills and Anthropic-shipped skills from any proposal.
 If `REVIEW.md` already exists for today (because `/improve` ran earlier), append a
 `## Audit-derived findings — {YYYY-MM-DD HH:mm}` section to it instead of overwriting.
 
-## Checks (10 total)
+## Checks (11 total)
 
 ### Check 1 — Frontmatter validity
 For each SKILL.md / command / agent file:
@@ -125,6 +125,17 @@ skill (> 50 lines of non-frontmatter content in a command file).
 - No `name:` field collides across skills/commands/agents.
 - No skill name ends in `-skill`; no command name starts with `/` in the name field.
 
+### Check 11 — Output-doc filename contract
+For each workflow family (orchestrator + its standalone per-phase commands), the output-doc filenames
+must agree with `C:\ai-kit\docs\output-filename-contract.md`. Flag: (a) a `{token}_<suffix>.md`
+reference whose token disagrees with the family's canonical token (e.g. `{feature}_techspec.md` or
+`{prefix}_techspec.md` where the contract says `{feature_name}`); (b) an orchestrator-stated output
+filename with no matching standalone command output (or vice-versa); (c) a family/phase not yet listed
+in the contract table. Read filenames from command/skill bodies (grep `_techspec.md` / `_integration.md`
+/ `_tasks.md` / `_investigation.md` / `_impact_analysis.md` / `_regression_test_plan.md` / `_audit.md`
+/ `_plan.md` and the bare incident names). Surface mismatches; propose the token normalization, don't
+silently rewrite.
+
 One proposal per finding.
 
 ## Procedure
@@ -133,7 +144,7 @@ One proposal per finding.
 Glob the four input directories. Build a structured inventory:
 `{ skills: [...], commands: [...], agents: [...], templates: [...] }`.
 
-### Phase 2 — Run all 10 checks
+### Phase 2 — Run all 11 checks
 Walk each check across the relevant subset. Collect findings as (check, file) pairs;
 group by file for the report. Don't fabricate findings to look productive — zero
 findings on a check is a valid result.

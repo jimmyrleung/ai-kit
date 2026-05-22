@@ -1,6 +1,6 @@
 ---
 name: close
-description: End-of-session ritual. Retrospect on the session (decisions + why, learnings, dead ends, open tasks, references, files touched), persist the durable parts to auto-memory and the skill/workflow-performance evidence to ~/.claude/observations/, prepend a SESSION_LOG.md entry at the git root, and propose a commit. Run at the end of a working session — invoke as /close or when the user says they're wrapping up. NOT a context dump: it distills, it doesn't transcribe.
+description: End-of-session ritual. Retrospect on the session (decisions + why, learnings, dead ends, open tasks, references, files touched), persist the durable parts to auto-memory and the skill/workflow-performance evidence to ~/.claude/observations/, prepend a SESSION_LOG.md entry at the git root, and propose a commit. Run at the end of a working session — invoke as /close, when the user says they're wrapping up, before a /clear or /compact context reset, or at a natural pause after a task or PR lands. NOT a context dump: it distills, it doesn't transcribe.
 ---
 
 # Close — end-of-session ritual
