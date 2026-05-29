@@ -1,3 +1,28 @@
+## [2026-05-29] — Backlog #18 applied: proposal-doc / analysis-doc pattern → CLAUDE.md
+
+**Summary:** Picked up `/improve` backlog #18 (one of the 3 focused-session items the morning `/improve` run greenlit). Codified the proposal-doc vs. analysis-doc team-decision pattern as a global `~/.claude/CLAUDE.md` note (user pick over a skill / project memory). Found en route that the memory the backlog wanted to "extend" (`preserve-spec-history`) never actually existed.
+
+**Done:**
+- Added CLAUDE.md §"Proposal docs vs. analysis docs (team-decision moments)" (lines 50–57): cue phrases ("bring this back to the team") → standalone proposal doc (8-section shape) pre-decision; a fresh analysis doc that supersedes it post-decision; `## Superseded YYYY-MM-DD` preserve-history posture, never rewrite in place.
+- Marked backlog #18 APPLIED (kept as history, not deleted) with the resolution + the `preserve-spec-history` finding recorded.
+- Updated the 2 source observations' review-markers: ACTIONED → backlog → APPLIED → CLAUDE.md.
+- Wrote 1 observation on the missing-memory integrity gap.
+
+**Decisions:**
+- Home = global CLAUDE.md note, NOT a skill (rejected: grows an over-budget skill population per backlog #16 + Codex/Cursor sync cost) and NOT a project memory (rejected: user framed the pattern as reusable, so global beats Met.Trap-only). The 8-section shape was compact enough to inline without bloating always-loaded context.
+- Single-source (Met.Trap-only) per `improve-defer-single-source`, but the user explicitly approved #18 and framed it reusable → override the defer, go global.
+
+**Didn't work:** —
+
+**Next:**
+- Backlog #17 (feasibility-spike-skill) and #19 (study-pipeline post-write reflex) still await focused sessions.
+- Optional follow-ups the user deferred: recreate `preserve-spec-history` properly as a Met.Trap memory; propagate the new CLAUDE.md note to the (dormant) `~/.codex/AGENTS.md` mirror.
+- The morning run's keep-two prune (hook-blocked `Remove-Item`) is still pending.
+
+**Blockers:** none.
+
+**Artifacts:** `~/.claude/CLAUDE.md` §"Proposal docs vs. analysis docs" · `~/.claude/improvements/backlog/18-proposal-doc-pattern.md` (APPLIED) · obs `2026-05-29-backlog18-proposal-doc.md`.
+
 ## [2026-05-29] — /improve review: 5 of 7 proposals applied, 2 deferred (single-source)
 
 **Summary:** Ran `/improve` over the 2026-05-22→05-29 window (25 observation files, ~55 obs — a dense week: Met.Trap LZ feature 236030, secondear greenfield, cc-looper multi-provider, study-vault). Staged 7 proposals; applied 5, deferred 2 single-source, routed 3 candidates to backlog. Both repos committed + pushed; keep-two prune handed to the user (hook-blocked).
