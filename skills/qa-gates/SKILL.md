@@ -64,13 +64,13 @@ Otherwise, append the gate plan as the first lines of the `## QA — {date}` sec
 
 Run the build + test commands the techspec specifies (default: `npm run build && npm test`
 or the repo equivalent — `pytest`, `terraform fmt && terraform validate`, …). **Halt on
-non-zero exit.** Record:
+non-zero exit.** Record one of THREE outcomes — never substitute one for another:
 
 ```
-- [x] Gate 1 — build/test: pass (commands: `…`)
+- [x] Gate 1 — build/test: pass (commands: `…`)   ← only when the command ACTUALLY RAN with exit 0
 ```
 
-or:
+or FAIL (executed, non-zero):
 
 ```
 - [ ] Gate 1 — build/test: FAIL
@@ -79,7 +79,27 @@ or:
   - resolution: <"address before re-running" / "accepted: <reason>">
 ```
 
+or BLOCKED (could not execute — sandbox/permission/headless denial, missing toolchain):
+
+```
+- [ ] Gate 1 — build/test: BLOCKED
+  - command: `…`
+  - reason: <why it couldn't run — e.g. "sandbox denies `dotnet test`; not in the cc-loop allow-list">
+  - resolution: <"run before merge" / "re-run with the allow-list added via `cc-loop init`">
+```
+
+**`pass` is reserved for an executed, green command.** "verified by inspection", "project builds"
+(without the command's recorded output), or "unrunnable so assumed-passing" are NOT a pass — they
+are `BLOCKED`, and a BLOCKED build/test gate keeps the task/prefix OFF "Done" until it actually runs.
+"unrunnable ≠ failure" must never silently become "unverified ≡ verified."
+
 If FAIL with `accepted`, require a `Why:` line; do not advance until the user states the reason.
+
+**Prefix-close only — "Done" = shipped, not authored.** When running at prefix close (not per-task
+`verify-task`, where the work is legitimately still uncommitted), confirm the prefix's claimed files
+appear in a commit *ahead of the base branch* (`git diff --stat <base>..HEAD` / `git log -S`), not
+merely in the working tree. Uncommitted edits survive branch checkouts invisibly and masquerade as
+merged work. Record: `- [x] Gate 1 — committed: pass (N files ahead of <base>)` or FAIL.
 
 ### Gate 2 — AC checklist (per-AC sub-gates)
 

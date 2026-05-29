@@ -45,6 +45,7 @@ If **only** the lighter input is present, call that out explicitly in the techsp
    - Identify the architectural patterns in play (layering, DI, helpers vs services, validation conventions, naming).
    - Identify reusable utilities, services, constants, and extensions already registered in the DI container / module graph.
    - Read any `CLAUDE.md`, architecture docs, or similar guidance files in the target repo.
+   - **Proxy/adapter/router additions map 1:1 to the consumer.** If this feature adds or changes a proxy/adapter/router/interface, list every consumer call site in scope as `consumer file:line → outgoing URL/signature → new-or-existing route → handler`, matched by literal route string. "Calls the same controller method" is NOT coverage. A summary count is not acceptable — the 1:1 list is.
 
 3. **Design the solution — pragmatic, committed.**
    - **Pick pragmatic immediately.** Do not spawn parallel minimal/clean/pragmatic sub-agents; do not present multiple options as the main output (rejected approaches may appear in an optional section for traceability, but the main design is one decision).
