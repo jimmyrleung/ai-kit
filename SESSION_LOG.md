@@ -1,3 +1,27 @@
+## [2026-05-29] — /improve review: 5 of 7 proposals applied, 2 deferred (single-source)
+
+**Summary:** Ran `/improve` over the 2026-05-22→05-29 window (25 observation files, ~55 obs — a dense week: Met.Trap LZ feature 236030, secondear greenfield, cc-looper multi-provider, study-vault). Staged 7 proposals; applied 5, deferred 2 single-source, routed 3 candidates to backlog. Both repos committed + pushed; keep-two prune handed to the user (hook-blocked).
+
+**Done:**
+- Applied & pushed: **P01** hook `git commit`/`git tag` exemption from broad words (parse-checked, 0 errors); **P02** proxy/adapter consumer-side 1:1 route-mapping (`integration-analysis` Step 5 + `pragmatic-`/`integration-techspec`); **P03** CLAUDE.md "Reading before editing" → synthesis layer; **P04** `qa-gates` Gate 1 `BLOCKED`-state + no-pass-by-inspection + committed-not-present; **P07** CLAUDE.md "Parallel tool batching" (the ≥3 flag I'd dropped, recovered mid-run).
+- Staged `~/.claude/improvements/2026-05-29/` (REVIEW + 7 proposals + MARK); annotated 27 observations across 16 files; backlog 17–19 for the greenlit candidates; `last-review.txt` → 2026-05-29.
+- Commits: ai-kit **7b65ec7** (4 skills), claude-home **5cadb41** (31 files); both pushed, ai-kit secret-scan passed. 1 feedback memory + 3 observations written this close.
+
+**Decisions:**
+- Deferred **P05** (lean-greenfield) + **P06** (Terraform foot-guns) because both are single-source (one project / one feature) — user wants cross-context recurrence before applying, not ≥3-from-one-situation (→ memory `improve-defer-single-source`). Backing obs left un-annotated as DEFERRED → in scope next run.
+- Did NOT build the 3 candidates inline; staged to backlog instead — each is its own focused session (new skill / memory / external-skill edits). Building mid-/improve would balloon scope.
+- P06 recommended for the project TF memory, not CLAUDE.md (bloat avoidance).
+
+**Didn't work:** Initial cluster pass dropped P07 (a pre-flagged ≥3 pattern from `2026-05-22-improve-review-close.md#2`); recovered it during annotation and staged out-of-band. → observation 1: Phase-1 intake should seed self-flagged "promote next run" notes deterministically.
+
+**Next:**
+- Run the keep-two prune via `!` (hook-blocked `Remove-Item`): `git -C ~/.claude rm -r improvements/2026-05-14 improvements/2026-05-19 improvements/2026-05-20 && git -C ~/.claude commit -m "chore: /improve keep-two prune" && git -C ~/.claude push`.
+- Next `/improve` (~2026-06-05): re-evaluate P05/P06 if the patterns recur in a 2nd context. Backlog 17 (feasibility-spike) / 18 (proposal-doc pattern) / 19 (study-pipeline post-write reflex) await focused sessions.
+
+**Blockers:** none.
+
+**Artifacts:** `~/.claude/improvements/2026-05-29/` · commits ai-kit `7b65ec7`, claude-home `5cadb41` · memory `improve-defer-single-source` · obs `2026-05-29-improve-review-close.md`.
+
 ## [2026-05-20] — Engineering-ownership (retention) skill layer: 5 skills shipped
 
 **Summary:** Assessed the user's draft for a retention/engineering-ownership layer, then built all 5 skills (predict-first/debug-first/adr-first/challenge-me/onboard-me), documented them, synced to Codex, fixed a stale skill-count drift, and ran /audit-skills (1 proposal applied). Layer is live; Cursor sync + a real-use test-drive are the open items.
