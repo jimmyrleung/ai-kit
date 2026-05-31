@@ -1,6 +1,39 @@
+## [2026-05-31] — compile-kb review → open taxonomy + root-canonical model
+
+**Summary:** Double-checked the bloated-context (~400–500K) compile-kb build for degradation, fixed a real routing bug, then iterated the design with the user through first real tests on ai_vault — landing an **open archetype taxonomy** and a **root-canonical one-KB-per-vault** layout.
+
+**Done:**
+- Audited compile-kb → found + fixed the **Hermes guard misplacement** (only in the orient branch a flat Hermes vault never reaches → **hoisted to run first, provenance-gated**); hardened the "Partial" branch (populated-flat → migrate, not repair).
+- Made the **archetype taxonomy OPEN** (rule 9): unknown archetype → **propose a new one + the concrete skill update**, persist to a vault-local note; **never improvise a compile for an unbuilt head**. Probabilistic classification, deterministic safety rails.
+- Made the **`kb-init` references honest** — vaporware (referenced 4×, never built, never in the family); onboarding (init+ingest) is now a **guided manual step**; extract a skill once the shape is proven.
+- **Root-canonical layout** (reverses per-subtree): every vault root = `SCHEMA`+`raw/`+`sources/`+`wiki/`; mixed vaults stay one KB with archetypes as **domains** (`domains:` map → heads, shared `wiki/`). Added per-domain dispatch (step 4) + complete-inventory migration (step 5) + first-party-code-as-study-source.
+- Grounded on the real ai_vault (added to workspace): course_files = **76 real notes + 1922 code-repo files**; the earlier pilot had **already executed** at the `discussions_articles_researches/` subtree.
+- Proposal refinements #3–5; memory (`second-brain-kb-initiative` + new `prefer-extensible-self-evolving-designs`) + 5 observations.
+
+**Decisions:**
+- **Open taxonomy — probabilistic classification / deterministic safety; propose-don't-dead-end** (rejected closed enum + hard stop).
+- **Onboarding deferred to guided-manual; `kb-init` not built yet** — prove the per-archetype shape by hand first (rejected build-now / fold-into-compile-kb = bulk file-move fights rule 3).
+- **Root-canonical, one KB per vault, archetypes as domains** — consistent navigation across all vaults (rejected per-subtree mini-vaults = scattered, fragmented cross-links).
+- **First-party lesson code = study source** (extract learning); only vendored/build is exhaust.
+
+**Didn't work:**
+- **Per-subtree SCHEMAs** (adopted #3, reversed in #5) — fragmented navigation; replaced by root-canonical domains.
+- **"Exclude all repos/ as exhaust"** — too blunt; first-party lesson code IS study material.
+- **`kb-init` as a delegation target** — never built/planned; made honest.
+
+**Next:** User resets ai_vault + re-runs `/compile-kb` (oracle: complete-inventory root-canonical proposal with a `domains:` map, course=study-deferred, STOPs without migrating). Then: execute root-canonical seeding (relocate/recreate the discussions pilot at root as a domain); **build the `study` head** (the real unlock for course_files's lesson code). Per-domain dispatch + `domains:` contract only fully prove out once a real mixed vault compiles through them.
+
+**Blockers:** none — model agreed; next step is the user's clean-state re-test.
+
+**Artifacts:** `skills/compile-kb/SKILL.md` (uncommitted); `ideas/kb-skill-proposal.md` refinements #3–5 (gitignored); memory `second-brain-kb-initiative` + `prefer-extensible-self-evolving-designs`; observations `2026-05-31-kb-compile-skill.md` (obs 5–9).
+
+---
+
 ## [2026-05-31] — KB "Compile" skill: proposal + compile-kb v0 + first brain-kb compile
 
 **Summary:** Acted on `drafts/20260531_01_kb_skill.md`. Re-read Karpathy's gist + replies, fanned out 12 agents over `~/projects/vaults`, and discovered the "KB skill" already half-exists (Hermes `llm-wiki` v2.1.0 → `brain-kb`). Reframed the task to "find the gap + generalize," wrote a proposal, then built `compile-kb` v0 and ran a first real compile on brain-kb (left uncommitted for review).
+
+**Refinement (later same session):** adopted **full `wiki/` segregation** for the synthesis-wiki archetype (root = `SCHEMA.md`+`raw/`+`sources/`; *everything synthesized* — `index.md`, `log.md`, `_meta` maps, pages, `_compilations` — under `wiki/`, making the KB a literally-regeneratable build artifact) and **scoped compile-kb to non-Hermes KBs** (Hermes-managed vaults like brain-kb keep raw+compiled together under their cron → out of scope, via a Hermes-guard + handoff; `wiki/`-presence is the marker). Re-committed the skill (`cd9e966`). **Consequence:** the brain-kb dry compile is now obsolete (POC + out-of-scope + old flat shape) → **discard it**; the real first compile moves to a **non-Hermes** vault (ai_vault/investments), which exercises the `wiki/` init for real.
 
 **Done:**
 - Web re-read of Karpathy v1 gist + comments + v2 fork → new affordances: adversarial review, claim-level provenance, 5-state lifecycle, trust-tiering (first 3 adopted).
