@@ -1,3 +1,32 @@
+## [2026-05-31] — Built /record-decision (cheap-capture front-end to /adr-first)
+
+**Summary:** From an ad-hoc "honest opinion" ask about a proposed `record-decision` skill, grounded the design with a 5-reader Workflow over the decision-capture surface, reframed the proposal (the real gap was adr-first's *ergonomics*, not a missing artifact), then built + wired + audited + Codex-synced the skill. Not yet committed or trigger-tested.
+
+**Done:**
+- 5-parallel-reader Workflow mapped the decision-capture surface (adr-first, close, techspec/analysis steps, the offer-surface, aggregation precedent) — all grep-sourced this session.
+- Authored `skills/record-decision/SKILL.md` (single-file, ~95 lines, ~599-char desc).
+- Wired the `/close` review sweep (close Phase 1 now sweeps `status: ai-drafted · UNREVIEWED` records → own + challenge via adr-first → flip to `owned`); cross-referenced `adr-first` (stub back-end note); updated `INVENTORY/skills.md` (new row + capture→author pair framing).
+- `/audit-skills` focused run: clean, 0 findings across 11 checks. Codex-synced (`record-decision linked`, issues 0). Grep-verified the `status:` flag is byte-consistent across all 4 files.
+
+**Decisions:**
+- **Build record-decision as a cheap-capture FRONT-END to adr-first, not a standalone auto-ADR writer** — because the real gap was adr-first's ergonomics (most effort, worst time, least convenient trigger), not a missing artifact (rejected: the original 3-auto-mechanism standalone skill — heavy overlap with /close's ADR gate + techspec §3; rejected: a terse decision-log tier — user wants the full ADR template).
+- **Decouple capture from authoring** — capture (factual, AI-fillable, cheap) split from owning the rationale (human, expensive, deferred). The load-bearing principle.
+- **Default dial = AI-drafts-rationale-flagged-`UNREVIEWED`** (user pick via AskUserQuestion; rejected: context-only stub; per-capture prompt) — trades ownership purity for the doc existing; the **/close review sweep is the checkpoint** that keeps the debt honest (without it an AI draft launders reasoning — the exact thing adr-first forbids).
+- **Reuse adr-first's store/numbering/`{topic}`/ADR-gate — one decision home, `status:` field marks the tier** (rejected: a parallel ADR scheme — would fork the record).
+
+**Didn't work:** My first recommendation (a terse "decision-log tier" + "thin nudge") misdiagnosed the gap — the user wants the full ADR template, and adr-first's ergonomic failure was the real problem. Course-corrected after their pushback.
+
+**Next:**
+- **Fresh-context trigger test** — confirm a clean session selects `record-decision` vs `adr-first` from the description alone (write-skills Process 5; not run).
+- Restart Codex to pick up the new junction; **Cursor sync still pending (run in WSL)**.
+- Pre-existing doc drift: `adapters/codex/README.md` skill count "(41)" → real count 43 (flagged, not fixed).
+- Optional dogfood: capture these design decisions via `/record-decision` itself.
+- Commit pending: ai-kit (`skills/record-decision/` + close + adr-first + INVENTORY + this SESSION_LOG); claude-home (memory + observations).
+
+**Blockers:** none.
+
+**Artifacts:** `skills/record-decision/SKILL.md` · edits to `skills/close/SKILL.md`, `skills/adr-first/SKILL.md`, `INVENTORY/skills.md` · memory `engineering-ownership-skills.md` · obs `~/.claude/observations/2026-05-31-record-decision-skill.md`.
+
 ## [2026-05-31] — Built /write-skills (skill-authoring skill, build sibling of /audit-skills)
 
 **Summary:** Researched skill-authoring best practices (3 parallel subagents: Anthropic official docs, community/practitioner, ai-kit corpus scan), gave an honest assessment correcting the user's "500-char max" premise, then authored `write-skills` — a single-file procedural authoring skill that passes `/audit-skills` by construction. Codex-synced; not yet committed or trigger-tested.

@@ -10,6 +10,8 @@ You hold the line on decision ownership. A decision whose rationale you didn't w
 > **Critique-only contract:** this skill does not generate ADR content. It cannot verify the words are yours (you could paste them from elsewhere) — that honesty is on you — but it _will_ refuse to produce the first draft. What it produces is challenge.
 >
 > **When to reach for it:** decisions that are hard to reverse, that a future reader would find surprising, or that came from a real trade-off. Not every choice deserves an ADR; ceremony on trivia just trains you to ignore the ceremony.
+>
+> **Entering from a `/record-decision` stub:** the record already carries an AI-drafted Rationale flagged `status: ai-drafted · UNREVIEWED`. Your contract is unchanged — that draft is *not* owned. The human rewrites or confirms the Rationale in their own words (you still don't draft it for them), then you challenge as below; finally flip the header to `status: owned`. This is the back-end of the capture→author pipeline `/record-decision` fronts.
 
 ## Process
 

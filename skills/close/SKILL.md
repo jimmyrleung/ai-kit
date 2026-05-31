@@ -25,6 +25,13 @@ Scan *this session's* context — only what's actually relevant; ignore noise �
   surprising to a future reader without the context ("why is it done *this* way?"), **or (c)** it
   came from a genuine trade-off with a rejected alternative. If none of those hold, it's not worth
   recording — drop it.
+- **Unreviewed decision records** — if a decision dir exists (`docs/decisions/`, `adr/`, or
+  `~/.claude/ownership/{topic}/`), scan it for records flagged `status: ai-drafted · UNREVIEWED`
+  (captured this session or earlier via `/record-decision`). For each, offer to review now: the human
+  owns the **Rationale** (rewrites or confirms it) and may run `/adr-first` to challenge it, then flip
+  the flag to `status: owned`. Never auto-own them — an unreviewed AI draft is not an ADR. Conversely,
+  if a load-bearing session decision deserves a standalone record it doesn't yet have, offer to capture
+  it via `/record-decision`.
 - **Learnings / surprises / inefficiencies** — gotchas discovered; "this cost me 20 min because X";
   a tool/pattern that worked unexpectedly well or badly.
 - **Dead ends — what did NOT work** — approaches tried and abandoned, so they're not re-attempted.
