@@ -1,3 +1,36 @@
+## [2026-05-31] — KB "Compile" skill: proposal + compile-kb v0 + first brain-kb compile
+
+**Summary:** Acted on `drafts/20260531_01_kb_skill.md`. Re-read Karpathy's gist + replies, fanned out 12 agents over `~/projects/vaults`, and discovered the "KB skill" already half-exists (Hermes `llm-wiki` v2.1.0 → `brain-kb`). Reframed the task to "find the gap + generalize," wrote a proposal, then built `compile-kb` v0 and ran a first real compile on brain-kb (left uncommitted for review).
+
+**Done:**
+- Web re-read of Karpathy v1 gist + comments + v2 fork → new affordances: adversarial review, claim-level provenance, 5-state lifecycle, trust-tiering (first 3 adopted).
+- 12 parallel agents profiled all vaults → **5 archetypes** (synthesis-wiki / study / journal / content-gen / client-technical); found brain-kb = Hermes llm-wiki output, mktool_kb = document-workflow output, system_design = its own study pipeline.
+- Verified canonical sources directly (brain-kb `SCHEMA.md`, Hermes `llm-wiki/SKILL.md`, templates).
+- Wrote `ideas/kb-skill-proposal.md` (gitignored, pre-decision).
+- Authored `skills/compile-kb/SKILL.md` via `/write-skills` (127 lines, audit-clean): synthesis-wiki head + spine + detect-and-guide init preflight + the 3 new affordances + a SCHEMA `## Compile` archetype-plug contract.
+- First dry compile on brain-kb: synthesized 32 AI-digests → `topics/agent-reliability-and-governance-over-autonomy.md` + `_meta/compilations/2026-05-31-compile.md`; updated index/ai-map/log. Shown as a diff, **left uncommitted**.
+- Housekeeping: `/audit-skills` (clean; removed a needless intentionally-long marker), Codex sync dry-run (compile-kb = would-link, 0 issues), memory de-staled.
+
+**Decisions:**
+- **Architecture B — shared spine + pluggable archetype "compile heads"** (rejected A single-adaptive skill = bloated conditional; rejected C sibling-family = today's drift). Heads are genuinely divergent (flashcards vs idea-backlogs vs code-derived docs).
+- **Home = ai-kit + keep Hermes cron** — decoupled siblings sharing each vault's `SCHEMA.md` as the data contract (rejected extend-Hermes-in-place = not usable from CC/Codex/Cursor). Building in ai-kit *reduces* Hermes/Nous coupling.
+- **The gap is periodic Compile, not staleness detection** — staleness already exists in the Hermes llm-wiki Lint (sha256 drift + >90d). Corrected the stale `second-brain-kb-initiative` memory.
+- **Scoped the first compile to one flagship trend + 3 watched** (page-creation threshold), uncommitted, so the user validates real-KB output before trusting it.
+
+**Didn't work:** `Glob` with a `path` arg + relative pattern returned empty for an existing dir (`sources/ai-digests`, 34 files) on Windows — switched to PowerShell `Get-ChildItem` (authoritative). Cost one verification round-trip.
+
+**Next:**
+- Review the brain-kb compile in Obsidian → commit / tweak / discard (separate repo, uncommitted).
+- Apply the Codex sync for real (`adapters/codex/sync.ps1`, no flags) to create the compile-kb junction.
+- Fresh-context **trigger test** for compile-kb (the one write-skills gate left).
+- Ratify a `## Compile` block + `status` field in brain-kb `SCHEMA.md`.
+- Increments: promote watched trends (MCP-control-plane / memory-substrate / security-counterweight); build study + journal heads; populated-vault migration (`kb-init`) for ai_vault/investments.
+- keep-two pruning of `~/.claude/improvements/` dated dirs (needs approval; preserve 2026-05-14's pending proposals).
+
+**Blockers:** none.
+
+**Artifacts:** `ideas/kb-skill-proposal.md` · `skills/compile-kb/SKILL.md` · brain-kb: `topics/agent-reliability-and-governance-over-autonomy.md` + `_meta/compilations/2026-05-31-compile.md` (uncommitted) · `~/.claude/improvements/2026-05-31/REVIEW.md` · memory `second-brain-kb-initiative.md` + `karpathy-llm-wiki-gist.md`.
+
 ## [2026-05-31] — Built /record-decision (cheap-capture front-end to /adr-first)
 
 **Summary:** From an ad-hoc "honest opinion" ask about a proposed `record-decision` skill, grounded the design with a 5-reader Workflow over the decision-capture surface, reframed the proposal (the real gap was adr-first's *ergonomics*, not a missing artifact), then built + wired + audited + Codex-synced the skill. Not yet committed or trigger-tested.
