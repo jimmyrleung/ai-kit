@@ -1,3 +1,30 @@
+## [2026-05-31] — Built /write-skills (skill-authoring skill, build sibling of /audit-skills)
+
+**Summary:** Researched skill-authoring best practices (3 parallel subagents: Anthropic official docs, community/practitioner, ai-kit corpus scan), gave an honest assessment correcting the user's "500-char max" premise, then authored `write-skills` — a single-file procedural authoring skill that passes `/audit-skills` by construction. Codex-synced; not yet committed or trigger-tested.
+
+**Done:**
+- 3-subagent research → triangulated findings (official + community + corpus), all sourced this session.
+- Honest assessment: the "500-character max" the user liked is a **myth** — conflation of the 500-*line* body cap + the 1024-*char* description cap. Real limits are surface-dependent: 1024 hard (open standard / claude.ai / API, rejects) vs 1536 soft (Claude Code, `maxSkillDescriptionChars`, truncates).
+- Authored `skills/write-skills/SKILL.md` — 560-char desc, 73-line body; passes audit-skills Checks 1/2/4/10 by construction (measured, not eyeballed).
+- Codex-synced (additive: `write-skills linked`, issues 0).
+- Persisted 1 memory + 2 observations.
+
+**Decisions:**
+- **Single-file-default; `references/` split only as the escape past ~250 lines** — because the ai-kit corpus splits 0/35 and aggressive splitting risks Anthropic's documented partial-read (`head -100`) failure (rejected: Anthropic's ~100-line aggressive-split orthodoxy, which is where the user initially leaned).
+- **Procedural authoring shape** (house archetype) + **lightweight fresh-context trigger test** (rejected: concise-checklist shape; full eval-first TDD) — user picked all three via AskUserQuestion.
+- **No command wrapper** — skills are directly invocable as `/name` (matches `/predict-first`, `/improve`, `/close`); keeps scope to one file.
+
+**Didn't work:** —
+
+**Next:**
+- **User will trigger-test `/write-skills` in a fresh session** (its own Process step 5 — not runnable in this context-saturated session).
+- User will author another skill, then run `/audit-skills` over the population.
+- Commit pending: ai-kit (`skills/write-skills/` + this SESSION_LOG); claude-home (memory + observations).
+
+**Blockers:** none.
+
+**Artifacts:** `skills/write-skills/SKILL.md` · `~/.claude/projects/C--ai-kit/memory/write-skills-skill.md` · obs `~/.claude/observations/2026-05-31-write-skills-authoring.md` · refs: [Anthropic best-practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices), [Claude Code skills](https://code.claude.com/docs/en/skills), [agentskills.io spec](https://agentskills.io/specification), [obra/superpowers](https://github.com/obra/superpowers/blob/main/skills/writing-skills/SKILL.md), [Vercel agents-md-vs-skills eval](https://vercel.com/blog/agents-md-outperforms-skills-in-our-agent-evals).
+
 ## [2026-05-29] — Backlog #18 applied: proposal-doc / analysis-doc pattern → CLAUDE.md
 
 **Summary:** Picked up `/improve` backlog #18 (one of the 3 focused-session items the morning `/improve` run greenlit). Codified the proposal-doc vs. analysis-doc team-decision pattern as a global `~/.claude/CLAUDE.md` note (user pick over a skill / project memory). Found en route that the memory the backlog wanted to "extend" (`preserve-spec-history`) never actually existed.
