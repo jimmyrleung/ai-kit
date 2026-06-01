@@ -1,3 +1,26 @@
+## [2026-05-31] — compile-kb: defer dead-end → generic baseline fallback head
+
+**Summary:** Follow-up to the same-day root-canonical session. The re-run on ai_vault exposed that compile-kb's "defer unbuilt-head domains" behavior dead-ends a vault (stuck half-converted; idempotent no-op re-runs). Added a generic **baseline fallback head** so every domain converts + gets honest baseline wiki; drafted the SKILL.md changes and validated the first real run.
+
+**Done:**
+- Diagnosed the "didn't compile everything" report: the `discussions` pilot was complete + correct (7→7→8, all `integrated`, no drift — proved a re-run is a zero-candidate no-op); the other 8 domains were deferred *by design*.
+- With the user, identified the deferral as a dead-end violating `prefer-extensible-self-evolving-designs`; chose a **generic baseline fallback head** (convert + honest baseline wiki, upgradeable; keep the "never fake synthesis" guard).
+- Captured **ADR-0001** (`~/.claude/ownership/compile-kb/adr-0001-baseline-fallback-head.md`, ai-drafted · UNREVIEWED).
+- Drafted **`skills/compile-kb/SKILL.md`** (+36/−16, 9 sections; new `## Process (baseline fallback head)` B1/B2/B3; preflight 4/5 propose-then-convert; rules 3 & 9; SCHEMA `## Compile` + `baseline_depth`; description triggers). Folded in 2 consistency fixes (`sha256`→`sha256_prefix`; L129 STOP→baseline). **Uncommitted.**
+- User re-ran on ai_vault: discussions synthesis recovered + 8 domains baselined (committed `54cfebf`); `insights` extracted the 16 real `.md` from the exhaust folder (743 JSON left behind), honest baseline markers spot-verified. **Uncommitted.**
+
+**Decisions:** baseline fallback head over (B) decouple-convert-only and (C) build-real-heads-now — a fallback is needed regardless under an open taxonomy, and it composes with C later (ADR-0001). compile-kb now **executes approval-gated migration in-skill**, reversing the prior "kb-init deferred / migration outside the skill" + "unbuilt→defer" stances.
+
+**Didn't work:** initial worry that the run violated the exhaust guard — checked, disproven (it correctly left the 743 JSON behind).
+
+**Next:** (1) own ADR-0001 (rewrite Rationale, optionally `/adr-first`); (2) commit SKILL.md (ai-kit, public — secret-scan hook); (3) tighten the B1/orient-path wiring (declared-but-unconverted domain seen from step 4 has no step-5 gate); (4) reconcile `ideas/kb-skill-proposal.md` (forward-pointer to ADR-0001) + `init-proposal.md`/`SCHEMA.md` (insights = real domain, not exhaust — resolves init-proposal Q2; add to `domains:` map); (5) optional `/audit-skills`.
+
+**Blockers:** none.
+
+**Artifacts:** `skills/compile-kb/SKILL.md`; `~/.claude/ownership/compile-kb/adr-0001-baseline-fallback-head.md`; ai_vault commit `54cfebf` + uncommitted `insights/`; observations `2026-05-31-compile-kb-baseline-head.md`.
+
+---
+
 ## [2026-05-31] — compile-kb review → open taxonomy + root-canonical model
 
 **Summary:** Double-checked the bloated-context (~400–500K) compile-kb build for degradation, fixed a real routing bug, then iterated the design with the user through first real tests on ai_vault — landing an **open archetype taxonomy** and a **root-canonical one-KB-per-vault** layout.
