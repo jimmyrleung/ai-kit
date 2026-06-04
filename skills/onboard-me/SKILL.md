@@ -1,6 +1,6 @@
 ---
 name: onboard-me
-description: Engineering-ownership ritual for UNFAMILIAR code you must understand — someone else's module/workflow/service in a large repo (NOT code you wrote; reconstructing that is `challenge-me`'s job). The AI plays a staff engineer giving a cold-read walkthrough as a real back-and-forth, not a wall of text: explains ONE step, stops, waits, continues. Stays Socratic — asks YOU to predict the next hop before revealing it — and lists its assumptions every message so you can catch it being wrong. Appends a dated session summary (flows covered, wrong assumptions, open questions) to ~/.claude/ownership/{topic}/onboarding.md. Invoke as /onboard-me.
+description: "Engineering-ownership ritual for UNFAMILIAR code you must understand — someone else's module/workflow/service in a large repo (NOT code you wrote; reconstructing that is `challenge-me`'s job). The AI plays a staff engineer giving a cold-read walkthrough as a real back-and-forth, not a wall of text: explains ONE step, stops, waits, continues. Stays Socratic — asks YOU to predict the next hop before revealing it — and lists its assumptions every message so you can catch it being wrong. Appends a dated session summary (flows covered, wrong assumptions, open questions) to ~/.claude/ownership/{topic}/onboarding.md. Invoke as /onboard-me."
 ---
 
 # onboard-me — a cold-read walkthrough from a staff engineer

@@ -1,3 +1,25 @@
+## [2026-06-04] — Fix 5 SKILL.md frontmatters that broke Codex's strict YAML parser
+
+**Summary:** Codex 0.136.0 was skipping 5 skills with `mapping values are not allowed in this context` errors. Root cause: unquoted `description:` scalars containing `: ` (colon-space). Quoted all 5 (zero wording change); verified with a strict parser.
+
+**Done:**
+- Diagnosed: each flagged file's `description:` was an unquoted YAML plain scalar containing `: ` → ambiguous with a key/value mapping under a strict parser (Codex), but tolerated by Claude Code's lenient frontmatter parser (which is why it never broke Claude-side).
+- Fixed by double-quoting the `description` value in close / debug-first / onboard-me / qa-gates / verify-task (1 line each); escaped debug-first's internal `"Question for AI"`. No wording changed.
+- Verified: regex sweep of **every** `SKILL.md` → 0 remaining unquoted-`: ` descriptions (these 5 were the only offenders); strict **js-yaml** parse of all 5 → `ALL_VALID`.
+- No Codex re-sync needed — the `adapters/codex/` junctions read the canonical files in place; content edit, not add/remove.
+
+**Decisions:** quote the value rather than rephrase the `: ` to em-dashes — preserves the user's exact authored wording (rejected rephrasing = silently alters human-facing description text). Captured as memory `skill-frontmatter-strict-yaml`.
+
+**Didn't work:** PyYAML for verification — `import yaml` segfaults (`0xC0000005`) under both git-bash Python and Windows Python 3.11.0a7 alpha. Fell back to Node 22 + temp `npm install js-yaml`; `NODE_PATH` wasn't honored, so the check had to run from inside the temp dir for local module resolution.
+
+**Next:** optional — add a strict-YAML frontmatter validity gate to `/audit-skills` (and the quote-the-colon rule to `/write-skills`) so an unquoted `: ` can't reach Codex again. Standing item (unrelated to this session): own compile-kb ADR-0002 / finish the ai_vault re-run.
+
+**Blockers:** none. Ground-truth confirmation is a `codex` relaunch — the 5 warnings should be gone.
+
+**Artifacts:** 5 × `skills/*/SKILL.md`; memory `skill-frontmatter-strict-yaml.md`; observations `2026-06-04-codex-skill-yaml.md`.
+
+---
+
 ## [2026-05-31] — compile-kb: defer dead-end → generic baseline fallback head
 
 **Summary:** Follow-up to the same-day root-canonical session. The re-run on ai_vault exposed that compile-kb's "defer unbuilt-head domains" behavior dead-ends a vault (stuck half-converted; idempotent no-op re-runs). Added a generic **baseline fallback head** so every domain converts + gets honest baseline wiki; drafted the SKILL.md changes and validated the first real run.
