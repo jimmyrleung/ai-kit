@@ -98,6 +98,14 @@ Scan the *curated* layer (skills + orchestrators + `MEMORY.md` + `~/.claude/CLAU
 Create `~/.claude/improvements/{YYYY-MM-DD}/`. Apply the **keep-two rule**: if there are already two
 or more dated dirs, delete all but the most recent one (so after creating today's there are exactly two).
 
+**Generic repo labels in the packet — never employer/client project names.** `REVIEW.md` / `proposals/` /
+`MARK.md` are committed to claude-home, whose secret-scan hook blocks employer identifiers (and these
+meta-artifacts shouldn't carry them regardless). Refer to a work repo by a generic role label —
+`work-LZ-repo`, `payments-repo`, `services-repo` — not its real name; the raw names stay only in the
+private observation files (which already hold them). Observation *filenames* you cite in `MARK.md` are
+fine as-is (they're pointers, not prose). If a commit is still blocked by pre-existing names in annotated
+obs files, `--no-verify` is acceptable for private claude-home (names already in history) — but ask first.
+
 Write `REVIEW.md`:
 ```
 # Improvement review — {YYYY-MM-DD}
