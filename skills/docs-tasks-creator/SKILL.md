@@ -73,6 +73,7 @@ Walk the workspace's top two directory levels. Multiple detectors may apply with
 | ASP.NET minimal API | `.csproj` references `Microsoft.AspNetCore.App` AND any `.cs` file contains `WebApplication.CreateBuilder` |
 | GRPC .NET | `.csproj` references `Grpc.AspNetCore` OR `.proto` files exist in the source tree |
 | .NET background workers | Any `.cs` file declares a class inheriting `BackgroundService` or implementing `IHostedService` |
+| Azure Functions (.NET isolated / in-process) | `.csproj` references `Microsoft.Azure.Functions.Worker` (isolated) OR `Microsoft.NET.Sdk.Functions` (in-process) |
 
 **Never enter these directories during scan**: `node_modules`, `bin`, `obj`, `dist`, `build`, `.next`, `.git`, `vendor`, `target`, `__pycache__`, `.venv`, `.cache`, `out`.
 
@@ -124,6 +125,17 @@ Glob `**/*.proto`. For each `service X { rpc Y(...) returns (...) }`, also find 
 #### .NET background workers
 
 Grep for `:\s*BackgroundService\b` and `:\s*IHostedService\b` (with the class declaration on the same line). For each class, the entry point is its `ExecuteAsync` (BackgroundService) or `StartAsync` (IHostedService) method. Trigger description: "Background worker" — also note any obvious interval/schedule (e.g. `Task.Delay(TimeSpan.FromSeconds(...))` constants).
+
+#### Azure Functions (.NET isolated / in-process)
+
+Grep for `[Function(` (isolated: `[Function("name")]` / `[Function(nameof(X))]`; in-process: `[FunctionName("name")]`). For each decorated method the **trigger type** comes from the first parameter's attribute:
+- `[HttpTrigger(...)]` → REST (verb + route from the attribute args).
+- `[ServiceBusTrigger("queue"/"topic", ...)]` → message handler (queue/topic name).
+- `[TimerTrigger("cron")]` → scheduled job (note the cron).
+- `[BlobTrigger(...)]` / `[QueueTrigger(...)]` / `[EventHubTrigger(...)]` → event handler.
+- Durable: `[OrchestrationTrigger]` (orchestrator) / `[ActivityTrigger]` (activity) — **not** standalone entry points; see Phase 5 granularity.
+
+`Reference:` is `<file>:<ClassName>.<MethodName>`. `trigger` is the human-readable form (`Message handler: order.created (ServiceBus)`, `Timer: 0 */5 * * * *`, `REST POST /api/x`).
 
 #### Per-entry-point captures
 
@@ -188,6 +200,8 @@ Keep the file under ~200 lines. The goal is orientation, not exhaustive document
 
 For each entry point captured in Phase 3 (for the current workspace), emit a `## Task N — Document <name>` section. N is positional within the workspace's tasks doc, starting at 1. **Group tasks by service in document order** — all of Service A's tasks first, then Service B's, etc. Service order is alphabetical.
 
+**Multi-`[Function]` workflows — one task per workflow file, not per method.** Where one logical workflow spans several decorated members — **Durable Functions** (trigger + orchestrator + N activities in one file) or an **HTTP-starter + queue-consumer pair** — emit **one task per externally-triggered workflow file** and enumerate the orchestrator + activities inside that task's acceptance criteria, *not* a separate task per `[Function]`. (A durable-heavy repo otherwise explodes: ~100 `[Function]` methods → ~46 useful workflow tasks.)
+
 ### Phase 6 — Write the tasks doc
 
 Write `<workspace-output-dir>/_docs-tasks.md` in this exact shape:
@@ -245,6 +259,7 @@ Service grouping in v1 uses no checkpoint headings — the tasks doc is a flat l
 ## Anti-patterns
 
 - **Do not invent handlers.** If a detector recipe doesn't grep-match, the handler doesn't exist for v1's purposes. The user can manually add tasks for dynamically-mounted or otherwise-undetectable handlers by editing `_docs-tasks.md` after the run.
+  When a *statically-detectable* framework is present but has **no detector** (e.g. an `.csproj` with `Microsoft.Azure.Functions.Worker` and the Functions detector is somehow off), surface it in `project-overview.md` Notes as `[unsupported handler framework: N <kind> entry points detected, not emitted as tasks]` — do **not** let "don't invent handlers" absorb it into a silently-thin result.
 - **Do not skip monorepo selection.** When 2+ workspaces are detected, always ask the user which to scan — do NOT silently scan all of them. A 30-workspace nx repo would produce 30 tasks docs with hundreds of tasks each; that's overwhelming and rarely what's wanted.
 - **Do not emit a single combined tasks doc for monorepos.** One tasks doc per workspace, each under its own subdir. The whole point of monorepo handling is keeping per-workspace concerns separable.
 - **Do not include files outside `$codebase_path`.** Symlinks, projects outside the scan root, etc. — stay within the input root.

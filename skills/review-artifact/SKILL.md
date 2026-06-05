@@ -44,7 +44,11 @@ complete. Hand them `support_docs` if provided. Reviewer constraints:
 - "Identify what is vague, missing, wrong, or misleading. Be specific — cite file:line."
 
 ### Step 2 — Consolidate
-Read every reviewer output in full. Build ONE list of issues and required changes. Estimate
+Read every reviewer output in full.
+
+**Findings are leads, not verdicts — re-ground each before it drives an edit.** A reviewer read a *point-in-time* state; in a multi-step or multi-session run the artifact (or the code it describes) can move after the review, so a finding may be **stale** or a **false positive**. For every load-bearing finding, before it enters the change list: open its cited `file:line` in the **current** source/artifact and confirm it still holds (drop findings the current state refutes — acting on them produces no-op or wrong edits); re-grade severity **yourself** (a reviewer's "critical"/"major" is advisory until you've seen the source); and if the finding carries a concrete code-level repro ("X raises", "Y mutates"), **execute it** (one throwaway run) rather than reasoning to confidence — a "confirmed" label requires an *observed result*, a reasoned argument earns only "suspected — not executed".
+
+Build ONE list of issues and required changes. Estimate
 **how much of the {artifact_label} must change**:
 - **> 30%** → re-run 1-3 `@{creator_agent}` agents with the review findings as input, then come back to Step 1.
 - **10-30%** → update the document with the review corrections.

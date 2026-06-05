@@ -61,7 +61,7 @@ Omit a section rather than leave a placeholder.
 
 ## Important rules
 1. **One skill, one job.** Two jobs → two skills.
-2. **The description is the whole ballgame.** Third person, ≤ 600 chars, symptoms-first, trigger-rich. The *body* may be second person ("You are a …") — never confuse the two voices.
+2. **The description is the whole ballgame.** Third person, ≤ 600 chars, symptoms-first, trigger-rich. The *body* may be second person ("You are a …") — never confuse the two voices. **Quote any `description:` value containing `: ` (colon-space)** — Claude Code's lenient parser tolerates it but Codex / claude.ai / the API use strict YAML and silently skip the skill (`mapping values are not allowed in this context`); when in doubt wrap the whole description in double quotes (`/audit-skills` Check 1 enforces this).
 3. **Single-file by default.** `references/` is the escape past ~250 lines (one level deep, TOC if long), not the starting point.
 4. **No time-sensitive content** ("as of August…") and **consistent terminology** — one term per concept, kept throughout.
 5. **Scripts are the exception**, not the rule; when used, label and harden them (Process 3).

@@ -49,7 +49,7 @@ If `REVIEW.md` already exists for today (because `/improve` ran earlier), append
 
 ### Check 1 — Frontmatter validity
 For each SKILL.md / command / agent file:
-- `---` fences front and back; YAML parses.
+- `---` fences front and back; the frontmatter block parses under a **STRICT YAML parser (js-yaml)** — not just the Claude-lenient/regex check. Specifically flag an **unquoted `description:` (or any plain scalar) containing `: ` (colon-space)** or other YAML-special constructs (leading `[`/`{`/`&`/`*`/`|`/`>`, an unescaped `#` mid-scalar) that strict parsers (**Codex**, claude.ai, the open-standard, the API) reject while Claude Code tolerates. Validate with **Node + js-yaml** (the local PyYAML segfaults on this machine — see memory `skill-frontmatter-strict-yaml`; don't reach for it). Each failure → a proposal that quotes the value.
 - `name:` matches the directory (skills) or filename stem (commands/agents).
 - `description:` present and non-empty.
 - No unknown fields beyond `name`, `description`, `allowed-tools` (skills),
@@ -61,6 +61,7 @@ For each SKILL.md / command / agent file:
 
 ### Check 2 — Description size
 - Soft-flag: > 600 chars. Surface in fitness table, suggest tightening.
+- Info: > 1,024 chars — fine for Claude Code, but **exceeds the portable/open-standard cap** (claude.ai / API reject). Note in the fitness table; matches write-skills' limits table.
 - Hard-flag: > 1,536 chars. Proposal includes a concrete rewrite.
 
 Show current description, proposed shorter one, char-count delta.
