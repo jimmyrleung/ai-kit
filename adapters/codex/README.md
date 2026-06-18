@@ -12,7 +12,7 @@ Claude Code, from one source of truth — extending the existing `~/.claude` jun
 - **Category-1, additive, Claude-untouched.** Nothing here edits the canonical
   `skills/*/SKILL.md`, `agents/*.md`, or `commands/*.md`. Claude is provably unaffected —
   the adapter only creates entries in Codex's skills root and generates Codex-only files
-  there (the 8 orchestrator/executor skills are *read from* `commands/` but written only to
+  there (the 10 generated command skills are *read from* `commands/` but written only to
   Codex's root; canonical `commands/` is never modified).
 - **No kit-owned fan-out harness** (recorded decision: rely on the native harness, never an
   orchestration script in a skill). Strategy selection is *instruction*, in `AGENTS.md`.
@@ -26,14 +26,14 @@ Claude Code, from one source of truth — extending the existing `~/.claude` jun
 | `skills/<name>/` (41) | per-skill **directory junction** → `${CODEX_HOME:-~/.codex}/skills/<name>`. Codex enumerates `<root>/<name>/SKILL.md` and auto-discovers; the `SKILL.md` spec is identical, so **no body transform**. |
 | `agents/<name>.md` (17) | Codex has **no `~/.codex/agents`** — a *skill is the unit of agent invocation*. Each agent is **generated** as a Codex skill at `${CODEX_HOME:-~/.codex}/skills/<name>/` (Codex-only; never written into the canonical tree) so every `@x-agent` reference resolves as `$x-agent`. Generated with `policy.allow_implicit_invocation: false` — workers, never user-triggered, so they don't bloat every session's context. |
 | Claude `CLAUDE.md` conventions | `AGENTS.md` (this dir) — the Codex-side fan-out mapping (A/C selection), the `AskUserQuestion` plain-text degradation, model-pin note. Additive instruction; no canonical edit. |
-| `commands/*` (3 classes) | The command layer is **not one thing.** **~25 thin per-phase shims** (`investigate-bug` = *"use the bug-investigation skill"*): not generated — their skill is already junctioned, invoke `$bug-investigation` directly. **5 family orchestrators** (`full-bug-fix-workflow`, `integration-feature-dev`, `refactor-techdebt-dev`, `full-incident-response`, `greenfield-dev`) + **3 per-task executors** (`implement-task`, `gf-implement-task`, `implement-bug-fix`): these carry real wiring (phase sequencing, S/M/L/XL classifier, gates, Workflow 1/2/3) **no skill owns** — each is **generated** as a Codex skill at `${CODEX_HOME:-~/.codex}/skills/<name>/` (Codex-only; `policy.allow_implicit_invocation:false` — a multi-phase workflow must never auto-trigger). Canonical `commands/` is **untouched**: Claude keeps the `/x` UX at **zero context cost** (a command's body is never in-context until run; a skill's description always is — which is *why* the two stay separate primitives, not why one replaces the other). |
+| `commands/*` (3 classes) | The command layer is **not one thing.** **~25 thin per-phase shims** (`investigate-bug` = *"use the bug-investigation skill"*): not generated — their skill is already junctioned, invoke `$bug-investigation` directly. **5 family orchestrators** (`full-bug-fix-workflow`, `integration-feature-dev`, `refactor-techdebt-dev`, `full-incident-response`, `greenfield-dev`) + **3 per-task executors** (`implement-task`, `gf-implement-task`, `implement-bug-fix`) + **2 standalone doc-generation commands** (`document-workflow` — only a stripped `-loop` fork exists as a skill; `update-workflow-docs` — no skill at all): these carry real prose **no junctioned skill owns** — each is **generated** as a Codex skill at `${CODEX_HOME:-~/.codex}/skills/<name>/` (Codex-only; `policy.allow_implicit_invocation:false` — a multi-phase workflow must never auto-trigger). **10 generated command skills** in all. Canonical `commands/` is **untouched**: Claude keeps the `/x` UX at **zero context cost** (a command's body is never in-context until run; a skill's description always is — which is *why* the two stay separate primitives, not why one replaces the other). |
 
 **`openai.yaml` for the 41 canonical skills is intentionally deferred** (v1): it is
 *recommended, not required* (verified) — bare `SKILL.md` skills are auto-discovered and trigger
 off `description`. Injecting `openai.yaml` would either pollute the pristine canonical tree or
 require privilege-fragile per-file symlinks on Windows. The *functionally* important case
-(implicit-invocation off for the 17 worker agents **and the 8 generated orchestrator/executor
-skills** — neither should ever auto-trigger) is handled, because those are generated, not
+(implicit-invocation off for the 17 worker agents **and the 10 generated command skills**
+— neither should ever auto-trigger) is handled, because those are generated, not
 junctioned.
 
 ## Usage
@@ -58,7 +58,7 @@ recorded near-term scope. `-Prune` is report-only unless `-Force`.
 ## Your personal conventions do not transfer (read this)
 
 `adapters/codex/AGENTS.md` is the kit's **Codex-mechanics** layer only (the fan-out A/C
-mapping, the `AskUserQuestion` plain-text degradation, the orchestrator-body reading rules,
+mapping, the `AskUserQuestion` plain-text degradation, the command-body reading rules,
 the model-pin note). It is **not** a replica of your `~/.claude/CLAUDE.md`.
 
 Codex never reads `~/.claude`. So your personal working agreement — **confidence scoring,
@@ -84,10 +84,10 @@ The fix mirrors how Claude already layers it (kit layer + private user layer):
 ## Invocation: `/x` (Claude) vs `$x` (Codex) — muscle-memory gotchas
 
 - **`/full-bug-fix-workflow` (Claude command)** → **`$full-bug-fix-workflow` (Codex
-  generated skill)**. `$`, not `/`. Same for the other 7 orchestrators/executors.
+  generated skill)**. `$`, not `/`. Same for the other 9 generated command skills.
 - **A thin shim has no Codex form** — `/investigate-bug` → invoke the skill it wrapped:
   `$bug-investigation`. The command→skill name often differs (see `AGENTS.md` → *Generated
-  orchestrator / executor skills* for the map).
+  command skills* for the map).
 - **Generated orchestrators are implicit-invocation OFF** — Codex will not auto-start them;
   you must invoke explicitly. (Junctioned methodology skills *can* implicitly trigger off
   their `description`, like in Claude.)

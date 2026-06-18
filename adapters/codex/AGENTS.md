@@ -37,15 +37,18 @@ orchestration script for it (the kit owns no fan-out harness, by decision):
 - **Small / skip-checked** — `review-artifact` Step-0, small-bug paths: **single-thread**
   (strategy A). The skill's own skip-checks already short-circuit these; no fan-out needed.
 
-## Generated orchestrator / executor skills (how to read their bodies)
+## Generated command skills (how to read their bodies)
 
-Codex has no command primitive. The kit's **5 family orchestrators**
+Codex has no command primitive. Any command whose capability **no junctioned skill owns** is
+installed as a **generated Codex skill** — 10 today: the kit's **5 family orchestrators**
 (`$full-bug-fix-workflow`, `$integration-feature-dev`, `$refactor-techdebt-dev`,
-`$full-incident-response`, `$greenfield-dev`) and **3 per-task executors**
-(`$implement-task`, `$gf-implement-task`, `$implement-bug-fix`) are installed as
-**generated Codex skills** (implicit-invocation **off** — they never auto-trigger; you
-invoke them explicitly by `$name`, exactly as you typed `/name` in Claude). The ~25 thin
-per-phase shims are **not** generated — invoke their methodology skill directly.
+`$full-incident-response`, `$greenfield-dev`), **3 per-task executors**
+(`$implement-task`, `$gf-implement-task`, `$implement-bug-fix`), and **2 standalone
+doc-generation commands** (`$document-workflow` — only a stripped `$document-workflow-loop`
+fork exists as a junctioned skill; `$update-workflow-docs` — no skill at all). All are
+implicit-invocation **off** — they never auto-trigger; you invoke them explicitly by
+`$name`, exactly as you typed `/name` in Claude. The ~25 thin per-phase shims are **not**
+generated — invoke their methodology skill directly.
 
 Their bodies are the canonical command prose verbatim, written in Claude terms. Read them
 with this mapping:

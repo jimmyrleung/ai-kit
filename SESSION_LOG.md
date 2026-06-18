@@ -1,3 +1,26 @@
+## [2026-06-18] — Codex adapter: map doc-generation commands (update-workflow-docs + document-workflow)
+
+**Summary:** `update-workflow-docs` wasn't appearing as a Codex skill. Root cause: it's a command with no backing junctioned skill, and the adapter's command-generation allowlist was scoped to the feature-dev/bugfix/incident families only. Generalized the rule, added the doc-gen family, propagated across all 4 adapter files, applied + verified on disk.
+
+**Done:**
+- Diagnosed: a command reaches Codex only two ways — (a) its same-named skill is junctioned (thin shim, e.g. `document-terraform`), or (b) it's in `sync.ps1`'s generation allowlist (`$OrchCmds`). `update-workflow-docs` has no skill at all and wasn't in the list → invisible in Codex with no error. Sibling `document-workflow` too (only its stripped `-loop` fork is a junctioned skill).
+- Generalized the allowlist rule from "5 orchestrators + 3 executors = 8" to **"any command whose capability no junctioned skill owns"** → now **10 generated command skills** (+`document-workflow`, +`update-workflow-docs`).
+- Propagated across all 4 adapter files: `sync.ps1` (`$OrchCmds`→`$GenCmds`, Kind `orch`→`cmd`, generic `default_prompt`, summary line), `sync.sh` (POSIX parity), `README.md` (counts + commands-table row + 4 framing refs), `AGENTS.md` (section renamed "Generated command skills" + body).
+- Verified: both scripts parse-checked; `-WhatIf` clean; `sync.ps1` applied (`issues: 0`); on-disk inspection of `~/.codex/skills/update-workflow-docs/` (SKILL.md frontmatter, `openai.yaml` `allow_implicit_invocation:false`, marker). Sync was additive — no `-Prune`/`-Force`.
+- Updated memory `codex-portability` + `MEMORY.md` index (the stale "8 orchestrator/executor" claim).
+
+**Decisions:** Reframe the allowlist as a general predicate (rejected: a separate parallel `$StandaloneCmds` list — user chose the single generalized rule). Fix both siblings, not just the one asked about (rejected: scope to `update-workflow-docs` only — same one-line root cause). Did NOT touch canonical `commands/*.md` (Category-1 boundary held).
+
+**Didn't work:** First `replace_all 'orch'→'cmd'` used asymmetric whitespace and produced `'cmd''error'` (one PowerShell escaped-quote string, not two args) — silent, caught by re-reading. `bash -n` via the PowerShell tool mangled the backslash path (exit 127); used the Bash tool instead.
+
+**Next:** Commit the 4 adapter files (was pending user approval at session end). Restart Codex to pick up `$update-workflow-docs` / `$document-workflow`. (Pre-existing untracked WIP — `commands/tasks-loop.md` + 6 loop skills — is NOT this session's; left alone.)
+
+**Blockers:** none. The live Codex validator stayed skipped (pre-existing `C:\Python311` segfault, documented) — generation/junctions unaffected; §8 behavioral pilot remains the real Codex run.
+
+**Artifacts:** `adapters/codex/{sync.ps1,sync.sh,README.md,AGENTS.md}`; memory `codex-portability.md`; observations `2026-06-18-codex-doc-cmd-mapping.md`.
+
+---
+
 ## [2026-06-04] — Fix 5 SKILL.md frontmatters that broke Codex's strict YAML parser
 
 **Summary:** Codex 0.136.0 was skipping 5 skills with `mapping values are not allowed in this context` errors. Root cause: unquoted `description:` scalars containing `: ` (colon-space). Quoted all 5 (zero wording change); verified with a strict parser.
