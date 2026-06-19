@@ -1,3 +1,27 @@
+## [2026-06-19] — Reconcile Codex personal-conventions mirror with CLAUDE.md (+ Output-formatting rule)
+
+**Summary:** Added a calibrated `Output formatting` rule to `~/.claude/CLAUDE.md` (lean scannable — tables/lists where they map to content, prose for connected argument, diagrams sparingly; explicitly NOT maximize-visuals), then full-reconciled the private `~/.codex/AGENTS.md` mirror, which had silently drifted 5 sections from CLAUDE.md over ~1 month. Confirmed global `~/.codex/AGENTS.md` read is now active at codex-cli 0.141.0 (was dormant @0.130.0).
+
+**Done:**
+- `~/.claude/CLAUDE.md`: new `## Output formatting` section (content→format mapping + an explicit anti-over-formatting clause). Token analysis given to user: lists ↓, tables ≈, diagrams ↑ → net neutral/slightly-down for "less prose + more lists."
+- Confirmed CLAUDE.md does NOT auto-sync to Codex/Cursor — `adapters/{codex,cursor}/sync.*` handle skills+agents only; personal conventions are a manual private-`AGENTS.md` "user layer" by design (avoid publishing prefs / mutating `$HOME`).
+- Confirmed `.agents/skills/` is read by Codex (reliably) and Cursor (with open CLI bugs — `~/.agents/skills` not loaded; #160426-class). It's a repo-scoped SKILLS dir, not an instructions location — conventions belong in `AGENTS.md`, not under `.agents/`.
+- Full-reconciled `~/.codex/AGENTS.md` to current CLAUDE.md: +Output-formatting, +Proposal-docs-vs-analysis-docs, +2 Reading-before-editing bullets, +2 Verification bullets, +Parallel-tool-batching (flagged as a Claude-harness behavior to verify, NOT asserted). Refreshed the stale header placement note. 14 sections, CLAUDE.md order, include-point preserved (grep-verified).
+- Public `adapters/codex/AGENTS.md` (kit-mechanics layer) deliberately untouched.
+- Updated memory `codex-portability` + `MEMORY.md` index (retired the "dormant@0.130.0" claim).
+
+**Decisions:** Full reconciliation over formatting-only (user chose — mirror was stale on more than the new rule). Parallel-tool-batching added but flagged-not-asserted because the "non-zero exit cancels sibling calls" failure mode is a Claude Code harness behavior, unverified on Codex's tool model (rejected: blind-copy verbatim). Conventions go to the PRIVATE `~/.codex/AGENTS.md`, never the public repo file (README + `ai-kit-is-public` contract).
+
+**Didn't work:** — (linear session; no dead ends).
+
+**Next:** When back on Cursor (in WSL), apply the same reconciliation to its private `AGENTS.md` (deferred — not on this machine). Optional: confirm global-read live on the Codex binary (current claim is doc-sourced, not probed) — open a Codex session and check the conventions surface. Standing item (unrelated): Codex §8 behavioral pilot.
+
+**Blockers:** none.
+
+**Artifacts:** `~/.claude/CLAUDE.md`; `~/.codex/AGENTS.md` (machine-local, not version-controlled); memory `codex-portability.md` + `MEMORY.md`; observation `2026-06-19-codex-agents-mirror-sync.md`.
+
+---
+
 ## [2026-06-18] — Codex adapter: map doc-generation commands (update-workflow-docs + document-workflow)
 
 **Summary:** `update-workflow-docs` wasn't appearing as a Codex skill. Root cause: it's a command with no backing junctioned skill, and the adapter's command-generation allowlist was scoped to the feature-dev/bugfix/incident families only. Generalized the rule, added the doc-gen family, propagated across all 4 adapter files, applied + verified on disk.
