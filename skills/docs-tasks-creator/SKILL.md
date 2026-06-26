@@ -144,7 +144,7 @@ For each detected entry point, capture:
 - `service` — for monorepos, derived from sub-projects within the workspace (a workspace can still contain multiple services). For single-repo, derived from the `.csproj` directory name (e.g. `Users.Api`), the top-level package/workspace dir, or the codebase root's directory name.
 - `reference` — `<relative-path-from-workspace-root>:<symbol>` form when a symbol exists. URL-style for inline route handlers (`POST /api/orders`).
 - `trigger` — human-readable trigger description (e.g. `REST GET /api/users/{id}`, `Message handler: order.created`, `Background worker: 30s interval`).
-- `files_affected` — `workflows/<service>/<name>.md` (path of the doc that will be produced, **relative to the workspace's output dir**).
+- `files_affected` — `workflows/<service>/<name>.md` for backend tasks; **`workflows/_fullstack/<name>.md` for full-stack tasks** (path of the doc that will be produced, **relative to the workspace's output dir**). Keying full-stack docs under `_fullstack/` prevents a full-stack and a backend doc for the *same operation* from resolving to the same path.
 
 ### Phase 4 — Synthesize `project-overview.md`
 
@@ -267,7 +267,7 @@ Service grouping in v1 uses no checkpoint headings — the tasks doc is a flat l
 - **Do not emit a `Task 0 — Setup`.** Setup work (scaffolding + `project-overview.md`) happens inline in Phase 4 of *this* skill. The tasks doc contains handler tasks only.
 - **Do not modify files in `$codebase_path`.** This skill is read-only against the codebase; only `$output_dir` is written to.
 - **Do not fail the whole run on a single detector error.** If a `.proto` file is malformed and the GRPC detector can't parse it, append `[scan warning: <detail>]` to the `Notes` section of the workspace's `project-overview.md` and continue with the other detectors.
-- **Do not invent ID slugs that collide.** If two handlers within the same workspace map to the same `<name>` (e.g. two different services both expose `users.get-by-id`), suffix the second with the service name: `users.get-by-id--users-api` vs `users.get-by-id--admin-api`. The task heading stays unique within its workspace.
+- **Do not invent ID slugs that collide.** If two handlers within the same workspace map to the same `<name>` (e.g. two different services both expose `users.get-by-id`), suffix the second with the service name: `users.get-by-id--users-api` vs `users.get-by-id--admin-api`. The task heading stays unique within its workspace. This covers same-kind slug clashes. **Also detect `(kind, slug)` clashes across kinds:** if a full-stack task and a backend task target the same `<service>/<name>`, route the full-stack one to `workflows/_fullstack/<name>.md` (per Phase 3) so neither silently claims the other's path; if any disambiguation happened, note "N path collisions disambiguated" in `project-overview.md` Notes.
 - **Do not skip the `Tasks overview` table.** It's a useful index for any consumer; emit it even if the per-task sections look complete.
 - **Do not couple the emitted tasks doc to any specific runner.** The doc is consumer-agnostic — usable manually, looped, or in batch. The skill body never assumes one workflow consumer over another.
 

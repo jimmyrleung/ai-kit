@@ -93,6 +93,21 @@ or BLOCKED (could not execute — sandbox/permission/headless denial, missing to
 are `BLOCKED`, and a BLOCKED build/test gate keeps the task/prefix OFF "Done" until it actually runs.
 "unrunnable ≠ failure" must never silently become "unverified ≡ verified."
 
+**Compiled ≠ executed; a green subset ≠ a green suite.** When the diff touches **test code, seed /
+fixture scripts, DB migrations, or DB constraints / stored procs**, a build that *compiles* is NOT a
+Gate-1 pass on its own — the new/affected tests (or the migration/seed) must have **actually run
+against a real target** (a scratch/Testcontainers DB, a live integration), because teardown order,
+FK / CHECK constraints, and seed row-counts are exercised only at run time, never at compile. And
+when you record green, **name the test projects / tiers that executed** — `171/171` on one tier is
+not "all green" if integration / E2E tiers weren't run; a schema-touching change (seed / migration)
+implicates *every* tier that migrates that schema. The pass line for these change types must cite
+what ran:
+
+    - [x] Gate 1 — build/test: pass (ran: unit + integration on Testcontainers; 884/884)
+
+If the live/integration run can't happen here (no test DB, sandbox), that is a **BLOCKED** build/test
+gate (record the reason), not a pass — "compiles, assumed green at run time" keeps the task OFF Done.
+
 If FAIL with `accepted`, require a `Why:` line; do not advance until the user states the reason.
 
 **Prefix-close only — "Done" = shipped, not authored.** When running at prefix close (not per-task
