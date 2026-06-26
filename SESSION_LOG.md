@@ -1,3 +1,27 @@
+## [2026-06-26] — /improve review 2026-06-26 (6 proposals applied across 3 repos)
+
+**Summary:** Ran the periodic `/improve` review over the densest window on record (~240 observations / ~104 files, 2026-06-05→06-26). Distilled **6 proposals**, applied all 6 (user-approved one batch), verified, and committed+pushed across ai-kit / cc-looper / claude-home; scrubbed the packet to generic labels and refined a memory.
+
+**Done:**
+- Mined the window via **6 parallel extraction subagents** (the `grep -A 3` dump was unusable — Read truncates long friction lines). Built `~/.claude/improvements/2026-06-26/` (REVIEW + 6 proposals + MARK).
+- Applied all 6: **P01** `review-artifact` subagent VERIFIED/SUSPECTED + negative-search contract · **P02** `qa-gates` Gate 1 compiled≠executed / name-the-tiers · **P03** `integration-techspec` stable-anchor citations · **P04** `qa-loop-docs` produced-doc provenance+uniqueness + `docs-tasks-creator` `_fullstack/` namespacing · **P05** destructive-hook FP trim (`--rm` flag + read-only-git skip) · **P06** `integration-techspec`/`-tasks` 3-way downshift.
+- **Verified P05 by execution** (9/9 hook tests: 3 FPs now allowed, 6 still denied); **confirmed 2026-06-05 P01–P04 already shipped** (fingerprints in live skills) → recurrences are broader gaps, not regressions.
+- Annotated 51 backing obs (one consolidated per-file footer via PowerShell); bumped `last-review.txt`→2026-06-26.
+- Scrubbed REVIEW.md + proposal-02 of work-project codenames → generic labels; amended the claude-home commit.
+- Refined memory `improve-packet-generic-repo-labels` (secret-scan blocklist is a specific 6-name set, scans full staged content → codenames pass; the rule is hygiene, not hook-enforced).
+
+**Decisions:** 6 proposals from 240 obs is distillation not churn (≈2.5%; last run 5/95). P01 framed as the *subagent-contract* successor to the already-shipped 2026-06-05 P03 orchestrator re-grounding (the pattern recurs mostly OUTSIDE review-artifact). P05 kept conservative (only `--rm` + read-only-git; SQL-temp + filename-substring left to skill-side) because the hook enforces an explicit user rule. compile-kb cluster held as a candidate (active-dev). All 6 deliberately avoid CLAUDE.md (now **144 lines**, past the degradation zone).
+
+**Didn't work:** `grep -A 3` over all June obs (209KB persisted; Read rendered long friction lines as `[Omitted long context line]`) → abandoned for the subagent fan-out. Resolving cc-looper via the SKILL.md *file*'s `.LinkTarget` (empty — qa-loop-docs is a directory **junction**; the *dir*'s `.Target` resolves it).
+
+**Next:** 8 candidates await a future call (compile-kb digest-collision/Codex caveats once that build settles · &&-chain expect-zero `grep -c` · tasks-doc 3-source Done-update · close/close-tasks digest accuracy · qa-gates local-only mode · parallel-implement-task disjointness · integration-investigation skill · memory inference-marking). Recommended standalone: a **CLAUDE.md consolidation pass** (144 lines — e.g. compress the 38-line Score-Confidence block).
+
+**Blockers:** none.
+
+**Artifacts:** `~/.claude/improvements/2026-06-26/`; commits ai-kit `44b22a5`, cc-looper `511226b` (rebased onto remote `fc2f658`), claude-home `76bbcec` (+ user's keep-two prune `26fd6b1`); memory `improve-packet-generic-repo-labels.md`; observation `2026-06-26-improve-close.md`.
+
+---
+
 ## [2026-06-19] — Reconcile Codex personal-conventions mirror with CLAUDE.md (+ Output-formatting rule)
 
 **Summary:** Added a calibrated `Output formatting` rule to `~/.claude/CLAUDE.md` (lean scannable — tables/lists where they map to content, prose for connected argument, diagrams sparingly; explicitly NOT maximize-visuals), then full-reconciled the private `~/.codex/AGENTS.md` mirror, which had silently drifted 5 sections from CLAUDE.md over ~1 month. Confirmed global `~/.codex/AGENTS.md` read is now active at codex-cli 0.141.0 (was dormant @0.130.0).
