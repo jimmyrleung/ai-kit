@@ -46,16 +46,30 @@ to look productive. The number of changes applied is NOT a success metric — it
 
 ### Phase 1 — Gather & pattern-mine
 
+0. **Check predictions first.** Read the previous packet's applied proposals' `**Prediction:**`
+   lines (and any still-open predictions from earlier packets). Judge each against this window's
+   observations: met / missed / no evidence yet. A missed prediction stages a revert-or-revise
+   proposal before anything new is mined — an applied change that didn't deliver must not
+   silently persist. Record the verdicts in REVIEW.md's "Predictions from last cycle".
 1. Resolve the window (from `last-review.txt`). Collect the un-reviewed observations across all the
    `~/.claude/observations/*.md` files in scope. If there are none → say so, print the fitness table
    (Phase 2), update `last-review.txt`, stop. Don't fabricate work.
-2. **Cluster** the observations by: (a) tag (`wrong_approach`, `buggy_code`, `read_skipped`,
+   For a dense window (>~50 in-scope observation files), do NOT grep the corpus into one dump — the
+   Read tool truncates long `friction_observed` lines and the tag sits at the end. Fan out N
+   extraction subagents over date-range batches, each returning a compact pipe-delimited skeleton
+   (`file | obs# | skill | outcome | tags | friction-oneline | improvement-oneline`), and cluster
+   from the skeletons.
+2. **Confirm the PRIOR review's applied proposals actually shipped** before re-mining their
+   patterns: grep the live target files for each applied proposal's fingerprint.
+   Recurrence-after-application is a different finding (broader gap / env interaction / failed fix)
+   than recurrence of a fix that never landed — it changes what you stage (refine vs revert vs escalate).
+3. **Cluster** the observations by: (a) tag (`wrong_approach`, `buggy_code`, `read_skipped`,
    `line_budget_overrun`, `async_context_loss`, `sdk_version_drift`, `doc_drift`, `scope_creep`,
    `rm_violation`, `misunderstood_request`, … — whatever's in the README), (b) `skill_or_workflow`,
    (c) `phase/area`. Note any cluster of ≥3 — that's a pattern worth a proposal. A single occurrence
    is NOT a pattern (don't promote one-offs to permanent rules — that's the rebelytics simplification
    signal; one-offs were already routed to "say it in chat" by `close`).
-3. For each cluster, read the relevant skill/orchestrator section and form a hypothesis: is this
+4. For each cluster, read the relevant skill/orchestrator section and form a hypothesis: is this
    "needs stronger enforcement (a hook / a checklist gate / a structural change), not better wording"?
    Is it "a missing step"? "An assumption that's wrong in practice"? "A capability gap → maybe a new
    skill"? The default fix for a documented-but-ignored rule is rarely "say it louder" — it's "convert
@@ -70,6 +84,11 @@ yet, ask), **any partial/failed outcomes** (investigate), **trigger-description 
 (token/discoverability issue — the tvmaly skill-review check), **SKILL.md getting long** (>~150 lines →
 suggest splitting reference content out). Exclude bundled/system skills from any deletion/restructure
 proposal.
+
+Where the window's observation files carry `run-metrics:` blocks (written by close-tasks), add a
+**waste** column to the fitness table — attempts/task, gate-fails, findings/checkpoint — and rank
+loop skills by its trend across windows, not only by outcome labels. Respect the k≥2 convention:
+one run's metrics describe, they don't compare.
 
 *Note:* the two thin checks above are a friction-driven sample. For a deep structural audit (10
 checks, including frontmatter validity, trigger-keyword coverage, cross-skill redundancy, dead
@@ -116,6 +135,10 @@ Write `REVIEW.md`:
 - [tag/area] — seen K×: <one-line>. → proposal NN.
 - ...
 
+## Predictions from last cycle
+- <applied proposal NN (YYYY-MM-DD)> — predicted: <line> → **met | missed | no evidence yet** (evidence: <obs/artifact>).
+  A missed prediction stages a revert-or-revise proposal in THIS packet before any new mining.
+
 ## Skill / workflow fitness
 | skill_or_workflow | invocations | outcomes | flags |
 |---|---|---|---|
@@ -144,6 +167,8 @@ For each proposal, write `proposals/NN-<slug>.md`:
 **Type:** edit-skill | edit-orchestrator | edit-memory | edit-CLAUDE.md | new-skill (candidate only)
 **Derived from:** observation(s) <file#N>, <file#N> — quote the relevant `friction_observed` / `improvement_suggestion` / `principle` lines.
 **Confidence:** X% — <why not 100%>.
+**Prediction:** <one line — the observable outcome in the next N runs/windows if this change works;
+falsifiable, checkable from observations or artifacts>.
 
 ## Change
 <Either a unified diff against the current file, or — for a new file — the full proposed content.
@@ -156,6 +181,11 @@ mechanical, not interpretive.>
 
 Write `MARK.md`: a flat list of `<observation-file>#<N>` for every observation this run consumed.
 
+**Codename self-grep (mandatory, before presenting):** grep the staged `REVIEW.md` + `proposals/`
+for the work codenames / employer project names appearing in this window's observation files, and
+scrub hits to generic role labels. The claude-home secret-scan hook only blocks an enumerated
+name set — codenames outside it pass; this grep is the actual gate, at the authoring moment.
+
 ### Phase 5 — Present & (on approval) apply
 
 1. Print `REVIEW.md` to chat (the summary). Don't dump every proposal file — point at the dir.
@@ -166,8 +196,12 @@ Write `MARK.md`: a flat list of `<observation-file>#<N>` for every observation t
 3. For each **approved** proposal: apply *exactly* what's in the proposal file to the target. If it's
    a `MEMORY.md` edit, follow the auto-memory conventions (right `type:`, `**Why:**`/`**How to apply:**`,
    `[[links]]`, the one-line `MEMORY.md` pointer). If it's a `~/.claude/CLAUDE.md` edit, keep it a
-   pointer/rule, not bloat.
-4. Annotate each consumed observation in its source file (the `> reviewed ...` line). Archive any
+   pointer/rule, not bloat. Where an applied change is cheaply executable (a hook, regex, parser),
+   verify it by execution — pipe sample payloads through it — not by re-reading the diff.
+4. Annotate each consumed observation in its source file. For >~10 files, use ONE idempotent
+   scripted pass appending a consolidated per-file footer (`> reviewed YYYY-MM-DD (improve): …`
+   carrying the per-observation dispositions) — bookkeeping costs O(files), not O(observations);
+   per-`### Observation` inserts remain fine for small runs. Archive any
    observation file all of whose observations are now resolved → `~/.claude/observations/archive/`.
 5. Update `~/.claude/improvements/last-review.txt` to today.
 6. **Housekeeping (with cross-machine sync routing):** `git status --short` in any repo you touched;

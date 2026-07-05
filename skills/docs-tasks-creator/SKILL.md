@@ -40,7 +40,7 @@ Check for monorepo signals in **this precedence order** (use the first match):
 | `lerna.json` | Read `packages:` field (default `["packages/*"]`); resolve globs |
 | `rush.json` | Read `projects[].projectFolder`; each entry is a workspace |
 | `turbo.json` (and no JS workspaces yet detected) | Turborepo relies on `package.json` workspaces; treat as that signal |
-| Multiple `.csproj` reachable from a `.sln` | Parse `Project(...)` lines in the `.sln`; each `.csproj` directory is a workspace |
+| Multiple `.csproj` reachable from a `.sln` | Parse `Project(...)` lines in the `.sln`; **first drop test projects** (name or dir matching `*.Tests`, `*.UnitTests`, `*.IntegrationTests`, `tests/**`) — they have no documentable surface; each remaining `.csproj` directory is a workspace. If exactly one non-test project remains (the canonical src+tests layout), that is single-repo mode, no selection prompt. For a layered single-app solution (one Web/host project with handlers + class libraries), prefer single-repo mode with `service` derived from the handler class, not monorepo mode with one workspace per library `.csproj`. |
 | **Heuristic fallback** | If multiple top-level dirs (e.g. `apps/`, `services/`, `packages/`, `libs/`) each contain a `package.json` or `.csproj`, each such dir is a workspace |
 
 **If 0 or 1 workspaces detected** → single-repo mode. Skip the selection step; treat `$codebase_path` as the single workspace; emit artifacts directly under `$output_dir` (no subdir). Proceed to Phase 2.
@@ -262,6 +262,10 @@ Service grouping in v1 uses no checkpoint headings — the tasks doc is a flat l
   When a *statically-detectable* framework is present but has **no detector** (e.g. an `.csproj` with `Microsoft.Azure.Functions.Worker` and the Functions detector is somehow off), surface it in `project-overview.md` Notes as `[unsupported handler framework: N <kind> entry points detected, not emitted as tasks]` — do **not** let "don't invent handlers" absorb it into a silently-thin result.
 - **Do not skip monorepo selection.** When 2+ workspaces are detected, always ask the user which to scan — do NOT silently scan all of them. A 30-workspace nx repo would produce 30 tasks docs with hundreds of tasks each; that's overwhelming and rarely what's wanted.
 - **Do not emit a single combined tasks doc for monorepos.** One tasks doc per workspace, each under its own subdir. The whole point of monorepo handling is keeping per-workspace concerns separable.
+- **Do not emit artifacts for zero-handler workspaces.** If a selected workspace's Phase 3 scan
+  finds zero entry points, do not create its output folder / `project-overview.md` / `_docs-tasks.md`
+  — list it in the nearest emitted `project-overview.md` Notes as
+  `[zero-handler workspace skipped: <name>]`. Empty scaffolds are noise the user deletes by hand.
 - **Do not include files outside `$codebase_path`.** Symlinks, projects outside the scan root, etc. — stay within the input root.
 - **Do not scan vendor/build directories.** `node_modules`, `bin`, `obj`, `dist`, `build`, `.next`, `vendor`, `target`, `out`, `.cache`, `__pycache__`, `.venv` are explicitly excluded — they contain compiled or third-party code that is not part of the workflow surface.
 - **Do not emit a `Task 0 — Setup`.** Setup work (scaffolding + `project-overview.md`) happens inline in Phase 4 of *this* skill. The tasks doc contains handler tasks only.

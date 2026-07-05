@@ -39,7 +39,9 @@ cross-cutting sub-check. Same in-place marker discipline `review-artifact` (`## 
    checklist boxes (`- [ ]` style), lines containing `AC:` or matching `✅`/`☑`. If no ACs
    found in the task's section, fall back to the techspec's ACs filtered to mentions of this
    task (best-effort) and record a `warning: no per-task ACs in tasks-doc — used techspec
-   fallback` line in the gate plan.
+   fallback` line in the gate plan. Also extract the task's `Baseline:` completion-note line if
+   present and record it in the gate plan — Gate 1's result is judged against it (a failure the
+   baseline names is pre-existing; one it doesn't name is this task's).
 3. **Extract per-task files-list.** Collect any file-path strings in the task's section
    ("Files: …", "Touches: …", visible paths). Also run `Bash` `git diff --name-only HEAD~3..HEAD`
    (widen the window if needed) to get the just-edited file set. **Union** the two lists;

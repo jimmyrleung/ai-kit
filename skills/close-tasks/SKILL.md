@@ -109,6 +109,19 @@ per close; `{short-slug}` describes the tasks-doc (e.g. `auth-oauth-tasks-close`
 - `friction_observed:` — cite the artifact evidence (`file:line` / `state.json` field). If it is
   reconstructed-not-lived, say so plainly in the free-text so `/improve` weights it accordingly.
 - Tags from the `~/.claude/observations/README.md` list; align with the `/insights` taxonomy.
+- **Run-metrics block (loop/multi-session runs):** append one fenced block at the top of the
+  observations file, reconstructed from artifacts:
+
+      run-metrics:
+        tasks: N done / M total
+        attempts-per-task: <mean; list any task with attempt > 1>   (state.json `attempt`)
+        gate-failures: <count + gate ids>                            (_qa.md / ## Verify blocks)
+        findings-per-checkpoint: <count per checkpoint review>       (_checkpoint-*_review.md)
+        pauses-blocks: <count + one-line causes>                     (Status: Paused/Blocked notes)
+
+  Two conventions are binding: **an infra-crashed attempt counts as a failed attempt (r=0) — never
+  silently dropped from the counts**; and any before/after claim about a loop-skill/config change
+  needs k≥2 runs — a single run is an anecdote, mark it as such.
 
 Numbered within the file. **Don't manufacture** — see Phase 2.
 

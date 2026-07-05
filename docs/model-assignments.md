@@ -34,3 +34,22 @@ Sonnet 4.5 (Structured validation/breakdown)
 | incident-response     | diagnosis-reviewer-agent            | Review (review-artifact) |
 
 10 agents on Opus, 11 agents on Sonnet - good balance of quality vs cost/speed.
+
+## Loop-role model floor — structured-output smoke test
+
+Before assigning a cheaper/faster model to any headless loop role (implement-task-loop,
+document-workflow-loop, qa-loop, qa-loop-docs, review-checkpoint, map-tasks) or to a workflow-script
+fan-out stage that returns pinned-line output, run a ~5-prompt smoke test of the exact contracts the
+runner parses by regex:
+
+1. flip a `Status:` line inside a sample tasks-doc section (single Edit, heading untouched);
+2. emit `**Recommendation:** go|no-go` + `**Summary:** …` pinned immediately after an H1;
+3. emit `**Recommendation:** proceed|fix-then-proceed|abort` (checkpoint variant);
+4. return the map-tasks plan.json shape against the schema;
+5. write a `## Verify — {date}` gate block with per-gate checkbox lines.
+
+**Any malformed pinned line in the 5 disqualifies the model for loop roles regardless of benchmark
+scores** — format adherence is the leading downstream-failure indicator [COMPILOT RQ4], and a
+runner regex miss silently strands a run. Passing the floor doesn't assign the model; it makes it
+eligible for the cost/quality call (see the `workflow-model-tiering` memory for the
+fan-out-vs-synthesis split).
