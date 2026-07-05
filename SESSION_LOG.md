@@ -1,3 +1,46 @@
+## [2026-07-05] — /improve review 2026-07-05 (12 proposals applied across 3 repos)
+
+**Summary:** Ran `/improve` over the 2026-06-26→07-05 window (45 observations / 19 files) plus the research action-items doc as user-directed input. Staged 12 proposals (7 research-driven: AI-1..4 + AI-7/8/9; 5 observation-driven), all 12 approved and applied, committed + pushed across cc-looper / ai-kit / claude-home.
+
+**Done:**
+- Loop skills (cc-looper via symlinks): baseline gate at task start (P01), reviewer push-to-continue pass (P02), distilled findings contract — raw log dumps forbidden (P03), attempted-and-failed ledger on Paused/Blocked + resume-reads-it-first (P04), qa-loop-docs environment-readiness preflight + git-root path convention + codex-review target fix (P05).
+- ai-kit: docs-tasks-creator .NET test-project filter + zero-handler guard (P06); compile-kb dispatch conventions / full-tree sweep / PDF fallback / grouped-sha rule (P07); improve self-edits incl. mandatory codename self-grep gate (P08) + falsifiable-predictions discipline (P09) + run-metrics waste column (P10); model-assignments loop-role structured-output floor (P11).
+- claude-home: CLAUDE.md scoped-probe-negative verification bullet (P12); 19 obs files annotated via one scripted footer pass; packet at `~/.claude/improvements/2026-07-05/`.
+
+**Decisions:** The window's N=5 qa-loop-docs false no-gos were diagnosed as recurrence-after-application of the 2026-06-26 P04 provenance gate (correct fix, assumed a git-trusted spawn) → **refine (P05), not revert** — the prior-shipped fingerprint check made that distinction. AI-5/6 (cc-looper runner): **backtest-first** — AI-6's ≥1/3-conversion prediction gets judged against historical `_qa.md` no-gos before any build (rejected: build directly). deep-research is harness-bundled → model-tiering enforced via memory + the P11 floor policy, not a skill edit. Parallel-implement convention: formalize next cycle (2nd clean confirmation logged); /harvest-source: not yet (1×).
+
+**Didn't work:** —
+
+**Next:** user runs the keep-two prune (2nd emission — command in `improvements/2026-07-05/REVIEW.md`); AI-6 backtest in a session with the work repos; next `/improve` opens with the predictions-first check of all 12 applied predictions (P09 live).
+
+**Blockers:** none.
+
+**Artifacts:** `~/.claude/improvements/2026-07-05/` (REVIEW + 12 proposals + MARK); commits cc-looper `e8352f9`, ai-kit `f5f65dc`, claude-home `81d0014` (all pushed).
+
+---
+
+## [2026-07-05] — COMPILOT study + loop-engineering deep research → /improve-ready action items
+
+**Summary:** Read the COMPILOT study end-to-end (PACT 2025, arXiv 2511.00592 — Nov **2025**), mapped it against ai-kit's loop assets, ran a 104-agent deep-research sweep of the Dec 2025–Jul 2026 loop-engineering literature (14 findings survived 3-vote adversarial verification; nobody cites COMPILOT — 6 groups converged independently), and consolidated everything into two repo-root docs including 14 falsifiable action items staged for a `/improve` run.
+
+**Done:**
+- Extracted + read the full 19pp PDF (PyMuPDF — Read can't render PDFs here, poppler absent); Explore-agent repo map; spot-verified the load-bearing gaps in `implement-task-loop` (no task-start baseline) and `qa-loop` (report-only, no fix cycle).
+- Delivered the two-part analysis: 10 transferable lessons + do-now/soon/someday/not-do vs ai-kit assets (several design bets validated: pinned-line contracts, mechanical gates, forced analysis, 230K+fresh-resume, checkpoint cadence, tasks-doc-as-spec-initializer per Anthropic).
+- deep-research workflow (5 angles → 15 sources → 25 claims → 3-vote adversarial verify): survived two session-limit crashes via `resumeFromRunId` (89/104 agents cached on final pass); retiered verify voters to Opus 4.8 mid-run, synthesis kept on Fable (user directive).
+- Wrote `agentic_auto_scheduling_experimental_study.md` (consolidated study + 2026 research reference) and `agentic_auto_scheduling_experimental_study_research_action_items.md` (AI-1..AI-14 with evidence tags, per-item confidence, falsifiable predictions per the AHE discipline; refuted claims quarantined). Public-hygiene grep clean.
+
+**Decisions:** Restart policy = restart-with-**carryover** (fresh session seeded with best prior artifact + attempted-failed ledger) because Magellan's plateau case refuted blank-slate AND grinding (rejected: my initial restart-fresh spec). Iterate-with-feedback before parallel sampling under fixed budget (ACCLAIM) — demotes best-of-K further. Findings contracts must forbid raw log dumps (KernelPro: raw feedback *worse than none*). Action-items doc practices AI-9's own predict→verify→revert format. Workflow fan-outs on Opus, Fable reserved for synthesis (limits economics).
+
+**Didn't work:** — (journal label-based extraction of the synthesize result — keys are hashed; structure-based scan worked immediately).
+
+**Next:** run `/improve` pointed at `agentic_auto_scheduling_experimental_study_research_action_items.md` + observations (AI-1..AI-4 = do-now skill edits; AI-9 = /improve's own falsifiable-prediction upgrade). cc-looper items AI-5/AI-6 queue behind it, next to close-tasks Part B.
+
+**Blockers:** none.
+
+**Artifacts:** the two repo-root docs; memories `loop-engineering-research` / `workflow-model-tiering` / `pdf-reading-pymupdf`; observations `2026-07-05-loop-engineering-research.md`; sources: arXiv 2511.00592, 2601.21096 (Magellan), 2603.10085 (KernelSkill), 2603.20075 (llvm-autofix), 2604.04238 (ACCLAIM), 2604.25850 (AHE), 2606.20373 (AutoPass), 2606.26453 (KernelPro), Anthropic effective-harnesses post.
+
+---
+
 ## [2026-06-26] — /improve review 2026-06-26 (6 proposals applied across 3 repos)
 
 **Summary:** Ran the periodic `/improve` review over the densest window on record (~240 observations / ~104 files, 2026-06-05→06-26). Distilled **6 proposals**, applied all 6 (user-approved one batch), verified, and committed+pushed across ai-kit / cc-looper / claude-home; scrubbed the packet to generic labels and refined a memory.
