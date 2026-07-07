@@ -1,12 +1,13 @@
 ---
 name: triage
-description: Route a free-text engineering request to the right workflow (greenfield-dev | integration-feature-dev | full-bug-fix-workflow | refactor-techdebt-dev | full-incident-response), to a one-shot phase skill, or to "just do it directly". Asks up to 2 clarifying questions if signals are ambiguous. Stops mis-routes — running greenfield-dev on a bug, or feature-dev on a refactor, costs 30-60 min apiece. Invoke as /triage when starting non-trivial work and the right workflow isn't obvious. Output is a one-line recommendation; the user invokes the chosen command. Suggestion-mode only — never auto-executes the chosen workflow.
+description: Route a free-text engineering request to the right workflow (greenfield-dev | integration-feature-dev | full-bug-fix-workflow | refactor-techdebt-dev | full-incident-response), to a one-shot phase skill, to a loop primitive (/goal | /loop | /schedule | /tasks-loop) for recurring or iterate-until-a-condition work (every morning, keep checking, until tests pass), or to "just do it directly". Asks up to 2 clarifying questions if signals are ambiguous. Stops mis-routes — running greenfield-dev on a bug, or feature-dev on a refactor, costs 30-60 min apiece. Invoke as /triage when starting non-trivial work and the right workflow isn't obvious. Output is a one-line recommendation; the user invokes the chosen command. Suggestion-mode only — never auto-executes the chosen workflow.
 ---
 
 # Triage — pick the right workflow (or skip the workflow)
 
-Route a free-text request to one of: a workflow orchestrator, a one-shot phase skill, or "just do
-it directly". Output is a single one-line recommendation. **You do NOT auto-execute.**
+Route a free-text request to one of: a workflow orchestrator, a one-shot phase skill, a loop
+primitive (recurring / iterate-until-done work), or "just do it directly". Output is a single
+one-line recommendation. **You do NOT auto-execute.**
 
 Two-question cap. Recommend at confidence ≥90% — otherwise recommend best-guess + state the
 residual uncertainty.
@@ -42,6 +43,7 @@ Read the request + the cwd `ls` + check `MEMORY.md` for project-level mode hints
 | "refactor / restructure / extract / rename / consolidate / clean up / tech debt" + same-behaviour intent | `/refactor-techdebt-dev` | Workflow enforces risk gates, abort criteria, success-metrics-required gate, rollback decision tree. |
 | "new project / from scratch / greenfield / new module / slice list / roadmap" + empty-ish cwd OR explicit greenfield mode in `MEMORY.md` | `/greenfield-dev` | Workflow drives roadmap → per-slice PRD → techspec → tasks → implement. |
 | One-shot artefact production ("write me a techspec for X", "review this doc", "audit this corner") | **Short-circuit → a single phase skill** (table below) | Skips the orchestrator entirely. |
+| "every morning / every N hours / keep checking / watch this PR / poll / until the tests pass / until score ≥ X / re-run until" — recurring or iterate-until-condition intent | **Loop-primitive route** (table below) | The loop frame wraps whatever runs inside it — pick the frame first, then (if needed) triage the per-iteration work too. |
 | Trivial — typo, one-line edit, one grep, one-question | **"Just do it directly — no workflow"** | Don't summon a full workflow for a 30-second task. |
 | Nothing fits cleanly | **"None of these fit — record the gap"** branch (Phase 3) | Do not force-fit. |
 
@@ -62,6 +64,26 @@ data flow 20% / complexity 15% / cross-system impact 10%).
 | "Create a per-slice PRD" / "create the master roadmap" | `/create-prd` / `/create-roadmap` |
 | "Generate QA scenarios for this slice" | `/create-qa-scenarios` |
 
+### Loop-primitive table (recurring / iterate-until-condition routes)
+
+Full recipes, constraints, and local-vs-cloud rules live in `docs/loop-recipes.md` (ai-kit).
+
+| Request shape | Recommend |
+|---|---|
+| Iterate until a **verifiable** condition, with a cap ("until all tests pass, max 5 tries") | `/goal` — deterministic done-check + explicit turn cap |
+| Recurring on an interval, touches local files / private repos ("summarize X every morning") | `/loop` (runs on this machine; stops when it's off) |
+| Recurring with no local-FS dependency, must survive the machine | `/schedule` routine (cloud, research preview) |
+| Watching an external system for change (PR reviews, CI, a queue) | `/loop` with the interval matched to how fast the watched thing actually changes |
+| A tasks-doc stream (implement / document each task in a doc) | `/tasks-loop` (cc-looper) — checkpoints, ledgers, resume; native primitives don't replace it |
+
+Two rules carried from the recipes doc:
+
+- Pick the loop frame *before* the inner workflow — a loop wraps invocations; it doesn't change
+  what runs inside each one. If the per-iteration work itself needs routing, recommend both
+  ("wrap `/investigate-bug` in `/goal` …").
+- `/goal` availability varies by CLI build — verify it exists before recommending it; if absent,
+  fall back to a plain turn-based prompt with explicit "stop after N tries" criteria.
+
 ---
 
 ## Phase 2 — Ask up to 2 clarifying questions if confidence <90%
@@ -73,6 +95,7 @@ High-leverage questions to pick from:
 - **"Is this customer-impacting right now, or can it wait?"** — incident vs bug.
 - **"Is there an existing codebase, or are we starting fresh?"** — integration vs greenfield.
 - **"Do you want the full workflow, or just one artefact (e.g. just the techspec)?"** — orchestrator vs short-circuit.
+- **"Is this a one-off, or should it recur / keep iterating until a condition is met?"** — workflow/skill route vs loop-primitive route.
 
 **Cap: 2 questions.** If still <90% after, recommend best-guess + state residual uncertainty. Do
 not ask a third — the cost of one extra question on every triage outweighs the cost of an occasional
