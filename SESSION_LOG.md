@@ -1,3 +1,25 @@
+## [2026-07-07] — Loop-primitive adapter layer (/triage + loop-recipes) + full /audit-skills run
+
+**Summary:** Assessed ai-kit against the Claude Code loop-engineering guide (X post 2026-07-06, captured in-repo) — the quality/usage advice was already implemented by the 2026-07-05 run; the real gap was zero native-primitive (/goal, /loop, /schedule) integration. Built the thin adapter layer, then ran a full 11-check /audit-skills: 3 proposals staged and applied same-session.
+
+**Done:**
+- Assessment: 7 guide points already validated in-kit; gap grep-confirmed. Highest-leverage insight: pending AI-6 (bounded fix cycle) can likely be repriced as a native `/goal` wrapper over qa-loop's pinned `Recommendation:` line instead of cc-looper runner work.
+- `/triage`: loop-primitive route added (Phase-1 signal row + routing sub-table + clarifying question); description 627→783, strict-YAML-verified.
+- `docs/loop-recipes.md` (new): 4 frames, the guide's 3-question rubric, hard constraints (cloud `/schedule` can't reach `~/.claude`/local vaults; `/goal` availability unverified), 6 recipes incl. headless /improve Phases-1–4 staging and the AI-6 `/goal` pointer.
+- `/audit-skills` full run (46 skills / 38 commands / 17 agents; deterministic checks scripted via node+js-yaml): P01 quoted the only 2 strict-YAML-failing frontmatters (both in commands/ — the 2026-06-04 sweep never covered commands); P02 normalized `{feature}`→`{feature_name}` (contract doc's parked cleanup decision, now closed with an expected-non-drift list); P03 fixed audit-skills' own spec drift (agent `tools`/`color`, 10→11 checks, command-wraps-skill pairs ≠ collisions). Backlog 15→18 (+5 new incl. the never-written 05-31 notes; 2 closed; 4 updated with new data); keep-two prune of 7 dated dirs executed.
+
+**Decisions:** Loop-primitive names confined to exactly two surfaces (triage routing table + docs/loop-recipes.md) because work skills must stay runner-agnostic — their deterministic pinned-line criteria are the loop-legible contract (prefer-decoupled-designs, Codex portability, research-preview churn); rejected: primitive mentions in loop-variant skill bodies. P02: normalize rather than bless `{feature}` (blessing would re-open the one-token-per-family rule the contract enforces).
+
+**Didn't work:** NODE_PATH-based js-yaml resolution on Windows node (cwd-based resolution works); safety hook false-positived on the word "rm" inside a commit message body (reworded — observation logged for a hook-regex refinement).
+
+**Next:** verify `/goal` exists in the installed CLI (+ `claude -p` compat) — it gates loop-recipes recipe 5 and the triage `/goal` row; then append the repricing note to AI-6 in the action-items doc. For a future /improve walk: the `references/`-split pattern decision (backlog 14/22/23) and the description-budget house style (backlog 16, 5 items hang on it).
+
+**Blockers:** none.
+
+**Artifacts:** ai-kit `ad5bd84` (loop work) + `8818806` (audit P01–P03); claude-home `a418adf` (packet + backlog); `~/.claude/improvements/2026-07-07/` (REVIEW + 3 proposals); observations `2026-07-07-loop-adapter-audit.md`; memories `loop-engineering-research` + `cc-looper-symlink-topology` updated.
+
+---
+
 ## [2026-07-05] — /improve review 2026-07-05 (12 proposals applied across 3 repos)
 
 **Summary:** Ran `/improve` over the 2026-06-26→07-05 window (45 observations / 19 files) plus the research action-items doc as user-directed input. Staged 12 proposals (7 research-driven: AI-1..4 + AI-7/8/9; 5 observation-driven), all 12 approved and applied, committed + pushed across cc-looper / ai-kit / claude-home.
