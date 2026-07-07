@@ -1,5 +1,5 @@
 ---
-description: Verify an implementation against its spec — runs the qa-gates skill (5 pass/fail gates: build/test, AC, cross-cutting, docs, human go/no-go). Back-compat alias for /qa-gates.
+description: "Verify an implementation against its spec — runs the qa-gates skill (5 pass/fail gates: build/test, AC, cross-cutting, docs, human go/no-go). Back-compat alias for /qa-gates."
 argument-hint: <prefix>
 arguments: prefix
 ---

@@ -95,9 +95,9 @@ A short block at the top naming the feature and linking the companion docs:
 # Implementation Tasks — {feature_name}
 
 > **Companion documents:**
-> - Feature description: `{feature}_description.md`
-> - Integration analysis: `{feature}_integration.md`
-> - Techspec: `{feature}_techspec.md` (authoritative for all technical detail)
+> - Feature description: `{feature_name}_description.md`
+> - Integration analysis: `{feature_name}_integration.md`
+> - Techspec: `{feature_name}_techspec.md` (authoritative for all technical detail)
 >
 > **Approach:** Balanced (N tasks, mid-size grouping)
 ```

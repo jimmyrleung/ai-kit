@@ -1,6 +1,6 @@
 ---
 name: integration-tasks
-description: Break a techspec into an ordered list of implementation tasks by exploring three sizings in parallel — granular / balanced / pragmatic — then committing to one with the user. Produces {feature}_tasks.md. Used ad-hoc, or as Phase 5 (M-size path) of /integration-feature-dev and the body of /integration-create-tasks. For small features where a 3-way comparison is overkill, use `balanced-tasks-creation` instead.
+description: Break a techspec into an ordered list of implementation tasks by exploring three sizings in parallel — granular / balanced / pragmatic — then committing to one with the user. Produces {feature_name}_tasks.md. Used ad-hoc, or as Phase 5 (M-size path) of /integration-feature-dev and the body of /integration-create-tasks. For small features where a 3-way comparison is overkill, use `balanced-tasks-creation` instead.
 ---
 
 # Integration Tasks Skill (3-way exploration)

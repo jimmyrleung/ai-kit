@@ -1,6 +1,6 @@
 ---
 name: integration-analysis
-description: Analyze how a feature integrates into an existing codebase — a reference map (entry points, patterns to follow, similar features, risks), not a design document. Produces {feature}_integration.md. Use ad-hoc, or as Phase 1 of /integration-feature-dev and the body of /integration-analyze-feature.
+description: Analyze how a feature integrates into an existing codebase — a reference map (entry points, patterns to follow, similar features, risks), not a design document. Produces {feature_name}_integration.md. Use ad-hoc, or as Phase 1 of /integration-feature-dev and the body of /integration-analyze-feature.
 ---
 
 # Integration Analysis Skill

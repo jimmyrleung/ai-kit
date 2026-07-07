@@ -3,7 +3,7 @@ name: audit-skills
 description: On-demand structural audit of the local Claude skill/command/agent population — frontmatter validity, description size, trigger-keyword coverage, body length, cross-skill redundancy, dead references, frontmatter-vs-directory mismatch, naming consistency. Stages proposals under ~/.claude/improvements/{date}/ with one per finding; never auto-edits. Run after authoring a new skill, before a publish-quality run, or accept the staleness prompt at session start. Invoke as /audit-skills. Complements /improve's friction-driven Phase 2 inline audit.
 ---
 
-<!-- intentionally-long: 10 checks documented inline; splitting to references/ would hurt usability because each check is short, the procedure flows linearly, and progressive disclosure adds latency for no readability win at this size. -->
+<!-- intentionally-long: 11 checks documented inline; splitting to references/ would hurt usability because each check is short, the procedure flows linearly, and progressive disclosure adds latency for no readability win at this size. -->
 
 # Audit Skills — structural quality pass over the local skill population
 
@@ -13,7 +13,7 @@ exactly like `/improve` does. Same approval discipline: the user reviews and app
 one at a time.
 
 This is the deep, on-demand sibling of `/improve`'s Phase 2 inline thin audit
-(vague-description + >150-line flags). It runs wider (10 checks) and only when invoked.
+(vague-description + >150-line flags). It runs wider (11 checks) and only when invoked.
 
 ## Inputs you read
 
@@ -53,7 +53,7 @@ For each SKILL.md / command / agent file:
 - `name:` matches the directory (skills) or filename stem (commands/agents).
 - `description:` present and non-empty.
 - No unknown fields beyond `name`, `description`, `allowed-tools` (skills),
-  `argument-hint` / `arguments` (commands), `model` (agents).
+  `argument-hint` / `arguments` (commands), `model` / `tools` / `color` (agents).
 - Skills live as `skills/<name>/SKILL.md` (not loose `.md`); commands are flat in
   `commands/`; agents are flat in `agents/`.
 
@@ -123,7 +123,9 @@ skill (> 50 lines of non-frontmatter content in a command file).
 
 ### Check 10 — Naming consistency
 - All skills/commands/agents use kebab-case (no underscores, no camelCase).
-- No `name:` field collides across skills/commands/agents.
+- No `name:` field collides across skills/commands/agents — except a command that wraps the
+  same-named skill (the kit's standard command-wraps-skill pairing, e.g. `/qa-gates` → `qa-gates`
+  skill), which is the intended pattern, not a collision.
 - No skill name ends in `-skill`; no command name starts with `/` in the name field.
 
 ### Check 11 — Output-doc filename contract
@@ -206,7 +208,7 @@ Create or append-to today's REVIEW.md:
 # Improvement review — {YYYY-MM-DD}  (or "## Audit-derived findings — {timestamp}" if appending)
 
 **Population audited:** N skills + M commands + K agents + L templates
-**Findings:** P (across 10 checks)  ·  **Proposals staged:** P
+**Findings:** P (across 11 checks)  ·  **Proposals staged:** P
 
 ## Findings by check
 | Check | Findings | Skills affected |

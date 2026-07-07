@@ -27,11 +27,15 @@ with `{feature_name}` within the integration family, etc.
 | full-incident-response | (none) | hotfix | `remediation_plan.md` |
 | full-incident-response | (none) | postmortem | `postmortem.md` |
 
-## Known residual drift (not yet normalized — flagged by audit-skills Check 11)
+## Known residual drift — none
 
-As of 2026-05-22 a few spots still use `{feature}` / `{prefix}` instead of `{feature_name}` for the
-integration family (`_techspec.md` ×2, `_integration.md` ×2, `_tasks.md` ×2). Left intentionally
-un-normalized; Check 11 will surface them for a future cleanup decision.
+Normalized 2026-07-07 (audit proposal 02): the remaining `{feature}` spots — 3 integration-family
+skill descriptions + `balanced-tasks-creation`'s companion-docs example block (×3, incl. the
+`_description.md` input line, normalized to avoid a mixed-token block) — now read `{feature_name}`.
+Check 11 verified zero drift at 2026-07-07. Expected non-drift hits for future runs: `{prefix}` in
+`qa-gates` / `verify-task` (those skills' own argument name); audit-skills Check 11's own example
+text; `{feature}_description.md` in `integration-analysis`'s input contract (an *input* file — this
+contract governs phase *output* docs only, and that skill's output line is already canonical).
 
 ## When you add a new workflow family
 

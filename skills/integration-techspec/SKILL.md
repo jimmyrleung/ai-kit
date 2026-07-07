@@ -1,6 +1,6 @@
 ---
 name: integration-techspec
-description: Produce a technical specification for integrating a feature into an existing codebase by exploring three approaches in parallel — minimal-changes / clean-architecture / pragmatic-balance — then committing to one with the user. Produces {feature}_techspec.md. Used ad-hoc, or as Phase 3 (M-size path) of /integration-feature-dev and the body of /integration-create-techspec. For small features where a 3-way comparison is overkill, use `pragmatic-techspec` instead.
+description: Produce a technical specification for integrating a feature into an existing codebase by exploring three approaches in parallel — minimal-changes / clean-architecture / pragmatic-balance — then committing to one with the user. Produces {feature_name}_techspec.md. Used ad-hoc, or as Phase 3 (M-size path) of /integration-feature-dev and the body of /integration-create-techspec. For small features where a 3-way comparison is overkill, use `pragmatic-techspec` instead.
 ---
 
 # Integration Techspec Skill (3-way exploration)
