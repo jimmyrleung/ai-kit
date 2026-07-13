@@ -94,8 +94,8 @@ for cn in $GEN_CMDS; do
 done
 
 # 4. AGENTS.md hint (never silent)
-echo; echo "AGENTS.md: global read-location is [verify]. Link/copy per project, or globally:"
-echo "  $SCRIPT_DIR/AGENTS.md  ->  <project>/AGENTS.md   (or $CODEX_HOME/AGENTS.md if supported)"
+echo; echo "AGENTS.md: global read-location (verified v0.144.1) is \$CODEX_HOME/AGENTS.md:"
+echo "  cp \"$SCRIPT_DIR/AGENTS.md\" \"$CODEX_HOME/AGENTS.md\"   # AGENTS.override.md takes precedence; project cascade also works"
 echo "  NOTE: kit Codex-MECHANICS layer only. Your personal ~/.claude/CLAUDE.md"
 echo "  conventions (confidence scoring, ask-before-assuming, scope discipline,"
 echo "  read-before-edit, verification-before-completion) do NOT transfer — Codex"

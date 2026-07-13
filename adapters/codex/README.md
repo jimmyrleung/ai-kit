@@ -4,8 +4,11 @@ Makes the **single canonical ai-kit source** consumable by **OpenAI Codex CLI**,
 Claude Code, from one source of truth — extending the existing `~/.claude` junction model.
 
 > Design + recorded decision: `../../docs/codex-portability-assessment.md` (§3a Decision, §5,
-> §8). Verified against **`codex-cli 0.130.0`, 2026-05-17**. Re-verify after a Codex update —
-> Codex ships weekly; items tagged **[verify on installed binary]** below are version-sensitive.
+> §8). Verified against **`codex-cli 0.130.0`, 2026-05-17**; re-verified + deployed on
+> **`0.144.1`, 2026-07-10** (flags unchanged: `multi_agent` stable/on, `enable_fanout` still
+> off; discovery + explicit `$name` resolution live-confirmed). Re-verify after a Codex
+> update — Codex ships weekly; items tagged **[verify on installed binary]** below are
+> version-sensitive.
 
 ## What this is (and is not)
 
@@ -47,8 +50,17 @@ bash adapters/codex/sync.sh --dry-run
 bash adapters/codex/sync.sh
 ```
 
-Then place `AGENTS.md` where your Codex build reads instructions (see its header — global
-location is **[verify on installed binary]**) and **restart Codex** to pick up new skills.
+Then place `AGENTS.md` at **`~/.codex/AGENTS.md`** — the verified global read-location
+(v0.144.1; `AGENTS.override.md` in the home dir takes precedence when present; the project
+cascade root-to-cwd still applies, combined cap `project_doc_max_bytes` = 32 KiB) — and
+**restart Codex** to pick up new skills. On Windows without elevation, use a **copy** (a
+hardlink would silently detach on the next `git checkout`) and re-copy after editing the
+kit file.
+
+**Scripting caveat (verified 0.144.1):** `codex exec` appends piped stdin to the prompt and
+blocks until EOF ("Reading additional input from stdin…") — in a non-TTY/background pipe it
+hangs forever. Close stdin in any scripted call: `cmd /c "codex exec … < NUL"` (Windows) /
+`codex exec … </dev/null` (POSIX).
 
 The sync is **idempotent** and safe: it never touches `.system`, never deletes a junction
 target, never removes a non-kit entry, and **reports** (never auto-fixes) any
@@ -124,11 +136,11 @@ to a canonical skill must be sanity-checked from *both* Claude Code and Codex.
 
 ## Open `[verify on installed binary]` items (re-check on Codex update)
 
-- `AGENTS.md` **global** read-location (project cascade is standard; `~/.codex` global analog
-  is build-dependent — `child_agents_md` was under-development at v0.130.0).
 - `agents.max_depth` default and how it counts skill-invocation vs subagent-spawn.
-- `project_doc_max_bytes`, `$ARGUMENTS`/`$1` arg-mapping, exact tool-surface absence of an
-  `AskUserQuestion` analog.
+- `$ARGUMENTS`/`$1` arg-mapping, exact tool-surface absence of an `AskUserQuestion` analog.
+
+Resolved 2026-07-10 (v0.144.1): global `AGENTS.md` read-location **is `~/.codex/AGENTS.md`**
+(`AGENTS.override.md` takes precedence); `project_doc_max_bytes` default **32 KiB**.
 
 ## Commit vs. gitignore
 

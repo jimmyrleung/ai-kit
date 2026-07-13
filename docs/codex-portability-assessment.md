@@ -48,14 +48,37 @@
 > subagent primitive, so no `openai.yaml`/validator/agent-as-skill workaround).
 > The Codex facts below are unchanged.
 >
+> **Decision-log addendum (2026-07-10) — deployed on the primary Windows machine, codex-cli
+> `0.144.1`:** `sync.ps1` applied clean — **65 exposed** (38 junctioned skills + 17 agent
+> skills + 10 command skills), 0 issues (advisory `quick_validate.py` still skipped — host
+> Python broken, kit-independent). Two `[verify on installed binary]` items **RESOLVED
+> v0.144.1**: the **global `AGENTS.md` read-location is `~/.codex/AGENTS.md`** (official
+> docs; `AGENTS.override.md` in the home dir takes precedence when present; deployed there
+> as a **copy** — file-symlink needs elevation, hardlink would silently detach on git
+> checkout) and **`project_doc_max_bytes` defaults to 32 KiB** (combined instruction-chain
+> cap; kit `AGENTS.md` is ~6.3 KB). Feature flags re-checked: `multi_agent` stable/on,
+> `enable_fanout` + `multi_agent_v2` still under-development/off — the §3a decision holds
+> unchanged. **Live-verified end-to-end:** junctioned skills are discovered and visible
+> in-session (probe from `C:\ai-kit`, now `trust_level = "trusted"` in
+> `~/.codex/config.toml`); generated implicit-off skills are — by design — absent from the
+> session skill list yet **resolve on explicit `$name` mention** (confirmed with
+> `$bug-investigation-agent`: read-only sandbox, zero shell escapes, exact
+> name+description returned). **New scripting caveat:** `codex exec` appends piped stdin
+> to the prompt and blocks until EOF ("Reading additional input from stdin…") — in any
+> non-TTY/background pipe it hangs forever; scripted calls must close stdin
+> (`cmd /c "codex exec … < NUL"`, POSIX `… </dev/null`). Still **[verify]**:
+> `$ARGUMENTS`/`$1` arg-mapping, `agents.max_depth` counting, hook field-level parity,
+> structured-question tool absence.
+>
 > **Verification log — installed binary, Codex CLI `0.130.0`, 2026-05-17:** several
 > `[verify on installed binary]` tags are now **resolved** (skills root, `SKILL.md` spec, agent
 > binding format, the named feature flags, `codex mcp-server`, MCP TOML, plugin system, **and
 > `codex exec --json`/`--output-schema`/`--output-last-message`** — confirmed in `codex exec
 > --help`) — these read **VERIFIED v0.130.0** below. Items not directly probed
-> (`project_doc_max_bytes`, `$ARGUMENTS`/`$1` arg mapping, `agents.max_depth` counting
-> semantics, hook field-level parity, `AGENTS.md` global read-location) **keep the [verify]
-> tag**. **Caveat:** Codex's own `quick_validate.py` could **not** be run live on this host
+> (`$ARGUMENTS`/`$1` arg mapping, `agents.max_depth` counting
+> semantics, hook field-level parity) **keep the [verify]
+> tag**; `project_doc_max_bytes` and the `AGENTS.md` global read-location were later
+> **RESOLVED v0.144.1** (2026-07-10 addendum above). **Caveat:** Codex's own `quick_validate.py` could **not** be run live on this host
 > (`C:\Python311` segfaults `0xC0000005`, kit-independent) — canonical skills were
 > **statically** validated (frontmatter keys within the allowed set; no `<`/`>` in any
 > `description`); live validator pass is deferred to a working-Python / Codex env.
@@ -315,9 +338,10 @@ assessment); `ariccb/sync-claude-skills-to-codex` is symlink-based and mirrors y
 - **Version drift (high-churn risk) — partially retired 2026-05-17.** The **skills root** is
   resolved (`~/.codex/skills`, VERIFIED v0.130.0) and the agent-binding format correction
   (`openai.yaml` not TOML) is a *fact fix*, not residual risk. Still build-variable and **[verify
-  on installed binary]**: `project_doc_max_bytes` (32 KiB vs 8192), `$ARGUMENTS`/`$1` arg mapping,
+  on installed binary]**: `$ARGUMENTS`/`$1` arg mapping,
   `codex exec --json`/`--output-schema` flags, `agents.max_depth` counting, hook field-level
-  parity. Does not change the top-line conclusion; does change exact adapter details.
+  parity (`project_doc_max_bytes` **RESOLVED v0.144.1**: 32 KiB default — 2026-07-10
+  addendum). Does not change the top-line conclusion; does change exact adapter details.
 - **Plugin system exists (new — not in the original assessment).** **VERIFIED v0.130.0:**
   `plugins` = stable/on; `.codex-plugin/plugin.json` + `.agents/plugins/marketplace.json` +
   `codex plugin marketplace`; a plugin can bundle `skills/ hooks/ scripts/ mcp`. **Packaging fork
@@ -374,8 +398,10 @@ shared-canonical-file change (the quality gate) out of near-term scope:
    skills root (`~/.codex/skills`), `SKILL.md` spec (identical), agent binding (`openai.yaml`,
    not TOML), feature flags (`multi_agent` stable, `enable_fanout` under-dev, `hooks`/`plugins`
    stable), `codex mcp-server` exists, MCP TOML, plugin system, `codex exec
-   --json`/`--output-schema`/`--output-last-message`. **Still [verify]:** `project_doc_max_bytes`,
-   arg-mapping, `max_depth` counting, hook field parity, `AGENTS.md` global read-location.
+   --json`/`--output-schema`/`--output-last-message`. **Still [verify]:**
+   arg-mapping, `max_depth` counting, hook field parity (`project_doc_max_bytes` = 32 KiB and
+   the global `AGENTS.md` read-location = `~/.codex/AGENTS.md` — **RESOLVED v0.144.1**,
+   2026-07-10 addendum).
 3. **Fix the §4 pre-existing defects — partially DONE 2026-05-17.** Absolute paths → kit-relative
    **FIXED** (2 primitive bodies; meta-skills still pending). Model pins → capability tiers
    **DEFERRED** (Category-2 — edits 18 junctioned agent files; out of near-term scope).
@@ -425,5 +451,8 @@ stable/on, `plugins` stable/on, `plugin_hooks`/`child_agents_md` under-dev; subc
 `codex exec`, `codex review --base/--uncommitted`, `codex mcp {add,list,get,remove}`, **`codex
 mcp-server`** (Codex-as-MCP-server confirmed), `codex plugin marketplace`; `~/.codex/config.toml`
 carries `[mcp_servers.<n>]` TOML (MCP-TOML parity confirmed). Not probed on binary (still
-`[verify]`): `project_doc_max_bytes`, `$ARGUMENTS`/`$1` mapping, `exec --json`/`--output-schema`
-flags, `agents.max_depth` counting, hook field-level names, `AskUserQuestion`-analog absence.
+`[verify]`): `$ARGUMENTS`/`$1` mapping, `exec --json`/`--output-schema`
+flags, `agents.max_depth` counting, hook field-level names, `AskUserQuestion`-analog absence
+(`project_doc_max_bytes` since **RESOLVED v0.144.1** = 32 KiB — 2026-07-10 addendum, which
+also resolved the global `AGENTS.md` read-location and live-verified skill discovery +
+explicit `$name` mention resolution on the deployed machine).

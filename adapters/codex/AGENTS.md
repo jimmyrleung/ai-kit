@@ -4,10 +4,11 @@ This file is the Codex-side counterpart of the kit's Claude conventions. It is *
 instruction only** — it changes nothing in the canonical ai-kit skills/agents. It is consumed
 by Codex CLI when present at Codex's instruction-cascade location.
 
-> Verified against `codex-cli 0.130.0` (2026-05-17). The exact **global** read-location for
-> `AGENTS.md` is **[verify on installed binary]** — project-root cascade is standard; a
-> `~/.codex/AGENTS.md` global analog (parallels `~/.claude/CLAUDE.md`) is build-dependent.
-> Place this per project (or globally if your build reads it) — see `adapters/codex/README.md`.
+> Verified against `codex-cli 0.130.0` (2026-05-17); re-verified on `0.144.1` (2026-07-10).
+> Global read-location **confirmed**: **`~/.codex/AGENTS.md`** (parallels
+> `~/.claude/CLAUDE.md`; `AGENTS.override.md` in the home dir takes precedence when present),
+> plus the standard project-root→cwd cascade (combined cap `project_doc_max_bytes` = 32 KiB).
+> Place this file there (or per project) — see `adapters/codex/README.md`.
 
 ## How to read the kit's sub-agent fan-out idiom (Codex-side A/C selection)
 

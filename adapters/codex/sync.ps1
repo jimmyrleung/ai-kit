@@ -39,9 +39,10 @@
                    workflow must never auto-trigger). Canonical commands/ is
                    untouched (Claude keeps the /x UX at zero context cost).
 
-    4. AGENTS.md : prints the command to link adapters/codex/AGENTS.md to the Codex
-                   global-instruction location. NOT done silently (home mutation +
-                   global read-location is [verify on installed binary]).
+    4. AGENTS.md : prints the command to place adapters/codex/AGENTS.md at the Codex
+                   global-instruction location (~/.codex/AGENTS.md — verified v0.144.1).
+                   NOT done silently (home mutation; and the deployed file may carry a
+                   private personal block appended after the kit content).
 
     5. Validate  : runs Codex's own quick_validate.py over every exposed skill and
                    reports PASS/FAIL. Never auto-fixes (a canonical SKILL.md edit
@@ -256,11 +257,12 @@ $agentsMdSrc = Join-Path $PSScriptRoot 'AGENTS.md'
 Write-Host ""
 Write-Host "AGENTS.md (Codex global instruction layer)" -ForegroundColor Cyan
 if (Test-Path $agentsMdSrc) {
-  Write-Host "  Codex's global AGENTS.md read-location is [verify on installed binary]."
-  Write-Host "  Project-scope is standard: copy/junction into the repo you run Codex from:"
-  Write-Host ("    cmd /c mklink /J `"<your-project>\AGENTS.md`" `"{0}`"   # or copy" -f $agentsMdSrc) -ForegroundColor Yellow
-  Write-Host "  Global analog (parallels ~/.claude/CLAUDE.md), if your build supports it:"
-  Write-Host ("    {0}  ->  {1}\AGENTS.md" -f $agentsMdSrc, $CodexHome) -ForegroundColor Yellow
+  Write-Host ("  Global read-location (verified v0.144.1): {0}\AGENTS.md" -f $CodexHome)
+  Write-Host ("    Copy-Item `"{0}`" `"{1}\AGENTS.md`"   # copy — file-symlink needs elevation; hardlink detaches on git checkout" -f $agentsMdSrc, $CodexHome) -ForegroundColor Yellow
+  Write-Host "  (AGENTS.override.md there takes precedence if present. Re-copy after editing"
+  Write-Host "   the kit file; if the deployed file carries a private personal block appended"
+  Write-Host "   after the kit content, refresh only the kit part between its markers.)"
+  Write-Host "  Project-scope cascade also works: copy into the repo you run Codex from."
   Write-Host ""
   Write-Host "  NOTE: this file is the kit's Codex-MECHANICS layer only. Your personal" -ForegroundColor Yellow
   Write-Host "  ~/.claude/CLAUDE.md conventions (confidence scoring, ask-before-assuming," -ForegroundColor Yellow
