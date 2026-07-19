@@ -1,3 +1,18 @@
+## [2026-07-19] — /improve review (8/8 applied) + orchestrate/walkthrough skills + AI-6 backtest CLEARED
+
+**Summary:** Full /improve cycle over the 07-05→07-19 window (179 obs entries / 67 files via 4-agent fan-out extraction + a user-directed vault scan of second_brain/mktool_kb) — 8 proposals staged, all approved and applied, two new skills built, and the AI-6 backtest run and cleared (build approved).
+**Done:**
+- First prediction-discipline cycle closed: all 12 prior proposals fingerprint-verified shipped; P09 met on first opportunity (caught P07's orchestrator-half miss → revised as P01, not silently persisted); P12 missed (scoped-negative class recurred ≥5×) → enforced into skills (P03/P06), CLAUDE.md untouched.
+- Applied: P01 compile-kb (cadence graduation + dispatch hints-to-verify + orchestrator output under its own gates + contract patches); P02 qa-gates (gate scope from working-tree diff, TRX, hash-stamped gates, canonical obs schema); P03 analysis/techspecs caller closure; P04 balanced-tasks tasks-as-spec escape hatch + independent ACs; P05 kb-update residual gaps (mktool_kb `.agents/` copies); P06 absence-claim protocol (bug-investigation + document-terraform); P07 destructive-hook prose fix (execution-verified 8/8 payloads); P08 improve family-batched rounds.
+- Built `skills/orchestrate` (multi-provider fan-out playbook: Opus workers on Claude Code/Cursor; Codex inherits session model per open issue) + `skills/walkthrough` (one-item-per-turn disposition) — strict-YAML clean, 10/10 fresh-context trigger simulation, Codex-synced (75 exposed, 0 issues).
+- AI-6 backtest over 31 historical QA artifacts: 5/10 real no-gos (50%) convert in one distilled-findings fix cycle → clears the ≥⅓ bar; report at `cc-looper/specs/ai6-backtest-2026-07-19.md` (uncommitted); build approved with eligibility-gate + env-preflight conditions.
+- Bookkeeping: 67 obs files annotated, 41 archived; `last-review.txt` → 2026-07-19; commits pushed — ai-kit `81662cc`, mktool_kb `4121299`, claude-home `fc80232`.
+**Decisions:** revise-don't-revert for P07 (its subagent half demonstrably works); enforcement-over-wording for both repeat-violated rules (qa-gates Gate-1, scoped-negative); AI-6 backtest-before-build (user call) — backtest then cleared it; orchestrate must be multi-provider (user requirement).
+**Didn't work:** Edit through symlinked skill paths (ENOENT on tmp-rename) — canonical-path recipe recorded in `cc-looper-symlink-topology` memory.
+**Next:** fresh session `/audit-skills` (2 new skills authored — user queued it); cc-looper AI-6 build session (check `/goal` repricing first; doubles as the loop run resolving frozen P01–P05/P10/P11 predictions); user-run keep-two prune (2026-07-05 + 2026-07-07 dirs); vault ops (2 UNREVIEWED compile-kb ADRs → /adr-first, sha256 reconciliation, stale "7 cycles" figure, teach Lesson 03).
+**Blockers:** none
+**Artifacts:** packet `~/.claude/improvements/2026-07-19/` (REVIEW + 8 proposals + MARK); `cc-looper/specs/ai6-backtest-2026-07-19.md`; obs `~/.claude/observations/2026-07-19-improve-run-close.md`; memories updated: loop-engineering-research, cc-looper-symlink-topology, skill-frontmatter-strict-yaml + MEMORY.md index.
+
 ## [2026-07-10] — Codex CLI linked on this machine (adapter deployed + verified, personal layer composed)
 
 **Summary:** Codex CLI v0.144.1 was installed on this machine; deployed the existing `adapters/codex` sync (65 entries, 0 issues), composed the global `AGENTS.md` with a private personal-conventions layer, live-verified discovery + explicit `$name` resolution, and closed two long-standing [verify] items across the docs.
