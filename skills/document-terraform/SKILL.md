@@ -87,7 +87,7 @@ Static HCL maxes out at **"declared."** When an authenticated read-only cloud CL
 - **Detect deployment status (the finding class HCL cannot reach):** resources **in the cloud but not in HCL** (out-of-band drift → Q3) and resources **declared/merged but not yet applied** (an orchestrator apply lagging the PR merge — **merged ≠ applied**). Both belong in the doc, not in the agent's head.
 - **Emit a per-env `Live verification` block** summarizing what was confirmed/flipped, with `[az ✓]` tags inline in the matrix.
 
-**Guardrails (unchanged):** read-only only — never `apply`/`plan`/mutating `init`, never a write, **caution on prod reads**. **Windows caveat:** `az --query` (JMESPath) is mangled by the `az.cmd`/PowerShell bracket re-parse — default to `-o json` + client-side filtering (`ConvertFrom-Json` / the Bash tool with single-quoted JMESPath), never `--query "[?…]"`.
+**Guardrails (unchanged):** read-only only — never `apply`/`plan`/mutating `init`, never a write, **caution on prod reads**. **Windows caveat:** `az --query` (JMESPath) is mangled by the `az.cmd`/PowerShell bracket re-parse — default to `-o json` + client-side filtering (`ConvertFrom-Json` / the Bash tool with single-quoted JMESPath), never `--query "[?…]"`. **Paginate or it didn't happen:** Graph `appRoleAssignedTo` pages at 100 (page 1 can be all User-type rows) — always `$top=999` + follow `@odata.nextLink`; `az appconfig feature list` needs `--all`. Never flip a matrix row or assert absence from an unpaginated read — one inverted a doc's staging status in 9 places. An empty first page is a prompt to prove the probe sees anything at all (positive control), not a finding.
 
 ### Phase 3 — Private/remote module resolution (convention-agnostic)
 

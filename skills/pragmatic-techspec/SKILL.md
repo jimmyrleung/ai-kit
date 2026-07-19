@@ -92,6 +92,14 @@ A table. Every row points to real code you read while mapping patterns.
 
 Every `file:line` reference must be verified against the current codebase, not guessed.
 
+Verification extends to **test-file locations** (one Glob per named test file/project — a techspec
+that guessed the wrong test project survived two reviewers) and to **lifted code's closure**: when
+a step says "lift/copy X verbatim", enumerate X's symbol dependencies (usings/imports, helpers,
+config keys) and diff the whole source file per environment for incidental hunks — verbatim lifts
+carried compile-breaking references twice. **Config keys** introduced by the spec follow the repo's
+nesting convention, describe their value, and split secret-vs-static — a spike's poor key shape
+otherwise rides through every downstream artifact.
+
 ### 5. Implementation
 File-by-file walkthrough. For each touched file:
 

@@ -31,6 +31,13 @@ If a required input wasn't supplied, ask the caller (or the user) for it before 
 Append a `## QA` section to `artifact_path` (in place — no new file). Same `review-artifact`
 "`## Review`" convention. One date-stamped block per run. Each gate is one line.
 
+Stamp the `## QA — {date}` header with the commit/tree it verified: `(verified at: <short-sha>[ +dirty])`.
+A gate result without the hash can silently outlive the tree it tested (a later stash/rework broke
+the build while the QA block still asserted green). **Two-commit lifecycle (prefix-close):** Gate 1's
+committed-check expects the *implementation* commit to exist before gates run (ask for explicit
+authorization to create it if the work is only in the tree — per-task `verify-task` remains exempt);
+the *QA-artifact* commit is batched with the Gate 5 GO decision, so present both in one approval.
+
 ## Procedure
 
 ### Gate 0 — Setup (free)
@@ -43,6 +50,14 @@ whichever exist). Extract:
 - the SDK / framework versions the spec pins
 - the files the implementation was supposed to touch (from analysis / tasks)
 - the test commands the techspec specifies
+
+**Then derive gate scope from the working tree, not only the spec:** run `git status --short` +
+`git diff --stat <base>..HEAD` (and `git status` for untracked files) and diff the file list against
+the docs' claims. Anything in the tree the tasks doc never named (an untracked secret, a stray
+config) becomes a Gate 3 line-item; any **migration / seed / fixture / stored-proc file in the
+diff** forces Gate 1's executed-run branch **even if the techspec's test commands don't mention
+it** — the 2026-07-16 seed failure shipped prod-wrong values precisely because gate scope came
+from the techspec alone.
 
 **If `gate_plan_pre_written: true`**: the caller (e.g. `verify-task`) has already written the
 gate-plan block (with its own header — `## Verify — {date}` for per-task callers) at
@@ -107,6 +122,12 @@ what ran:
 
 If the live/integration run can't happen here (no test DB, sandbox), that is a **BLOCKED** build/test
 gate (record the reason), not a pass — "compiles, assumed green at run time" keeps the task OFF Done.
+
+For suites expected to exceed ~2 minutes, require **durable result output** (TRX / JUnit XML +
+redirected console log) so a wrapper timeout cannot orphan the verdict; when a suite passes
+focused but hangs/fails full, inspect **configuration-provider precedence** (an ignored
+developer-local settings file, an empty high-precedence env var) before proposing mocks or
+skipping the suite.
 
 If FAIL with `accepted`, require a `Why:` line; do not advance until the user states the reason.
 
@@ -184,16 +205,12 @@ For each gate (1-5), append one entry to the session-scoped observation buffer s
 picks it up at session end (Tier 1.3 contract — written to
 `~/.claude/observations/{YYYY-MM-DD}-{slug}.md`):
 
-```
-skill_or_workflow: qa-gates
-phase/area: gate-{id} ({name})
-outcome: pass | fail | accepted | skipped
-friction_observed: <tag if fail/accepted> — e.g. line_budget_overrun, env_asymmetry, sdk_version_drift, doc_drift
-would_have_helped: <if fail/accepted>
-principle: <generalizable takeaway>
-```
-
-5 entries per full run; 4 in streamlined mode (Gate 4 = `skipped`).
+Use the canonical schema from `~/.claude/observations/README.md` — numbered `### Observation N:`
+headings with the standard fields (project, skill_or_workflow: qa-gates, phase/area: gate-{id},
+outcome, friction_observed + tag, would_have_helped, improvement_suggestion, principle). Do NOT
+emit bare key-value blocks — a run that did produced a file carrying two schemas. Batch the 5
+gates into as few observations as their content warrants (a clean run can be one observation
+listing the gate outcomes; each fail/accepted gate gets its own).
 
 ## Halt / acceptance discipline
 

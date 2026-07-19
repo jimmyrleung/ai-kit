@@ -38,7 +38,7 @@ Expect, in order of authority:
 2. **Integration analysis** (`*_integration.md`) — authoritative for scope boundaries and PO/team clarifications.
 3. **Feature description** — the requirement itself.
 
-If the **techspec is missing**, stop and tell the user. Do not generate tasks from a feature description alone — you'll invent implementation detail that doesn't belong in the tasks doc. The user's options are: (a) run `/integration-pragmatic-techspec` first, or (b) explicitly accept speculative tasks at < 90% confidence.
+If the **techspec is missing**, stop and tell the user. Do not generate tasks from a feature description alone — you'll invent implementation detail that doesn't belong in the tasks doc. The user's options are: (a) run `/integration-pragmatic-techspec` first, (b) explicitly accept speculative tasks at < 90% confidence, or (c) **tasks-as-spec** — for a small, well-understood change backed by a verified exploration/analysis: the user explicitly chooses to skip the techspec; the tasks doc then carries a `## Locked decisions` section (the design choices that would have lived in the techspec, each grounded in a `file:line` you verified this session) and the header names the exploration artifact as the authoritative input. This is a user-chosen fast path, never the default.
 
 If the **integration analysis is missing** but the techspec is present, proceed and call out the gap in the confidence score.
 
@@ -63,6 +63,7 @@ If the **integration analysis is missing** but the techspec is present, proceed 
 4. **Order by dependencies.**
    - Topological sort: a task that depends on another comes after it.
    - Mark parallelizable tasks with "Can run in parallel with: Task X, Y".
+   - **Derive, don't hand-author, the parallel lists:** compute "Can run in parallel with" from the Depends-On graph (two tasks are parallel iff neither is an ancestor of the other) and verify symmetry (A lists B ⇔ B lists A) before writing — hand-authored lists drifted asymmetric against the graph.
    - Draw a small ASCII dependency graph only when the order isn't obvious from the linear task list.
 
 5. **Propose an implementation order and confirm with the user.**
@@ -175,6 +176,7 @@ Rules for the task body:
 - **Code snippets stay small.** One-liner changes — show the line before and the line after. Larger snippets — keep to ~15 lines and only when the step is genuinely non-obvious from prose + techspec ref.
 - **Acceptance criteria are outcomes**, not restatements of steps. Bad: "Add property X." Good: "Property X is set by the mapper when the source field is non-null."
 - **No invented files.** Every `path/to/file` must come from the techspec or from a `file:line` you have actually verified.
+- **ACs verify against an independent source.** An AC for a captured/derived value (a config key, an inventory row, a mapping) may not cite the upstream analysis/techspec as its only proof — "matches the analysis inventory" self-confirms a wrong capture (one rode through five artifacts). Point at the live source: the repo file, the environment, a command output, or an explicit user confirmation.
 
 ### 5. Notes & decisions
 
@@ -222,6 +224,7 @@ These sections appear in generic tasks templates but are absent from tasks docs 
 - Per-task `**Started**:` / `**Completed**:` empty timestamp placeholders in every task — the Status line is enough; developers fill dates in the Notes & Decisions log.
 - Placeholder "TBD" scenarios in the testing section — if you can't name a scenario, either it doesn't exist (say so) or your confidence is too low and you should not be writing the doc yet.
 - Separate "Documentation Needs" checklists — surface doc updates as their own task if real; otherwise skip.
+- A doc-level `**Status**:` line after the Confidence section — Status is per-task only (a stray template echo shipped twice).
 
 **Rule:** if a section has no substance, delete it — don't leave a placeholder.
 

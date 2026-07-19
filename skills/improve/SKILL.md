@@ -189,10 +189,14 @@ name set — codenames outside it pass; this grep is the actual gate, at the aut
 ### Phase 5 — Present & (on approval) apply
 
 1. Print `REVIEW.md` to chat (the summary). Don't dump every proposal file — point at the dir.
-2. Walk the proposals **one at a time** (ask-one-question-at-a-time cadence — Pocock's `grill-with-docs`):
+2. Walk the proposals — **one at a time** for small packets (≤6) and for any contentious item
+   (ask-one-question-at-a-time cadence — Pocock's `grill-with-docs`); for larger packets,
+   **family-batched AskUserQuestion rounds** (≤4 questions per call, each question = exactly one
+   proposal with its own apply/skip/defer options, batched by theme). The unit that stays atomic
+   is the per-item decision, not the round-trip:
    "Proposal 3 — add a 'verify external assumptions' step to `pragmatic-techspec` Phase 3, derived
    from 4 `wrong_approach` observations in feature-dev. Apply / skip / defer?" For deletion and
-   new-skill candidates, *always* just ask — never auto-propose those as diffs.
+   new-skill candidates, *always* just ask individually — never auto-propose those as diffs, never batch them.
 3. For each **approved** proposal: apply *exactly* what's in the proposal file to the target. If it's
    a `MEMORY.md` edit, follow the auto-memory conventions (right `type:`, `**Why:**`/`**How to apply:**`,
    `[[links]]`, the one-line `MEMORY.md` pointer). If it's a `~/.claude/CLAUDE.md` edit, keep it a
