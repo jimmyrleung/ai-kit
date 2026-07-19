@@ -17,10 +17,10 @@ Subagents invoked by skills/commands. Each row: file → registered `name` (used
 | File                                     | Name                                 | Model  | Role                                                            |
 | ---------------------------------------- | ------------------------------------ | ------ | --------------------------------------------------------------- |
 | `integration-analysis-agent.md`          | `integration-analysis-agent`         | opus   | Map how a new requirement integrates into the existing codebase |
-| `integration-analysis-review-agent.md`   | `integration-review-agent`           | sonnet | Review the integration analysis                                 |
+| `integration-review-agent.md`            | `integration-review-agent`           | sonnet | Review the integration analysis                                 |
 | `integration-techspec-creator-agent.md`  | `integration-techspec-creator-agent` | opus   | Produce a lightweight techspec                                  |
 | `integration-tasks-creator-agent.md`     | `integration-tasks-creator-agent`    | sonnet | Break techspec into ordered tasks                               |
-| `feature-integration-validator-agent.md` | `integration-validator-agent`        | sonnet | Verify feature is implemented, tested, ready to ship            |
+| `integration-validator-agent.md`         | `integration-validator-agent`        | sonnet | Verify feature is implemented, tested, ready to ship            |
 
 ## Refactor / tech-debt family
 
@@ -44,4 +44,4 @@ Subagents invoked by skills/commands. Each row: file → registered `name` (used
 
 | File                     | Name              | Model  | Role                                                      |
 | ------------------------ | ----------------- | ------ | --------------------------------------------------------- |
-| `code-reviewer-agent.md` | `code-reviewer`   | sonnet | Confidence-filtered code review (bugs, security, quality) |
+| `code-reviewer-agent.md` | `code-reviewer-agent` | sonnet | Confidence-filtered code review (bugs, security, quality) |

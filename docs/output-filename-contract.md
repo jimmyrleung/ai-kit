@@ -32,8 +32,9 @@ with `{feature_name}` within the integration family, etc.
 Normalized 2026-07-07 (audit proposal 02): the remaining `{feature}` spots — 3 integration-family
 skill descriptions + `balanced-tasks-creation`'s companion-docs example block (×3, incl. the
 `_description.md` input line, normalized to avoid a mixed-token block) — now read `{feature_name}`.
-Check 11 verified zero drift at 2026-07-07. Expected non-drift hits for future runs: `{prefix}` in
-`qa-gates` / `verify-task` (those skills' own argument name); audit-skills Check 11's own example
+Check 11 verified zero drift at 2026-07-07 and 2026-07-19. Expected non-drift hits for future runs: `{prefix}` in
+`qa-gates` / `verify-task` / `qa-loop` / `qa-loop-docs` (those skills' own argument name; the loop pair are
+qa-gates' headless forks, canonical in cc-looper); audit-skills Check 11's own example
 text; `{feature}_description.md` in `integration-analysis`'s input contract (an *input* file — this
 contract governs phase *output* docs only, and that skill's output line is already canonical).
 

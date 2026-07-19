@@ -19,7 +19,7 @@ Initialize a new incident directory and create the incident report from the temp
 
 1. Generates today's date in `YYYY-MM-DD` format.
 2. Creates the incident directory: `incidents/inc_<date>_<descriptor>/`.
-3. Copies the template `agent-workflows/incident-response/templates/incident-report.md` into the directory as `incident_report.md`.
+3. Copies the template `templates/incident-response/incident-report.md` into the directory as `incident_report.md`.
 4. Creates a `logs/` subdirectory for log files.
 5. Displays the path to the new incident report and guidance on next steps.
 

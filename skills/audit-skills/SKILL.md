@@ -52,7 +52,10 @@ For each SKILL.md / command / agent file:
 - `---` fences front and back; the frontmatter block parses under a **STRICT YAML parser (js-yaml)** — not just the Claude-lenient/regex check. Specifically flag an **unquoted `description:` (or any plain scalar) containing `: ` (colon-space)** or other YAML-special constructs (leading `[`/`{`/`&`/`*`/`|`/`>`, an unescaped `#` mid-scalar) that strict parsers (**Codex**, claude.ai, the open-standard, the API) reject while Claude Code tolerates. Validate with **Node + js-yaml** (the local PyYAML segfaults on this machine — see memory `skill-frontmatter-strict-yaml`; don't reach for it). Each failure → a proposal that quotes the value.
 - `name:` matches the directory (skills) or filename stem (commands/agents).
 - `description:` present and non-empty.
-- No unknown fields beyond `name`, `description`, `allowed-tools` (skills),
+- No unknown fields beyond `name`, `description`, `allowed-tools`, `argument-hint`,
+  `arguments`, `disable-model-invocation` (skills — the last three per
+  code.claude.com/docs/en/skills, verified 2026-07-19; `arguments` is the documented
+  named positional-argument mapping, also the cc-looper worker-skill spawn contract),
   `argument-hint` / `arguments` (commands), `model` / `tools` / `color` (agents).
 - Skills live as `skills/<name>/SKILL.md` (not loose `.md`); commands are flat in
   `commands/`; agents are flat in `agents/`.
@@ -92,8 +95,8 @@ For each pair in the same family (heuristic: same first segment before `-`), com
 top-level section headers (`##` lines). ≥60% header match → soft finding. Same
 disposition as Check 5: surface, don't propose a merge.
 
-### Check 7 — Dead references in skill bodies
-Scan each SKILL.md body for:
+### Check 7 — Dead references in skill, command, and agent bodies
+Scan each SKILL.md, command, and agent body for:
 - Paths containing `agent-workflows/` (stale post-3.1).
 - Paths containing `agent-docs/` (stale post-3.1).
 - Paths containing the per-family `{bugfix,feature-addition,greenfield-dev,
@@ -104,6 +107,12 @@ Scan each SKILL.md body for:
 
 Each finding: one proposal per file with exact line numbers and the suggested
 replacement path.
+
+Expected non-findings (do not flag): the cc-looper worker skills' `templates/*.md`
+references resolve against cc-looper's source tree at runtime (its slice-09 techspec
+§3.12), not the skill dir — verify existence under
+`~/projects/cc-looper/templates/` before flagging. audit-skills' own Check 7 text
+mentions the dead-path classes verbatim — self-matches are not findings.
 
 ### Check 8 — Frontmatter-vs-directory mismatch
 - A `SKILL.md` whose frontmatter looks like a command (has `argument-hint`, no long

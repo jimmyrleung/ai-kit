@@ -21,8 +21,8 @@ Sonnet 4.5 (Structured validation/breakdown)
 
 | Workflow              | Agent / Agent → Skill                                       | Why Sonnet          |
 | --------------------- | ---------------------------------------------------------- | ------------------- |
-| feature-addition      | integration-analysis-review-agent (`integration-review-agent`) | Validation          |
-| feature-addition      | feature-integration-validator-agent                        | Validation          |
+| feature-addition      | integration-review-agent                                    | Validation          |
+| feature-addition      | integration-validator-agent                                 | Validation          |
 | feature-addition      | integration-tasks-creator-agent → `integration-tasks` skill | Task breakdown      |
 | feature-addition      | code-reviewer-agent                                        | Code review         |
 | refactoring-tech-debt | audit-reviewer-agent                | Review (review-artifact) |
