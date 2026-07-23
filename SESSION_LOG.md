@@ -1,3 +1,13 @@
+## [2026-07-23] — /close repo-memory redesign + focused audit + first live 2c run
+
+**Summary:** Redesigned /close around a 4th persistence layer (repo-scoped `docs/rules/` indexed from AGENTS.md; SESSION_LOG slimmed to continuation-only — this entry is the first slim one), ran a focused /audit-skills (2 findings, both applied), and bootstrapped ai-kit's own AGENTS.md + docs/rules/ as the inaugural 2c run.
+**Next:** exercise 2c in a non-kit repo's /close (validates the layer outside its birthplace); backlog 26 (close-tasks roll-up slim? repo-rule harvesting?) waits on ≥3 slim-entry sessions; review adr-0001 (UNREVIEWED) via /adr-first. (Carried from 07-19: cc-looper AI-6 build session; vault ops.)
+**Blockers:** none
+**Didn't work:** node js-yaml from the ai-kit cwd (no node_modules — run from `~`; now a docs/rules/ rule, and the observation notes this fact sat unread in the 07-07 entry below — the redesign's own proof point)
+**Artifacts:** ai-kit `5c39acd` (skill edits) + this session's docs commit; claude-home `e1cea84` + packet `~/.claude/improvements/2026-07-23/`; `docs/rules/skill-authoring.md`; `AGENTS.md`; adr-0001 `~/.claude/ownership/close-repo-memory/` (UNREVIEWED)
+
+---
+
 ## [2026-07-19] — /improve review (8/8 applied) + orchestrate/walkthrough skills + AI-6 backtest CLEARED
 
 **Summary:** Full /improve cycle over the 07-05→07-19 window (179 obs entries / 67 files via 4-agent fan-out extraction + a user-directed vault scan of second_brain/mktool_kb) — 8 proposals staged, all approved and applied, two new skills built, and the AI-6 backtest run and cleared (build approved).
