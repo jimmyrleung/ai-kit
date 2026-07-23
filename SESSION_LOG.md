@@ -1,3 +1,13 @@
+## [2026-07-23] — /close 2c skill-candidate tagging (recurrence-gated promotion)
+
+**Summary:** Resolved "should /close map local skill proposals?" as no-new-mechanism: the rules layer is the proposal inbox — 2c now tags repeatable procedural how-tos `<!-- skill-candidate -->` + a paired (b) observation, and /improve mints the skill only on recurrence evidence (rejected: a dedicated skill-proposal mapping step).
+**Next:** unchanged from the entry below — first live run of the batched-review pipeline; port to `gf-implement-task` if it proves out. (Carried: adr-0001 close-repo-memory UNREVIEWED → /adr-first; 2c in a non-kit repo; cc-looper AI-6 build session.)
+**Blockers:** none
+**Didn't work:** —
+**Artifacts:** ai-kit `07b5de3` (skills/close/SKILL.md, +3 lines)
+
+---
+
 ## [2026-07-23] — Batched-review topology: review-implementation skill + qa-gates commit-lifecycle fix
 
 **Summary:** Replaced implement-task's per-task reviewer fan-out with a new once-per-prefix `/review-implementation` skill (correctness / conventions / simplicity + ship-ready refactors, sha-stamped `## Review` block) and made qa-gates commit-agnostic (informational committed-check, `GO, conditional on commit`); pipeline is now implement-task (verify-task inline) → review-implementation → qa-gates. Audit run-2 caught and fixed a same-session 255>250 body overrun (P03 applied; qa-gates sits at exactly 250 — next edit must retire lines).
