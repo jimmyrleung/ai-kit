@@ -22,8 +22,9 @@ all of which the implement / verify / qa machinery writes into artifacts. Recons
 don't invent the narrative you can't see.
 
 Four phases. Move through them in order; ask before the git step. This skill reuses `/close`'s
-auto-memory conventions, observation format, SESSION_LOG format, and cross-machine sync routing
-verbatim — it does not restate them; it points at them.
+auto-memory conventions, observation format, SESSION_LOG placement/archive rules, and cross-machine
+sync routing verbatim — it does not restate them; it points at them. (Its roll-up entry format is
+deliberately richer than `/close`'s slim continuation entry — see 3c.)
 
 ---
 
@@ -87,11 +88,13 @@ reconstructed signal honestly against live-context signal):
 | Doc-drift finding in `_qa.md` Gate 4 | `doc_drift` |
 | Checkpoint review `abort` / `fix-then-proceed` | quote the recommendation + the blocking finding |
 
-Then **categorize** each item exactly as `/close` Phase 1 does — (a) → auto-memory (certain &
-durable), (b) → observations (skill/workflow-performance evidence for `/improve`), (c) → SESSION_LOG
-roll-up, (d) → just say it in chat. Apply `/close`'s ADR gate for (a) and its
-**don't-manufacture** rule: a clean run — all tasks `Done`, no gate fails, no pauses, no retries —
-yields **zero observations, zero memory, one thin SESSION_LOG roll-up line**, and that is correct.
+Then **categorize** each item exactly as `/close` Phase 1 does — (a) → auto-memory (user-scoped or
+cross-repo durable), (b) → observations (skill/workflow-performance evidence for `/improve`),
+(c) → repo memory (repo-scoped durable — follow `/close` 2c's `docs/rules/` + AGENTS.md-index
+conventions; rare for an implementation run), (d) → SESSION_LOG roll-up, (e) → just say it in chat.
+Apply `/close`'s ADR gate for (a)/(c) and its **don't-manufacture** rule: a clean run — all tasks
+`Done`, no gate fails, no pauses, no retries — yields **zero observations, zero memory, zero repo
+rules, one thin SESSION_LOG roll-up line**, and that is correct.
 
 ---
 
@@ -134,7 +137,10 @@ check-for-existing-file rule). Implementation runs rarely produce durable rules 
 ### 3c — SESSION_LOG.md roll-up entry
 
 Find the git root (`git rev-parse --show-toplevel`; fall back to `~/SESSION_LOG.md`). **Prepend**
-one entry for the **whole tasks-doc run** (not per session/task), `/close`'s SESSION_LOG format:
+one entry for the **whole tasks-doc run** (not per session/task). The roll-up keeps
+`Done:`/`Decisions:` — deliberately richer than `/close`'s slim continuation entry, because a
+multi-session run's net delivery and completion-note decisions aren't recoverable from any single
+session's context:
 
 ```
 ## [YYYY-MM-DD] — <tasks-doc name>: run closed (N/M tasks done across K sessions)
@@ -172,7 +178,7 @@ the idempotency loop — the next `/close-tasks` only harvests what came after.
    per repo, **ask before each commit and each push**, never auto-push, run the ai-kit secret-scan
    before pushing ai-kit.
 4. **Print the close summary** — `observations: N written · skill_or_workflow: <detected> ·
-   memory: N · SESSION_LOG: rolled up · marker: <sha> · commit: <hash or "skipped">`.
+   memory: N · repo rules: N · SESSION_LOG: rolled up · marker: <sha> · commit: <hash or "skipped">`.
 
 ---
 
@@ -211,5 +217,5 @@ cc-looper headless run (which has no interactive `/close` at all).
   reads artifacts, not domain.
 - **Read-only on git history.** Reads `status`/`diff`/`log`/`rev-parse`; at most `add` + `commit`.
   Never rewrites history.
-- **Don't manufacture entries.** A clean run produces zero observations, zero memory, one thin
-  SESSION_LOG roll-up — and that's correct (inherited from `/close`).
+- **Don't manufacture entries.** A clean run produces zero observations, zero memory, zero repo
+  rules, one thin SESSION_LOG roll-up — and that's correct (inherited from `/close`).

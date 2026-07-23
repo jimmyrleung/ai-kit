@@ -112,7 +112,13 @@ Expected non-findings (do not flag): the cc-looper worker skills' `templates/*.m
 references resolve against cc-looper's source tree at runtime (its slice-09 techspec
 §3.12), not the skill dir — verify existence under
 `~/projects/cc-looper/templates/` before flagging. audit-skills' own Check 7 text
-mentions the dead-path classes verbatim — self-matches are not findings.
+mentions the dead-path classes verbatim — self-matches are not findings. Skill-local
+`templates/<name>.md` references resolve against the skill's own dir (e.g.
+`skills/prd-creation/templates/`), not the kit root — Test-Path there before flagging.
+Path-like strings inside fenced example blocks that illustrate a convention the skill
+creates at runtime in *target* repos (e.g. close 2c's `docs/rules/testing.md` index
+example) are illustrative, not references — check the enclosing fence and whether the
+path is meant to exist in this kit before flagging.
 
 ### Check 8 — Frontmatter-vs-directory mismatch
 - A `SKILL.md` whose frontmatter looks like a command (has `argument-hint`, no long

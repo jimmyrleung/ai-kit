@@ -1,7 +1,9 @@
 ---
 name: close
-description: "End-of-session ritual. Retrospect on the session (decisions + why, learnings, dead ends, open tasks, references, files touched), persist the durable parts to auto-memory and the skill/workflow-performance evidence to ~/.claude/observations/, prepend a SESSION_LOG.md entry at the git root, and propose a commit. Run at the end of a working session — invoke as /close, when the user says they're wrapping up, before a /clear or /compact context reset, or at a natural pause after a task or PR lands. NOT a context dump: it distills, it doesn't transcribe."
+description: "End-of-session ritual. Retrospect on the session (decisions + why, learnings, dead ends, open tasks, references, files touched), persist the durable parts to the right layer — repo-scoped rules/standards/how-tos to the repo's docs/rules/ (indexed from AGENTS.md), user/cross-repo facts to auto-memory, skill/workflow-performance evidence to ~/.claude/observations/ — prepend a slim continuation-only SESSION_LOG.md entry at the git root, and propose a commit. Run at the end of a working session — invoke as /close, when the user says they're wrapping up, before a /clear or /compact context reset, or at a natural pause after a task or PR lands. NOT a context dump: it distills, it doesn't transcribe."
 ---
+
+<!-- intentionally-long: linear end-of-session ritual — 3 phases with 5 persistence sinks documented inline; each section is short and the procedure flows top-to-bottom, so a references/ split would add read latency for no navigation win. -->
 
 # Close — end-of-session ritual
 
@@ -42,15 +44,21 @@ Scan *this session's* context — only what's actually relevant; ignore noise �
 - **Files touched** — run `git status --short` and `git diff --stat HEAD` (read-only; safe).
 
 Then **categorize** each item into exactly one of:
-- **(a) → auto-memory** — generally-applicable and durable: a confirmed user preference, a clear new
-  convention, a project constraint/deadline, an external reference you'll want again. *Certain* stuff.
+- **(a) → auto-memory** — durable AND user-scoped or cross-repo: a confirmed user preference, a
+  cross-project convention, a constraint/deadline, an external reference you'll want again from any
+  repo. *Certain* stuff that doesn't belong to one codebase.
 - **(b) → observations** — evidence of how a skill/workflow performed (friction, a missing capability,
   a workflow step that drifted). *Ambiguous* stuff that needs batch review later, not a snap memory write.
-- **(c) → SESSION_LOG** — this-session narrative: what got done, the load-bearing decisions+why, the
-  dead ends, the next step, blockers, artifact links.
-- **(d) → just say it in chat** — one-off, not worth persisting anywhere.
+- **(c) → repo memory** — durable AND repo-scoped: a standard, policy, process, architectural pattern,
+  where-to-find-X, how-to-do-Y, or a hard-won fact about *this* codebase that any agent (or teammate)
+  should know next session. Gate it twice: **(1)** would it change what an agent *does* in a future
+  session in this repo? **(2)** is it non-derivable from the code / git history / existing docs?
+  Fail either → it's (b) or (e). One home per fact: repo-scoped never also goes to auto-memory.
+- **(d) → SESSION_LOG** — continuation state only: the concrete next step, blockers, dead ends,
+  artifact links. State, not knowledge — if it would still be true in a month, it's (a) or (c).
+- **(e) → just say it in chat** — one-off, not worth persisting anywhere.
 
-**IMPORTANT**: If nothing falls into (a) or (b), that's fine — say so and move on. Don't manufacture entries.
+**IMPORTANT**: If nothing falls into (a), (b) or (c), that's fine — say so and move on. Don't manufacture entries.
 
 ---
 
@@ -63,7 +71,10 @@ write/update a file under `~/.claude/projects/<project>/memory/` with the right 
 (`user` / `feedback` / `project` / `reference`), `**Why:**` + `**How to apply:**` lines for
 feedback/project, `[[links]]` to related memories, and add/refresh a one-line pointer in `MEMORY.md`.
 Check for an existing file that already covers it before creating a new one. Don't save what the
-repo / git history / `CLAUDE.md` already records.
+repo / git history / `CLAUDE.md` already records — and don't save repo-scoped facts here; those
+are (c) and go to the repo's own rules layer (2c). If an *existing* auto-memory turns out to be
+repo-scoped, offer to migrate it: write it into that repo's `docs/rules/` and slim or delete the
+auto-memory copy.
 
 ### 2b — Observations (the seam to the `/improve` meta-skill)
 
@@ -86,26 +97,66 @@ describing the session, e.g. `close-skill-spec`). Use this format per observatio
 
 Number observations within the file (`### Observation 1`, `### Observation 2`, …). One file per
 session means no collisions. Keep it terse but specific enough to understand weeks later without
-this conversation. Do **not** log one-off corrections that don't generalize — those are (d).
+this conversation. Do **not** log one-off corrections that don't generalize — those are (e).
 
 Tags should align with the `/insights` taxonomy so the pile stays comparable to that retrospective.
 See `~/.claude/observations/README.md` for the running tag list and the observations-vs-memory rationale.
 
-### 2c — SESSION_LOG.md (the human-readable handoff)
+### 2c — Repo memory (the repo-scoped durable layer)
+
+For each (c) item, write it into the repo's rules directory and index it from the repo's root
+agent-instructions file. Conventions:
+
+- **Location:** `docs/rules/<topic>.md` at the git root, one topical file per concern
+  (e.g. `testing.md`, `deploy.md`, `architecture.md`, `where-things-live.md`) — unless the repo
+  already has an established rules/conventions directory; the existing convention wins.
+- **Per-rule format** inside a topic file — statement first, then grounding:
+
+  ```
+  ## <short rule title>
+
+  <the rule / fact / how-to — imperative, terse>
+
+  **Why:** <the reason it exists — without this, rules get "cleaned up" by people who don't know better>
+  *(added YYYY-MM-DD — <one-clause provenance: the session/incident/decision it came from>)*
+  ```
+
+- **Update-in-place discipline:** before writing, read the topic file (create if missing) and check
+  whether an existing rule already covers it — refine that rule and refresh its date rather than
+  appending a near-duplicate. Delete rules the session proved wrong; never leave both versions.
+- **Index, don't inline:** the root `AGENTS.md` (or `CLAUDE.md` if that's what the repo uses; create
+  `AGENTS.md` if neither exists) gets a pointer index — one line per topic file, never rule bodies:
+
+  ```
+  ## Repo memory
+  <!-- rules-index:begin -->
+  - [testing](docs/rules/testing.md) — <one-line hook: when to open this file>
+  <!-- rules-index:end -->
+  ```
+
+  **Hard cap: ~12 index lines.** At the cap, merge topic files before adding new ones. The index is
+  what loads every session; the bodies are read on demand — that asymmetry is the whole design.
+- **Decision-shaped items:** if the item is really a *decision* (trade-off, rejected alternative),
+  route it to `/record-decision` / the ADR dir instead, and let the rules file carry only the
+  resulting rule with a link to the ADR.
+- **Public-repo hygiene:** in a public repo, rule bodies are world-readable — `~/` not user paths,
+  no client codenames, no internal URLs.
+
+### 2d — SESSION_LOG.md (the continuation handoff)
 
 Find the git root (`git rev-parse --show-toplevel`); fall back to `~/SESSION_LOG.md` if not in a
-repo. **Prepend** a new entry at the top (newest-first):
+repo. **Prepend** a new entry at the top (newest-first). This entry is deliberately thin — its only
+job is letting a fresh session resume; `git log` covers what got done, and durable knowledge has
+already gone to 2a/2c:
 
 ```
 ## [YYYY-MM-DD] — <title>
 
-**Summary:** 1–2 sentences — what this session was and where it landed.
-**Done:** <bullet list of what got completed>
-**Decisions:** <only the load-bearing ones> X because Y (rejected Z).
-**Didn't work:** <abandoned approaches — or "—">
+**Summary:** 1 sentence — what this session was and where it landed.
 **Next:** <the concrete next action — "start here">
 **Blockers:** <unresolved things needing a decision / external input — or "none">
-**Artifacts:** <links to the main doc(s) / PR / key commits>
+**Didn't work:** <abandoned approaches, so they're not re-attempted — or "—">
+**Artifacts:** <links to the main doc(s) / PR / key commits — the things a fresh session opens first>
 ```
 
 If `SESSION_LOG.md` is getting long (~30+ entries / ~1500+ lines), move the *oldest* half to
@@ -131,9 +182,9 @@ the handoff pattern archives completed items).
      automatically; --no-verify is the bypass and should be used sparingly).**
    One commit per repo when each has content. **Ask before each commit and before each push.** Never
    auto-push. If either repo has unmerged paths from a prior pull, resolve them first.
-4. **Print the close summary** — a one-liner with the counters: `memory: N updated · observations: N
-   written · SESSION_LOG: updated · commit: <hash or "skipped">`.
-4. **Print a session-rename suggestion** — `[YYYY-MM-DD] <short title>` — for copy-pasting as the
+4. **Print the close summary** — a one-liner with the counters: `memory: N updated · repo rules: N
+   written/updated · observations: N written · SESSION_LOG: updated · commit: <hash or "skipped">`.
+5. **Print a session-rename suggestion** — `[YYYY-MM-DD] <short title>` — for copy-pasting as the
    session name.
 
 ---
@@ -145,6 +196,13 @@ the handoff pattern archives completed items).
   `close` triages: certain → memory now; ambiguous skill-performance evidence → observations for the
   periodic `/improve` review (it reads `~/.claude/observations/*.md`).
   They're a pipeline, not a duplicate.
+- **Routing in one line:** *scope* picks the layer — user/cross-repo → auto-memory (a); repo-scoped
+  knowledge → repo rules (c); session state → SESSION_LOG (d); performance evidence → observations (b).
+  One home per fact.
+- **Repo memory staleness:** rules rot as code changes. The per-rule date + provenance line exists so
+  a future audit can find stale entries; when a session *touches* an area a rule covers and the rule
+  no longer holds, fixing the rule file is part of that session's (c) work — same discipline as the
+  spec-and-doc-updates rule.
 - **`/close` vs `/close-tasks`.** `/close` is the **live-context distiller** — it scans *this
   session's* conversation, so it needs the work to have happened in-context. For an **implementation
   tasks-doc run that spanned multiple sessions or ran headless under cc-looper** (where this
@@ -157,4 +215,5 @@ the handoff pattern archives completed items).
 - **Project-agnostic.** Works for the study pipeline too — at the end of a study session, log "topic X
   notes done, flashcards generated, next: topic Y" and observe the study commands' friction.
 - **Don't manufacture entries.** A short session that genuinely produced no durable learnings should
-  produce a thin SESSION_LOG entry, zero memory writes, zero observations — and that's correct.
+  produce a thin SESSION_LOG entry, zero memory writes, zero repo rules, zero observations — and
+  that's correct.
