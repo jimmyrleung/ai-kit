@@ -136,6 +136,9 @@ agent-instructions file. Conventions:
 
   **Hard cap: ~12 index lines.** At the cap, merge topic files before adding new ones. The index is
   what loads every session; the bodies are read on demand — that asymmetry is the whole design.
+- **Skill candidates:** if a how-to is procedural and looks repeatable, tag its rule entry with
+  `<!-- skill-candidate -->` and log a paired (b) observation ("promote to local skill if this
+  recurs") — capture now, let `/improve` mint the skill only when recurrence evidence accumulates.
 - **Decision-shaped items:** if the item is really a *decision* (trade-off, rejected alternative),
   route it to `/record-decision` / the ADR dir instead, and let the rules file carry only the
   resulting rule with a link to the ADR.
