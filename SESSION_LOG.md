@@ -1,3 +1,13 @@
+## [2026-07-23] — Batched-review topology: review-implementation skill + qa-gates commit-lifecycle fix
+
+**Summary:** Replaced implement-task's per-task reviewer fan-out with a new once-per-prefix `/review-implementation` skill (correctness / conventions / simplicity + ship-ready refactors, sha-stamped `## Review` block) and made qa-gates commit-agnostic (informational committed-check, `GO, conditional on commit`); pipeline is now implement-task (verify-task inline) → review-implementation → qa-gates. Audit run-2 caught and fixed a same-session 255>250 body overrun (P03 applied; qa-gates sits at exactly 250 — next edit must retire lines).
+**Next:** first live run of the new pipeline on a real prefix — validates the review-stamp skip rule in qa-gates pre-work and the conditional-GO path; if it proves out, port the same Workflow-2 retirement to `gf-implement-task` (still has embedded per-task review). (Carried: adr-0001 close-repo-memory UNREVIEWED → /adr-first; 2c in a non-kit repo; cc-looper AI-6 build session.)
+**Blockers:** none
+**Didn't work:** `sync.ps1` via `powershell` 5.1 (UTF-8 em-dash parse errors — `pwsh` only) and a guessed `-DryRun` flag (it's `-WhatIf`) — both were already in the `codex-sync-on-skill-change` memory, unconsulted (obs 4).
+**Artifacts:** ai-kit `50e7419` (5 files); `skills/review-implementation/`; packet `~/.claude/improvements/2026-07-23/` (run-2 section, P03 applied); obs `~/.claude/observations/2026-07-23-batched-review-topology.md`; new memory `review-then-commit-workflow`.
+
+---
+
 ## [2026-07-23] — /close repo-memory redesign + focused audit + first live 2c run
 
 **Summary:** Redesigned /close around a 4th persistence layer (repo-scoped `docs/rules/` indexed from AGENTS.md; SESSION_LOG slimmed to continuation-only — this entry is the first slim one), ran a focused /audit-skills (2 findings, both applied), and bootstrapped ai-kit's own AGENTS.md + docs/rules/ as the inaugural 2c run.

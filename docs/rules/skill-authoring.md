@@ -34,3 +34,16 @@ never commit them here; loop-entry changes are committed in cc-looper's repo.
 physical file per entry. Scans that trust Glob nearly emitted false audit findings (2026-07-07),
 and committing the links here would duplicate cc-looper's ownership.
 *(added 2026-07-23 — migrated from the ai-kit auto-memory `cc-looper-symlink-topology` (2026-05-15, last verified 2026-07-19) during the /close repo-memory bootstrap)*
+
+## Check new names against built-in CLI commands before choosing them
+
+Before naming a new skill or command, check it doesn't collide with a Claude Code built-in
+(`/code-review`, `/review`, `/security-review`, `/init`, `/run`, `/loop`, `/schedule`, `/config`,
+`/compact`, `/clear`, …) or another provider's native command. Prefer a corpus-consistent
+alternative (e.g. the family pattern: `review-artifact` / `review-checkpoint` /
+`review-implementation`).
+
+**Why:** a colliding name makes the invocation ambiguous or unreachable — the built-in wins or the
+user can't tell which ran — and the collision only surfaces after the skill ships. Caught at design
+time 2026-07-23: the batched-review skill was almost named `code-review`.
+*(added 2026-07-23 — review-implementation authoring session)*
