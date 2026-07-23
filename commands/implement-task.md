@@ -20,7 +20,13 @@ Implement a specific task from the tasks document.
 
 ## Process
 
-**MUST DO**: Execute Workflows 1, 2 and 3
+**MUST DO**: Execute Workflows 1 and 3
+
+> **No per-task code review.** The reviewer fan-out that used to run here as Workflow 2 was
+> retired (token economics: it re-loaded the same context once per task to review a small
+> diff). Code review now happens once per prefix, batched, via `/review-implementation` —
+> see the last-task hook in Workflow 3. Numbering keeps Workflow 3's name for symmetry with
+> `implement-task-loop`.
 
 ### Workflow 1 - Implementation
 
@@ -45,17 +51,9 @@ Implement a specific task from the tasks document.
    The skill runs gates 1+2+3 (build/test, AC checklist, cross-cutting) against just this
    task's ACs / files / budgets and records a `## Verify — {date}` block in the task's
    section. Halt on any gate fail until resolved (fix the code, or record `accepted: <reason>`
-   in the gate-line). Do NOT advance to Workflow 2 — Review until every gate is `pass` or
-   `accepted`. Skip the skill call for trivial tasks (one-line config tweak, typo,
+   in the gate-line). Do NOT advance to Workflow 3 — Post implementation until every gate is
+   `pass` or `accepted`. Skip the skill call for trivial tasks (one-line config tweak, typo,
    doc-only edit) — see the skill's "When NOT to use" section.
-
-### Workflow 2 - Review
-
-1. Create todo list with all steps for that process
-2. **DO NOT SKIP**: Evaluate the need of code-review for the implemented task, and if needed, launch the @code-reviewer-agent to review the task implementation
-3. Consolidate findings and identify highest severity issues that you recommend fixing
-4. Present findings to user and ask what they want to do (fix now, fix later, or proceed as-is)
-5. Address issues based on user decision
 
 ### Workflow 3 - Post implementation
 
@@ -63,4 +61,4 @@ Implement a specific task from the tasks document.
 2. Document: Update task progress in the tasks file
 3. Update the reference files $prefix with any decisions made during the implementation
 4. Provide summary with modified/created files
-5. **Last-task suggest hook:** if every task in `$prefix`'s tasks document is now marked Done, suggest `/qa-gates prefix=$prefix` before declaring the feature/refactor complete. (Suggestion only — the user invokes it.) If earlier tasks remain, do not suggest yet.
+5. **Last-task suggest hook:** if every task in `$prefix`'s tasks document is now marked Done, suggest `/review-implementation prefix=$prefix` (batched code review) followed by `/qa-gates prefix=$prefix` before declaring the feature/refactor complete. (Suggestions only — the user invokes them.) If earlier tasks remain, do not suggest yet — unless the task list is long (>~6 tasks) and a natural boundary was just crossed, in which case a mid-run `/review-implementation prefix=$prefix scope=…` may be worth suggesting.

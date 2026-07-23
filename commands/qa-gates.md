@@ -14,11 +14,18 @@ Verify the implementation referenced by `$prefix` passes the standard QA gates.
 
 1. **Gather context.** `Read` all relevant files starting with `$prefix` — the techspec, tasks,
    analysis, audit, or investigation document the prefix owns.
-2. **Code review (if non-trivial implementation).** Launch 1-3 `@code-reviewer-agent` agents in
-   parallel with different focuses: simplicity/DRY/elegance, bugs/functional correctness,
-   project conventions/abstractions. Hand them the reference files. Consolidate findings;
-   present highest-severity issues to the user; ask: fix now / fix later / proceed as-is.
-   Address based on their decision.
+2. **Code review (if non-trivial implementation).** First check for a prior batched review:
+   if the prefix's review/QA doc carries a `## Review — {date}` block from
+   `/review-implementation` whose `(reviewed at: <sha>[ +dirty])` stamp covers the current
+   tree (same sha; a dirty delta consisting only of doc/QA bookkeeping still counts), **skip
+   the fan-out** — record the pointer in the QA block
+   (`Pre-work — code review: covered by ## Review — {date} (reviewed at <sha>)`) and let any
+   open `follow-up` findings from that block surface at Gate 5. Only when no such block
+   covers the tree: launch 1-3 `@code-reviewer-agent` agents in parallel with different
+   focuses: simplicity/DRY/elegance, bugs/functional correctness, project
+   conventions/abstractions. Hand them the reference files. Consolidate findings; present
+   highest-severity issues to the user; ask: fix now / fix later / proceed as-is. Address
+   based on their decision.
 
 ## QA gates
 

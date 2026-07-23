@@ -10,7 +10,8 @@ description: "Verify an implementation against its spec — 5 pass/fail gates (b
 You verify an implementation against its spec by running 5 gates in order, each producing a
 pass or a specific failure. The artifact is a `## QA` section in the existing review/QA doc
 the prefix already owns. You do NOT review the code (`@code-reviewer-agent` handles that
-*before* you run, in the calling command's pre-work step); you verify the *outcome*.
+*before* you run — a `/review-implementation` batched run or the calling command's pre-work
+fan-out); you verify the *outcome*.
 
 ## Inputs the caller must provide (in the invoking message)
 
@@ -33,10 +34,11 @@ Append a `## QA` section to `artifact_path` (in place — no new file). Same `re
 
 Stamp the `## QA — {date}` header with the commit/tree it verified: `(verified at: <short-sha>[ +dirty])`.
 A gate result without the hash can silently outlive the tree it tested (a later stash/rework broke
-the build while the QA block still asserted green). **Two-commit lifecycle (prefix-close):** Gate 1's
-committed-check expects the *implementation* commit to exist before gates run (ask for explicit
-authorization to create it if the work is only in the tree — per-task `verify-task` remains exempt);
-the *QA-artifact* commit is batched with the Gate 5 GO decision, so present both in one approval.
+the build while the QA block still asserted green). **Commit lifecycle (prefix-close):** gates run
+on the tree as-is — a commit is NOT required first (the user reviews before committing; the
+`+dirty` stamp protects a QA block from outliving its tree). Gate 1 records committed-state
+informationally; a dirty tree at Gate 5 yields `GO, conditional on commit`, with the QA-artifact
+commit batched alongside the implementation commit after the user's final review.
 
 ## Procedure
 
@@ -131,11 +133,19 @@ skipping the suite.
 
 If FAIL with `accepted`, require a `Why:` line; do not advance until the user states the reason.
 
-**Prefix-close only — "Done" = shipped, not authored.** When running at prefix close (not per-task
-`verify-task`, where the work is legitimately still uncommitted), confirm the prefix's claimed files
-appear in a commit *ahead of the base branch* (`git diff --stat <base>..HEAD` / `git log -S`), not
-merely in the working tree. Uncommitted edits survive branch checkouts invisibly and masquerade as
-merged work. Record: `- [x] Gate 1 — committed: pass (N files ahead of <base>)` or FAIL.
+**Prefix-close only — record committed-state (informational, never a FAIL).** When running at
+prefix close (not per-task `verify-task`), check whether the prefix's claimed files appear in a
+commit *ahead of the base branch* (`git diff --stat <base>..HEAD` / `git log -S`) or only in the
+working tree. Record one of:
+
+```
+- [x] Gate 1 — committed: yes (N files ahead of <base>)
+- [~] Gate 1 — committed: no (working tree only, verified at <sha>+dirty — pending user final review + commit)
+```
+
+Uncommitted work is the user's normal review-then-commit flow, **not a no-go** — never fail or
+block a gate on it. The safeguard against "authored but never shipped" (uncommitted edits
+masquerading as merged work) lives in Gate 5's conditional GO + the `+dirty` stamp.
 
 ### Gate 2 — AC checklist (per-AC sub-gates)
 
@@ -194,7 +204,9 @@ Record as `skipped (streamlined)`.
 Present the `## QA` artifact to the user. Confirm every prior gate is either `pass` or
 `accepted with a recorded reason`. Ask: ship it?
 
-- **Yes** → record the go decision in the gate-line; hand back to `next_step`.
+- **Yes, tree committed** → record the go decision in the gate-line; hand back to `next_step`.
+- **Yes, tree dirty** → record `GO, conditional on commit` — the pending commit (post-final-review,
+  batched with the QA artifact) is named in the gate-line for `/improve` to audit. Hand back to `next_step`.
 - **No** → ask what to address; loop the failed gate.
 
 The LLM doesn't decide go; the user does, with the gate report in front of them.
@@ -227,8 +239,8 @@ listing the gate outcomes; each fail/accepted gate gets its own).
 - A one-line typo / config tweak — gates are friction in front of trivial work.
 - Doc reviews — that's `review-artifact`. `qa-gates` reviews an *implementation* against the doc;
   `review-artifact` reviews the *doc* itself before implementation.
-- Code-quality review — that's `@code-reviewer-agent`, run by the calling command *before* gates.
-  Gates verify outcomes against spec; the agent verifies code quality against itself.
+- Code-quality review — that's `/review-implementation` (batched, before gates) or the calling
+  command's pre-work fan-out. Gates verify outcomes; reviewers verify code quality.
 
 ## Composition
 
