@@ -32,7 +32,7 @@ The caller passes a `mode` (the orchestrator derives it from severity: **P1 → 
 - **You were spawned as a `@diagnosis-agent` worker with the constraints below:** you're a *worker*. Do one thorough diagnosis pass and return it to the coordinator. **Do not** spawn further sub-agents and **do not** write a file.
 
 Sub-agent constraints (the coordinator passes these verbatim when launching workers):
-1. "Focus on EVIDENCE-BASED analysis. Every claim must be backed by a log line, a trace, or a metric — include specific timestamps and excerpts. Apply 5 Whys to reach the true root cause, not a symptom."
+1. "Focus on EVIDENCE-BASED analysis. Every claim must be backed by a log line, a trace, or a metric — include specific timestamps and excerpts. Apply 5 Whys to reach the true root cause, not a symptom. Tag every hop in your causal chain VERIFIED (you observed it: a log/metric/trace/query) or ASSUMED (inferred — name the probe that would verify it), and state the observation that would disprove your root cause."
 2. "DO NOT speculate, DO NOT recommend fixes (that's the hotfix planner's job), DO NOT make assumptions about missing data. Consider alternative hypotheses and say why you ruled them out. If the evidence is insufficient for a confident diagnosis, say so and name the data you'd need."
 3. (`streamlined` only, appended) "Speed is critical — focus on the most likely root cause; flag uncertainty rather than chasing exhaustive analysis."
 
@@ -51,9 +51,10 @@ Sub-agent constraints (the coordinator passes these verbatim when launching work
    - *Traces (if available):* slow or failing service calls, the request flow through services, timeout cascades / circuit-breaker activations.
    - *Metrics:* spikes/drops correlated with the timeline, abnormal patterns in traffic / latency / error rates.
 3. **Formulate the root cause hypothesis.** Apply the **5 Whys**. Consider recent changes (deployments, config, infra). Evaluate dependencies and external factors. Distinguish symptoms from root causes.
-4. **Validate the hypothesis.** Find supporting evidence across multiple sources. Test alternative explanations. Note gaps and ambiguities in the data.
+4. **Validate the hypothesis.** Find supporting evidence across multiple sources. Test alternative explanations. Note gaps and ambiguities in the data. Tag each hop of the causal chain (each "why") `VERIFIED` (observed: a log/metric/trace/query) or `ASSUMED` (inferred — name the probe that would verify it). A diagnosis whose load-bearing hop is still `ASSUMED` cannot pass the confidence gate — verify it, or present the missing probe as the blocking gap.
 5. **Consolidate (coordinator, `full` mode).** Merge worker outputs: consensus on the root cause (high confidence), disagreements (flag → ask the user if the delta is > 2 confidence points), confidence-weighted findings.
-6. **Confidence gate.** Score 0–100% using the user's global CLAUDE.md factor breakdown (for this phase ≈ evidence strength & root-cause clarity 45% / system-behavior understanding 25% / timeline-correlation soundness 15% / alternative-hypothesis coverage 15%). The bar is **mode-dependent**: `streamlined` ≥ 70%, `full` ≥ 90%. **Below the bar: STOP — name what's missing, ask specific clarifying questions, repeat (`full`) or proceed only after the user answers (`streamlined`).** Present the diagnosis to the user; on confirmation, write `diagnosis.md` (and, in the orchestrated flow, ask whether it's OK to proceed to the review phase).
+6. **Adversarial fact-check (mandatory).** Spawn one fresh agent whose only charter is to *refute the draft's numbers*: it receives the draft diagnosis + the raw artifacts (logs, CSVs, query access) and independently re-derives every quantitative claim — counts, rates, timestamps, durations, row totals — reporting each as CONFIRMED (with its derivation) or MISMATCH (with what it got instead). It inherits nothing from the diagnosing agents' reasoning — charter split, same principle as `orchestrate`'s assume-true-reviewer vs verify-agents. Resolve or flag every MISMATCH in **Gaps / uncertainties** before gating. Mode nuance: `full` → run it here, before the gate; `streamlined` (P1) → don't block mitigation on it — run it as soon as mitigation is underway, and mark the diagnosis "numbers pending fact-check" until it lands. If there are no quantitative claims or no raw sources to re-derive from, record exactly that and move on — don't manufacture work.
+7. **Confidence gate.** Score 0–100% using the user's global CLAUDE.md factor breakdown (for this phase ≈ evidence strength & root-cause clarity 45% / system-behavior understanding 25% / timeline-correlation soundness 15% / alternative-hypothesis coverage 15%). The bar is **mode-dependent**: `streamlined` ≥ 70%, `full` ≥ 90%. **Below the bar: STOP — name what's missing, ask specific clarifying questions, repeat (`full`) or proceed only after the user answers (`streamlined`).** Present the diagnosis to the user; on confirmation, write `diagnosis.md` (and, in the orchestrated flow, ask whether it's OK to proceed to the review phase).
 
 ## Output structure
 
@@ -61,12 +62,13 @@ The diagnosis must give the review phase everything it needs to validate your fi
 
 - **Executive summary** — 2–3 sentences: the root cause and the impact.
 - **Confidence level** — global CLAUDE.md format (numeric, "Why N%" bullets, "100−N% uncertainty" bullets) plus a High/Medium/Low label.
-- **Root cause** — a clear statement plus contributing factors.
+- **Root cause** — a clear statement plus contributing factors, plus a **Falsifier** line: the observation that would disprove this diagnosis.
 - **Evidence analysis** — from logs, traces, and metrics, with specific timestamps and excerpts / `file:line`-style references.
 - **Timeline correlation** — events lined up against the evidence.
-- **5 Whys analysis** — the progression reaching the fundamental cause.
+- **5 Whys analysis** — the progression reaching the fundamental cause, each why tagged `VERIFIED` (with the observation) or `ASSUMED` (with the probe that would verify it).
 - **Scope of impact** — systems affected, data impact, user impact.
 - **Alternative hypotheses** — considered and why ruled out.
+- **Fact-check results** — every quantitative claim CONFIRMED (with derivation) or MISMATCH (resolved/flagged); or the explicit note that no quantitative claims / raw sources applied. In `streamlined` mode this may read "pending fact-check" at first write.
 - **Gaps / uncertainties** — what still needs attention; data-collection steps if relevant.
 - **Recommendations for the reviewer** — what to validate independently.
 

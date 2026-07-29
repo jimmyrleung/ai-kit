@@ -20,6 +20,19 @@ Three phases. Move through them in order; ask before the git step.
 
 ## Phase 1 — Retrospective (scan, then categorize)
 
+**Step 0 — already-closed guard.** Before scanning, read the top entry of the git root's
+`SESSION_LOG.md` (if one exists):
+
+- **It carries a `<!-- close-receipt: ... -->` line** → a close already completed. Say so
+  ("already closed at <time> — memory:N · rules:N · obs:N") and harvest **only the delta**: work
+  that happened after the receipt timestamp. If there is no new work, offer the remaining commit
+  step (if the tree is dirty) and stop. Do NOT prepend a second SESSION_LOG entry — extend the
+  existing one and refresh its receipt line.
+- **Top entry is from today but has no receipt** → a prior close was interrupted mid-run. Resume
+  idempotently: before appending to today's observations file, check what it already contains;
+  2a/2c are update-in-place by design, so re-running them is safe.
+- **Neither** → normal close; proceed.
+
 Scan *this session's* context — only what's actually relevant; ignore noise — for:
 
 - **Decisions made** — architectural / design / scoping choices, **with the `why`**. Filter each
@@ -166,6 +179,19 @@ If `SESSION_LOG.md` is getting long (~30+ entries / ~1500+ lines), move the *old
 `SESSION_LOG_ARCHIVE.md` at the same location (a big file degrades agent processing — same reason
 the handoff pattern archives completed items).
 
+### 2e — Close receipt (the idempotency marker)
+
+Append one machine-readable line as the last line of the SESSION_LOG entry you just prepended:
+
+```
+<!-- close-receipt: YYYY-MM-DD HH:mm · memory:N · rules:N · obs:N -->
+```
+
+Written here — after all persistence, *before* the Phase 3 commit — so it rides inside the commit.
+This line is what Phase 1's step-0 guard reads: receipt present = that close completed. It carries
+no commit hash on purpose (all counters are known pre-commit; the commit itself is visible in
+`git log`). Mirrors the `close-tasks` harvest-marker pattern.
+
 ---
 
 ## Phase 3 — Housekeeping & close
@@ -187,6 +213,7 @@ the handoff pattern archives completed items).
    auto-push. If either repo has unmerged paths from a prior pull, resolve them first.
 4. **Print the close summary** — a one-liner with the counters: `memory: N updated · repo rules: N
    written/updated · observations: N written · SESSION_LOG: updated · commit: <hash or "skipped">`.
+   (Human-facing echo of the 2e receipt — the durable copy lives in SESSION_LOG.)
 5. **Print a session-rename suggestion** — `[YYYY-MM-DD] <short title>` — for copy-pasting as the
    session name.
 

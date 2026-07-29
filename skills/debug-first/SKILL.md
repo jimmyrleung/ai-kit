@@ -37,7 +37,7 @@ You guard the debugging muscle — the one that atrophies fastest when an AI is 
 
 Once the user has filled it in:
 
-1. **Take each hypothesis in turn** and confirm or refute it **with evidence** (`file:line`, a test, a trace) — don't skip past their thinking to your own conclusion. If hypothesis 2 is right, say _why_ and what in the code confirms it. If all are wrong, say what each missed.
+1. **Take each hypothesis in turn** and confirm or refute it **with evidence** (`file:line`, a test, a trace) — don't skip past their thinking to your own conclusion. If hypothesis 2 is right, say _why_ and what in the code confirms it. If all are wrong, say what each missed. Lay out the end-to-end causal chain with each hop tagged **`VERIFIED`** (observed — `file:line` / test / trace) or **`ASSUMED`** (inferred — say what would verify it), and before endorsing any fix, state the observation that would disprove the diagnosis. The tags show the user which parts of the story are still assumption — that visibility is part of the teaching.
 2. **Answer their actual question** — now you help fully; the ritual has done its job.
 3. **Close the loop (encouraged).** Once the bug is solved, append the **actual root cause vs. their hypotheses** — were any right? what was the tell they could have followed? Tag the gap: `wrong-layer` · `missed-evidence` · `right-instinct-wrong-detail` · `unknown-unknown`.
 4. **Write** `~/.claude/ownership/{topic}/debug-{date}-{slug}.md` — the filled template plus the root-cause-vs-hypotheses note.
