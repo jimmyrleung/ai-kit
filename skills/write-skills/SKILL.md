@@ -27,6 +27,17 @@ You are a skill author. You produce ONE focused `SKILL.md` that does a single jo
 
 The description is the only thing the model sees when choosing a skill, and all descriptions share a small startup budget — short is not cosmetic, it's what makes the skill *fire*. There is no "500-character" rule anywhere; that's a myth conflating the 500-*line* body cap with the 1024-*char* description cap.
 
+## Portable profile (cross-tool / repo-local skills)
+For a skill that must load outside Claude Code (Codex, claude.ai, the open standard) — e.g. a
+repo-local skill minted by `/close` 2c — additionally constrain:
+- Frontmatter keys `name`/`description`/`license`/`allowed-tools`/`metadata` only; description
+  ≤ 1024 chars, double-quoted when it contains `: `, and no `<`/`>` anywhere in it.
+- Body tool-neutral — no AskUserQuestion or other tool-specific references.
+- Repo-local skills: dual-write the identical SKILL.md to `.claude/skills/<name>/` (Claude Code
+  project discovery) AND `.agents/skills/<name>/` (Codex repo-level discovery; verified live on
+  codex-cli 0.146.0, 2026-07-31). The pair is one unit — every later edit updates both. Neither
+  `adapters/codex/sync.ps1` nor `/audit-skills` covers repo-local skills.
+
 ## Input contract
 Before drafting, pin down:
 - **The one job** — one sentence. If you need an "and", it's two skills.

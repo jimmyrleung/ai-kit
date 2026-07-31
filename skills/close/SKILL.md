@@ -1,6 +1,6 @@
 ---
 name: close
-description: "End-of-session ritual. Retrospect on the session (decisions + why, learnings, dead ends, open tasks, references, files touched), persist the durable parts to the right layer — repo-scoped rules/standards/how-tos to the repo's docs/rules/ (indexed from AGENTS.md), user/cross-repo facts to auto-memory, skill/workflow-performance evidence to ~/.claude/observations/ — prepend a slim continuation-only SESSION_LOG.md entry at the git root, and propose a commit. Run at the end of a working session — invoke as /close, when the user says they're wrapping up, before a /clear or /compact context reset, or at a natural pause after a task or PR lands. NOT a context dump: it distills, it doesn't transcribe."
+description: "End-of-session ritual. Retrospect on the session (decisions + why, learnings, dead ends, open tasks, references, files touched), persist the durable parts to the right layer — repo-scoped rules/standards/how-tos to the repo's docs/rules/ (indexed from AGENTS.md) or, offer-gated, a repo-local skill pair (.claude/skills/ + .agents/skills/), user/cross-repo facts to auto-memory, skill/workflow-performance evidence to ~/.claude/observations/ — prepend a slim continuation-only SESSION_LOG.md entry at the git root, and propose a commit. Run at the end of a working session — invoke as /close, when the user says they're wrapping up, before a /clear or /compact context reset, or at a natural pause after a task or PR lands. NOT a context dump: it distills, it doesn't transcribe."
 ---
 
 <!-- intentionally-long: linear end-of-session ritual — 3 phases with 5 persistence sinks documented inline; each section is short and the procedure flows top-to-bottom, so a references/ split would add read latency for no navigation win. -->
@@ -24,7 +24,7 @@ Three phases. Move through them in order; ask before the git step.
 `SESSION_LOG.md` (if one exists):
 
 - **It carries a `<!-- close-receipt: ... -->` line** → a close already completed. Say so
-  ("already closed at <time> — memory:N · rules:N · obs:N") and harvest **only the delta**: work
+  ("already closed at <time> — memory:N · rules:N · skills:N · obs:N") and harvest **only the delta**: work
   that happened after the receipt timestamp. If there is no new work, offer the remaining commit
   step (if the tree is dirty) and stop. Do NOT prepend a second SESSION_LOG entry — extend the
   existing one and refresh its receipt line.
@@ -67,6 +67,7 @@ Then **categorize** each item into exactly one of:
   should know next session. Gate it twice: **(1)** would it change what an agent *does* in a future
   session in this repo? **(2)** is it non-derivable from the code / git history / existing docs?
   Fail either → it's (b) or (e). One home per fact: repo-scoped never also goes to auto-memory.
+  Note each (c) item's *shape* — fact/constraint vs re-runnable procedure — 2c routes them differently.
 - **(d) → SESSION_LOG** — continuation state only: the concrete next step, blockers, dead ends,
   artifact links. State, not knowledge — if it would still be true in a month, it's (a) or (c).
 - **(e) → just say it in chat** — one-off, not worth persisting anywhere.
@@ -149,12 +150,19 @@ agent-instructions file. Conventions:
 
   **Hard cap: ~12 index lines.** At the cap, merge topic files before adding new ones. The index is
   what loads every session; the bodies are read on demand — that asymmetry is the whole design.
-- **Skill candidates:** if a how-to is procedural and looks repeatable, tag its rule entry with
-  `<!-- skill-candidate -->` and log a paired (b) observation ("promote to local skill if this
-  recurs") — capture now, let `/improve` mint the skill only when recurrence evidence accumulates.
-- **Decision-shaped items:** if the item is really a *decision* (trade-off, rejected alternative),
-  route it to `/record-decision` / the ADR dir instead, and let the rules file carry only the
-  resulting rule with a link to the ADR.
+- **Procedural how-tos — rule vs repo-local skill:** when a (c) item is a multi-step, clearly
+  re-runnable procedure (not a fact/constraint), offer a choice — never auto-mint, ≤2 offers per close:
+  1. **Mint a repo-local skill now** — close time is when the procedure's details are freshest
+     in context. Author via the `write-skills` skill's **portable profile** (Codex-safe
+     frontmatter, tool-neutral body, dual-write to `.claude/skills/<name>/` +
+     `.agents/skills/<name>/` as one never-drift unit — see that skill for the exact constraints).
+  2. **Capture as a rule** (the default when unsure, or the procedure may be one-off): write the
+     rule entry and tag it `<!-- skill-candidate -->`.
+  Either way, log a paired (b) observation. Ladder: tagged rule → repo-local skill (offer-gated,
+  minted here) → global ai-kit skill (`/improve` mints on recurrence in a 2nd repo — a minted
+  repo-local skill IS that evidence).
+- **Decision-shaped items:** a real *decision* (trade-off, rejected alternative) routes to
+  `/record-decision` / the ADR dir; the rules file carries only the resulting rule + ADR link.
 - **Public-repo hygiene:** in a public repo, rule bodies are world-readable — `~/` not user paths,
   no client codenames, no internal URLs.
 
@@ -184,7 +192,7 @@ the handoff pattern archives completed items).
 Append one machine-readable line as the last line of the SESSION_LOG entry you just prepended:
 
 ```
-<!-- close-receipt: YYYY-MM-DD HH:mm · memory:N · rules:N · obs:N -->
+<!-- close-receipt: YYYY-MM-DD HH:mm · memory:N · rules:N · skills:N · obs:N -->
 ```
 
 Written here — after all persistence, *before* the Phase 3 commit — so it rides inside the commit.
@@ -211,8 +219,8 @@ no commit hash on purpose (all counters are known pre-commit; the commit itself 
      automatically; --no-verify is the bypass and should be used sparingly).**
    One commit per repo when each has content. **Ask before each commit and before each push.** Never
    auto-push. If either repo has unmerged paths from a prior pull, resolve them first.
-4. **Print the close summary** — a one-liner with the counters: `memory: N updated · repo rules: N
-   written/updated · observations: N written · SESSION_LOG: updated · commit: <hash or "skipped">`.
+4. **Print the close summary** — a one-liner: `memory: N · repo rules: N · repo skills: N ·
+   observations: N · SESSION_LOG: updated · commit: <hash or "skipped">`.
    (Human-facing echo of the 2e receipt — the durable copy lives in SESSION_LOG.)
 5. **Print a session-rename suggestion** — `[YYYY-MM-DD] <short title>` — for copy-pasting as the
    session name.
@@ -221,29 +229,22 @@ no commit hash on purpose (all counters are known pre-commit; the commit itself 
 
 ## Notes
 
-- **Observations ≠ memory** — see `~/.claude/observations/README.md`. Memory = distilled durable rules
-  (few, terse, indexed); observations = raw dated per-session evidence (many, full context, tagged).
-  `close` triages: certain → memory now; ambiguous skill-performance evidence → observations for the
-  periodic `/improve` review (it reads `~/.claude/observations/*.md`).
-  They're a pipeline, not a duplicate.
+- **Observations ≠ memory** — see `~/.claude/observations/README.md`. Memory = distilled durable
+  rules (few, terse, indexed); observations = raw dated per-session evidence (many, tagged). `close`
+  triages: certain → memory now; ambiguous performance evidence → observations for the periodic
+  `/improve` review. A pipeline, not a duplicate.
 - **Routing in one line:** *scope* picks the layer — user/cross-repo → auto-memory (a); repo-scoped
-  knowledge → repo rules (c); session state → SESSION_LOG (d); performance evidence → observations (b).
-  One home per fact.
-- **Repo memory staleness:** rules rot as code changes. The per-rule date + provenance line exists so
-  a future audit can find stale entries; when a session *touches* an area a rule covers and the rule
-  no longer holds, fixing the rule file is part of that session's (c) work — same discipline as the
-  spec-and-doc-updates rule.
-- **`/close` vs `/close-tasks`.** `/close` is the **live-context distiller** — it scans *this
-  session's* conversation, so it needs the work to have happened in-context. For an **implementation
-  tasks-doc run that spanned multiple sessions or ran headless under cc-looper** (where this
-  session has no memory of the earlier work), use **`/close-tasks`** instead — it is
-  artifact-aggregation (reconstructs the run from completion notes / `_qa.md` / `.cc-loop/state.json`
-  / `git log`, idempotent via a harvest marker) and is the half of the pipeline that closes the
-  headless / multi-session blind spot. Don't stack both on the same window — pick one per run.
-- **This skill is read-only on git history.** It reads (`status`, `diff`, `log`, `rev-parse`) and at
-  most `add` + `commit`. It never rewrites history.
+  knowledge → repo rules, or a repo-local skill pair for re-runnable procedures (c); session state →
+  SESSION_LOG (d); performance evidence → observations (b). One home per fact.
+- **Repo memory staleness:** rules rot as code changes. The per-rule date + provenance line lets a
+  future audit find stale entries; when a session touches an area whose rule no longer holds, fixing
+  the rule file is part of that session's (c) work — same discipline as spec-and-doc updates.
+- **`/close` vs `/close-tasks`.** `/close` distills *this session's* live context. For a tasks-doc
+  run that spanned multiple sessions or ran headless under cc-looper, use **`/close-tasks`** —
+  artifact-aggregation (completion notes / `_qa.md` / `.cc-loop/state.json` / `git log`, idempotent
+  via a harvest marker). Don't stack both on the same window — pick one per run.
+- **This skill is read-only on git history** — reads (`status`, `diff`, `log`, `rev-parse`), at most `add` + `commit`; never rewrites history.
 - **Project-agnostic.** Works for the study pipeline too — at the end of a study session, log "topic X
   notes done, flashcards generated, next: topic Y" and observe the study commands' friction.
-- **Don't manufacture entries.** A short session that genuinely produced no durable learnings should
-  produce a thin SESSION_LOG entry, zero memory writes, zero repo rules, zero observations — and
-  that's correct.
+- **Don't manufacture entries.** A short session with no durable learnings should produce a thin
+  SESSION_LOG entry and zero memory/rules/skills/observations — that's correct.

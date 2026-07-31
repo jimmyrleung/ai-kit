@@ -1,3 +1,14 @@
+## [2026-07-31] — /close 2c: repo-local skill minting (Codex-verified dual-write) + focused audit
+
+**Summary:** Partially supersedes the entry below — 2c now ALSO offers minting repo-local skills (offer-gated, ≤2/close) as tier 2 of the promotion ladder (tagged rule → repo-local pair → /improve-minted global skill); a pair = identical SKILL.md dual-written to `.claude/skills/` + `.agents/skills/` (Codex repo-level discovery verified live on 0.146.0; authoring constraints extracted to write-skills' new "Portable profile" section). Same-session focused /audit-skills caught the edit pushing close to 268 > the 250 hard cap (metric calibrated: total lines) → compressed back to exactly 250 via that extraction (P10), and fixed tasks-loop's `<user>` description in the cc-looper canonical (P11, Codex validator rule).
+**Next:** first real repo-local mint in a work repo — the live test of `.claude/skills/` project discovery and the 2c offer flow. Then: keep-two prune (improvements/2026-07-19 + -23; command in 2026-07-31/REVIEW.md) and triage the untracked `skills/find-skills` + `skills/teach` dirs in ai-kit's tree. (Carried: adr-0001 close-repo-memory UNREVIEWED → /adr-first; batched-review pipeline live run; cc-looper AI-6 build session.)
+**Blockers:** none
+**Didn't work:** probing Codex repo-skill discovery via `cmd /c cd` in an uncommitted scratch repo — discovery needs `codex exec -C <dir>` AND ≥1 commit; the first probe false-negatived.
+**Artifacts:** improvements/2026-07-31 proposals 10+11 (both applied) + REVIEW.md audit section; skills/close/SKILL.md + skills/write-skills/SKILL.md; cc-looper claude-config/commands/tasks-loop.md
+<!-- close-receipt: 2026-07-31 18:31 · memory:1 · rules:0 · skills:0 · obs:2 -->
+
+---
+
 ## [2026-07-23] — /close 2c skill-candidate tagging (recurrence-gated promotion)
 
 **Summary:** Resolved "should /close map local skill proposals?" as no-new-mechanism: the rules layer is the proposal inbox — 2c now tags repeatable procedural how-tos `<!-- skill-candidate -->` + a paired (b) observation, and /improve mints the skill only on recurrence evidence (rejected: a dedicated skill-proposal mapping step).
