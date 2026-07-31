@@ -166,8 +166,7 @@ Record one line per AC:
 
 ### Gate 3 — Cross-cutting invariants
 
-The three checks the global `~/.claude/CLAUDE.md` "Verification before completion" names; each
-is one structured tool call.
+The three global CLAUDE.md "Verification before completion" checks; each is one structured tool call.
 
 **3a — env asymmetry.** For repos with multiple environments (Terraform `dev/test/staging/prod`,
 `.env.{env}` files), `Read` all env files in parallel; diff structurally. Any key present in
@@ -209,6 +208,9 @@ Present the `## QA` artifact to the user. Confirm every prior gate is either `pa
   batched with the QA artifact) is named in the gate-line for `/improve` to audit. Hand back to `next_step`.
 - **No** → ask what to address; loop the failed gate.
 
+If no `## Review` block (review-implementation) covers the verified tree, record **go-with-caveat:
+unreviewed** naming the missing review — a gates-green tree later grew two HIGH-severity review findings.
+
 The LLM doesn't decide go; the user does, with the gate report in front of them.
 
 ## Observation write
@@ -237,10 +239,8 @@ listing the gate outcomes; each fail/accepted gate gets its own).
 - The implementation hasn't happened yet — `qa-gates` verifies outcomes; if there's nothing to
   verify, you're in the wrong phase.
 - A one-line typo / config tweak — gates are friction in front of trivial work.
-- Doc reviews — that's `review-artifact`. `qa-gates` reviews an *implementation* against the doc;
-  `review-artifact` reviews the *doc* itself before implementation.
-- Code-quality review — that's `/review-implementation` (batched, before gates) or the calling
-  command's pre-work fan-out. Gates verify outcomes; reviewers verify code quality.
+- Doc reviews — that's `review-artifact` (it reviews the *doc*; qa-gates verifies the *implementation*).
+- Code-quality review — that's `/review-implementation` (batched, before gates) or the calling command's pre-work fan-out.
 
 ## Composition
 

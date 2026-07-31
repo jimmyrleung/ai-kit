@@ -27,6 +27,16 @@ Produce a self-contained PRD for the named slice. Modeled after `templates/prd_t
 7. Ask clarifying questions if needed (max 2 rounds — slice PRDs are lighter than master roadmaps).
 8. Generate the PRD.
 
+## Refresh mode (slice PRD already exists)
+
+If the target slice folder already has a PRD, run a REFRESH, not a creation: audit every
+section against current code/roadmap; list the stale premises found (with file evidence)
+**before** editing; carry unaffected sections; stamp the header
+`> refreshed YYYY-MM-DD against <short-sha>` so the next refresh can diff the range.
+The JIT-refresh discipline has caught wrong core premises three times (a never-shipped
+mechanism across 5 sections; 5 stale premises + a new SDK capability that changed the central
+mechanism) — fund it, don't skip it.
+
 ## Slice PRD requirements
 
 - **§1 Summary** names the demoable behavior in user-observable terms.

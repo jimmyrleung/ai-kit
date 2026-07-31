@@ -9,7 +9,7 @@ Create a slice-scoped technical specification. **Slice-scoped, not project-wide.
 
 ## Process
 
-1. Create todo list.
+1. Create todo list (if a todo tool is available in this harness; otherwise track inline).
 2. Read the slice PRD (`specs/slices/slice-NN-<name>/PRD.md` or host repo convention).
 3. Read the master roadmap §N+3 (carried-forward) and prior-slice techspecs (patterns established).
 4. Read the **actual code** referenced in the slice PRD's "Building on" section — don't trust descriptions; read the files.
@@ -18,7 +18,17 @@ Create a slice-scoped technical specification. **Slice-scoped, not project-wide.
    - **1 agent** for small slices (size = 1 day or simple)
    - **2 agents** for typical slices (different priors — e.g., favor simplicity vs. favor reuse of existing patterns)
    - **3 agents** only for genuinely complex slices
-7. Compare outputs. Surface disagreements (esp. around key decisions).
+
+   If subagents are unavailable in this harness, run the @techspec-creation skill body inline
+   per draft — note the substitution. For 2–3 agents, make one draft a **probe-first /
+   risk-first prior** (verify the riskiest mechanism before writing) — in a lived run it
+   produced all three unique high-value findings.
+7. Compare outputs. Surface disagreements (esp. around key decisions). Record two extra
+   outputs of the comparison: (a) **convergence-risk** — what ALL drafts agreed on at the same
+   level of detail is the highest-risk region (agreement measures shared framing, not
+   correctness) → verify it against code before recommending; (b) **harvest** — factual
+   corrections found by any draft, including losing ones, are ported into the winner
+   regardless of which draft wins.
 8. Form your opinion. Recommend one to the user with reasoning.
 9. User picks. Write to `specs/slices/slice-NN-<name>/techspec.md`.
 

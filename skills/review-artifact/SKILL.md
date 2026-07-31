@@ -33,25 +33,37 @@ Read `artifact_path`. Skip the entire review (return immediately; advance to `ne
 - every upstream agent scored ≥ 95% confidence AND the consolidated confidence is ≥ 95%
 - all upstream agents agreed on the critical points (root cause / integration points / risks / etc.)
 - no blockers (including auto-accept blockers) were flagged
+- the agreement condition does NOT count when the upstream agents themselves *designed* the
+  mechanism under review — convergence measures shared framing, not correctness; a mechanism
+  all creators converged on was itself the Critical in a lived run
 
 Otherwise continue.
 
 ### Step 1 — Launch reviewers
 Launch 1-3 `@{reviewer_agent}` agents to review whether `artifact_path` is accurate and
-complete. Hand them `support_docs` if provided. Reviewer constraints:
+complete. Hand them `support_docs` if provided. When launching 2-3 reviewers, make at least
+one **layer-scoped** (trace one end-to-end path through the artifact's subject — request →
+handler → store, or equivalent) rather than dimension-scoped — in a lived run both criticals
+came from the one layer-scoped reviewer while topic-scoped reviewers reproduced the author's
+altitude. Assign lanes explicitly non-overlapping and name which lane owns the highest-stakes
+part. Brief each lane with the hypothesized failure mode **and an explicit invitation to
+refute it** — a lane will otherwise force findings into its assigned frame. Reviewer constraints:
 - "Put extra effort on the highest-stakes parts of the {artifact_label} (root cause / proposed solution / risk assessment / integration points — whichever apply)."
 - "Establish a confidence score (0-100%) for the {artifact_label}."
 - "Identify what is vague, missing, wrong, or misleading. Be specific — cite file:line."
 - "Label every finding **VERIFIED** (you opened the cited `file:line` / ran the repro and observed the result) or **SUSPECTED** (reasoned from a name, a summary, or a partial read — not yet confirmed). Default to SUSPECTED; only an observed result earns VERIFIED. Never call a SUSPECTED finding 'confirmed'."
 - "For any *'X is missing / absent / never called / doesn't exist'* finding, state the exact search that would have found it (the `Grep`/`Glob` you actually ran). An unrun search is not evidence of absence — re-grounded negatives are the most common false positive."
 - "If you were handed more than one artifact (e.g. a prior reviewer's findings *and* the doc under review), tag each finding with which artifact it targets — don't return a verdict on B when asked to judge a claim about A."
+- "Flag load-bearing claims that cite nothing — a citation-accuracy pass verifies what IS cited and is structurally blind to the unsourced claim next to it."
 
 **This constraint block is reusable.** Any ad-hoc fan-out that asks subagents for findings (discovery, accuracy review, doc QA, lay-of-the-land) should paste these three lines into its agent prompt — the structural-enforcement counterpart to Step 2's re-grounding. Where the fan-out returns structured data, prefer a schema that *has no slot* for an unverified verdict (`{claim, target_artifact, status: VERIFIED|SUSPECTED, evidence_file_line, negative_search_run}`) over prose instructions.
 
 ### Step 2 — Consolidate
 Read every reviewer output in full.
 
-**Findings are leads, not verdicts — re-ground each before it drives an edit.** A reviewer read a *point-in-time* state; in a multi-step or multi-session run the artifact (or the code it describes) can move after the review, so a finding may be **stale** or a **false positive**. For every load-bearing finding, before it enters the change list: open its cited `file:line` in the **current** source/artifact and confirm it still holds (drop findings the current state refutes — acting on them produces no-op or wrong edits); re-grade severity **yourself** (a reviewer's "critical"/"major" is advisory until you've seen the source); and if the finding carries a concrete code-level repro ("X raises", "Y mutates"), **execute it** (one throwaway run) rather than reasoning to confidence — a "confirmed" label requires an *observed result*, a reasoned argument earns only "suspected — not executed". Prioritise the re-grounding by the Step-1 labels: open every **SUSPECTED** finding's source before it enters the change list (most won't survive); **VERIFIED** findings still get a spot-check, but the labels tell you where the risk concentrates.
+**Findings are leads, not verdicts — re-ground each before it drives an edit.** A reviewer read a *point-in-time* state; in a multi-step or multi-session run the artifact (or the code it describes) can move after the review, so a finding may be **stale** or a **false positive**. For every load-bearing finding, before it enters the change list: open its cited `file:line` in the **current** source/artifact and confirm it still holds (drop findings the current state refutes — acting on them produces no-op or wrong edits); re-grade severity **yourself** (a reviewer's "critical"/"major" is advisory until you've seen the source); and if the finding carries a concrete code-level repro ("X raises", "Y mutates"), **execute it** (one throwaway run) rather than reasoning to confidence — a "confirmed" label requires an *observed result*, a reasoned argument earns only "suspected — not executed". Prioritise the re-grounding by the Step-1 labels: open every **SUSPECTED** finding's source before it enters the change list (most won't survive); **VERIFIED** findings still get a spot-check, but the labels tell you where the risk concentrates. Two limits: (i) a finding sourced from a **status field / live-state claim** cannot be re-grounded by re-reading the doc — verify against the live system or route it to the user as a question; (ii) when two reviewers appear to contradict, check first whether both are right about **different code paths** before crediting either.
+
+Also cross-check the artifact against **itself**: every mitigation/claim in one section against the mechanism described in another — a §8/§4.5 self-contradiction survived three source-checking review rounds because no pass compared the doc's sections to each other.
 
 Build ONE list of issues and required changes. Estimate
 **how much of the {artifact_label} must change**:
@@ -59,10 +71,15 @@ Build ONE list of issues and required changes. Estimate
 - **10-30%** → update the document with the review corrections.
 - **< 10%** → minor edits only.
 
+Size by **kind, not volume**: re-run creators only when the *skeleton* (structure/approach) is wrong; a large but purely **corrective** delta (facts, citations, wording) updates in place even above 30% — rebuilding discards verified detail and re-introduces errors.
+
 ### Step 3 — Confirm & update (in place)
 Confirm the change set with the user. Then update **the existing** `artifact_path` (do NOT
 create a new file):
-- apply the corrections inline; and
+- apply the corrections inline — then grep **every doc the session touched** (including upstream
+  PRD/analysis the artifact was derived from) for each corrected claim, using several phrasings,
+  not just the literal string, and fix echoes (corrected claims had already been copied verbatim
+  into a sibling doc twice in one window); and
 - append (or update, if already present) a **`## Review`** section near the top of the document recording:
   - the review date
   - the post-review confidence score

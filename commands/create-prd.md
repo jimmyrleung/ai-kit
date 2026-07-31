@@ -11,7 +11,7 @@ For the master roadmap (one-time per project), use `/create-roadmap` instead.
 
 ## Process
 
-1. Create todo list.
+1. Create todo list (if a todo tool is available in this harness; otherwise track inline).
 2. Read the master roadmap if present (typically `specs/00-roadmap.md`).
 3. Identify the slice from $ARGUMENTS — number, name, or "next" for the next incomplete slice in §N+4.
 4. Read prior slice PRDs/techspecs for context (especially the most recent — patterns there often carry forward).
@@ -20,9 +20,19 @@ For the master roadmap (one-time per project), use `/create-roadmap` instead.
    - The slice's row from §N+4
    - Prior-slice context as relevant
    - The slice number + name
+
+   If subagents are unavailable in this harness, run the @prd-creation skill body inline —
+   note the substitution.
 6. Ask clarifying questions if needed (max 2 rounds — slice PRDs are lighter than master roadmaps).
 7. Confirm with user.
 8. Write to `specs/slices/slice-NN-<name>/PRD.md` (or host repo's convention).
+
+## Refresh mode (slice PRD already exists)
+
+If the slice folder already has a PRD, this run is a REFRESH, not a creation (four consecutive
+pickups were): audit every section against current code/roadmap; list stale premises found
+(with file evidence) before editing; carry unaffected sections; stamp the header
+`> refreshed YYYY-MM-DD against <short-sha>` so the next refresh can diff the range.
 
 ## Quality gates
 

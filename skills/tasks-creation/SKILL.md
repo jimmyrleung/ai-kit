@@ -75,6 +75,7 @@ Sometimes you genuinely need a setup task before any user-observable work happen
 - **Depends on** — task IDs or "None"
 - **Complexity** — S / M / L (split if XL)
 - **Status** — Not started / In progress / Done
+- **Size budgets (when a file is size-sensitive):** distinguish a **hard cap** ("must stay ≤ N lines" — an AC, gate-enforced) from a **`~` forecast** ("~N lines" — planning data; variance is recorded, never failed). For a **shared cumulative file** that several tasks grow (a stylesheet, a page file), state each task's expected **delta** and the **final-slice ceiling** — a one-task estimate against a cumulative file misclassifies healthy growth as overrun.
 
 Drop the heavy fields from the old template (assigned-to, retrospective, blockers placeholder, actual-complexity, implementation notes). Add them only if you actually need them in practice.
 

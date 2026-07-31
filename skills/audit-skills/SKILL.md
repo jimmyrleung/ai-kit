@@ -50,7 +50,11 @@ If `REVIEW.md` already exists for today (because `/improve` ran earlier), append
 ### Check 1 — Frontmatter validity
 For each SKILL.md / command / agent file:
 - `---` fences front and back; the frontmatter block parses under a **STRICT YAML parser (js-yaml)** — not just the Claude-lenient/regex check. Specifically flag an **unquoted `description:` (or any plain scalar) containing `: ` (colon-space)** or other YAML-special constructs (leading `[`/`{`/`&`/`*`/`|`/`>`, an unescaped `#` mid-scalar) that strict parsers (**Codex**, claude.ai, the open-standard, the API) reject while Claude Code tolerates. Validate with **Node + js-yaml** (the local PyYAML segfaults on this machine — see memory `skill-frontmatter-strict-yaml`; don't reach for it). Each failure → a proposal that quotes the value.
-- `name:` matches the directory (skills) or filename stem (commands/agents).
+- `name:` matches the directory (skills) or filename stem (commands/agents). **Commands
+  (`commands/*.md`) carry no `name:` field by kit convention — the filename is the name.**
+  Absence of `name:` on a command is an expected non-finding; flag only a `name:` that is
+  *present but mismatched* with the file stem. (Skills and agents still require `name:`
+  matching the dir/stem.)
 - `description:` present and non-empty.
 - No unknown fields beyond `name`, `description`, `allowed-tools`, `argument-hint`,
   `arguments`, `disable-model-invocation` (skills — the last three per

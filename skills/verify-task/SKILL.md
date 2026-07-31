@@ -49,8 +49,27 @@ cross-cutting sub-check. Same in-place marker discipline `review-artifact` (`## 
 4. **Extract per-task line budgets.** `Read` the techspec at `{prefix}_techspec.md` (or
    `specs/slices/<slice>/techspec.md` for slice-style prefixes) and grep for any budget lines
    attached to files in the per-task files-list. Record budgets found; "no budget pinned
-   (acceptable)" if none.
-5. **Write the `## Verify — {date}` block** to `artifact_path` inside the task's section:
+   (acceptable)" if none. Treat unlabeled `~`/approximate sizes as **forecasts**: record
+   actual-vs-forecast as variance in the Verify block, never as a Gate 3 FAIL; only explicit
+   hard caps fail the gate. For shared cumulative files, judge this task's **delta** against
+   its stated share, and the total only against the final-slice ceiling. Where an AC demands
+   source fidelity (a full-file port), fidelity governs — pair the size check with a
+   content-level comparison (e.g. declaration count) before flagging.
+5. **Behavior-pinning sweep.** For a task that *changes* behavior (not pure addition), grep
+   the test tree for suites asserting the OLD behavior of the changed symbols/routes; add
+   every hit to Gate 1's scope. Suites that only run in CI (integration fixtures needing new
+   config keys, DI registrations, NOT NULL columns) are in scope: run them if runnable, else
+   record Gate 1 `BLOCKED` naming the suite — never silently out of scope.
+6. **Evidence-source freshness.** Live/browser/DB evidence counts only if the serving process
+   provably runs the current build: restart it or prove watch-reload picked the change up (a
+   stale `next start` and a stale non-watch server both produced convincing wrong evidence).
+   Probe from the *calling* side (the host, not inside the container) — a probe on the wrong
+   side of the boundary "verified" a DB 36/50 tests couldn't reach.
+7. **Browser preflight.** Before UI-heavy verification: check a browser backend is available
+   and identify any AC whose probe is destructive (needs fresh human approval). Unavailable →
+   record the affected ACs `BLOCKED` and halt Gate 2 per discipline (do NOT fall back to
+   spawning a dev server ad hoc — a direct `next dev` fallback caused a worker-process runaway).
+8. **Write the `## Verify — {date}` block** to `artifact_path` inside the task's section:
 
    ```
    ## Verify — {date}
@@ -88,6 +107,10 @@ each checkbox.
   inline (`accepted: <reason>`); `/improve` audits per-task accept-rates later.
 - **Skipping a gate is visible.** The 3-checkbox plan from Step 0 makes any unrecorded gate
   a missing checkbox, not a silent omission.
+- **Numbers are verbatim, filled after the run.** Suite results are recorded as
+  `ProjectName N/N` copied from the runner's summary line — never a positional count, never a
+  number inherited from the tasks-doc or typed before the command ran (a pre-filled "13x
+  green" met a file with 10 tests; a positional "54" matched the wrong project).
 
 ## Observation write
 
