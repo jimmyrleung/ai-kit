@@ -14,18 +14,26 @@ with `{feature_name}` within the integration family, etc.
 
 | Family | Token | Phase | Output filename |
 |---|---|---|---|
-| integration-feature-dev | `{feature_name}` | analysis | `{feature_name}_integration.md` |
-| integration-feature-dev | `{feature_name}` | techspec | `{feature_name}_techspec.md` |
-| integration-feature-dev | `{feature_name}` | tasks | `{feature_name}_tasks.md` |
-| full-bug-fix-workflow | `{bug_id}` | investigation | `{bug_id}_investigation.md` |
-| full-bug-fix-workflow | `{bug_id}` | impact | `{bug_id}_impact_analysis.md` |
-| full-bug-fix-workflow | `{bug_id}` | regression | `{bug_id}_regression_test_plan.md` |
-| refactor-techdebt-dev | `{refactor_name}` | audit | `{refactor_name}_audit.md` |
-| refactor-techdebt-dev | `{refactor_name}` | plan | `{refactor_name}_plan.md` |
-| refactor-techdebt-dev | `{refactor_name}` | tasks | `{refactor_name}_tasks.md` |
-| full-incident-response | (none — bare, in the incident dir) | diagnosis | `diagnosis.md` |
-| full-incident-response | (none) | hotfix | `remediation_plan.md` |
-| full-incident-response | (none) | postmortem | `postmortem.md` |
+| analyze (skill-centric) | `{work_name}` | analysis | `{work_name}_analysis.md` |
+| bug-investigation (skill-centric) | `{bug_id}` | investigation | `{bug_id}_investigation.md` |
+| integration-feature-dev *(archived)* | `{feature_name}` | analysis | `{feature_name}_integration.md` |
+| integration-feature-dev *(archived)* | `{feature_name}` | techspec | `{feature_name}_techspec.md` |
+| integration-feature-dev *(archived)* | `{feature_name}` | tasks | `{feature_name}_tasks.md` |
+| full-bug-fix-workflow *(archived)* | `{bug_id}` | impact | `{bug_id}_impact_analysis.md` |
+| full-bug-fix-workflow *(archived)* | `{bug_id}` | regression | `{bug_id}_regression_test_plan.md` |
+| refactor-techdebt-dev *(archived)* | `{refactor_name}` | audit | `{refactor_name}_audit.md` |
+| refactor-techdebt-dev *(archived)* | `{refactor_name}` | plan | `{refactor_name}_plan.md` |
+| refactor-techdebt-dev *(archived)* | `{refactor_name}` | tasks | `{refactor_name}_tasks.md` |
+| full-incident-response *(archived)* | (none — bare, in the incident dir) | diagnosis | `diagnosis.md` |
+| full-incident-response *(archived)* | (none) | hotfix | `remediation_plan.md` |
+| full-incident-response *(archived)* | (none) | postmortem | `postmortem.md` |
+
+> **Kit-refactor note (2026-08-05):** the skill-centric `analyze` family supersedes the analysis
+> phases of the archived `integration-feature-dev` / `refactor-techdebt-dev` families (one unified
+> `{work_name}_analysis.md` for integration, greenfield, and refactor modes). `bug-investigation`
+> keeps its `{bug_id}_investigation.md` contract, now as a standalone skill. Archived rows are kept
+> for reading archived docs; do not emit those filenames from new work. `review-analysis` updates
+> the reviewed artifact in place (a `## Review` section) and produces no file of its own.
 
 ## Known residual drift — none
 

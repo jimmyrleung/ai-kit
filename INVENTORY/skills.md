@@ -6,52 +6,24 @@ Skills are the methodology — each is one `SKILL.md` (some carry a `templates/`
 
 | Skill             | Role                                                                                                                                              |
 | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `lay-of-the-land` | Pre-workflow recon: sourced current-state map; no-assumptions, every finding cited. Phase 0 feeding integration-analysis / refactor-audit / bug-investigation. |
+| `lay-of-the-land` | Pre-workflow recon: sourced current-state map; no-assumptions, every finding cited. Phase 0 feeding `analyze` / `bug-investigation`. |
 
-## Greenfield / new project
+## Pre-implementation analysis (skill-centric, 2026-08-05)
 
-| Skill               | Role                                                                                                              |
-| ------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| `roadmap-creation`  | Master roadmap + slice list (Part I product spec, Part II slices). Anti-horizontal-scaffolding. Has `templates/`. |
-| `prd-creation`      | Per-slice PRD, just-in-time at slice pickup                                                                       |
-| `techspec-creation` | Slice-scoped techspec, lightweight by default. Has `templates/`.                                                  |
-| `tasks-creation`    | Decompose techspec into vertically-ordered tasks. Has `templates/`.                                               |
-| `triage`            | Free-text request → routes to the right workflow / one-shot phase / "just do it"                                  |
+One flexible analysis skill replaces the per-family analysis phases (greenfield PRD pipeline,
+integration analysis, refactor audit — bodies preserved under `archive/`).
 
-## Feature integration
+| Skill             | Role                                                                                                                                             |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `analyze`         | Unified reference map of upcoming work; detects mode (integration / greenfield / refactor) and applies its lens. Produces `{work_name}_analysis.md`. |
+| `bug-investigation` | Trace path from entry point to failure, evidence-based root cause (VERIFIED/ASSUMED hops), minimal-fix proposal. Produces `{bug_id}_investigation.md`. |
+| `review-analysis` | Adversarial review of an analysis/investigation doc — generic reviewer fan-out, re-grounding, altitude check, in-place `## Review` block.           |
 
-| Skill                     | Role                                                                                                              |
-| ------------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| `integration-analysis`    | Reference map of how a feature integrates (entry points, patterns, risks). Phase 1 of `/integration-feature-dev`. |
-| `integration-techspec`    | 3-way techspec exploration (minimal-changes / clean / pragmatic)                                                  |
-| `pragmatic-techspec`      | Single-approach pragmatic techspec (skip the 3-way)                                                               |
-| `integration-tasks`       | 3-way task-sizing exploration (granular / balanced / pragmatic)                                                   |
-| `balanced-tasks-creation` | Single-approach balanced tasks (skip the 3-way)                                                                   |
-| `implement-task`          | Implement one task end-to-end (loose target: prefix / tasks-doc path / description); runs `verify-task` gates; review batched via `review-implementation` |
+## Implementation
 
-## Bug fix
-
-| Skill                  | Role                                                                    |
-| ---------------------- | ----------------------------------------------------------------------- |
-| `bug-investigation`    | Trace path from entry point to failure, evidence-based root cause       |
-| `impact-analysis`      | Blast radius, risk level, coverage gaps, rollback strategy              |
-| `regression-test-plan` | Bug-fix verification + related-functionality + integration + perf tests |
-
-## Refactor / tech-debt
-
-| Skill            | Role                                                                      |
-| ---------------- | ------------------------------------------------------------------------- |
-| `refactor-audit` | Reference map of files, patterns, anti-patterns, scope, risks             |
-| `refactor-plan`  | 3-way phased plan (minimal-risk / clean / pragmatic) with rollback points |
-| `refactor-tasks` | 3-way sizing exploration for refactor tasks                               |
-
-## Incident response
-
-| Skill                | Role                                                         |
-| -------------------- | ------------------------------------------------------------ |
-| `incident-diagnosis` | Root cause via 5-Whys + evidence. P1 streamlined / P2+ full. |
-| `hotfix-plan`        | Executable remediation steps + rollback + risk               |
-| `post-mortem`        | Blameless post-mortem with action items (P2+ only)           |
+| Skill            | Role                                                                                                                                                      |
+| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `implement-task` | Implement one task end-to-end (loose target: prefix / tasks-doc path / description); runs `verify-task` gates; review batched via `review-implementation` |
 
 ## Quality assurance
 
@@ -59,7 +31,6 @@ Skills are the methodology — each is one `SKILL.md` (some carry a `templates/`
 | ----------------- | ----------------------------------------------------------------------------------------------------- |
 | `qa-gates`        | 5 pass/fail gates: build/test, AC checklist, cross-cutting, docs, human go/no-go. Prefix-level.       |
 | `verify-task`     | Per-task version: gates 1+2+3 only. Runs at end of each per-task implement command.                   |
-| `review-artifact` | Generic "review the artifact" sub-phase — launches 1–3 reviewer agents, gates at confidence threshold |
 
 ## Engineering ownership (retention)
 

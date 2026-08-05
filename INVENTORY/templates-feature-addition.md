@@ -9,4 +9,4 @@ Input templates for the feature integration workflow. Pick the generic template,
 | `feature-types/database-change-template.md` | Pre-filled for DB schema changes                                     |
 | `feature-types/ui-component-template.md`    | Pre-filled for adding a new UI component                             |
 
-Used by `/integration-feature-dev` and `/integration-analyze-feature`. The filled-in document is the input to `integration-analysis`.
+The filled-in document is the input to `/analyze` (integration mode).

@@ -1,5 +1,10 @@
 # Commands Inventory
 
+> **Kit-refactor (2026-08-05): all commands except `/tasks-loop` are archived** (`archive/commands/`).
+> Skills are invoked directly (`/analyze`, `/bug-investigation`, `/review-analysis`,
+> `/implement-task`, …) — no command wrappers. The tables below describe the archived population
+> and are kept for reading archived docs.
+
 Slash commands users invoke from Claude Code. Grouped by workflow family. Orchestrators run the full multi-phase flow; per-phase commands run a single skill standalone.
 
 ## Discovery (pre-workflow)
