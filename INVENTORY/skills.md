@@ -27,6 +27,7 @@ Skills are the methodology — each is one `SKILL.md` (some carry a `templates/`
 | `pragmatic-techspec`      | Single-approach pragmatic techspec (skip the 3-way)                                                               |
 | `integration-tasks`       | 3-way task-sizing exploration (granular / balanced / pragmatic)                                                   |
 | `balanced-tasks-creation` | Single-approach balanced tasks (skip the 3-way)                                                                   |
+| `implement-task`          | Implement one task end-to-end (loose target: prefix / tasks-doc path / description); runs `verify-task` gates; review batched via `review-implementation` |
 
 ## Bug fix
 

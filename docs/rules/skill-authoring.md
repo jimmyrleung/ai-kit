@@ -35,6 +35,21 @@ physical file per entry. Scans that trust Glob nearly emitted false audit findin
 and committing the links here would duplicate cc-looper's ownership.
 *(added 2026-07-23 — migrated from the ai-kit auto-memory `cc-looper-symlink-topology` (2026-05-15, last verified 2026-07-19) during the /close repo-memory bootstrap)*
 
+## Deployment topology: skills are junction-live; commands were copies; Codex twins block conversion
+
+Three deploy surfaces, three sync semantics. `~/.claude/skills` is a single **wholesale junction**
+to this repo's `skills/` — a new skill dir is discoverable immediately, no sync step.
+`~/.claude/commands/*.md` were **real file copies** — an edit or removal had to be mirrored there
+by hand. `~/.codex/skills/` holds per-skill junctions plus kit-GENERATED twins (`.ai-kit-generated`
+marker) for commands/agents; when a command is converted to a skill, `sync.ps1`'s skill pass skips
+any existing real dir, so the generated twin must be removed (and the `$GenCmds` entry dropped)
+before the junction can be created — always `-WhatIf` first.
+
+**Why:** assuming one model (all junctions or all copies) leaves stale twins shadowing new skills,
+or edits that never deploy — the twin-blocks-junction case surfaced during the first command→skill
+conversion of the kit-refactor.
+*(added 2026-08-05 — implement-task command→skill conversion session)*
+
 ## Check new names against built-in CLI commands before choosing them
 
 Before naming a new skill or command, check it doesn't collide with a Claude Code built-in

@@ -31,7 +31,7 @@ Slash commands users invoke from Claude Code. Grouped by workflow family. Orches
 | `/integration-pragmatic-techspec` | Single-approach pragmatic techspec                         |
 | `/integration-create-tasks`       | 3-way task sizing exploration                              |
 | `/integration-balanced-tasks`     | Single-approach balanced tasks                             |
-| `/implement-task`                 | Implement one integration task                             |
+| `/implement-task`                 | **Converted to a skill** (`skills/implement-task`, 2026-08-05); command file deleted |
 
 ## Bug fix
 

@@ -1,3 +1,14 @@
+## [2026-08-05] — kit-refactor step 1: implement-task command → skill
+
+**Summary:** First bite of the post-archive skill-centric refactor (branch `kit-refactor`) — `commands/implement-task.md` converted 1:1 to `skills/implement-task/SKILL.md` with a loosened input contract (prefix / tasks-doc path / task number / plain description all resolve; triple echoed back); strict-YAML validated (desc 558 chars, 80 lines), live instantly via the `~/.claude/skills` junction. User deleted the repo + `~/.claude/commands` copies mid-session; only the `~/.codex` generated twin remains.
+**Next:** finish the Codex transition — remove `~/.codex/skills/implement-task` (kit-generated twin), drop `implement-task` from the codex/cursor sync `$GenCmds` lists, run `sync.ps1 -WhatIf` then apply. Then: fresh-context trigger test of `/implement-task` (loose phrasing, no slash) and an `/audit-skills` run (offered, not run). Later refactor bites: INVENTORY/*.md wholesale stale post-archiving; 9 archived-command entries still in adapter lists; verify-task residual "Workflow 2 — Review" refs (SKILL.md ~lines 9-10, 96).
+**Blockers:** none
+**Didn't work:** node js-yaml via global require paths (MODULE_NOT_FOUND) — the skill-authoring rule ("run from `~`") went unconsulted; npm-installed into the session scratchpad instead (obs 1).
+**Artifacts:** `skills/implement-task/SKILL.md`; `skills/verify-task/SKILL.md` caller refs; `INVENTORY/{commands,skills}.md` rows; `docs/rules/skill-authoring.md` deployment-topology rule; obs `~/.claude/observations/2026-08-05-implement-task-skill-conversion.md`
+<!-- close-receipt: 2026-08-05 16:10 · memory:1 · rules:1 · skills:0 · obs:2 -->
+
+---
+
 ## [2026-07-31] — /close 2c: repo-local skill minting (Codex-verified dual-write) + focused audit
 
 **Summary:** Partially supersedes the entry below — 2c now ALSO offers minting repo-local skills (offer-gated, ≤2/close) as tier 2 of the promotion ladder (tagged rule → repo-local pair → /improve-minted global skill); a pair = identical SKILL.md dual-written to `.claude/skills/` + `.agents/skills/` (Codex repo-level discovery verified live on 0.146.0; authoring constraints extracted to write-skills' new "Portable profile" section). Same-session focused /audit-skills caught the edit pushing close to 268 > the 250 hard cap (metric calibrated: total lines) → compressed back to exactly 250 via that extraction (P10), and fixed tasks-loop's `<user>` description in the cc-looper canonical (P11, Codex validator rule).

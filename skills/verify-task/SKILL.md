@@ -1,6 +1,6 @@
 ---
 name: verify-task
-description: "Per-task implementation verification — composes the qa-gates skill with per-task inputs (one task's ACs, one task's files, one task's budgets) and runs gates 1 (build/test) + 2 (AC checklist) + 3 (cross-cutting invariants). Skips gates 4 (docs) and 5 (human go/no-go) — those are prefix-level concerns. Invoked at end-of-Workflow-1 inside the per-task implement commands (gf-implement-task, implement-task, implement-bug-fix), before the task is marked Done. Records a `## Verify — {date}` block in the task's section of the tasks-doc and logs 3 observations per run for /close → /improve. Per-prefix sibling: qa-gates (Tier 2.4)."
+description: "Per-task implementation verification — composes the qa-gates skill with per-task inputs (one task's ACs, one task's files, one task's budgets) and runs gates 1 (build/test) + 2 (AC checklist) + 3 (cross-cutting invariants). Skips gates 4 (docs) and 5 (human go/no-go) — those are prefix-level concerns. Invoked at end-of-Workflow-1 inside the implement-task skill (and the archived gf-implement-task / implement-bug-fix commands), before the task is marked Done. Records a `## Verify — {date}` block in the task's section of the tasks-doc and logs 3 observations per run for /close → /improve. Per-prefix sibling: qa-gates (Tier 2.4)."
 ---
 
 # Verify Task — per-task closeout
@@ -148,7 +148,7 @@ Workflow 2 — Review directly.
   `gates_to_run: build,ac,cross-cutting` and `gate_plan_pre_written: true`.
 - **`/close`** — picks up the 3 per-task observation entries per run; `/improve` clusters
   per-task gate-fails by `gate-id` AND `task_id` (mechanical clustering).
-- **Per-task implement commands** (`gf-implement-task`, `implement-task`, `implement-bug-fix`)
-  — the primary callers; each invokes `verify-task` at end-of-Workflow-1 before continuing
-  to Workflow 2 — Review. The post-2.4 last-task `/qa-gates` suggest hint at end-of-Workflow-3
-  is unrelated and untouched — the two skills compose.
+- **The `implement-task` skill** (plus the archived `gf-implement-task` / `implement-bug-fix`
+  commands) — the primary caller; it invokes `verify-task` at end-of-Workflow-1 before
+  continuing to Workflow 3 — Post implementation. The post-2.4 last-task `/qa-gates` suggest
+  hint at end-of-Workflow-3 is unrelated and untouched — the two skills compose.
