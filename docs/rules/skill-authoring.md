@@ -50,6 +50,22 @@ or edits that never deploy — the twin-blocks-junction case surfaced during the
 conversion of the kit-refactor.
 *(added 2026-08-05 — implement-task command→skill conversion session)*
 
+## Grep live consumers before archiving or retiring an entity class
+
+Before moving skills, commands, or agents to `archive/` (or renaming them), grep every live
+surface for their names — skill bodies AND descriptions, the cc-looper canonical tree
+(`~/projects/cc-looper/claude-config/`, which Grep won't reach through the symlinks), adapter
+scripts (`sync.ps1` allowlists), and INVENTORY/docs. Derive the name list from the directory
+being archived, not from memory. References resolved at spawn/run time (`@x-agent`
+subagent types, dynamic paths) produce **zero errors at archive time** and fail only when
+someone runs the consumer.
+
+**Why:** the 2026-08 agent archive silently broke review-implementation and all three cc-looper
+loop review skills (`@code-reviewer-agent` fan-outs) — discovered 5 days later by /audit-skills,
+not by any error. A hand-recalled sweep pattern also missed two of the refs; the archive dir
+listing is the authoritative enumeration.
+*(added 2026-08-05 — non-technical-paths consolidation + full audit session)*
+
 ## Check new names against built-in CLI commands before choosing them
 
 Before naming a new skill or command, check it doesn't collide with a Claude Code built-in
