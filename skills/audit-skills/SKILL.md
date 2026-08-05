@@ -1,9 +1,9 @@
 ---
 name: audit-skills
-description: On-demand structural audit of the local Claude skill/command/agent population — frontmatter validity, description size, trigger-keyword coverage, body length, cross-skill redundancy, dead references, frontmatter-vs-directory mismatch, naming consistency. Stages proposals under ~/.claude/improvements/{date}/ with one per finding; never auto-edits. Run after authoring a new skill, before a publish-quality run, or accept the staleness prompt at session start. Invoke as /audit-skills. Complements /improve's friction-driven Phase 2 inline audit.
+description: On-demand structural audit of the local Claude skill/command/agent population — frontmatter validity, description size + aggregate description budget, trigger-keyword coverage, body length, cross-skill redundancy, dead references, frontmatter-vs-directory mismatch, naming consistency, volatile-content rot. Stages proposals under ~/.claude/improvements/{date}/ with one per finding; never auto-edits. Run after authoring a new skill, before a publish-quality run, or accept the staleness prompt at session start. Invoke as /audit-skills. Complements /improve's friction-driven Phase 2 inline audit.
 ---
 
-<!-- intentionally-long: 11 checks documented inline; splitting to references/ would hurt usability because each check is short, the procedure flows linearly, and progressive disclosure adds latency for no readability win at this size. -->
+<!-- intentionally-long: 12 checks documented inline; splitting to references/ would hurt usability because each check is short, the procedure flows linearly, and progressive disclosure adds latency for no readability win at this size. -->
 
 # Audit Skills — structural quality pass over the local skill population
 
@@ -13,7 +13,7 @@ exactly like `/improve` does. Same approval discipline: the user reviews and app
 one at a time.
 
 This is the deep, on-demand sibling of `/improve`'s Phase 2 inline thin audit
-(vague-description + >150-line flags). It runs wider (11 checks) and only when invoked.
+(vague-description + >150-line flags). It runs wider (12 checks) and only when invoked.
 
 ## Inputs you read
 
@@ -39,13 +39,15 @@ Exclude bundled/system skills and Anthropic-shipped skills from any proposal.
   (≤90%)**. **Persistent across audit runs** (NOT under the dated `{date}/` dir).
   Re-evaluated every run — confidence may rise with more data and promote to a proposal,
   or fall and close as won't-do.
-- `~/.claude/improvements/last-audit.txt` — today's date + run-summary counts.
+- `~/.claude/improvements/last-audit.txt` — today's date + run-summary counts + the
+  aggregate description budget (skill count · total description chars) for Check 2's
+  growth comparison next run.
 - Only on the user's explicit, per-item approval: the actual target files.
 
 If `REVIEW.md` already exists for today (because `/improve` ran earlier), append a
 `## Audit-derived findings — {YYYY-MM-DD HH:mm}` section to it instead of overwriting.
 
-## Checks (11 total)
+## Checks (12 total)
 
 ### Check 1 — Frontmatter validity
 For each SKILL.md / command / agent file:
@@ -70,6 +72,11 @@ For each SKILL.md / command / agent file:
 - Soft-flag: > 600 chars. Surface in fitness table, suggest tightening.
 - Info: > 1,024 chars — fine for Claude Code, but **exceeds the portable/open-standard cap** (claude.ai / API reject). Note in the fitness table; matches write-skills' limits table.
 - Hard-flag: > 1,536 chars. Proposal includes a concrete rewrite.
+- **Aggregate budget:** every description is always in startup context, so the population's
+  total matters, not just each file's. Sum description chars across all skills; report
+  skill count + total in REVIEW.md and store both in `last-audit.txt`. Soft-flag when the
+  total grew > 20% since the last audit — wrong-skill selection rises as the population
+  and its descriptions grow (Databricks / PostHog field data).
 
 Show current description, proposed shorter one, char-count delta.
 
@@ -160,13 +167,30 @@ silently rewrite.
 
 One proposal per finding.
 
+### Check 12 — Volatile-content rot
+Scan skill bodies for content that drifts with time and rots the skill (the lint
+counterpart of write-skills rules 4 and 8):
+- **Baked-in runtime specifics:** hardcoded counts, version numbers, "as of …" dates,
+  line-number references into *other* files. Exempt: dated provenance notes recording
+  *when a fact was verified* (e.g. "verified 2026-07-19") — those are audit trail, not
+  content that silently drifts.
+- **Duplicated reference content** that has a canonical source elsewhere (a docs page,
+  a repo file) → propose replacing the copy with a pointer to the single source of truth.
+- **Patch-accretion smell:** ≥3 stacked exception/edge-case clauses appended to one
+  section across successive fixes → surface as a regenerate-don't-patch candidate
+  (propose regenerating the body from the skill's one-job spec, not another patch).
+
+audit-skills' own Check 12 text names these patterns verbatim — self-matches are not
+findings (same discipline as Check 7). Judgement-heavy check: expect most findings to
+land in backlog (≤90%) rather than proposals; that's a valid outcome.
+
 ## Procedure
 
 ### Phase 1 — Enumerate
 Glob the four input directories. Build a structured inventory:
 `{ skills: [...], commands: [...], agents: [...], templates: [...] }`.
 
-### Phase 2 — Run all 11 checks
+### Phase 2 — Run all 12 checks
 Walk each check across the relevant subset. Collect findings as (check, file) pairs;
 group by file for the report. Don't fabricate findings to look productive — zero
 findings on a check is a valid result.
@@ -227,7 +251,8 @@ Create or append-to today's REVIEW.md:
 # Improvement review — {YYYY-MM-DD}  (or "## Audit-derived findings — {timestamp}" if appending)
 
 **Population audited:** N skills + M commands + K agents + L templates
-**Findings:** P (across 11 checks)  ·  **Proposals staged:** P
+**Description budget:** N skills · T total description chars (Δ vs last audit)
+**Findings:** P (across 12 checks)  ·  **Proposals staged:** P
 
 ## Findings by check
 | Check | Findings | Skills affected |
