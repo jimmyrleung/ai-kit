@@ -84,8 +84,8 @@ Omit a section rather than leave a placeholder.
 
 ## What this skill does NOT do
 - **Structural lint of the whole population** — `/audit-skills` owns that; this is its build sibling.
-- **Routing** — deciding *which* skill to run is `/triage`'s job.
+- **Routing** — deciding *which* skill to run happens upstream (description-driven auto-selection, or the user's call), not in this skill.
 - **Your domain logic** — you bring the one job and the trigger phrases; this skill shapes them into a skill that fires.
 
 ## Output file
-`skills/<name>/SKILL.md` in ai-kit, dir name == `name`. It is directly invocable as `/<name>` — no `commands/` wrapper needed (matches `/predict-first`, `/improve`, `/close`). After writing, run `/audit-skills`, then dry-run `adapters/codex/sync.ps1` to propagate the new skill to Codex.
+`skills/<name>/SKILL.md` in ai-kit, dir name == `name`. It is directly invocable as `/<name>` — no `commands/` wrapper needed (matches `/analyze`, `/improve`, `/close`). After writing, run `/audit-skills`, then dry-run `adapters/codex/sync.ps1` to propagate the new skill to Codex.

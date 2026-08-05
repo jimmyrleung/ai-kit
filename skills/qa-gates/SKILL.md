@@ -1,6 +1,6 @@
 ---
 name: qa-gates
-description: "Verify an implementation against its spec — 5 pass/fail gates (build/test, AC checklist, cross-cutting invariants, docs consistency, human go/no-go). Each gate is a tool call with a recorded pass or a specific failure. Skipping a gate is visibly missing in the artifact, not hidden in chat. Invoked as `/qa-gates prefix=…` (back-compat alias: `/implementation-quality-assurance`) after every task for a prefix has been implemented; also invoked in-workflow at the end of the hotfix execution phase of `full-incident-response` (the only orchestrator with in-workflow execution). Per-task version: see `verify-task` (Tier 2.5; same gates, narrower inputs)."
+description: "Verify an implementation against its spec — 5 pass/fail gates (build/test, AC checklist, cross-cutting invariants, docs consistency, human go/no-go). Each gate is a tool call with a recorded pass or a specific failure; skipping a gate is visibly missing in the artifact, not hidden in chat. Use to verify, validate, or QA a finished implementation. Invoked as `/qa-gates prefix=…` (back-compat alias: `/implementation-quality-assurance`) after every task for a prefix has been implemented. Per-task version: `verify-task` (same gates, narrower inputs)."
 ---
 
 <!-- intentionally-long: documents all 5 gates verbatim — each gate is a procedural primitive the agent must execute exactly. Tier 2.4 spec explicitly chose inline-verbatim over reference-loaded gates because the gate bodies are short and load-once on entry. -->
@@ -9,9 +9,8 @@ description: "Verify an implementation against its spec — 5 pass/fail gates (b
 
 You verify an implementation against its spec by running 5 gates in order, each producing a
 pass or a specific failure. The artifact is a `## QA` section in the existing review/QA doc
-the prefix already owns. You do NOT review the code (`@code-reviewer-agent` handles that
-*before* you run — a `/review-implementation` batched run or the calling command's pre-work
-fan-out); you verify the *outcome*.
+the prefix already owns. You do NOT review the code (`/review-implementation`'s batched
+reviewer fan-out handles that *before* you run); you verify the *outcome*.
 
 ## Inputs the caller must provide (in the invoking message)
 
@@ -29,7 +28,7 @@ If a required input wasn't supplied, ask the caller (or the user) for it before 
 
 ## Artifact convention
 
-Append a `## QA` section to `artifact_path` (in place — no new file). Same `review-artifact`
+Append a `## QA` section to `artifact_path` (in place — no new file). Same `review-analysis`
 "`## Review`" convention. One date-stamped block per run. Each gate is one line.
 
 Stamp the `## QA — {date}` header with the commit/tree it verified: `(verified at: <short-sha>[ +dirty])`.
@@ -239,7 +238,7 @@ listing the gate outcomes; each fail/accepted gate gets its own).
 - The implementation hasn't happened yet — `qa-gates` verifies outcomes; if there's nothing to
   verify, you're in the wrong phase.
 - A one-line typo / config tweak — gates are friction in front of trivial work.
-- Doc reviews — that's `review-artifact` (it reviews the *doc*; qa-gates verifies the *implementation*).
+- Doc reviews — that's `review-analysis` (it reviews the *doc*; qa-gates verifies the *implementation*).
 - Code-quality review — that's `/review-implementation` (batched, before gates) or the calling command's pre-work fan-out.
 
 ## Composition

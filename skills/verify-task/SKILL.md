@@ -6,8 +6,8 @@ description: "Per-task implementation verification — composes the qa-gates ski
 # Verify Task — per-task closeout
 
 You verify that a single just-implemented task passes the per-task gates before the calling
-implement command marks it Done. You do NOT review code quality (`@code-reviewer-agent` handles
-that in the calling command's Workflow 2 — Review); you verify the *outcome of this task only*.
+implement command marks it Done. You do NOT review code quality (`/review-implementation`'s
+batched per-prefix review handles that); you verify the *outcome of this task only*.
 
 ## Inputs the caller must provide (in the invoking message)
 
@@ -25,7 +25,7 @@ If `task_id` or `tasks_doc_path` is missing, ask the caller (or the user) for it
 Append a `## Verify — {date}` block to `artifact_path` **inside the task's section** (not at
 the bottom of the tasks-doc). One block per task per run; appended-only — never overwrite an
 earlier run's block. Three checkboxes (one per gate), one line per AC sub-gate, one line per
-cross-cutting sub-check. Same in-place marker discipline `review-artifact` (`## Review`) and
+cross-cutting sub-check. Same in-place marker discipline `review-analysis` (`## Review`) and
 `qa-gates` (`## QA`) use, one scope tighter.
 
 ## Procedure

@@ -194,8 +194,8 @@ name set — codenames outside it pass; this grep is the actual gate, at the aut
    **family-batched AskUserQuestion rounds** (≤4 questions per call, each question = exactly one
    proposal with its own apply/skip/defer options, batched by theme). The unit that stays atomic
    is the per-item decision, not the round-trip:
-   "Proposal 3 — add a 'verify external assumptions' step to `pragmatic-techspec` Phase 3, derived
-   from 4 `wrong_approach` observations in feature-dev. Apply / skip / defer?" For deletion and
+   "Proposal 3 — add a 'verify external assumptions' step to `analyze` Step 4, derived
+   from 4 `wrong_approach` observations in feature work. Apply / skip / defer?" For deletion and
    new-skill candidates, *always* just ask individually — never auto-propose those as diffs, never batch them.
 3. For each **approved** proposal: apply *exactly* what's in the proposal file to the target. If it's
    a `MEMORY.md` edit, follow the auto-memory conventions (right `type:`, `**Why:**`/`**How to apply:**`,

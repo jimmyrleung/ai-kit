@@ -51,8 +51,9 @@ deliberately richer than `/close`'s slim continuation entry — see 3c.)
    - `.cc-loop/state.json` present → read it: `action`, `mode`, per-task `terminalStatus` /
      `attempt`, `qa` / `checkpoints` records. `skill_or_workflow` = `implement-task-loop`
      (+ `qa-loop` if a `qa` record exists, + `review-checkpoint` per checkpoint).
-   - No `.cc-loop/` → manual execution. `skill_or_workflow` = `implement-task` /
-     `gf-implement-task` / `implement-bug-fix` (infer from the tasks-doc / prefix family).
+   - No `.cc-loop/` → manual execution. `skill_or_workflow` = `implement-task` (or the
+     archived `gf-implement-task` / `implement-bug-fix` for older tasks-docs — infer from
+     the tasks-doc / prefix family).
 
 3. **If a cc-looper close digest is present** — `<dirname(tasks_doc_path)>/<base>_close.md`
    (the in-repo digest the future headless `close-tasks-loop` sibling writes; see Notes →
