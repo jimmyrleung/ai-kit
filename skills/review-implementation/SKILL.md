@@ -1,6 +1,6 @@
 ---
 name: review-implementation
-description: "Batched post-implementation code review for a prefix — run once after the prefix's tasks are implemented (or at a mid-run boundary for long task lists) instead of the per-task reviewer fan-out that used to live inside implement-task. Fans out 3 parallel generic reviewer subagents (correctness / conventions / simplicity + ship-ready refactors), verifies findings against current source, presents them for fix-now / fix-later / proceed disposition, and records a `## Review — {date}` block stamped with the reviewed sha in the prefix's review/QA doc so /qa-gates can reference it instead of re-running its own fan-out. Invoke as /review-implementation prefix=… after the last task, before /qa-gates. Reviews code, not docs (docs: review-analysis) and not outcomes (outcomes: qa-gates); headless loop sibling: review-checkpoint (cc-loop only)."
+description: "Batched post-implementation code review for a prefix — run once after the prefix's tasks are implemented (or at a mid-run boundary for long task lists) instead of the per-task reviewer fan-out that used to live inside implement-task. Fans out 3 parallel generic reviewer subagents (correctness / conventions / simplicity + ship-ready refactors), verifies findings against current source, presents them for fix-now / fix-later / proceed disposition, and records a `## Review — {date}` block stamped with the reviewed sha in the prefix's review/QA doc so /qa-gates can reference it instead of re-running its own fan-out. Invoke as /review-implementation prefix=… after the last task, before /qa-gates. Reviews code, not docs (docs: review-artifact) and not outcomes (outcomes: qa-gates); headless loop sibling: review-checkpoint (cc-loop only)."
 ---
 
 # Review Implementation — batched post-implementation code review
@@ -22,7 +22,7 @@ can point at this run instead of re-reviewing.
 ## Artifact convention
 
 Append a `## Review — {date}` section to `artifact_path` (in place — no new file; same
-convention as `review-analysis` / `qa-gates`). Stamp the header with the tree reviewed:
+convention as `review-artifact` / `qa-gates`). Stamp the header with the tree reviewed:
 `(reviewed at: <short-sha>[ +dirty])` — `qa-gates` compares this stamp to decide whether the
 review covered the final tree. One block per run; a mid-run scoped review and the final
 review are separate blocks.
@@ -96,7 +96,7 @@ batched-review runs the way it already sees gate runs.
   (token economics: the fan-out re-loaded the same context once per task to review a small
   diff). If a single task is genuinely risky, review just its diff ad-hoc — don't
   resurrect the per-task fan-out as a habit.
-- **Doc review** — that's `review-analysis`.
+- **Doc review** — that's `review-artifact`.
 - **Outcome verification against the spec** — that's `qa-gates`.
 - **Headless / cc-loop runs** — that's `review-checkpoint` (coupled to `plan.json`,
   checkpoint ids, and the runner's regex anchors; this skill is its interactive sibling).

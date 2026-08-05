@@ -77,4 +77,4 @@ The investigation must give a review pass everything it needs to validate your f
 
 ## Output file
 
-Write the investigation to `{bug_id}_investigation.md`, alongside the bug report. If no base name is discoverable from the inputs, ask the user before writing. After writing, **offer `/review-analysis`** over the investigation before any fix is implemented on top of it.
+Write the investigation to `{bug_id}_investigation.md`, alongside the bug report. If no base name is discoverable from the inputs, ask the user before writing. After writing, **offer `/review-artifact`** over the investigation before any fix is implemented on top of it (a risky fix then gets `/techspec` in fix mode for the design + blast radius).

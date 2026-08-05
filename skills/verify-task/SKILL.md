@@ -25,7 +25,7 @@ If `task_id` or `tasks_doc_path` is missing, ask the caller (or the user) for it
 Append a `## Verify — {date}` block to `artifact_path` **inside the task's section** (not at
 the bottom of the tasks-doc). One block per task per run; appended-only — never overwrite an
 earlier run's block. Three checkboxes (one per gate), one line per AC sub-gate, one line per
-cross-cutting sub-check. Same in-place marker discipline `review-analysis` (`## Review`) and
+cross-cutting sub-check. Same in-place marker discipline `review-artifact` (`## Review`) and
 `qa-gates` (`## QA`) use, one scope tighter.
 
 ## Procedure

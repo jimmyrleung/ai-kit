@@ -8,16 +8,18 @@ Skills are the methodology — each is one `SKILL.md` (some carry a `templates/`
 | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `lay-of-the-land` | Pre-workflow recon: sourced current-state map; no-assumptions, every finding cited. Phase 0 feeding `analyze` / `bug-investigation`. |
 
-## Pre-implementation analysis (skill-centric, 2026-08-05)
+## Pre-implementation analysis & design (skill-centric, 2026-08-05)
 
-One flexible analysis skill replaces the per-family analysis phases (greenfield PRD pipeline,
-integration analysis, refactor audit — bodies preserved under `archive/`).
+One flexible analysis skill and one flexible design skill replace the per-family phases
+(greenfield PRD pipeline, integration analysis/techspec, refactor audit/plan, impact analysis —
+bodies preserved under `archive/`).
 
 | Skill             | Role                                                                                                                                             |
 | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `analyze`         | Unified reference map of upcoming work; detects mode (integration / greenfield / refactor) and applies its lens. Produces `{work_name}_analysis.md`. |
 | `bug-investigation` | Trace path from entry point to failure, evidence-based root cause (VERIFIED/ASSUMED hops), minimal-fix proposal. Produces `{bug_id}_investigation.md`. |
-| `review-analysis` | Adversarial review of an analysis/investigation doc — generic reviewer fan-out, re-grounding, altitude check, in-place `## Review` block.           |
+| `techspec`        | Unified committed design blueprint; detects mode (integration / greenfield / refactor / fix + orthogonal risk lens), single-approach pragmatic by default with 3-way escalation. Produces `{work_name}_techspec.md`. |
+| `review-artifact` | Adversarial review of an analysis / investigation / techspec doc — generic reviewer fan-out, re-grounding, doc-type lens (altitude vs section contract), in-place `## Review` block. (was `review-analysis`) |
 
 ## Implementation
 

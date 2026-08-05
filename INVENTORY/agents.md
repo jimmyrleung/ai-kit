@@ -2,12 +2,12 @@
 
 > **Kit-refactor (2026-08-05): all named agents are archived** (`archive/agents/`); `agents/` is
 > empty. Skills now launch **generic** subagents (Explore / general-purpose) with worker
-> constraints passed inline — see `analyze`, `bug-investigation`, `review-analysis`. The tables
-> below describe the archived population and are kept for reading archived commands/skills.
+> constraints passed inline — see `analyze`, `bug-investigation`, `techspec`, `review-artifact`. The
+> tables below describe the archived population and are kept for reading archived commands/skills.
 
 Subagents invoked by skills/commands. Each row: file → registered `name` (used in `subagent_type`), model pin, role.
 
-> Reviewer agents (`*-reviewer-agent` / `*-review-agent`) are invoked by the `review-artifact` skill, which references them by name. The producer agents are increasingly thin pointers to skills — see `docs/model-assignments.md` for the migration status.
+> Reviewer agents (`*-reviewer-agent` / `*-review-agent`) were invoked by the *archived* caller-parameterized `review-artifact` skill (not today's live skill of the same name), which referenced them by name. The producer agents are increasingly thin pointers to skills — see `docs/model-assignments.md` for the migration status.
 
 ## Bug fix family
 

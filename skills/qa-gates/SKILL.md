@@ -28,7 +28,7 @@ If a required input wasn't supplied, ask the caller (or the user) for it before 
 
 ## Artifact convention
 
-Append a `## QA` section to `artifact_path` (in place — no new file). Same `review-analysis`
+Append a `## QA` section to `artifact_path` (in place — no new file). Same `review-artifact`
 "`## Review`" convention. One date-stamped block per run. Each gate is one line.
 
 Stamp the `## QA — {date}` header with the commit/tree it verified: `(verified at: <short-sha>[ +dirty])`.
@@ -238,7 +238,7 @@ listing the gate outcomes; each fail/accepted gate gets its own).
 - The implementation hasn't happened yet — `qa-gates` verifies outcomes; if there's nothing to
   verify, you're in the wrong phase.
 - A one-line typo / config tweak — gates are friction in front of trivial work.
-- Doc reviews — that's `review-analysis` (it reviews the *doc*; qa-gates verifies the *implementation*).
+- Doc reviews — that's `review-artifact` (it reviews the *doc*; qa-gates verifies the *implementation*).
 - Code-quality review — that's `/review-implementation` (batched, before gates) or the calling command's pre-work fan-out.
 
 ## Composition

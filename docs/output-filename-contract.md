@@ -16,6 +16,7 @@ with `{feature_name}` within the integration family, etc.
 |---|---|---|---|
 | analyze (skill-centric) | `{work_name}` | analysis | `{work_name}_analysis.md` |
 | bug-investigation (skill-centric) | `{bug_id}` | investigation | `{bug_id}_investigation.md` |
+| techspec (skill-centric) | `{work_name}` | techspec (all modes, refactor included) | `{work_name}_techspec.md` |
 | integration-feature-dev *(archived)* | `{feature_name}` | analysis | `{feature_name}_integration.md` |
 | integration-feature-dev *(archived)* | `{feature_name}` | techspec | `{feature_name}_techspec.md` |
 | integration-feature-dev *(archived)* | `{feature_name}` | tasks | `{feature_name}_tasks.md` |
@@ -30,10 +31,14 @@ with `{feature_name}` within the integration family, etc.
 
 > **Kit-refactor note (2026-08-05):** the skill-centric `analyze` family supersedes the analysis
 > phases of the archived `integration-feature-dev` / `refactor-techdebt-dev` families (one unified
-> `{work_name}_analysis.md` for integration, greenfield, and refactor modes). `bug-investigation`
-> keeps its `{bug_id}_investigation.md` contract, now as a standalone skill. Archived rows are kept
-> for reading archived docs; do not emit those filenames from new work. `review-analysis` updates
-> the reviewed artifact in place (a `## Review` section) and produces no file of its own.
+> `{work_name}_analysis.md` for integration, greenfield, and refactor modes), and the skill-centric
+> `techspec` supersedes their design phases plus the bug family's impact phase (one unified
+> `{work_name}_techspec.md`; the refactor `_plan.md` and `{bug_id}_impact_analysis.md` suffixes are
+> retired — impact now rides inside the fix-mode techspec). `bug-investigation` keeps its
+> `{bug_id}_investigation.md` contract, now as a standalone skill. Archived rows are kept for
+> reading archived docs; do not emit those filenames from new work. `review-artifact` (was
+> `review-analysis`) updates the reviewed artifact in place (a `## Review` section) and produces
+> no file of its own.
 
 ## Known residual drift — none
 

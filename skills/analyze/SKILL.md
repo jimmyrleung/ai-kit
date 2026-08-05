@@ -122,4 +122,4 @@ Four tables (omit one only if it genuinely has no rows; greenfield: "Files to Mo
 
 ## Output file
 
-Write to `{work_name}_analysis.md`, alongside the description file (or where the user says). No discoverable base name → ask before writing. After writing, **offer `/review-analysis`** before anything designs or implements on top of the doc.
+Write to `{work_name}_analysis.md`, alongside the description file (or where the user says). No discoverable base name → ask before writing. After writing, **offer `/review-artifact`** before anything designs or implements on top of the doc (the design phase is `/techspec`).

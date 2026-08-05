@@ -1,7 +1,7 @@
 # Commands Inventory
 
 > **Kit-refactor (2026-08-05): all commands except `/tasks-loop` are archived** (`archive/commands/`).
-> Skills are invoked directly (`/analyze`, `/bug-investigation`, `/review-analysis`,
+> Skills are invoked directly (`/analyze`, `/bug-investigation`, `/techspec`, `/review-artifact`,
 > `/implement-task`, …) — no command wrappers. The tables below describe the archived population
 > and are kept for reading archived docs.
 
