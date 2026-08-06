@@ -10,9 +10,8 @@ it layer by layer, stating the *why* behind each decision so the owner's domain 
 collide with it — that collision is the review. You do **not** quiz the owner, run adversarial
 reviewers, or commit.
 
-> **Litmus test:** if you're explaining code the user didn't write (that's `onboard-me`), testing
-> their understanding (that's `challenge-me`), or dispositioning an existing findings list (that's
-> `walkthrough`) — you've left the lane.
+> **Litmus test:** if you're explaining code the user didn't write (that's `onboard-me`) or
+> dispositioning an existing findings list (that's `walkthrough`) — you've left the lane.
 
 The value window is **owned + uncommitted + pre-commit**: in the session that produced this skill,
 code that had already passed a three-reviewer fan-out and a 36/36-AC QA pass still yielded five
@@ -27,7 +26,6 @@ but unshipped work still qualifies (findings become follow-up commits); resist w
 
 ## When NOT to use
 - Unfamiliar code the user did **not** write → `onboard-me` (Socratic cold-read).
-- Testing the owner's understanding of code-complete work → `challenge-me`.
 - Dispositioning an existing list of open items/findings → `walkthrough` (this skill *produces*
   items by explaining; that one consumes a list).
 - Adversarial review → `review-implementation`; spec verification → `qa-gates`.
@@ -71,7 +69,7 @@ but unshipped work still qualifies (findings become follow-up commits); resist w
 6. **Distinguish verified from inferred** in every step's claims.
 
 ## What this skill does NOT do
-- Explain unfamiliar third-party code → `onboard-me`. Quiz the owner → `challenge-me`.
+- Explain unfamiliar third-party code → `onboard-me`.
 - Disposition an existing findings list → `walkthrough`.
 - Adversarial review → `review-implementation`; gates → `qa-gates`.
 - **Commit.** It ends *before* the commit — that timing is the entire point.

@@ -37,15 +37,11 @@ bodies preserved under `archive/`).
 
 ## Engineering ownership (retention)
 
-Personal-practice rituals — keep staff-level judgment sharp while using AI heavily: generate-before-consume, then test-after. Deliberately friction-adding (that's the point), invoked by hand, writing durable artifacts to `~/.claude/ownership/{topic}/`. `predict-first` ↔ `challenge-me` are a matched pair (the saved prediction is the answer key); `record-decision` → `adr-first` are a capture→author pipeline (cheap AI capture now, owned-and-challenged later) — `record-decision` is the one friction-*removing* member, included here because it shares the decision store, numbering, and ADR gate.
+Personal-practice rituals invoked by hand, writing durable artifacts to `~/.claude/ownership/{topic}/`. Slimmed to its two low-friction members in the kit refactor (2026-08-06): the friction-heavy rituals (`predict-first`, `debug-first`, `adr-first`, `challenge-me`) stay under `archive/skills/` and can be restored individually if genuinely missed.
 
 | Skill           | Role                                                                                                                              |
 | --------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| `predict-first` | Before AI: predict (touches/invariant/edge/shape/unknowns); re-run after to reconcile vs. reality and tag misses. Answer key for `challenge-me`. |
-| `debug-first`   | Before AI on a NON-incident bug: form hypotheses yourself (Observed/Hypotheses/Tried/Question); AI then engages each with evidence.              |
-| `adr-first`     | Critique-only ADR: you write the rationale, AI challenges (steelman the rejected option) first, polishes a distant second.                       |
-| `record-decision` | Cheap mid-work decision capture: full ADR-template record with AI-drafted rationale flagged `UNREVIEWED`, reusing adr-first's store/numbering; `/close` sweeps unreviewed records to own + challenge via `adr-first`. The low-friction front-end to `adr-first`. |
-| `challenge-me`  | Feature code-complete: ~5 judgment questions (failure modes/alternatives/invariants/blast radius); won't answer until you try; grades vs. code + your prediction. |
+| `record-decision` | Cheap mid-work decision capture: full ADR-template record with AI-drafted rationale hard-flagged `UNREVIEWED`; the human owns the Rationale at review — in-session, or swept later by `/close`. |
 | `onboard-me`    | Cold-read walkthrough of UNFAMILIAR code by a "staff engineer" — one step at a time, Socratic, lists assumptions every message.                  |
 
 ## Meta / session lifecycle

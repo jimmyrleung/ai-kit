@@ -44,27 +44,21 @@ Not sure which to run? `/triage` routes a free-text request to the right workflo
 
 ## Engineering ownership (retention)
 
-A layer orthogonal to the workflow families: small, deliberately friction-adding rituals that keep your staff-level judgment sharp while you use AI to move fast. The families multiply _execution_; this layer protects _understanding_ — so you can still explain the design, failure modes, and trade-offs of code you shipped, without the chat history.
+A layer orthogonal to the workflow families: the families multiply _execution_; this layer protects _understanding_ — so you can still explain the design and trade-offs of code you shipped, without the chat history. Slimmed to its two low-friction members in the 2026-08 kit refactor; the friction-heavy rituals (`predict-first`, `debug-first`, `adr-first`, `challenge-me`) are preserved under `archive/skills/` and can return individually if genuinely missed.
 
-> **Outsource the typing, not the understanding.** The skills make you _generate before you consume_ (predict / hypothesize / write the rationale yourself), then _test that it stuck_ (get quizzed, walk unfamiliar terrain). They're honest about their limits: a prompt can't verify you predicted before peeking — the retention is yours to earn. The friction is the feature.
+| Skill             | When                                            | What it does                                                                                                                                                                             |
+| ----------------- | ----------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `record-decision` | A decision surfaces mid-work, no time for an ADR | Snapshots it as a full ADR-template record — facts from the session, rationale AI-drafted and hard-flagged `UNREVIEWED` so it never passes as owned; you own the Rationale at review (in-session, or swept later by `/close`). |
+| `onboard-me`      | **Unfamiliar** code you must understand         | A staff-engineer cold-read walkthrough — one step at a time, Socratic, lists its assumptions every message. (Not for code you just wrote.)                                                 |
 
-| Skill           | When                                    | What it does                                                                                                                                                                                                         |
-| --------------- | --------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `predict-first` | Before _and_ after AI-assisted work     | You predict what the change touches / the invariant / the risky edge case / the shape / your unknowns — it won't fill it in for you. Re-run afterward to reconcile against what actually shipped and tag every miss. |
-| `debug-first`   | Before AI on a **non-incident** bug     | You write Observed / Hypotheses / Tried / Question-for-AI first; then the AI engages each hypothesis with evidence instead of bypassing it. (Prod on fire → `/full-incident-response`, not this.)                    |
-| `adr-first`     | A consequential decision                | **Critique-only** — you write the rationale, the AI never drafts it; it steelmans the alternative you rejected first, polishes a distant second.                                                                     |
-| `challenge-me`  | A feature is code-complete              | ~5 questions targeting judgment (failure modes / rejected alternatives / invariants / blast radius); won't answer until you try, then grades you against the code _and your saved prediction_.                       |
-| `onboard-me`    | **Unfamiliar** code you must understand | A staff-engineer cold-read walkthrough — one step at a time, Socratic, lists its assumptions every message. (Not for code you wrote — that's `challenge-me`.)                                                        |
-
-**Durable artifacts.** Each skill writes to `~/.claude/ownership/{topic}/` (private — your claude-home, **not** this public repo). `{topic}` resolves identically across the skills (arg → git branch → doc basename → ask), so `predict-first` and `challenge-me` form a matched pair: the prediction you saved is the answer key you're later graded against.
+**Durable artifacts.** Both skills write to `~/.claude/ownership/{topic}/` (private — your claude-home, **not** this public repo); ADR-shaped records prefer the repo's own decision dir (`docs/adr/`, `docs/decisions/`, …) when one exists. `{topic}` resolves identically across the skills (arg → git branch → doc basename → ask), so records about one area live together.
 
 ```
 ~/.claude/ownership/{topic}/
-  predict.md      challenge.md      onboarding.md
-  debug-{date}-{slug}.md            adr-NNNN-{slug}.md
+  onboarding.md      adr-NNNN-{slug}.md
 ```
 
-These are invoked **deliberately** (`/predict-first`, `/challenge-me`, …) — they don't auto-trigger mid-work. Reconciliation and debug misses are tagged (`blast-radius` / `missed-invariant` / `unknown-unknown` / …) so the artifacts stay mineable if a longitudinal "retention review" is ever added.
+These are invoked **deliberately** (`/record-decision`, `/onboard-me`) — they don't auto-trigger mid-work.
 
 ## Design principles
 
