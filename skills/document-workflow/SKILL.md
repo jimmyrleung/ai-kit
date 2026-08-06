@@ -141,8 +141,8 @@ current or tasks-doc directory (a doc written elsewhere is reported missing by d
 
 ## What this skill does NOT do
 
-- **Staleness triage across existing workflow docs** — the archived `update-workflow-docs`
-  command's job; not yet re-minted as a skill. Updating ONE named doc is in scope here.
+- **Staleness triage across existing workflow docs** — `update-workflow-docs` owns the
+  corpus-wide drift detection + in-place refresh. Updating ONE named doc is in scope here.
 - **Choosing what to document** — `docs-tasks-creator` scans and emits the task list.
 - **Code changes** — anything found broken while tracing is reported, then handed to
   `bug-investigation` / the implement-task family.
