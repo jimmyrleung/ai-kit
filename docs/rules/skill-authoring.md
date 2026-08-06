@@ -6,8 +6,9 @@ Before shipping any SKILL.md / command / agent frontmatter change, parse it with
 Claude Code is lenient, but Codex / claude.ai / the API are strict (an unquoted `: ` inside a
 `description` is the classic failure). This repo ships no `node_modules`, and js-yaml is not in the
 global npm root either (verified 2026-08-06): the reliable pattern is `npm install js-yaml` into the
-session scratchpad and run node from there; `require()` fails with MODULE_NOT_FOUND from the repo
-root and from a bare `NODE_PATH=$(npm root -g)`.
+session scratchpad and run node from there — `cd` into the scratchpad is required; `require()` fails
+with MODULE_NOT_FOUND from the repo root, from a bare `NODE_PATH=$(npm root -g)`, and even with
+NODE_PATH pointed inline at the scratchpad's own node_modules (verified 2026-08-06, step-9 session).
 
 **Why:** strict parsers silently drop mis-parsed skills at load time (5 skills broke at once on
 2026-06-04), and the no-local-node_modules gotcha kept recurring because it lived only in archived
