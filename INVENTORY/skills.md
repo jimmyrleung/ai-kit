@@ -7,6 +7,7 @@ Skills are the methodology — each is one `SKILL.md` (some carry a `templates/`
 | Skill             | Role                                                                                                                                              |
 | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `lay-of-the-land` | Pre-workflow recon: sourced current-state map; no-assumptions, every finding cited. Phase 0 feeding `analyze` / `bug-investigation`. |
+| `triage`          | Route a free-text request to the right entry skill / chain / loop primitive, or "just do it directly". Mid-flight detection first; ≤2 questions; one-line recommendation, never auto-executes. Restored + adapted to the skill-centric kit 2026-08-06. |
 
 ## Pre-implementation analysis & design (skill-centric, 2026-08-05)
 
@@ -35,6 +36,14 @@ bodies preserved under `archive/`).
 | `qa-gates`        | 5 pass/fail gates: build/test, AC checklist, cross-cutting, docs, human go/no-go. Prefix-level.       |
 | `verify-task`     | Per-task version: gates 1+2+3 only. Runs at end of each per-task implement command.                   |
 
+## Incident response
+
+Diagnosis rides inside `bug-investigation` (incident lens); hotfix planning inside fix-mode `techspec`. Only the closeout is a dedicated skill.
+
+| Skill         | Role                                                                                                    |
+| ------------- | ------------------------------------------------------------------------------------------------------- |
+| `post-mortem` | Blameless post-mortem after a resolved incident — impact, timeline, root cause, action items. Produces `postmortem.md` / `{incident_id}_postmortem.md`. |
+
 ## Engineering ownership (retention)
 
 Personal-practice rituals invoked by hand, writing durable artifacts to `~/.claude/ownership/{topic}/`. Slimmed to its two low-friction members in the kit refactor (2026-08-06): the friction-heavy rituals (`predict-first`, `debug-first`, `adr-first`, `challenge-me`) stay under `archive/skills/` and can be restored individually if genuinely missed.
@@ -50,4 +59,3 @@ Personal-practice rituals invoked by hand, writing durable artifacts to `~/.clau
 | ---------------- | --------------------------------------------------------------------------------------------------------------- |
 | `close`          | End-of-session retrospect → persist to auto-memory + observations + SESSION_LOG.md + propose commit             |
 | `improve`        | Periodic self-improvement review of observations; produces staged review packet under `~/.claude/improvements/` |
-| `migrate-notion` | Guide a Notion-to-Obsidian migration (Notion MCP)                                                               |

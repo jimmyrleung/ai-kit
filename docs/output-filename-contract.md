@@ -62,7 +62,11 @@ family those skills resolve a loose target from, never a required invocation sha
 qa-gates' headless forks, canonical in cc-looper); the legacy incident artifact names
 (`incident_report.md` / `diagnosis.md` / `remediation_plan.md`) in `post-mortem`'s input contract
 and `bug-investigation`'s incident lens (input-side vocabulary — the legacy dir shape those skills
-accept, never emitted by new work); audit-skills Check 11's own example
+accept, never emitted by new work); the kit artifact filenames (`{work_name}_analysis.md` /
+`{work_name}_techspec.md` / `{work_name}_tasks.md` / `{bug_id}_investigation.md` / `postmortem.md`)
+in `triage`'s Phase-0 mid-flight detection table (input-side vocabulary — the artifacts triage
+*reads* to locate in-progress work, restored + adapted 2026-08-06; triage emits no files);
+audit-skills Check 11's own example
 text; `{feature}_description.md` in `integration-analysis`'s input contract (an *input* file — this
 contract governs phase *output* docs only, and that skill's output line is already canonical).
 

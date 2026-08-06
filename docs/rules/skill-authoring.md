@@ -89,6 +89,21 @@ refinement added same day — techspec-consolidation audit run 2; bidirectional 
 same day — implementation-family consolidation, step 5; doctrine/convention refinement added
 same day — QA-family consolidation, step 6)*
 
+## Population changes sync the self-description surfaces in the same step
+
+When a step adds, restores, or archives a skill/command/agent, update the kit's self-description
+surfaces — `INVENTORY/{skills,commands,agents}.md` and the affected `README.md` sections — in that
+same step, or record an explicit deferral to a named reconciliation bite. "Done" for a population
+change includes the listings, exactly like the Codex sync.
+
+**Why:** nothing consumes these listings at runtime, so a stale row never throws — steps 8
+(post-mortem added, no row) and 10 (triage restored, no row; archived migrate-notion still listed)
+both drifted silently and were caught one and two steps late by /audit-skills run 9, which also
+found README still shipping the retired five-workflow table and pre-refactor Codex numbers
+(backlog 33). The consumer-grep rule above catches dangling *references*; it never catches a
+*listing* that simply omits or over-includes.
+*(added 2026-08-06 — step-10 close; audit run 9 INVENTORY delta-sync + backlog 33 enumeration)*
+
 ## Check new names against built-in CLI commands before choosing them
 
 Before naming a new skill or command, check it doesn't collide with a Claude Code built-in

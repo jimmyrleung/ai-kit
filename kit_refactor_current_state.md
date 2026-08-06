@@ -26,13 +26,15 @@ Templates: live `templates/` and `archive/templates/` are byte-identical (`diff 
 
 ## 3. Genuine decision items — no successor, not on any list
 
-| Item | Situation | My read |
-|---|---|---|
-| **triage** (skill) | Archived, but your global CLAUDE.md still says "offer to run `/triage`" at session start, and the loop-recipes routing went through it | Highest priority decision: either restore as a slim router skill or scrub the CLAUDE.md + loop-recipes references. Currently a dangling instruction you hit every session |
-| **roadmap-creation** (+ create-roadmap cmd) | Nothing in the live kit produces roadmaps | Kill or add as an `analyze`/`tasks-breakdown` altitude later; don't restore the old standalone |
-| **create-qa-scenarios** (cmd) | `qa-gates` verifies but never generates test scenarios | Probably dead; if you miss it, it's a small lens on `tasks-breakdown` or `qa-gates` |
-| **bug-regression-test** (cmd, pairs with regression-test-plan skill) | ✅ Verified 2026-08-06: `implement-task` fix lens requires tests covering the bug scenario + the techspec impact section's edge cases; `qa-gates` verifies. Archived body read — the standalone manual-test-plan doc is the only uncovered piece, and it's not worth a skill | Absorbed — killed with the incident family (step 8) |
-| **migrate-notion** (skill) | One-off migration tool | Dead; leave archived |
+All five dispositioned 2026-08-06 (step 10):
+
+| Item | Decision |
+|---|---|
+| **triage** (skill) | ✅ RESTORED (git mv) and adapted to the skill-centric kit: routes to chain entry skills (`analyze` / `bug-investigation` / `lay-of-the-land`) instead of the retired workflow orchestrators; Phase-0 mid-flight detection now reads the kit's artifact conventions (`_analysis` / `_techspec` / `_tasks` / `_investigation` + `## Review` stamps) and recommends the next chain step; short-circuit table rebuilt from live skills; loop-primitive routing table kept (loop-recipes.md's "exactly two places" contract healed). The global CLAUDE.md "offer /triage" instruction is no longer dangling |
+| **roadmap-creation** (+ create-roadmap cmd) | ✅ Stays archived until a roadmap need is actually felt — user call. Restore-individually-on-felt-need, same posture as the ownership family's archived four |
+| **create-qa-scenarios** (cmd) | ✅ Absorbed into `techspec`: new post-write **QA-scenario pass** (Process 7) — once the spec is written it's re-read as a QA engineer and the Test plan (§6) gains priority + automatable columns, with every committed behavior mapped to ≥1 scenario (happy/error/edge/integration) and the old command's proportionality guard carried over. The final doc = the spec + how to test it. Command stays archived per no-command-wrappers |
+| **bug-regression-test** (cmd, pairs with regression-test-plan skill) | ✅ Already absorbed — verified 2026-08-06: `implement-task` fix lens requires tests covering the bug scenario + the techspec impact section's edge cases; `qa-gates` verifies. Killed with the incident family (step 8) |
+| **migrate-notion** (skill) | ✅ Stays archived — one-off migration tool, dead |
 
 ## 4. Live breakage found during the sweep (not a bring-back question, but surfaced by it)
 
@@ -40,6 +42,6 @@ Templates: live `templates/` and `archive/templates/` are byte-identical (`diff 
 
 ## Recommendation
 
-Bring nothing back wholesale. The only items I'd act on: (1) decide triage — restore-slim or scrub references, (2) fold the code-reviewer-agent fix into the cc-looper bite, (3) kill roadmap/qa-scenarios/migrate-notion explicitly so the archive stops being a question mark, (4) ~~sequence incident + ownership as the already-named bites~~ — incident done (step 8, 2026-08-06); ownership done (step 9, 2026-08-06, partial restore).
+Bring nothing back wholesale. The only items I'd act on: (1) ~~decide triage~~ — restored + adapted (step 10, 2026-08-06), (2) fold the code-reviewer-agent fix into the cc-looper bite — **still open, the only remaining item from this doc**, (3) ~~kill roadmap/qa-scenarios/migrate-notion explicitly~~ — dispositioned (step 10, 2026-08-06: roadmap + migrate-notion stay archived, qa-scenarios absorbed into techspec), (4) ~~sequence incident + ownership as the already-named bites~~ — incident done (step 8, 2026-08-06); ownership done (step 9, 2026-08-06, partial restore).
 
 Confidence: 93% — the enumeration and absorption mapping are grounded in this session's listings and greps. The 7%: I dispositioned archived items from their filenames and your session history without reading each archived body, so an archived skill could contain a capability its successor genuinely lacks (most plausible for `regression-test-plan` and the incident family); and I didn't verify whether `qa-loop-docs`/`review-checkpoint` bodies (vs just descriptions) carry the agent reference, since those junctions need direct reads.
