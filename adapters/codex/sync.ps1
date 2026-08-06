@@ -19,30 +19,19 @@
                    openai.yaml is RECOMMENDED-not-required (verified) and is
                    deliberately NOT injected into the pristine canonical tree in v1.
 
-    2. Agents    : the kit's 18 agents/*.md have no Codex analog (no ~/.codex/agents;
-                   a skill IS the unit of agent invocation). Each is GENERATED as a
-                   Codex skill at $CODEX_HOME/skills/<name>/ (Codex-only, never in
-                   <repo>/) so every "@x-agent" the kit references is invokable as
-                   "$x-agent". Generated with policy.allow_implicit_invocation:false
-                   (workers, never user-triggered -> no per-session context bloat).
+    2. Agents    : NONE in v2 — the kit-refactor (2026-08) archived all named agents
+                   (generic subagents ride inside skill prose). The generation path
+                   below is retained dormant for compatibility; agents/ absent or
+                   empty means it no-ops.
 
-    3. Commands  : Codex has no command primitive (prompts deprecated). The ~25
-                   thin per-phase shims need nothing (their skill is already
-                   junctioned). The rule: any command whose capability NO
-                   junctioned skill owns is GENERATED as a Codex skill. That is
-                   10 today -> the 5 family ORCHESTRATORS + 3 per-task EXECUTORS
-                   (phase sequencing, S/M/L/XL classifier, gates, Workflow 1/2/3)
-                   PLUS 2 standalone doc-generation commands whose whole process
-                   lives in the command body (document-workflow has only a
-                   stripped -loop fork as a skill; update-workflow-docs has no
-                   skill at all). All implicit-invocation:false (a multi-phase
-                   workflow must never auto-trigger). Canonical commands/ is
-                   untouched (Claude keeps the /x UX at zero context cost).
+    3. Commands  : NONE in v2 — every command was archived (skills are invoked
+                   directly as $name). $GenCmds is empty; repopulate only if a
+                   command with a body no junctioned skill owns ever returns.
 
-    4. AGENTS.md : prints the command to place adapters/codex/AGENTS.md at the Codex
-                   global-instruction location (~/.codex/AGENTS.md — verified v0.144.1).
-                   NOT done silently (home mutation; and the deployed file may carry a
-                   private personal block appended after the kit content).
+    4. AGENTS.md : prints guidance for activating adapters/codex/AGENTS.md (the kit's
+                   Codex-MECHANICS layer). NOT done silently: ~/.codex/AGENTS.md is
+                   the user's PRIVATE conventions layer — the kit block is pasted at
+                   its include point (kit-mechanics markers), never plain-copied over.
 
     5. Validate  : runs Codex's own quick_validate.py over every exposed skill and
                    reports PASS/FAIL. Never auto-fixes (a canonical SKILL.md edit
@@ -250,11 +239,13 @@ Write-Host ""
 Write-Host "AGENTS.md (Codex global instruction layer)" -ForegroundColor Cyan
 if (Test-Path $agentsMdSrc) {
   Write-Host ("  Global read-location (verified v0.144.1): {0}\AGENTS.md" -f $CodexHome)
-  Write-Host ("    Copy-Item `"{0}`" `"{1}\AGENTS.md`"   # copy — file-symlink needs elevation; hardlink detaches on git checkout" -f $agentsMdSrc, $CodexHome) -ForegroundColor Yellow
-  Write-Host "  (AGENTS.override.md there takes precedence if present. Re-copy after editing"
-  Write-Host "   the kit file; if the deployed file carries a private personal block appended"
-  Write-Host "   after the kit content, refresh only the kit part between its markers.)"
-  Write-Host "  Project-scope cascade also works: copy into the repo you run Codex from."
+  Write-Host "  DO NOT plain-copy the kit file there: the deployed AGENTS.md is the user's"
+  Write-Host "  PRIVATE conventions layer. After editing the kit file, refresh ONLY the block"
+  Write-Host "  between its kit-mechanics markers at the include point:"
+  Write-Host ("    source : {0}" -f $agentsMdSrc) -ForegroundColor Yellow
+  Write-Host ("    target : {0}\AGENTS.md  (between <!-- kit-mechanics:begin/end -->)" -f $CodexHome) -ForegroundColor Yellow
+  Write-Host "  (AGENTS.override.md there takes precedence if present.)"
+  Write-Host "  Project-scope cascade also works: copy the kit file into the repo you run Codex from."
   Write-Host ""
   Write-Host "  NOTE: this file is the kit's Codex-MECHANICS layer only. Your personal" -ForegroundColor Yellow
   Write-Host "  ~/.claude/CLAUDE.md conventions (confidence scoring, ask-before-assuming," -ForegroundColor Yellow

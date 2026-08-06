@@ -1,79 +1,52 @@
-# ai-kit — Codex instruction layer
+# ai-kit — Codex instruction layer (v2)
 
 This file is the Codex-side counterpart of the kit's Claude conventions. It is **additive
-instruction only** — it changes nothing in the canonical ai-kit skills/agents. It is consumed
-by Codex CLI when present at Codex's instruction-cascade location.
+instruction only** — it changes nothing in the canonical ai-kit skills. Codex consumes it
+when it sits at an instruction-cascade location: paste it below the include point of your
+private `~/.codex/AGENTS.md`, or copy it to the root of a project you run Codex in
+(`AGENTS.override.md` in the home dir takes precedence; combined cap
+`project_doc_max_bytes` = 32 KiB).
 
-> Verified against `codex-cli 0.130.0` (2026-05-17); re-verified on `0.144.1` (2026-07-10).
-> Global read-location **confirmed**: **`~/.codex/AGENTS.md`** (parallels
-> `~/.claude/CLAUDE.md`; `AGENTS.override.md` in the home dir takes precedence when present),
-> plus the standard project-root→cwd cascade (combined cap `project_doc_max_bytes` = 32 KiB).
-> Place this file there (or per project) — see `adapters/codex/README.md`.
+> Rewritten 2026-08-06 for the **v2 kit** (skill-centric refactor). Mechanics last verified
+> live on `codex-cli 0.144.1`; repo-level skill discovery verified on `0.146.0`. Re-verify
+> after any Codex update.
 
-## How to read the kit's sub-agent fan-out idiom (Codex-side A/C selection)
+## The v2 surface (what Codex sees)
 
-Many ai-kit skill bodies are written in Claude terms: *"launch 1–3 `@{x}-agent` sub-agents for
-breadth, then consolidate."* **Codex does not autonomously spawn sub-agents** (`multi_agent` is
-on, but workers are invoked **explicitly by name**, never model-spawned; `agents.max_depth`
-default counting is **[verify]**). Apply this mapping instead — do **not** write or run any
-orchestration script for it (the kit owns no fan-out harness, by decision):
+`adapters/codex/sync.ps1` junctions **every canonical skill 1:1** into `~/.codex/skills/`
+— nothing else. There are **no generated twins**: v1's agent-skills and orchestrator/command
+skills are gone with the named agents, commands, and templates that produced them (all
+archived under `archive/v1/`). One primitive, one name: what Claude invokes as `/name`,
+Codex invokes as `$name` — the v1 command→skill name divergence no longer exists.
 
-- **Divergent + fixed roster** — the 3-way explorers (`integration-techspec`,
-  `integration-tasks`, `refactor-plan`, `refactor-tasks`): run the approach/sizing passes by
-  **invoking the matching worker skills by name** (e.g. `$integration-techspec-creator-agent`).
-  The kit's 17 agents are installed as explicit-only skills (`$name`, implicit-invocation
-  off). The worker **count is conditional on the S/M/L/XL classifier the skill already
-  computes** (S → 1 pass; M → up to 3) — static definitions, model-chosen invocation. Then do
-  the skill's **existing one-shot consolidation** step. *(Strategy C — no behavioural loss.)*
+Skills auto-discover exactly as in Claude. Work chains by invoking the next skill, not by
+running an orchestrator: `$analyze` → `$techspec` → `$tasks-breakdown` → `$implement-task`
+(verify-task gates inline) → `$review-implementation` → `$qa-gates`; bugs/incidents enter
+via `$bug-investigation` and rejoin the chain. `$triage` routes a free-text request.
 
-- **Convergent + stateful** — `review-artifact`, `bug-investigation` (M-path),
-  `qa-loop`/`review-checkpoint`: run the **parallel independent passes** the same way (named
-  workers, strategy C). The **multi-round re-run loop does NOT run autonomously in Codex.**
-  `review-artifact`'s canonical file is **frozen for this initiative** — run it **unchanged**:
-  independent reviewer passes → surface the verdict → **the human drives any re-run
-  interactively** (this collapses into the skill's existing "confirm the change set with the
-  user / ask if OK to proceed" steps). Do not emit or consume a headless verdict-runner here —
-  that is the deferred, re-homed cc-looper-class effort, not this adapter.
+## How to read the kit's fan-out idiom
 
-- **Small / skip-checked** — `review-artifact` Step-0, small-bug paths: **single-thread**
-  (strategy A). The skill's own skip-checks already short-circuit these; no fan-out needed.
+v2 skill bodies say things like *"fan out 1–3 generic reviewer subagents in parallel, then
+consolidate"* (Claude's Agent tool with generic Explore / general-purpose workers — there
+are no named agent personas anymore). In Codex:
 
-## Generated command skills (how to read their bodies)
-
-Codex has no command primitive. Any command whose capability **no junctioned skill owns** is
-installed as a **generated Codex skill** — 10 today: the kit's **5 family orchestrators**
-(`$full-bug-fix-workflow`, `$integration-feature-dev`, `$refactor-techdebt-dev`,
-`$full-incident-response`, `$greenfield-dev`), **3 per-task executors**
-(`$implement-task`, `$gf-implement-task`, `$implement-bug-fix`), and **2 standalone
-doc-generation commands** (`$document-workflow` — only a stripped `$document-workflow-loop`
-fork exists as a junctioned skill; `$update-workflow-docs` — no skill at all). All are
-implicit-invocation **off** — they never auto-trigger; you invoke them explicitly by
-`$name`, exactly as you typed `/name` in Claude. The ~25 thin per-phase shims are **not**
-generated — invoke their methodology skill directly.
-
-Their bodies are the canonical command prose verbatim, written in Claude terms. Read them
-with this mapping:
-
-- **`use the X skill` / `the X skill`** → invoke the Codex skill `$X` (same name).
-- **`/x` (a slash reference to another step)** → invoke the Codex skill that owns that
-  step's methodology. For thin per-phase shims the skill name **differs from the command
-  name** — map by methodology, e.g. `/investigate-bug` → `$bug-investigation`,
-  `/review-investigation` → `$review-artifact`, `/create-roadmap` → `$roadmap-creation`,
-  `/create-techspec` → `$techspec-creation`, `/analyze-impact` → `$impact-analysis`.
-- **`@x-agent`** → `$x-agent` (the 17 agents are generated explicit-only skills); apply
-  the fan-out A/C mapping above.
-- **`create a todo list` / phase gates** → use `update_plan`; honor the gate as written
+- **Parallel generic fan-out** → run the same passes as **independent sequential passes**
+  (fresh perspective each pass, no shared scratch state), then do the skill's own
+  consolidation step. If your Codex build exposes native multi-agent workers, use them;
+  do **not** write or run an orchestration script for it (the kit owns no fan-out harness,
+  by decision).
+- **Multi-round re-run loops** (e.g. `$review-artifact` re-review after corrections) do
+  **not** run autonomously — surface the verdict and let the human drive any re-run. This
+  collapses into the skill's existing "confirm with the user" steps.
+- **Worker constraints ride in the skill prose** (reviewer count, confidence filters,
+  re-grounding rules) — honor them as written; only the spawning mechanism degrades.
+- **`create a todo list` / phase gates** → use `update_plan`; honor gates as written
   (e.g. "confidence ≥ 90%" — surface it, do not silently pass).
-
-This is *interpretation by instruction*, not a per-file transform — consistent with the
-no-kit-harness decision. The command→skill name divergence for shims is a known v1 rough
-edge (the orchestrators themselves increasingly reference skills by skill-name already).
 
 ## Structured user questions (no Codex `AskUserQuestion` analog)
 
-The kit and the global Claude rule prefer a structured "ask the user" tool. **Codex has no
-structured multiple-choice tool** [verify: tool surface]. When a skill — or the clarification
-rule — calls for it, **degrade to a numbered plain-text list** and accept a free-text reply:
+The kit prefers a structured "ask the user" tool. Codex has none — when a skill calls for
+it, **degrade to a numbered plain-text list** and accept a free-text reply:
 
 ```
 Pick one (reply with the number, or describe your own):
@@ -83,16 +56,32 @@ Pick one (reply with the number, or describe your own):
 
 Keep the question batching/discipline the kit specifies; only the *rendering* changes.
 
-## Model pins
+## Model references
 
-ai-kit `agents/*.md` carry Claude model pins (`model: opus|sonnet`). **Codex ignores them**
-and uses its configured `model` / `model_reasoning_effort`. The capability-tier abstraction
-(vendor-neutral tiers → per-tool model map) is a **tracked, deferred follow-up** — it edits
-canonical agent files (Category-2) and is out of near-term scope. No action needed in Codex.
+Claude model names in skill bodies (Opus workers in `$orchestrate`, tier notes) are
+**advisory for Claude harnesses** — Codex ignores them and uses its configured
+`model` / `model_reasoning_effort`. `$orchestrate` is already provider-aware: Codex
+workers inherit the session model. `docs/model-assignments.md` is historical (v1 agent
+pins; the agents are archived).
 
-## Frozen / out of scope for the adapter
+## Claude-only primitives
 
-- **`review-artifact` is frozen.** It is the quality gate for 4 of 5 workflow families; a
-  broken gate erodes quality silently rather than crashing. Run it from the unchanged file in
-  C-mode (above). Any verdict-contract refactor is the separate cc-looper-class effort.
-- The adapter is **additive**: it never edits canonical `skills/*/SKILL.md` or `agents/*.md`.
+`/goal`, `/loop`, `/schedule`, `/compact`, plan mode, and the cc-looper loop skills are
+Claude Code / runner facilities with **no Codex analog**. Where `$triage` routes to a loop
+primitive, treat it as a manual recurrence in Codex (run the underlying skill each
+iteration). A context reset in Codex is a new session — the SESSION_LOG handoff discipline
+still applies.
+
+## Anchored feedback loop
+
+`$close` / `$improve` / `$audit-skills` write to the fixed `~/.claude/…` paths
+(observations, improvements, `last-audit.txt`) **even when run from Codex** — recorded
+decision (§3a of the portability assessment): the self-improvement loop stays Claude-side
+and works unchanged when driven from Codex. Artifact filenames follow
+`docs/output-filename-contract.md` regardless of harness.
+
+## Adapter posture
+
+The adapter is **additive**: it never edits canonical `skills/*/SKILL.md`. Sync is
+idempotent; re-run `sync.ps1` (dry-run with `-WhatIf` first) after the skill population
+changes, then restart Codex.
