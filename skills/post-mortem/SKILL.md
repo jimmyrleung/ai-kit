@@ -25,7 +25,7 @@ Single-approach: one pass on the main thread — no sub-agent fan-out, no 3-way 
 
 Accept whatever the invocation provides; resolve and echo back what you found before writing:
 
-- **An incident directory** (legacy shape: `incident_report.md`, `diagnosis.md`, `remediation_plan.md` — report shape in the kit's `templates/incident-response/incident-report.md`) or **kit-shaped artifacts** (`{bug_id}_investigation.md` + its `## Review`, fix-mode `{work_name}_techspec.md`, the qa-gates artifact) — read all that exist.
+- **An incident directory** (legacy shape: `incident_report.md`, `diagnosis.md`, `remediation_plan.md`) or **kit-shaped artifacts** (`{bug_id}_investigation.md` + its `## Review`, fix-mode `{work_name}_techspec.md`, the qa-gates artifact) — read all that exist.
 - **A description of the incident** with pointers — resolve it to artifacts; ask for what you can't find.
 - **Execution notes** (deviations, surprises, actual resolution time) if the remediation doc carries them; if not, work from what's there and record the gap.
 

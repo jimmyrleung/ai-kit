@@ -10,7 +10,6 @@ ai-kit/
 ├── commands/      Slash commands — mostly thin shims onto skills; a handful are
 │                  multi-phase family orchestrators and per-task executors
 ├── agents/        Agent definitions — single-shot personas with pinned models
-├── templates/     Per-family scaffolds (PRDs, techspecs, bug reports, post-mortems, …)
 ├── adapters/      Per-tool adapters (codex/, cursor/ — make the canonical source
 │                  Codex- and Cursor-CLI-consumable from one source)
 └── docs/          Methodology notes (model assignment rationale, Codex portability, …)

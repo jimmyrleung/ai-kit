@@ -31,13 +31,13 @@ Sub-agent constraints (the coordinator passes these verbatim when launching work
 
 ## Input contract
 
-- **Bug report** — required, but loose: a file the user wrote (`bug_XXXX_short_description.md` — see the kit's `templates/bugfix/bug-report-template.md` for the shape), an issue link, or an inline description with expected vs actual + reproduction steps. Too thin to trace → ask.
+- **Bug report** — required, but loose: a file the user wrote (`bug_XXXX_short_description.md` — expected vs actual behavior, reproduction steps, affected area), an issue link, or an inline description with expected vs actual + reproduction steps. Too thin to trace → ask.
 - **`{bug_id}` base name** — derive from the bug report's filename if possible; ask the user if not discoverable.
 - **Codebase access** — you read the actual code. If the codebase is large (> ~1000 files), ask the user for starting points before exploring.
 
 ## Incident lens — applies when the failure is a production incident
 
-Orthogonal to the process below, triggered by an incident report / outage / live-severity signal (report shape: the kit's `templates/incident-response/incident-report.md`; logs and traces often in a `logs/` dir alongside):
+Orthogonal to the process below, triggered by an incident report / outage / live-severity signal (a report typically carries severity, onset time, symptoms, affected services, current status; logs and traces often in a `logs/` dir alongside):
 
 - **Evidence widens beyond code:** error patterns and frequencies in logs, trace timings and timeouts, metric spikes — each with timestamps, **correlated against the incident timeline** (deploys, config changes, traffic shifts). Every quantitative claim (counts, rates, durations) cites the query or log excerpt that produced it.
 - **5-Whys depth:** "the pool was exhausted" is the symptom — keep asking why until you reach the change or design that caused it, tagging each why VERIFIED/ASSUMED like any other hop.

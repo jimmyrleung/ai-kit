@@ -5,8 +5,10 @@
 Before shipping any SKILL.md / command / agent frontmatter change, parse it with node + js-yaml —
 Claude Code is lenient, but Codex / claude.ai / the API are strict (an unquoted `: ` inside a
 `description` is the classic failure). This repo ships no `node_modules`, and js-yaml is not in the
-global npm root either (verified 2026-08-06): the reliable pattern is `npm install js-yaml` into the
-session scratchpad and run node from there — `cd` into the scratchpad is required; `require()` fails
+global npm root either (verified 2026-08-06): the reliable pattern is `npm init -y` **then**
+`npm install js-yaml` in the session scratchpad and run node from there — without a `package.json`,
+`npm install --no-save` walks UP the tree and installs into an ancestor (silent no-op locally;
+verified 2026-08-06, comparison session). `cd` into the scratchpad is required; `require()` fails
 with MODULE_NOT_FOUND from the repo root, from a bare `NODE_PATH=$(npm root -g)`, and even with
 NODE_PATH pointed inline at the scratchpad's own node_modules (verified 2026-08-06, step-9 session).
 
@@ -116,3 +118,17 @@ alternative (e.g. the family pattern: `review-artifact` / `review-checkpoint` /
 user can't tell which ran — and the collision only surfaces after the skill ships. Caught at design
 time 2026-07-23: the batched-review skill was almost named `code-review`.
 *(added 2026-07-23 — review-implementation authoring session)*
+
+## Templates concept is retired — shapes live inline in skill bodies
+
+The kit-root `templates/` dir was deleted 2026-08-06 (user call, "kill the templates concept").
+Never reference `templates/<family>/...` from a live skill — describe the expected input/output
+shape inline in one line instead ("a report typically carries severity, onset time, symptoms, …").
+Historical copies remain byte-identical under `archive/templates/`. Skill-LOCAL template subdirs
+(`skills/<name>/templates/`, `references/`) are unaffected — this rule is about the retired
+kit-root scaffolds only.
+
+**Why:** the dir sat 5/8 orphaned for months while skills silently pointed at it; loose input
+contracts made per-family scaffolds dead weight, and dangling `templates/` refs shipped in the
+same session that wired them (caught at close by git status).
+*(added 2026-08-06 — archive-comparison close session)*
