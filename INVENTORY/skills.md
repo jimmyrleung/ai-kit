@@ -19,7 +19,8 @@ bodies preserved under `archive/`).
 | `analyze`         | Unified reference map of upcoming work; detects mode (integration / greenfield / refactor) and applies its lens. Produces `{work_name}_analysis.md`. |
 | `bug-investigation` | Trace path from entry point to failure, evidence-based root cause (VERIFIED/ASSUMED hops), minimal-fix proposal. Produces `{bug_id}_investigation.md`. |
 | `techspec`        | Unified committed design blueprint; detects mode (integration / greenfield / refactor / fix + orthogonal risk lens), single-approach pragmatic by default with 3-way escalation. Produces `{work_name}_techspec.md`. |
-| `review-artifact` | Adversarial review of an analysis / investigation / techspec doc — generic reviewer fan-out, re-grounding, doc-type lens (altitude vs section contract), in-place `## Review` block. (was `review-analysis`) |
+| `tasks-breakdown` | Unified implementation-tasks decomposition; detects mode (integration / greenfield / refactor), balanced sizing by default with 3-way escalation, spec-carrying mode when the techspec is deliberately skipped. Produces `{work_name}_tasks.md`. |
+| `review-artifact` | Adversarial review of an analysis / investigation / techspec / tasks doc — generic reviewer fan-out, re-grounding, doc-type lens (altitude vs section contract vs decomposition), in-place `## Review` block. (was `review-analysis`) |
 
 ## Implementation
 

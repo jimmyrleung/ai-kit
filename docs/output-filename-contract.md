@@ -17,6 +17,7 @@ with `{feature_name}` within the integration family, etc.
 | analyze (skill-centric) | `{work_name}` | analysis | `{work_name}_analysis.md` |
 | bug-investigation (skill-centric) | `{bug_id}` | investigation | `{bug_id}_investigation.md` |
 | techspec (skill-centric) | `{work_name}` | techspec (all modes, refactor included) | `{work_name}_techspec.md` |
+| tasks-breakdown (skill-centric) | `{work_name}` | tasks (all modes; greenfield may follow a host `specs/slices/` convention) | `{work_name}_tasks.md` |
 | integration-feature-dev *(archived)* | `{feature_name}` | analysis | `{feature_name}_integration.md` |
 | integration-feature-dev *(archived)* | `{feature_name}` | techspec | `{feature_name}_techspec.md` |
 | integration-feature-dev *(archived)* | `{feature_name}` | tasks | `{feature_name}_tasks.md` |
@@ -34,7 +35,9 @@ with `{feature_name}` within the integration family, etc.
 > `{work_name}_analysis.md` for integration, greenfield, and refactor modes), and the skill-centric
 > `techspec` supersedes their design phases plus the bug family's impact phase (one unified
 > `{work_name}_techspec.md`; the refactor `_plan.md` and `{bug_id}_impact_analysis.md` suffixes are
-> retired — impact now rides inside the fix-mode techspec). `bug-investigation` keeps its
+> retired — impact now rides inside the fix-mode techspec). The skill-centric `tasks-breakdown`
+> supersedes their tasks phases (one unified `{work_name}_tasks.md` for integration, greenfield,
+> and refactor modes). `bug-investigation` keeps its
 > `{bug_id}_investigation.md` contract, now as a standalone skill. Archived rows are kept for
 > reading archived docs; do not emit those filenames from new work. `review-artifact` (was
 > `review-analysis`) updates the reviewed artifact in place (a `## Review` section) and produces
@@ -46,7 +49,8 @@ Normalized 2026-07-07 (audit proposal 02): the remaining `{feature}` spots — 3
 skill descriptions + `balanced-tasks-creation`'s companion-docs example block (×3, incl. the
 `_description.md` input line, normalized to avoid a mixed-token block) — now read `{feature_name}`.
 Check 11 verified zero drift at 2026-07-07 and 2026-07-19. Expected non-drift hits for future runs: `{prefix}` in
-`qa-gates` / `verify-task` / `qa-loop` / `qa-loop-docs` (those skills' own argument name; the loop pair are
+`qa-gates` / `verify-task` / `qa-loop` / `qa-loop-docs` / `implement-task` (input-side vocabulary — the base-name
+family those skills resolve a loose target from, never a required invocation shape; the loop pair are
 qa-gates' headless forks, canonical in cc-looper); audit-skills Check 11's own example
 text; `{feature}_description.md` in `integration-analysis`'s input contract (an *input* file — this
 contract governs phase *output* docs only, and that skill's output line is already canonical).

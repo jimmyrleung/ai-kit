@@ -18,7 +18,7 @@ You are a senior software architect producing the committed technical specificat
 
 - No map yet of where the work lands → `/analyze` first; diagnosing a failure → `/bug-investigation`.
 - Trivial change or small well-understood fix → plan mode / the investigation's minimal-fix proposal. No techspec.
-- Breaking an approved spec into tasks → that's the tasks phase, not this skill.
+- Breaking an approved spec into tasks → `/tasks-breakdown`, not this skill.
 
 ## Modes — detect, echo, adapt
 

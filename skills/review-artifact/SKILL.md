@@ -1,28 +1,28 @@
 ---
 name: review-artifact
-description: "Adversarial review of a pre-implementation doc — an analysis from /analyze, an investigation from /bug-investigation, or a techspec from /techspec — before design or implementation builds on it. Fans out 1–3 generic reviewer subagents, re-grounds every finding against current source, applies the doc-type lens (altitude check for analysis/investigation; section-contract check for techspecs), applies corrections in place, and records a ## Review block with a confidence-gated recommendation. Use when an analysis, investigation, or techspec doc was just written, or when asked to review, validate, or sanity-check one. Invoke as /review-artifact (formerly /review-analysis)."
+description: "Adversarial review of a pre-implementation doc — an analysis from /analyze, an investigation from /bug-investigation, a techspec from /techspec, or a tasks doc from /tasks-breakdown — before design or implementation builds on it. Fans out 1–3 generic reviewer subagents, re-grounds every finding against current source, applies the doc-type lens (altitude check for analysis/investigation; section-contract check for techspecs; decomposition check for tasks docs), applies corrections in place, and records a ## Review block with a confidence-gated recommendation. Use when an analysis, investigation, techspec, or tasks doc was just written, or when asked to review, validate, or sanity-check one. Invoke as /review-artifact (formerly /review-analysis)."
 ---
 
 # review-artifact — quality gate over a pre-implementation doc
 
-You are a review coordinator. You verify that a pre-implementation doc (`{work_name}_analysis.md` from `/analyze`, `{bug_id}_investigation.md` from `/bug-investigation`, or `{work_name}_techspec.md` from `/techspec`) is accurate, complete, and at the right altitude — then correct it **in place** and record the verdict. You do **not** re-do the analysis, own risk gates, or design the solution.
+You are a review coordinator. You verify that a pre-implementation doc (`{work_name}_analysis.md` from `/analyze`, `{bug_id}_investigation.md` from `/bug-investigation`, `{work_name}_techspec.md` from `/techspec`, or `{work_name}_tasks.md` from `/tasks-breakdown`) is accurate, complete, and at the right altitude — then correct it **in place** and record the verdict. You do **not** re-do the analysis, own risk gates, or design the solution.
 
 > **Litmus test:** if you're rewriting the doc's conclusions from your own fresh analysis instead of verifying its claims, you've left the reviewer's chair.
 
 ## When to use
 
-- **Ad-hoc**: right after `/analyze`, `/bug-investigation`, or `/techspec` writes its doc, before the next phase (design / tasks / implementation) builds on it. One review per artifact — the analysis review and the techspec review check different things (see the doc-type lens).
-- On request: "review / validate / sanity-check this analysis (or investigation, or techspec)".
+- **Ad-hoc**: right after `/analyze`, `/bug-investigation`, `/techspec`, or `/tasks-breakdown` writes its doc, before the next phase (design / tasks / implementation) builds on it. One review per artifact — each doc type's review checks different things (see the doc-type lens).
+- On request: "review / validate / sanity-check this analysis (or investigation, techspec, or tasks doc)".
 
 ## When NOT to use
 
 - Reviewing **code** → `review-implementation` (per prefix) or `/code-review`.
 - Reviewing at a loop checkpoint → `review-checkpoint` (cc-loop only).
-- The doc doesn't exist yet → run `/analyze`, `/bug-investigation`, or `/techspec` first.
+- The doc doesn't exist yet → run `/analyze`, `/bug-investigation`, `/techspec`, or `/tasks-breakdown` first.
 
 ## Input contract — loose
 
-- **Artifact path** — required. If not given and exactly one recent `*_analysis.md` / `*_investigation.md` / `*_techspec.md` is the obvious subject, propose it; otherwise ask.
+- **Artifact path** — required. If not given and exactly one recent `*_analysis.md` / `*_investigation.md` / `*_techspec.md` / `*_tasks.md` is the obvious subject, propose it; otherwise ask.
 - **Support docs** — optional: the original description / bug report the doc was derived from. Hand them to reviewers.
 - **Confidence gate** — default 90.
 
@@ -59,6 +59,14 @@ Alongside the reviewer findings, apply the lens for what's under review yourself
 - **Over-spec:** speculative future structure, decisions deferred work doesn't need, options presented without commitment. **Under-spec:** a key decision deferred without reason, host-convention contradictions, missing rollback/risks where the risk lens applies.
 - **Delta rule:** when the upstream analysis/investigation carries a `## Review` stamp, review the techspec's *delta* only — its decisions, section contract, and the citations it added. Don't re-ground upstream claims that review already verified.
 
+**Tasks doc — decomposition check** (sequence over an approved design, per the `tasks-breakdown` skill's section contract):
+
+- **Contract:** required sections present for its mode (header/companions, overview table, detailed tasks, notes & decisions, confidence score; `## Locked decisions` when spec-carrying); nothing from the do-not-include list; no placeholder sections.
+- **Sizing:** the declared grain holds (balanced: 4–10 tasks, mostly S/M, any L justified, nothing over 8h unsplit); mode lens applied (greenfield: tasks 1–3 ship user-observable behavior, slice-close cross-check present; refactor: per-task Risk + Rollback).
+- **Coverage:** every requirement from the techspec / analysis / description has a home — an implementation task, a test task, or an explicit deferral in Notes & decisions; no task silently untested; dependency graph clean (no circular/forward refs; "Can run in parallel with" symmetric with Depends-On).
+- **Grounding:** every Files-involved path comes from the techspec or resolves to real code — none invented; spec-carrying: every Locked decision's `file:line` resolves, and flag a list that has outgrown the fast path (that's a techspec).
+- **Delta rule:** when the techspec carries a `## Review` stamp, review the *decomposition* only — grouping, ordering, coverage, ACs; don't re-ground techspec claims that review already verified.
+
 ### 3 — Consolidate & re-ground
 
 Read every reviewer output in full. **Findings are leads, not verdicts** — before a finding drives an edit: open its cited `file:line` in the **current** source/artifact and confirm it still holds (drop refuted findings); re-grade severity yourself; if it carries a concrete repro ("X raises"), execute it once rather than reasoning to confidence. Open every **SUSPECTED** finding's source before it enters the change list (most won't survive); spot-check VERIFIED ones. Two limits: a live-state claim can't be re-grounded by re-reading the doc — verify against the live system or route to the user; when two reviewers contradict, check whether both are right about **different code paths** first.
@@ -82,6 +90,6 @@ Confirm the change set with the user. Update **the existing** artifact (never a 
 
 ## What this skill does NOT do
 
-- **Create the doc** — `/analyze`, `/bug-investigation`, and `/techspec` own that.
+- **Create the doc** — `/analyze`, `/bug-investigation`, `/techspec`, and `/tasks-breakdown` own that.
 - **Risk gates, success metrics, severity routing** — the caller's or user's job.
 - **A separate review report** — the `## Review` section in the artifact IS the durable review marker.
