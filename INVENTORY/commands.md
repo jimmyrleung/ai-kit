@@ -23,7 +23,7 @@ Slash commands users invoke from Claude Code. Grouped by workflow family. Orches
 | `/create-techspec`         | Slice-scoped technical spec                             |
 | `/review-techspec`         | Catch techspec issues before tasks                      |
 | `/create-tasks`            | Decompose techspec into vertically-ordered tasks        |
-| `/gf-implement-task`       | Implement one task (runs `verify-task` at end)          |
+| `/gf-implement-task`       | **Incorporated into the `implement-task` skill** (2026-08-05); archived |
 | `/create-qa-scenarios`     | QA scenarios for a slice (or end-of-project)            |
 
 ## Feature integration into an existing codebase
@@ -46,7 +46,7 @@ Slash commands users invoke from Claude Code. Grouped by workflow family. Orches
 | `/investigate-bug`       | Phase 1 standalone — produce evidence-based investigation  |
 | `/review-investigation`  | QA the investigation before fixing                         |
 | `/analyze-impact`        | Phase 3 standalone — blast-radius analysis                 |
-| `/implement-bug-fix`     | Apply the fix (runs `verify-task` at end)                  |
+| `/implement-bug-fix`     | **Incorporated into the `implement-task` skill** (2026-08-05); archived |
 | `/bug-regression-test`   | Regression test plan                                       |
 
 ## Refactor / tech-debt

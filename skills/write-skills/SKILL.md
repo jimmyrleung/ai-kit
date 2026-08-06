@@ -22,7 +22,7 @@ You are a skill author. You produce ONE focused `SKILL.md` that does a single jo
 ## The limits that actually bind (Claude Code)
 | Field | House target | Hard cap | Portable cap |
 |---|---|---|---|
-| `description` | ≤ 600 chars | 1536 (Claude Code truncates the listing) | 1024 (claude.ai / API reject) |
+| `description` | ≤ 600 chars new · to 800 evolved/mode-head · to 1024 consolidation-head (tier spec: audit-skills Check 2) | 1536 (Claude Code truncates the listing) | 1024 (claude.ai / API reject) |
 | body | ≤ 150 lines | 250 → split or mark intentionally-long | 500 (Anthropic ceiling) |
 | `name` | kebab-case · == directory · ≤ 64 · **not** ending `-skill` | | |
 

@@ -68,10 +68,17 @@ For each SKILL.md / command / agent file:
 
 → Each failure: one proposal with the exact diff to fix.
 
-### Check 2 — Description size
-- Soft-flag: > 600 chars. Surface in fitness table, suggest tightening.
-- Info: > 1,024 chars — fine for Claude Code, but **exceeds the portable/open-standard cap** (claude.ai / API reject). Note in the fitness table; matches write-skills' limits table.
-- Hard-flag: > 1,536 chars. Proposal includes a concrete rewrite.
+### Check 2 — Description size (tiered by role — house decision 2026-08-05; canonical spec, write-skills points here)
+- ≤ 600: target for new single-job skills (write-skills enforces at authoring) — nothing to flag.
+- 600–800: accepted band for evolved skills and mode-detecting heads — fitness-table note only, never a proposal.
+- 800–1,024: multi-sibling consolidation heads only (a skill that absorbed several retired
+  entry points legitimately carries their trigger surfaces). Flag ONLY if the excess is
+  process detail discoverable in the body — then propose a trim of exactly that; trigger
+  keywords are the head doing its job, never trim those. A non-consolidation skill in this
+  band gets a trim proposal.
+- > 1,024: hard fail — **exceeds the portable/open-standard cap** (Codex / claude.ai / API
+  reject). Always a proposal with a concrete rewrite. (Claude Code's own 1,536 cap is
+  academic once 1,024 is enforced.)
 - **Aggregate budget:** every description is always in startup context, so the population's
   total matters, not just each file's. Sum description chars across all skills; report
   skill count + total in REVIEW.md and store both in `last-audit.txt`. Soft-flag when the

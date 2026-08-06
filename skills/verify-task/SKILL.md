@@ -1,6 +1,6 @@
 ---
 name: verify-task
-description: "Per-task implementation verification — composes the qa-gates skill with per-task inputs (one task's ACs, one task's files, one task's budgets) and runs gates 1 (build/test) + 2 (AC checklist) + 3 (cross-cutting invariants). Skips gates 4 (docs) and 5 (human go/no-go) — those are prefix-level concerns. Invoked at end-of-Workflow-1 inside the implement-task skill (and the archived gf-implement-task / implement-bug-fix commands), before the task is marked Done. Records a `## Verify — {date}` block in the task's section of the tasks-doc and logs 3 observations per run for /close → /improve. Per-prefix sibling: qa-gates (Tier 2.4)."
+description: "Per-task implementation verification — composes the qa-gates skill with per-task inputs (one task's ACs, one task's files, one task's budgets) and runs gates 1 (build/test) + 2 (AC checklist) + 3 (cross-cutting invariants). Skips gates 4 (docs) and 5 (human go/no-go) — those are prefix-level concerns. Invoked at end-of-Workflow-1 inside the implement-task skill (tasks-doc tasks and fix-lens bug fixes alike), before the task is marked Done. Records a `## Verify — {date}` block in the task's section of the tasks-doc and logs 3 observations per run for /close → /improve. Per-prefix sibling: qa-gates (Tier 2.4)."
 ---
 
 # Verify Task — per-task closeout
@@ -93,7 +93,7 @@ Use the `qa-gates` skill with:
 - `artifact_path`: $artifact_path  ← (the task's section in `tasks_doc_path`)
 - `gate_plan_pre_written`: `true`  ← (tells `qa-gates`' Gate 0 to skip the header / plan
   write but still append gate-result lines under the existing `## Verify — {date}` plan)
-- `next_step`: `continue to Workflow 2 — Review in the calling implement command`
+- `next_step`: `continue to Workflow 3 — Post implementation in the calling implement command`
 
 `qa-gates` runs gates 1 + 2 + 3 against the per-task ACs / files / budgets listed in the
 `## Verify — {date}` block this skill wrote in Step 0, and appends one gate-result line under
@@ -139,7 +139,7 @@ principle: <generalizable takeaway>
 - The task is itself a verification / QA task (running `verify-task` on a verify-step is silly).
 
 In all three cases, the calling implement command can skip the skill call and continue to
-Workflow 2 — Review directly.
+Workflow 3 — Post implementation directly.
 
 ## Composition
 
@@ -148,7 +148,7 @@ Workflow 2 — Review directly.
   `gates_to_run: build,ac,cross-cutting` and `gate_plan_pre_written: true`.
 - **`/close`** — picks up the 3 per-task observation entries per run; `/improve` clusters
   per-task gate-fails by `gate-id` AND `task_id` (mechanical clustering).
-- **The `implement-task` skill** (plus the archived `gf-implement-task` / `implement-bug-fix`
-  commands) — the primary caller; it invokes `verify-task` at end-of-Workflow-1 before
-  continuing to Workflow 3 — Post implementation. The post-2.4 last-task `/qa-gates` suggest
+- **The `implement-task` skill** — the sole caller (its fix lens covers bug fixes; the
+  loop variant reviews at checkpoints instead); it invokes `verify-task` at
+  end-of-Workflow-1 before continuing to Workflow 3 — Post implementation. The post-2.4 last-task `/qa-gates` suggest
   hint at end-of-Workflow-3 is unrelated and untouched — the two skills compose.

@@ -61,14 +61,19 @@ being archived, not from memory. When sweeping *retrospectively* (an audit over 
 of skills later restored under the same name, and those self-match (359 of 360 hits in the
 2026-08-05 run-2 sweep were self-matches until the live set was subtracted). References resolved
 at spawn/run time (`@x-agent` subagent types, dynamic paths) produce **zero errors at archive
-time** and fail only when someone runs the consumer.
+time** and fail only when someone runs the consumer. The sweep is **bidirectional**: also grep
+what the surviving siblings *claim about* the retired/changed entity's structure — existence
+checks catch dangling pointers, not stale descriptions of a shape that changed (verify-task
+kept instructing "continue to Workflow 2 — Review" for two weeks after implement-task's
+Workflow 2 was retired; three audit runs missed it because its own references all resolved).
 
 **Why:** the 2026-08 agent archive silently broke review-implementation and all three cc-looper
 loop review skills (`@code-reviewer-agent` fan-outs) — discovered 5 days later by /audit-skills,
 not by any error. A hand-recalled sweep pattern also missed two of the refs; the archive dir
 listing is the authoritative enumeration.
 *(added 2026-08-05 — non-technical-paths consolidation + full audit session; archive-minus-live
-refinement added same day — techspec-consolidation audit run 2)*
+refinement added same day — techspec-consolidation audit run 2; bidirectional refinement added
+same day — implementation-family consolidation, step 5)*
 
 ## Check new names against built-in CLI commands before choosing them
 
