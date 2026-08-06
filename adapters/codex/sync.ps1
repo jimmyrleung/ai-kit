@@ -204,21 +204,13 @@ if (Test-Path $AgentsSrc) {
 }
 
 # --- 3. Commands whose capability no junctioned skill owns -> generated ----
-# Explicit allowlist (NEVER the ~25 thin shims — their skill is already a
-# junction; a generated shim-skill would be a redundant always-listed entry).
-# These 10 carry real prose no junctioned skill owns. Generated Codex-only,
-# implicit-invocation OFF (a multi-phase workflow must never auto-trigger):
-#   8 orchestrators/executors (family workflows + per-task executors), and
-#   2 standalone doc-generation commands — document-workflow (only a stripped
-#   -loop fork exists as a skill) and update-workflow-docs (no skill at all).
-$GenCmds = @(
-  # 5 family orchestrators + 3 per-task executors
-  'full-bug-fix-workflow','integration-feature-dev','refactor-techdebt-dev',
-  'full-incident-response','greenfield-dev',
-  'implement-task','gf-implement-task','implement-bug-fix',
-  # 2 standalone doc-generation commands (no junctioned skill owns their body)
-  'document-workflow','update-workflow-docs'
-)
+# Explicit allowlist: any command whose capability NO junctioned skill owns is
+# generated as a Codex skill, implicit-invocation OFF (a multi-phase workflow
+# must never auto-trigger). Kit-refactor (2026-08-05): every command except the
+# cc-looper-owned tasks-loop shim was archived — the skill-centric kit invokes
+# skills directly, so the allowlist is currently empty. Repopulate only if a
+# command with a body no junctioned skill owns returns to commands/.
+$GenCmds = @()
 foreach ($cn in $GenCmds) {
   $cf = Join-Path $CmdSrc "$cn.md"
   if (-not (Test-Path $cf)) { Add-Result $cn 'cmd' 'error' "commands/$cn.md not found"; continue }

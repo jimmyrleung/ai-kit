@@ -68,10 +68,17 @@ For each SKILL.md / command / agent file:
 
 → Each failure: one proposal with the exact diff to fix.
 
-### Check 2 — Description size
-- Soft-flag: > 600 chars. Surface in fitness table, suggest tightening.
-- Info: > 1,024 chars — fine for Claude Code, but **exceeds the portable/open-standard cap** (claude.ai / API reject). Note in the fitness table; matches write-skills' limits table.
-- Hard-flag: > 1,536 chars. Proposal includes a concrete rewrite.
+### Check 2 — Description size (tiered by role — house decision 2026-08-05; canonical spec, write-skills points here)
+- ≤ 600: target for new single-job skills (write-skills enforces at authoring) — nothing to flag.
+- 600–800: accepted band for evolved skills and mode-detecting heads — fitness-table note only, never a proposal.
+- 800–1,024: multi-sibling consolidation heads only (a skill that absorbed several retired
+  entry points legitimately carries their trigger surfaces). Flag ONLY if the excess is
+  process detail discoverable in the body — then propose a trim of exactly that; trigger
+  keywords are the head doing its job, never trim those. A non-consolidation skill in this
+  band gets a trim proposal.
+- > 1,024: hard fail — **exceeds the portable/open-standard cap** (Codex / claude.ai / API
+  reject). Always a proposal with a concrete rewrite. (Claude Code's own 1,536 cap is
+  academic once 1,024 is enforced.)
 - **Aggregate budget:** every description is always in startup context, so the population's
   total matters, not just each file's. Sum description chars across all skills; report
   skill count + total in REVIEW.md and store both in `last-audit.txt`. Soft-flag when the
@@ -124,8 +131,8 @@ references resolve against cc-looper's source tree at runtime (its slice-09 tech
 §3.12), not the skill dir — verify existence under
 `~/projects/cc-looper/templates/` before flagging. audit-skills' own Check 7 text
 mentions the dead-path classes verbatim — self-matches are not findings. Skill-local
-`templates/<name>.md` references resolve against the skill's own dir (e.g.
-`skills/prd-creation/templates/`), not the kit root — Test-Path there before flagging.
+`templates/<name>.md` references resolve against the skill's own dir (its
+`skills/<name>/templates/`), not the kit root — Test-Path there before flagging.
 Path-like strings inside fenced example blocks that illustrate a convention the skill
 creates at runtime in *target* repos (e.g. close 2c's `docs/rules/testing.md` index
 example) are illustrative, not references — check the enclosing fence and whether the
@@ -149,9 +156,9 @@ skill (> 50 lines of non-frontmatter content in a command file).
 
 ### Check 10 — Naming consistency
 - All skills/commands/agents use kebab-case (no underscores, no camelCase).
-- No `name:` field collides across skills/commands/agents — except a command that wraps the
-  same-named skill (the kit's standard command-wraps-skill pairing, e.g. `/qa-gates` → `qa-gates`
-  skill), which is the intended pattern, not a collision.
+- No `name:` field collides across skills/commands/agents. (Command-wraps-skill pairing was
+  the pre-refactor convention — retired 2026-08-05, no command wrappers; a same-name command
+  today is a finding to surface, not an intended pairing.)
 - No skill name ends in `-skill`; no command name starts with `/` in the name field.
 
 ### Check 11 — Output-doc filename contract

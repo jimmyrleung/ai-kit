@@ -1,6 +1,6 @@
 # Model Assignments
 
-> Tier 2.2 (skill-ify the workflows) is shrinking per-phase agents to thin pointers at a skill. Where that's done, the Agent column reads `agent → skill` — the agent file still exists and still carries the model pin; the skill is the methodology. (Reviewer agents — `*-reviewer-agent` / `*-review-agent` — stay as-is; they're invoked by `review-artifact`, which references them by name.) Status: **all four families done** (feature-addition + bugfix + incident-response + refactoring-tech-debt).
+> **HISTORICAL (pre-2026-08 kit refactor).** The two agent tables below describe the retired named-agent architecture — all listed agents and most listed skills now live under `archive/`; the live kit uses generic subagents inside skills (see each skill's own subagent section). Kept for provenance. The **Loop-role model floor** section below remains live.
 
 Opus 4.5 (Deep reasoning/creative work)
 

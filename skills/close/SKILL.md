@@ -43,8 +43,13 @@ Scan *this session's* context — only what's actually relevant; ignore noise �
 - **Unreviewed decision records** — if a decision dir exists (`docs/decisions/`, `adr/`, or
   `~/.claude/ownership/{topic}/`), scan it for records flagged `status: ai-drafted · UNREVIEWED`
   (captured this session or earlier via `/record-decision`). For each, offer to review now: the human
-  owns the **Rationale** (rewrites or confirms it) and may run `/adr-first` to challenge it, then flip
-  the flag to `status: owned`. Never auto-own them — an unreviewed AI draft is not an ADR. Conversely,
+  owns the **Rationale** (rewrites or confirms it), then flip
+  the flag to `status: owned`. **Staleness escalation:** a record still UNREVIEWED after ~3 closes
+  (or ~a month — judge from its date) gets called out by name with its age, not re-listed neutrally:
+  a capture→own pipeline where nothing ever gets owned is just a drafts folder. Offer the fork
+  explicitly — own it now (2 minutes, the rationale is going stale), or consciously demote it
+  (delete, or mark `status: parked` with a one-line why). Never let the backlog scroll by silently.
+  Never auto-own them — an unreviewed AI draft is not an ADR. Conversely,
   if a load-bearing session decision deserves a standalone record it doesn't yet have, offer to capture
   it via `/record-decision`.
 - **Learnings / surprises / inefficiencies** — gotchas discovered; "this cost me 20 min because X";
@@ -100,7 +105,7 @@ describing the session, e.g. `close-skill-spec`). Use this format per observatio
 ### Observation N: <short descriptive title>
 
 - **project:** <repo name, e.g. studying / system_design_vault / <work repo>>
-- **skill_or_workflow:** <e.g. integration-feature-dev / pragmatic-techspec / full-bug-fix-workflow / (none — ad-hoc)>
+- **skill_or_workflow:** <e.g. analyze / implement-task / compile-kb / (none — ad-hoc)>
 - **phase/area:** <which part, if applicable>
 - **outcome:** success | mostly | partial | failed
 - **friction_observed:** <free-text> — tag: <wrong_approach | buggy_code | misunderstood_request | scope_creep | read_skipped | rm_violation | line_budget_overrun | async_context_loss | sdk_version_drift | doc_drift | ...>

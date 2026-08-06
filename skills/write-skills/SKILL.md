@@ -22,7 +22,7 @@ You are a skill author. You produce ONE focused `SKILL.md` that does a single jo
 ## The limits that actually bind (Claude Code)
 | Field | House target | Hard cap | Portable cap |
 |---|---|---|---|
-| `description` | ≤ 600 chars | 1536 (Claude Code truncates the listing) | 1024 (claude.ai / API reject) |
+| `description` | ≤ 600 chars new · to 800 evolved/mode-head · to 1024 consolidation-head (tier spec: audit-skills Check 2) | 1536 (Claude Code truncates the listing) | 1024 (claude.ai / API reject) |
 | body | ≤ 150 lines | 250 → split or mark intentionally-long | 500 (Anthropic ceiling) |
 | `name` | kebab-case · == directory · ≤ 64 · **not** ending `-skill` | | |
 
@@ -84,8 +84,8 @@ Omit a section rather than leave a placeholder.
 
 ## What this skill does NOT do
 - **Structural lint of the whole population** — `/audit-skills` owns that; this is its build sibling.
-- **Routing** — deciding *which* skill to run is `/triage`'s job.
+- **Routing** — deciding *which* skill to run happens upstream (`/triage`, description-driven auto-selection, or the user's call), not in this skill.
 - **Your domain logic** — you bring the one job and the trigger phrases; this skill shapes them into a skill that fires.
 
 ## Output file
-`skills/<name>/SKILL.md` in ai-kit, dir name == `name`. It is directly invocable as `/<name>` — no `commands/` wrapper needed (matches `/predict-first`, `/improve`, `/close`). After writing, run `/audit-skills`, then dry-run `adapters/codex/sync.ps1` to propagate the new skill to Codex.
+`skills/<name>/SKILL.md` in ai-kit, dir name == `name`. It is directly invocable as `/<name>` — no `commands/` wrapper needed (matches `/analyze`, `/improve`, `/close`). After writing, run `/audit-skills`, then dry-run `adapters/codex/sync.ps1` to propagate the new skill to Codex.

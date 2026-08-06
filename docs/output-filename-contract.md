@@ -14,18 +14,42 @@ with `{feature_name}` within the integration family, etc.
 
 | Family | Token | Phase | Output filename |
 |---|---|---|---|
-| integration-feature-dev | `{feature_name}` | analysis | `{feature_name}_integration.md` |
-| integration-feature-dev | `{feature_name}` | techspec | `{feature_name}_techspec.md` |
-| integration-feature-dev | `{feature_name}` | tasks | `{feature_name}_tasks.md` |
-| full-bug-fix-workflow | `{bug_id}` | investigation | `{bug_id}_investigation.md` |
-| full-bug-fix-workflow | `{bug_id}` | impact | `{bug_id}_impact_analysis.md` |
-| full-bug-fix-workflow | `{bug_id}` | regression | `{bug_id}_regression_test_plan.md` |
-| refactor-techdebt-dev | `{refactor_name}` | audit | `{refactor_name}_audit.md` |
-| refactor-techdebt-dev | `{refactor_name}` | plan | `{refactor_name}_plan.md` |
-| refactor-techdebt-dev | `{refactor_name}` | tasks | `{refactor_name}_tasks.md` |
-| full-incident-response | (none — bare, in the incident dir) | diagnosis | `diagnosis.md` |
-| full-incident-response | (none) | hotfix | `remediation_plan.md` |
-| full-incident-response | (none) | postmortem | `postmortem.md` |
+| analyze (skill-centric) | `{work_name}` | analysis | `{work_name}_analysis.md` |
+| bug-investigation (skill-centric) | `{bug_id}` | investigation | `{bug_id}_investigation.md` |
+| techspec (skill-centric) | `{work_name}` | techspec (all modes, refactor included) | `{work_name}_techspec.md` |
+| tasks-breakdown (skill-centric) | `{work_name}` | tasks (all modes; greenfield may follow a host `specs/slices/` convention) | `{work_name}_tasks.md` |
+| post-mortem (skill-centric) | `{incident_id}` | post-mortem | `postmortem.md` (in an incident dir) / `{incident_id}_postmortem.md` (alongside kit-shaped artifacts) |
+| integration-feature-dev *(archived)* | `{feature_name}` | analysis | `{feature_name}_integration.md` |
+| integration-feature-dev *(archived)* | `{feature_name}` | techspec | `{feature_name}_techspec.md` |
+| integration-feature-dev *(archived)* | `{feature_name}` | tasks | `{feature_name}_tasks.md` |
+| full-bug-fix-workflow *(archived)* | `{bug_id}` | impact | `{bug_id}_impact_analysis.md` |
+| full-bug-fix-workflow *(archived)* | `{bug_id}` | regression | `{bug_id}_regression_test_plan.md` |
+| refactor-techdebt-dev *(archived)* | `{refactor_name}` | audit | `{refactor_name}_audit.md` |
+| refactor-techdebt-dev *(archived)* | `{refactor_name}` | plan | `{refactor_name}_plan.md` |
+| refactor-techdebt-dev *(archived)* | `{refactor_name}` | tasks | `{refactor_name}_tasks.md` |
+| full-incident-response *(archived)* | (none — bare, in the incident dir) | diagnosis | `diagnosis.md` |
+| full-incident-response *(archived)* | (none) | hotfix | `remediation_plan.md` |
+| full-incident-response *(archived)* | (none) | postmortem | `postmortem.md` |
+
+> **Kit-refactor note (2026-08-05):** the skill-centric `analyze` family supersedes the analysis
+> phases of the archived `integration-feature-dev` / `refactor-techdebt-dev` families (one unified
+> `{work_name}_analysis.md` for integration, greenfield, and refactor modes), and the skill-centric
+> `techspec` supersedes their design phases plus the bug family's impact phase (one unified
+> `{work_name}_techspec.md`; the refactor `_plan.md` and `{bug_id}_impact_analysis.md` suffixes are
+> retired — impact now rides inside the fix-mode techspec). The skill-centric `tasks-breakdown`
+> supersedes their tasks phases (one unified `{work_name}_tasks.md` for integration, greenfield,
+> and refactor modes). `bug-investigation` keeps its
+> `{bug_id}_investigation.md` contract, now as a standalone skill. Archived rows are kept for
+> reading archived docs; do not emit those filenames from new work. `review-artifact` (was
+> `review-analysis`) updates the reviewed artifact in place (a `## Review` section) and produces
+> no file of its own.
+
+> **Step-8 addendum (2026-08-06):** the incident family is live again in skill-centric form — the
+> `post-mortem` skill legitimately re-emits `postmortem.md` (legacy incident-dir shape) or
+> `{incident_id}_postmortem.md`; diagnosis rides inside `bug-investigation` (incident lens,
+> `{bug_id}_investigation.md` unchanged) and hotfix planning inside fix-mode `techspec`
+> (`{work_name}_techspec.md`; `remediation_plan.md` and `diagnosis.md` stay archived-only outputs).
+> `{bug_id}_regression_test_plan.md` stays retired (absorbed by implement-task's fix lens).
 
 ## Known residual drift — none
 
@@ -33,8 +57,16 @@ Normalized 2026-07-07 (audit proposal 02): the remaining `{feature}` spots — 3
 skill descriptions + `balanced-tasks-creation`'s companion-docs example block (×3, incl. the
 `_description.md` input line, normalized to avoid a mixed-token block) — now read `{feature_name}`.
 Check 11 verified zero drift at 2026-07-07 and 2026-07-19. Expected non-drift hits for future runs: `{prefix}` in
-`qa-gates` / `verify-task` / `qa-loop` / `qa-loop-docs` (those skills' own argument name; the loop pair are
-qa-gates' headless forks, canonical in cc-looper); audit-skills Check 11's own example
+`qa-gates` / `verify-task` / `qa-loop` / `qa-loop-docs` / `implement-task` (input-side vocabulary — the base-name
+family those skills resolve a loose target from, never a required invocation shape; the loop pair are
+qa-gates' headless forks, canonical in cc-looper); the legacy incident artifact names
+(`incident_report.md` / `diagnosis.md` / `remediation_plan.md`) in `post-mortem`'s input contract
+and `bug-investigation`'s incident lens (input-side vocabulary — the legacy dir shape those skills
+accept, never emitted by new work); the kit artifact filenames (`{work_name}_analysis.md` /
+`{work_name}_techspec.md` / `{work_name}_tasks.md` / `{bug_id}_investigation.md` / `postmortem.md`)
+in `triage`'s Phase-0 mid-flight detection table (input-side vocabulary — the artifacts triage
+*reads* to locate in-progress work, restored + adapted 2026-08-06; triage emits no files);
+audit-skills Check 11's own example
 text; `{feature}_description.md` in `integration-analysis`'s input contract (an *input* file — this
 contract governs phase *output* docs only, and that skill's output line is already canonical).
 
