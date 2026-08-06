@@ -78,13 +78,18 @@ pwsh adapters/codex/sync.ps1 -WhatIf   # dry run
 pwsh adapters/codex/sync.ps1           # bash adapters/codex/sync.sh on macOS/Linux
 ```
 
-What it does in v2: junctions **every live skill 1:1** into `~/.codex/skills/` — nothing else. The v1-era generated twins (agent-skills, orchestrator-skills) are gone with the agents and commands that produced them; the sync prunes leftovers. The canonical tree is never modified.
-
-> **Known-stale:** [`adapters/codex/AGENTS.md`](adapters/codex/AGENTS.md) (the Codex mechanics layer) and parts of [`adapters/codex/README.md`](adapters/codex/README.md) still describe the pre-refactor kit; their rewrite is a named pending bite. The sync itself is reconciled and verified against v2.
+What it does in v2: junctions **every live skill 1:1** into `~/.codex/skills/` — nothing else. The v1-era generated twins (agent-skills, orchestrator-skills) are gone with the agents and commands that produced them; the sync prunes leftovers. The canonical tree is never modified. The instruction layer ([`adapters/codex/AGENTS.md`](adapters/codex/AGENTS.md)) is v2 — paste it between the `kit-mechanics` markers of your private `~/.codex/AGENTS.md` (see the adapter README).
 
 ## Cursor (Cursor CLI)
 
-> **Not yet reconciled with v2 — treat as v1-era.** [`adapters/cursor/`](adapters/cursor/) still expects the retired `commands/` and `agents/` populations (it generates orchestrator skills and native subagents from them) and its assessment predates the refactor. The per-skill symlink half would work, but run it only after a reconciliation pass like the one the Codex adapter got.
+Same model, reconciled with v2 (2026-08-06): per-skill symlinks into `~/.cursor/skills/` — nothing generated anymore (the v1 orchestrator-skills and native subagents went with the retired `commands/` and `agents/` populations, which also moots the #160426 CLI parity gap for the kit). `cursor-agent` is typically run under WSL, so run the sync from inside WSL; `--prune --force` once clears v1 leftovers:
+
+```bash
+bash adapters/cursor/sync.sh --dry-run
+bash adapters/cursor/sync.sh --prune --force
+```
+
+The instruction layer ([`adapters/cursor/AGENTS.md`](adapters/cursor/AGENTS.md)) goes at a project root or between the `kit-mechanics` markers of a private AGENTS.md — see [`adapters/cursor/README.md`](adapters/cursor/README.md).
 
 ## v1 (deprecated)
 

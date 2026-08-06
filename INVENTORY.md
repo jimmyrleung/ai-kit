@@ -102,5 +102,5 @@ Hand-invoked rituals writing durable artifacts to `~/.claude/ownership/{topic}/`
 | [`docs/rules/skill-authoring.md`](docs/rules/skill-authoring.md) | Repo rules — read before editing, validating, enumerating, or converting skills (strict-YAML check, sweep rules, deployment topology, population-sync rule). |
 | [`docs/loop-recipes.md`](docs/loop-recipes.md) | Native loop primitives (`/goal`, `/loop`, `/schedule`): frames, rubric, hard constraints, recipes. The only place the primitive names live. |
 | [`docs/codex-portability-assessment.md`](docs/codex-portability-assessment.md) | Design + decision record for the Codex adapter. |
-| [`docs/cursor-portability-assessment.md`](docs/cursor-portability-assessment.md) | Design + decision record for the Cursor adapter — **pre-refactor, not yet reconciled with v2**. |
+| [`docs/cursor-portability-assessment.md`](docs/cursor-portability-assessment.md) | Design + decision record for the Cursor adapter — written for v1; the symlink mechanism survived the 2026-08 v2 reconciliation, the generated surfaces did not (see `adapters/cursor/README.md`). |
 | [`docs/model-assignments.md`](docs/model-assignments.md) | **Historical** — per-agent model pins from the v1 kit (banner in the doc). |

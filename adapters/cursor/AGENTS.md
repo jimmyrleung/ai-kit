@@ -1,108 +1,56 @@
-# ai-kit — Cursor instruction layer
+# ai-kit — Cursor instruction layer (v2)
 
-This file is the Cursor-side counterpart of the kit's Claude conventions. It is
-**additive instruction only** — it changes nothing in the canonical ai-kit
-skills/agents. Cursor reads project-root `AGENTS.md` (and `CLAUDE.md`) as rules.
+This file is the Cursor-side counterpart of the kit's Claude conventions. It is **additive
+instruction only** — it changes nothing in the canonical ai-kit skills. Cursor reads
+project-root `AGENTS.md` (and `CLAUDE.md`) as rules: paste this below the include point of
+your private AGENTS.md, or copy/link it into the root of a project you run Cursor in (a
+global read-location analog of `~/.claude/CLAUDE.md` is **[verify on installed binary]**).
 
-> Verified against Cursor docs (`cursor.com/docs`), 2026-05-19. The exact
-> **global** read-location for `AGENTS.md` is **[verify on installed binary]** —
-> project-root cascade is standard; a `~/.cursor/AGENTS.md` global analog
-> (parallels `~/.claude/CLAUDE.md`) is build-dependent. Place this per project
-> (or globally if your build reads it) — see `adapters/cursor/README.md`.
+> Rewritten 2026-08-06 for the **v2 kit** (skill-centric refactor). Base mechanics verified
+> vs Cursor docs (`cursor.com/docs`) 2026-05-19 + live probe on `cursor-agent`. Cursor ships
+> near-daily — re-verify tagged items after an update.
 
-## How to read the kit's sub-agent fan-out idiom
+## The v2 surface (what Cursor sees)
 
-Many ai-kit skill bodies say *"launch 1–3 `@{x}-agent` sub-agents for breadth,
-then consolidate."* Cursor **has a native subagent primitive** (closer to Claude
-than Codex), but apply this mapping — do **not** write or run any orchestration
-script (the kit owns no fan-out harness, by decision):
+`adapters/cursor/sync.sh` (WSL — operative) / `sync.ps1` (Windows parity) links **every
+canonical skill 1:1** into `~/.cursor/skills/` — nothing else. There are **no generated
+twins**: v1's orchestrator-skills and native-subagent files are gone with the commands and
+named agents that produced them (all archived under `archive/v1/`). One primitive, one name:
+what Claude invokes as `/name`, Cursor invokes as `/name` too — same key, same skill.
 
-- **Divergent + fixed roster** — the 3-way explorers (`integration-techspec`,
-  `integration-tasks`, `refactor-plan`, `refactor-tasks`): run the
-  approach/sizing passes by invoking the matching worker subagents **by name**
-  (e.g. `integration-techspec-creator-agent`). They are installed as native
-  Cursor subagents (`~/.cursor/agents/<name>.md`). The worker **count is
-  conditional on the S/M/L/XL classifier the skill already computes** (S → 1
-  pass; M → up to 3). Then do the skill's **existing one-shot consolidation**.
+Skills auto-discover off their `description` exactly as in Claude. Work chains by invoking
+the next skill, not by running an orchestrator: `/analyze` → `/techspec` →
+`/tasks-breakdown` → `/implement-task` (verify-task gates inline) →
+`/review-implementation` → `/qa-gates`; bugs/incidents enter via `/bug-investigation` and
+rejoin the chain. `/triage` routes a free-text request.
 
-- **Convergent + stateful** — `review-artifact`, `bug-investigation` (M-path),
-  `qa-loop`/`review-checkpoint`: run the **parallel independent passes** the
-  same way (named subagents). The **multi-round re-run loop does NOT run
-  autonomously.** `review-artifact`'s canonical file is **frozen for this
-  initiative** — run it **unchanged**: independent reviewer passes → surface the
-  verdict → **the human drives any re-run interactively** (this collapses into
-  the skill's existing "confirm the change set / ask if OK to proceed" steps).
-  Do not emit or consume a headless verdict-runner — that is the deferred,
-  re-homed cc-looper-class effort, not this adapter.
+## How to read the kit's fan-out idiom
 
-- **Small / skip-checked** — `review-artifact` Step-0, small-bug paths:
-  **single-thread**. The skill's own skip-checks already short-circuit these.
+v2 skill bodies say things like *"fan out 1–3 generic reviewer subagents in parallel, then
+consolidate"* — generic workers, no named agent personas. In Cursor:
 
-## Generated orchestrator / executor skills (how to read their bodies)
+- **Parallel generic fan-out** → use Cursor's **native subagent facility** where your build
+  exposes it for ad-hoc spawns; otherwise run the same passes as **independent sequential
+  passes** (fresh perspective each pass, no shared scratch state), then do the skill's own
+  consolidation step. Do **not** write or run an orchestration script for it (the kit owns
+  no fan-out harness, by decision).
+- **Multi-round re-run loops** (e.g. `/review-artifact` re-review after corrections) do
+  **not** run autonomously — surface the verdict and let the human drive any re-run. This
+  collapses into the skill's existing "confirm with the user" steps.
+- **Worker constraints ride in the skill prose** (reviewer count, confidence filters,
+  re-grounding rules) — honor them as written; only the spawning mechanism degrades.
+- **`create a todo list` / phase gates** → use Cursor's plan/todo facility; honor gates as
+  written (e.g. "confidence ≥ 90%" — surface it, do not silently pass).
 
-Cursor deprecated standalone slash-commands (folded into Skills). The kit's
-**5 family orchestrators** (`/full-bug-fix-workflow`, `/integration-feature-dev`,
-`/refactor-techdebt-dev`, `/full-incident-response`, `/greenfield-dev`) and
-**3 per-task executors** (`/implement-task`, `/gf-implement-task`,
-`/implement-bug-fix`) are installed as **generated Cursor skills with
-`disable-model-invocation: true`** — they never auto-trigger; invoke them
-explicitly by `/name` (exactly as you typed `/name` in Claude). The ~25 thin
-per-phase shims are **not** generated — invoke their methodology skill directly.
-
-Their bodies are the canonical command prose verbatim, written in Claude terms.
-Read them with this mapping:
-
-- **`use the X skill` / `the X skill`** → invoke the Cursor skill `X` (same
-  name; skills are auto-discovered, or `/X` explicitly).
-- **`/x` (a slash reference to another step)** → invoke the Cursor skill that
-  owns that step's methodology. For thin per-phase shims the skill name
-  **differs from the command name** — map by methodology, e.g.
-  `/investigate-bug` → `bug-investigation`, `/review-investigation` →
-  `review-artifact`, `/create-roadmap` → `roadmap-creation`,
-  `/create-techspec` → `techspec-creation`, `/analyze-impact` →
-  `impact-analysis`.
-- **`@x-agent`** → the native Cursor subagent `x-agent` (apply the fan-out
-  mapping above).
-- **`create a todo list` / phase gates** → use Cursor's plan/todo facility;
-  honor the gate as written (e.g. "confidence ≥ 90%" — surface it, do not
-  silently pass).
-
-This is *interpretation by instruction*, not a per-file transform — consistent
-with the no-kit-harness decision.
-
-## Subagents: Cursor CLI parity gap (empirically confirmed 2026-05-19)
-
-The 17 agents are generated as native subagents at `~/.cursor/agents/<name>.md`.
-**The Cursor CLI (`cursor-agent`, ≥ `2026.05.09`) does NOT load *user-level*
-`~/.cursor/agents/`** — only *project-level* `.cursor/agents/`. This is a
-Cursor-staff-acknowledged IDE↔CLI parity bug (forum #160426, ack 2026-05-13,
-no fix date). Confirmed on this machine: the 17 do not appear in `cursor-agent`;
-`/create-subagent` itself writes to the *project's* `.cursor/agents/`.
-
-Consequence, by recorded decision (do not "fix" without revisiting):
-
-- **Cursor IDE** reads user-level fine — the 17 work there now.
-- **Cursor CLI** — the 17 are **not** available as subagents until #160426 is
-  fixed (then `~/.cursor/agents/` starts working with zero rework — this is why
-  the adapter still generates it: it is the self-healing path).
-- **For CLI work now**, the kit's fan-out degrades to **invoking the worker's
-  methodology skill by name** (skills are user-level and DO load in the CLI):
-  e.g. instead of the `bug-investigation-agent` subagent, invoke the
-  `bug-investigation` skill. The 3-way explorers likewise invoke their
-  creator/analysis *skills* by name. This is the existing fan-out instruction —
-  no behavioural change, just "skill, not subagent" as the CLI worker unit
-  until the bug clears.
-
-Do **not** generate agents-as-skills or add a per-project `.cursor/agents/`
-bootstrap unless the user asks — the recorded decision is to wait for the
-upstream fix and use the methodology-skill fallback for CLI fan-out meanwhile.
+The v1-era CLI parity gap (forum **#160426**: `cursor-agent` ignores user-level
+`~/.cursor/agents/`) no longer affects the kit — v2 installs nothing there. It only matters
+again if named agent files ever return.
 
 ## Structured user questions (no Cursor `AskUserQuestion` analog)
 
-The kit and the global Claude rule prefer a structured "ask the user" tool.
-Cursor CLI has **no structured multiple-choice tool** [verify: tool surface].
-When a skill — or the clarification rule — calls for it, **degrade to a numbered
-plain-text list** and accept a free-text reply:
+The kit prefers a structured "ask the user" tool. The Cursor CLI has none **[verify: tool
+surface]** — when a skill calls for it, **degrade to a numbered plain-text list** and accept
+a free-text reply:
 
 ```
 Pick one (reply with the number, or describe your own):
@@ -110,23 +58,35 @@ Pick one (reply with the number, or describe your own):
   2. <option> — <one-line implication>
 ```
 
-Keep the question batching/discipline the kit specifies; only the *rendering*
-changes.
+Keep the question batching/discipline the kit specifies; only the *rendering* changes.
 
-## Model pins
+## Model references
 
-ai-kit `agents/*.md` carry Claude model pins (`model: opus|sonnet`). The adapter
-**drops** them when generating Cursor subagents → Cursor uses `model: inherit`
-(the parent conversation's model; only `composer-2.5-fast` is pinnable per the
-CLI). The capability-tier abstraction (vendor-neutral tiers → per-tool model
-map) is a **tracked, deferred follow-up** (Category-2 — edits canonical agent
-files). No action needed in Cursor.
+Claude model names in skill bodies (Opus workers in `/orchestrate`, tier notes) are
+**advisory** — follow `/orchestrate`'s own provider-aware worker table when fanning out;
+otherwise use the session's configured model (Cursor subagents default to `model: inherit`).
+`docs/model-assignments.md` is historical (v1 agent pins; the agents are archived).
 
-## Frozen / out of scope for the adapter
+## Claude-only primitives
 
-- **`review-artifact` is frozen.** It is the quality gate for 4 of 5 workflow
-  families; a broken gate erodes quality silently rather than crashing. Run it
-  from the unchanged file (above). Any verdict-contract refactor is the separate
-  cc-looper-class effort.
-- The adapter is **additive**: it never edits canonical `skills/*/SKILL.md` or
-  `agents/*.md`.
+`/goal`, `/loop`, `/schedule`, `/compact`, plan mode, and the cc-looper loop skills are
+Claude Code / runner facilities with **no Cursor analog**. Where `/triage` routes to a loop
+primitive, treat it as a manual recurrence in Cursor (run the underlying skill each
+iteration). A context reset in Cursor is a new session — the SESSION_LOG handoff discipline
+still applies.
+
+## Anchored feedback loop
+
+`/close` / `/improve` / `/audit-skills` write to the fixed `~/.claude/…` paths
+(observations, improvements, `last-audit.txt`) **even when run from Cursor** — recorded
+decision: the self-improvement loop stays Claude-side and works unchanged when driven from
+another harness. Artifact filenames follow `docs/output-filename-contract.md` regardless of
+harness. **WSL caveat:** `~` resolves to the *WSL* home under `cursor-agent`-in-WSL — if
+your Claude feedback store lives in the Windows home, link the WSL `~/.claude` to it (e.g.
+`ln -s /mnt/c/Users/<you>/.claude ~/.claude`) so observations land in one store, not two.
+
+## Adapter posture
+
+The adapter is **additive**: it never edits canonical `skills/*/SKILL.md`. Sync is
+idempotent; re-run `sync.sh` (dry-run with `--dry-run` first) after the skill population
+changes, then restart `cursor-agent`.

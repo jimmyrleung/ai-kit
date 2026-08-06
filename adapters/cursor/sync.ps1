@@ -1,7 +1,7 @@
 #!/usr/bin/env pwsh
 <#
 .SYNOPSIS
-  ai-kit -> Cursor CLI adapter (Category-1, additive, Claude-untouched).
+  ai-kit -> Cursor CLI adapter (v2 — Category-1, additive, Claude-untouched).
 
 .DESCRIPTION
   Windows-native parity of sync.sh. Makes the single canonical ai-kit source
@@ -13,27 +13,30 @@
   WSL — in that case run sync.sh from inside WSL instead (it targets the WSL
   ~/.cursor). This script is the Windows-native equivalent.
 
-  Verified vs Cursor docs (cursor.com/docs), 2026-05-19. See ./README.md and
-  ../../docs/cursor-portability-assessment.md for the design + decision record.
+  Rewritten 2026-08-06 for the v2 kit (skill-centric refactor). Base mechanics
+  verified vs Cursor docs (cursor.com/docs) 2026-05-19 + live probe; Cursor
+  ships near-daily — re-check [verify] items in README.md after an update.
 
   What it does (NOTHING touches the canonical ai-kit tree; Claude unaffected):
 
-    1. Skills (41) : per-skill directory JUNCTION
-                     $CursorHome\skills\<name> -> <repo>\skills\<name>
-                     (Cursor's native user-level skills root; self-contained,
-                     does NOT depend on the ~/.claude compat root.)
-    2. Orchestr.   : Cursor deprecated standalone slash-commands (folded into
-                     Skills). The ~25 thin shims need nothing (skill already
-                     junctioned). The 5 family ORCHESTRATORS + 3 per-task
-                     EXECUTORS are GENERATED as Cursor skills with
-                     `disable-model-invocation: true` (explicit-only /name,
-                     never auto-triggers). Canonical commands/ untouched.
-    3. Agents (17) : GENERATED as native Cursor subagents at
-                     $CursorHome\agents\<name>.md (name+description+body;
-                     model/tools/color dropped). Cursor has no explicit-only
-                     flag for subagents (auto-delegation governed by the
-                     description) — documented caveat, not a canonical edit.
-    4. AGENTS.md   : prints where to place adapters/cursor/AGENTS.md.
+    1. Skills    : per-skill directory JUNCTION
+                   $CursorHome\skills\<name> -> <repo>\skills\<name>,
+                   for EVERY canonical skill. Cursor's native user-level
+                   skills root; SKILL.md spec identical — no body transform.
+                   This is the ONLY live mechanism in v2.
+    2. Orchestr. : NONE in v2 — every command was archived (skills are
+                   invoked directly as /name). $OrchCmds is empty; the
+                   generation path is retained dormant.
+    3. Agents    : NONE in v2 — the kit-refactor (2026-08) archived all named
+                   agents (generic subagents ride inside skill prose). The
+                   generation path is retained dormant; agents/ absent means
+                   it no-ops. This also moots the #160426 CLI parity gap for
+                   the kit (nothing is installed at ~/.cursor/agents anymore).
+    4. AGENTS.md : prints guidance for activating adapters/cursor/AGENTS.md
+                   (the kit's Cursor-MECHANICS layer). NOT done silently: a
+                   deployed AGENTS.md is the user's PRIVATE conventions layer —
+                   the kit block is pasted at its include point (kit-mechanics
+                   markers), never plain-copied over.
 
 .PARAMETER CursorHome
   Override the Cursor home. Default: $env:CURSOR_HOME, else ~/.cursor.
@@ -63,8 +66,8 @@ $ErrorActionPreference = 'Stop'
 
 $RepoRoot  = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
 $SkillsSrc = Join-Path $RepoRoot 'skills'
-$AgentsSrc = Join-Path $RepoRoot 'agents'
-$CmdSrc    = Join-Path $RepoRoot 'commands'
+$AgentsSrc = Join-Path $RepoRoot 'agents'    # absent in v2 — path retained dormant
+$CmdSrc    = Join-Path $RepoRoot 'commands'  # absent in v2 — path retained dormant
 if (-not $CursorHome -or $CursorHome -eq '') {
   $CursorHome = if ($env:CURSOR_HOME) { $env:CURSOR_HOME } else { Join-Path $HOME '.cursor' }
 }
@@ -73,30 +76,33 @@ $AgentsRoot = Join-Path $CursorHome 'agents'
 $GenMarker  = '.ai-kit-generated'           # sentinel dir-file for generated skills
 
 Write-Host ""
-Write-Host "ai-kit -> Cursor adapter" -ForegroundColor Cyan
+Write-Host "ai-kit -> Cursor adapter (v2)" -ForegroundColor Cyan
 Write-Host ("  repo        : {0}" -f $RepoRoot)
 Write-Host ("  cursor home : {0}" -f $CursorHome)
 Write-Host ("  skills root : {0}" -f $SkillsRoot)
-Write-Host ("  agents root : {0}" -f $AgentsRoot)
 Write-Host ("  mode        : {0}" -f $(if ($WhatIf) {'DRY RUN (-WhatIf)'} else {'apply'}))
 Write-Host ""
 
 if (-not (Test-Path $SkillsSrc)) { throw "canonical skills dir not found: $SkillsSrc" }
-foreach ($r in @($SkillsRoot, $AgentsRoot)) {
-  if (-not (Test-Path $r)) {
-    if ($WhatIf) { Write-Host "would create: $r" } else { New-Item -ItemType Directory -Path $r -Force | Out-Null }
-  }
+if (-not (Test-Path $SkillsRoot)) {
+  if ($WhatIf) { Write-Host "would create: $SkillsRoot" } else { New-Item -ItemType Directory -Path $SkillsRoot -Force | Out-Null }
 }
 
 $results = [System.Collections.Generic.List[object]]::new()
 function Add-Result($name, $kind, $status, $note) {
   $results.Add([pscustomobject]@{ Name=$name; Kind=$kind; Status=$status; Note=$note })
 }
-function Test-Reparse($path) {
-  if (-not (Test-Path $path)) { return $false }
-  return ((Get-Item $path -Force).Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0
+# Get-Item -Force succeeds on a reparse point even when its TARGET is gone —
+# unlike Test-Path, which resolves through it and false-negatives on dangling
+# junctions. Use these for existence/reparse checks on link paths.
+function Test-Entry($path) {
+  try { $null = Get-Item -LiteralPath $path -Force -ErrorAction Stop; return $true } catch { return $false }
 }
-function Get-ReparseTarget($path) { try { return (Get-Item $path -Force).Target } catch { return $null } }
+function Test-Reparse($path) {
+  try { $item = Get-Item -LiteralPath $path -Force -ErrorAction Stop } catch { return $false }
+  return ($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0
+}
+function Get-ReparseTarget($path) { try { return (Get-Item -LiteralPath $path -Force).Target } catch { return $null } }
 function Read-Frontmatter($mdPath) {
   $raw = Get-Content -Raw -LiteralPath $mdPath
   $m = [regex]::Match($raw, '(?s)^---\r?\n(.*?)\r?\n---\r?\n?(.*)$')
@@ -111,10 +117,10 @@ function Read-Frontmatter($mdPath) {
 # YAML double-quoted scalar escaping.
 function Esc-Yaml($s) { return ($s -replace '\\','\\' -replace '"','\"') }
 
-# --- 1. Skills: per-skill directory junctions -----------------------------
+# --- 1. Skills: per-skill directory junctions (the only live v2 mechanism) -
 foreach ($s in (Get-ChildItem $SkillsSrc -Directory | Sort-Object Name)) {
   $name = $s.Name; $link = Join-Path $SkillsRoot $name; $tgt = $s.FullName
-  if (Test-Path $link) {
+  if (Test-Entry $link) {
     if (Test-Reparse $link) {
       $cur = Get-ReparseTarget $link
       if ($cur -and ((Resolve-Path $cur -ErrorAction SilentlyContinue).Path -eq $tgt)) {
@@ -132,12 +138,11 @@ foreach ($s in (Get-ChildItem $SkillsSrc -Directory | Sort-Object Name)) {
   Add-Result $name 'skill' 'linked' 'junction created'
 }
 
-# --- 2. Orchestrators/executors -> generated explicit-only Cursor skills ---
-$OrchCmds = @(
-  'full-bug-fix-workflow','integration-feature-dev','refactor-techdebt-dev',
-  'full-incident-response','greenfield-dev',
-  'implement-task','gf-implement-task','implement-bug-fix'
-)
+# --- 2. Orchestrators/executors: NONE in v2 (dormant) ----------------------
+# v1 generated 8 command-bodied skills here. All commands are archived; the
+# allowlist is empty by design. Repopulate only if a command with a body no
+# junctioned skill owns ever returns.
+$OrchCmds = @()
 foreach ($cn in $OrchCmds) {
   $cf = Join-Path $CmdSrc "$cn.md"
   if (-not (Test-Path $cf)) { Add-Result $cn 'orch' 'error' "commands/$cn.md not found"; continue }
@@ -146,7 +151,7 @@ foreach ($cn in $OrchCmds) {
     Add-Result $cn 'orch' 'error' 'missing description frontmatter'; continue
   }
   $dest = Join-Path $SkillsRoot $cn
-  if ((Test-Path $dest) -and -not (Test-Path (Join-Path $dest $GenMarker)) -and -not (Test-Reparse $dest)) {
+  if ((Test-Entry $dest) -and -not (Test-Path (Join-Path $dest $GenMarker)) -and -not (Test-Reparse $dest)) {
     Add-Result $cn 'orch' 'skip' 'name exists and is not kit-generated — left untouched'; continue
   }
   if ($WhatIf) { Add-Result $cn 'orch' 'would-gen' "Cursor skill <- commands/$cn.md"; continue }
@@ -157,7 +162,7 @@ foreach ($cn in $OrchCmds) {
   Add-Result $cn 'orch' 'generated' "explicit-only /$cn"
 }
 
-# --- 3. Agents -> generated native Cursor subagents -----------------------
+# --- 3. Agents: NONE in v2 (dormant — agents/ absent means no-op) ----------
 if (Test-Path $AgentsSrc) {
   foreach ($a in (Get-ChildItem $AgentsSrc -Filter '*.md' | Sort-Object Name)) {
     $parsed = Read-Frontmatter $a.FullName
@@ -169,6 +174,7 @@ if (Test-Path $AgentsSrc) {
       Add-Result $name 'agent' 'skip' 'name exists and is not kit-generated — left untouched'; continue
     }
     if ($WhatIf) { Add-Result $name 'agent' 'would-gen' "Cursor subagent <- agents/$($a.Name)"; continue }
+    if (-not (Test-Path $AgentsRoot)) { New-Item -ItemType Directory -Path $AgentsRoot -Force | Out-Null }
     # name+description only (model/tools/color dropped -> Cursor model:inherit).
     $out = "---`nname: $name`ndescription: `"$(Esc-Yaml $parsed.Fm['description'])`"`n---`n" +
            "<!-- ai-kit-generated: source: agents/$($a.Name) — do not hand-edit -->`n`n" +
@@ -178,24 +184,29 @@ if (Test-Path $AgentsSrc) {
   }
 }
 
-# --- 4. AGENTS.md hint ----------------------------------------------------
+# --- 4. AGENTS.md hint (never silent) --------------------------------------
 $agentsMdSrc = Join-Path $PSScriptRoot 'AGENTS.md'
 Write-Host ""
 Write-Host "AGENTS.md (Cursor instruction layer)" -ForegroundColor Cyan
 if (Test-Path $agentsMdSrc) {
-  Write-Host "  Cursor reads project-root AGENTS.md + CLAUDE.md as rules; global"
-  Write-Host "  read-location is [verify on installed binary]. Place per project:"
-  Write-Host ("    cmd /c mklink `"<your-project>\AGENTS.md`" `"{0}`"   # or copy" -f $agentsMdSrc) -ForegroundColor Yellow
-  Write-Host "  NOTE: kit Cursor-MECHANICS layer only. Your personal ~/.claude/CLAUDE.md" -ForegroundColor Yellow
-  Write-Host "  conventions (confidence scoring, ask-before-assuming, scope discipline," -ForegroundColor Yellow
-  Write-Host "  read-before-edit, verification-before-completion, risky-command confirm)" -ForegroundColor Yellow
-  Write-Host "  do NOT transfer. Mirror them into a PRIVATE AGENTS.md yourself (keep it" -ForegroundColor Yellow
-  Write-Host "  out of this public repo) — see adapters/cursor/README.md." -ForegroundColor Yellow
+  Write-Host "  Cursor reads project-root AGENTS.md + CLAUDE.md as rules; a global"
+  Write-Host "  read-location is [verify on installed binary]. DO NOT plain-copy the"
+  Write-Host "  kit file over a deployed AGENTS.md: that file is the user's PRIVATE"
+  Write-Host "  conventions layer. After editing the kit file, refresh ONLY the block"
+  Write-Host "  between its kit-mechanics markers at the include point:"
+  Write-Host ("    source : {0}" -f $agentsMdSrc) -ForegroundColor Yellow
+  Write-Host "    target : your private AGENTS.md  (between <!-- kit-mechanics:begin/end -->)" -ForegroundColor Yellow
+  Write-Host "  Project-scope also works: copy/link the kit file into the project root."
+  Write-Host "  NOTE: your personal ~/.claude/CLAUDE.md conventions do NOT transfer —" -ForegroundColor Yellow
+  Write-Host "  mirror them into a PRIVATE AGENTS.md yourself (keep it out of this" -ForegroundColor Yellow
+  Write-Host "  public repo) — see adapters/cursor/README.md." -ForegroundColor Yellow
 } else {
   Write-Host "  (adapters/cursor/AGENTS.md missing — run from a complete checkout)" -ForegroundColor Red
 }
 
-# --- Prune (report-only unless -Force) ------------------------------------
+# --- Prune (report-only unless -Force) --------------------------------------
+# Enumerated with -Force so junctions whose targets are gone (e.g. skills that
+# moved to archive/v1) are seen and pruned too.
 if ($Prune) {
   Write-Host ""
   Write-Host "Prune (kit-owned orphans)" -ForegroundColor Cyan
@@ -224,15 +235,15 @@ if ($Prune) {
   }
 }
 
-# --- Summary --------------------------------------------------------------
+# --- Summary ----------------------------------------------------------------
 Write-Host ""
 Write-Host "Summary" -ForegroundColor Cyan
 $results | Sort-Object Kind, Name | Format-Table -AutoSize Kind, Name, Status, Note
 $bad = @($results | Where-Object { $_.Status -in @('error','conflict') })
-Write-Host ("skills+orchestrators+agents exposed: {0}   issues: {1}" -f $results.Count, $bad.Count)
+Write-Host ("skills exposed: {0}   issues: {1}" -f $results.Count, $bad.Count)
 if ($bad.Count -gt 0) {
   Write-Host "Issues are reported, not auto-fixed (a canonical edit is Category-2)." -ForegroundColor Yellow
   exit 1
 }
-Write-Host "Restart cursor-agent to pick up new skills/subagents." -ForegroundColor Green
+Write-Host "Restart cursor-agent to pick up new skills." -ForegroundColor Green
 exit 0
