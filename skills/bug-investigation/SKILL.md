@@ -73,6 +73,7 @@ The investigation must give a review pass everything it needs to validate your f
 - **Proposed solution** — specific `file:line` references, the minimal change described (not coded), why it fixes the root cause.
 - **Alternative approaches considered** — if any.
 - **Impact assessment preview** — files affected, tests needed, potential side effects.
+- **Incident additions** (incident lens only): **Incident timeline** — the correlated event sequence with timestamps (error onset vs deploys, config changes, traffic shifts — the correlation evidence the lens gathered, laid out for `/post-mortem` to build on) · **Scope of impact** — affected users / services / data and duration, derived from the evidence, not estimated · **Hypotheses ruled out** — each with the evidence that ruled it out (this list is what stops a war room re-litigating dead ends).
 
 ### What this investigation IS / IS NOT
 

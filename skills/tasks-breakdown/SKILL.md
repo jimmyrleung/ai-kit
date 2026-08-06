@@ -27,7 +27,7 @@ Detect from the request and inputs; **echo the detected mode + resolved `{work_n
 | Mode | Signal | Lens |
 |---|---|---|
 | **integration** | Feature into an existing codebase (default) | Core contract below |
-| **greenfield** | Slice of a new project with a PRD | Vertical ordering + anti-scaffolding guards |
+| **greenfield** | Slice of a new project with a PRD or an analysis carrying a `## Slice requirement` | Vertical ordering + anti-scaffolding guards |
 | **refactor** | Restructuring existing behavior, no new capability | Safety sequencing + per-task risk & rollback |
 
 Orthogonal **spec carrier**: techspec-backed (default) or **spec-carrying** (no techspec; the tasks doc embeds the locked design).
@@ -74,7 +74,7 @@ For small, well-understood work backed by a verified exploration (plan mode, a r
 
 ### greenfield (vertical ordering)
 
-Order so each task moves the slice's user-observable behavior closer to demoable — never setup → core → polish. Each task carries a **"Why this task is on the list"** line naming the behavior it moves forward; if you can't write that line, the task is wrong. Unavoidable infrastructure: the smallest that supports the next observable task, bundled with it ("scaffold + render hello-world" beats two tasks); setup exceeding ~25% of the slice estimate means the slice is too ambitious. **Reject:** Phase 1/2/3 ordering · setup tasks with no observable touch · testing-only tasks at the end (tests live with the behavior they lock; a final e2e smoke task is the one exception) · polish tasks (needed for done-when → not polish) · doc tasks the PRD didn't ask for. **Slice-close cross-check:** every Done-when box in the slice PRD has a task that makes it pass.
+Order so each task moves the slice's user-observable behavior closer to demoable — never setup → core → polish. Each task carries a **"Why this task is on the list"** line naming the behavior it moves forward; if you can't write that line, the task is wrong. Unavoidable infrastructure: the smallest that supports the next observable task, bundled with it ("scaffold + render hello-world" beats two tasks); setup exceeding ~25% of the slice estimate means the slice is too ambitious. **Reject:** Phase 1/2/3 ordering · setup tasks with no observable touch · testing-only tasks at the end (tests live with the behavior they lock; a final e2e smoke task is the one exception) · polish tasks (needed for done-when → not polish) · doc tasks the PRD didn't ask for. **Slice-close cross-check:** every Done-when box in the slice requirement (the user's PRD, or the analysis's `## Slice requirement`) has a task that makes it pass.
 
 ### refactor (safety sequencing)
 

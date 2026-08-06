@@ -44,7 +44,12 @@ Scan *this session's* context — only what's actually relevant; ignore noise �
   `~/.claude/ownership/{topic}/`), scan it for records flagged `status: ai-drafted · UNREVIEWED`
   (captured this session or earlier via `/record-decision`). For each, offer to review now: the human
   owns the **Rationale** (rewrites or confirms it), then flip
-  the flag to `status: owned`. Never auto-own them — an unreviewed AI draft is not an ADR. Conversely,
+  the flag to `status: owned`. **Staleness escalation:** a record still UNREVIEWED after ~3 closes
+  (or ~a month — judge from its date) gets called out by name with its age, not re-listed neutrally:
+  a capture→own pipeline where nothing ever gets owned is just a drafts folder. Offer the fork
+  explicitly — own it now (2 minutes, the rationale is going stale), or consciously demote it
+  (delete, or mark `status: parked` with a one-line why). Never let the backlog scroll by silently.
+  Never auto-own them — an unreviewed AI draft is not an ADR. Conversely,
   if a load-bearing session decision deserves a standalone record it doesn't yet have, offer to capture
   it via `/record-decision`.
 - **Learnings / surprises / inefficiencies** — gotchas discovered; "this cost me 20 min because X";

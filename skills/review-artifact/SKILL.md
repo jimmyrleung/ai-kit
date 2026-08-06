@@ -34,7 +34,7 @@ Skip the review (say so and stop) **only if ALL** hold: the work item is small/i
 
 ### 1 — Launch reviewers
 
-Launch 1–3 **generic** subagents (there are no named reviewer agents to maintain) to review whether the artifact is accurate and complete, handing each the artifact + support docs. With 2–3 reviewers: make lanes explicitly non-overlapping, name which lane owns the highest-stakes part, and make at least one **layer-scoped** (trace one end-to-end path through the artifact's subject — request → handler → store, or equivalent) rather than dimension-scoped — lived runs put both criticals in the layer-scoped lane. Brief each lane with the hypothesized failure mode **and an explicit invitation to refute it**. Reviewer constraints (verbatim):
+Launch 1–3 **generic** subagents (there are no named reviewer agents to maintain) to review whether the artifact is accurate and complete, handing each the artifact + support docs. With 2–3 reviewers: make lanes explicitly non-overlapping, name which lane owns the highest-stakes part, and make at least one **layer-scoped** (trace one end-to-end path through the artifact's subject — request → handler → store, or equivalent) rather than dimension-scoped — lived runs put both criticals in the layer-scoped lane. Brief each lane with the hypothesized failure mode **and an explicit invitation to refute it**. **P1 dial:** reviewing a P1 incident investigation while the incident is live → one reviewer on the tightest lane (root cause + proposed fix only) — speed beats exhaustiveness, matching the investigation's own streamlined ≥ 70% gate; full review depth returns with `/post-mortem` after resolution. Reviewer constraints (verbatim):
 
 - "Put extra effort on the highest-stakes parts (root cause / proposed solution / integration points / scope boundaries / risk assessment — whichever apply)."
 - "Establish a confidence score (0–100%) for the doc."
@@ -51,6 +51,8 @@ Alongside the reviewer findings, apply the lens for what's under review yourself
 
 - **Over-specification red flags (flag for removal):** function signatures / class definitions · algorithms or pseudocode · detailed error-handling logic · step-by-step implementation instructions · API request/response schemas · migration scripts · > 2 lines of code in an example. *(For an investigation: a fix proposal that has become a refactor plan or implementation code.)*
 - **Under-specification red flags (flag for addition):** vague statements ("update the component" — which? what change?) · missing `file:line` references · no similar-feature / pattern pointers · reusable utilities not identified. *(For an investigation: an `ASSUMED` load-bearing hop in the trace, a root cause without a falsifier, an absence claim without the probe that produced it.)*
+- **Narrative-integrity red flags (investigations / diagnoses):** cherry-picked evidence — data selected to fit the narrative while contradictory evidence goes unmentioned (ask: what observation would *disconfirm* this, and was it looked for?) · circular reasoning in a 5-Whys chain (a "why" that restates the symptom instead of descending a level) · a timeline with unexplained gaps around the causal window.
+- **Scope-integrity red flag (refactor-flavored docs):** "while we're at it" creep — work items inside the doc that sit beyond its own stated scope boundary; flag each for explicit inclusion or removal, never let them ride silently.
 
 **Techspec — contract check** (committed blueprint, per the `techspec` skill's section contract):
 

@@ -186,6 +186,21 @@ one without a `# deliberate-asymmetry: <reason>` comment in the others → FAIL.
 `go.mod` for the SDK the techspec pins; confirm the version matches. No pin → note "no version
 pinned (acceptable)".
 
+**3d — release readiness (change-class dependent).** When the diff ships an API / schema /
+contract change or touches auth, payments, or a hot path: **back-compat** verified
+bidirectionally (enumerate consumers of the changed surface — grep, not assumed);
+**rollback** documented (the techspec's rollback section exists and names its triggers);
+**security implications** stated (input validation at new trust boundaries; no secrets in the
+diff — the sibling of Gate 0's untracked-secret sweep). Change class doesn't apply → skip with reason.
+
+**3e — perf/regression (repo-local).** Perf baselines and regression suites are repo-specific —
+this gate never invents generic thresholds. Check for a repo-local perf/regression skill
+(`.claude/skills/`, or the repo's rules index). Present → run its checks as this sub-check.
+Absent while the change touches a perf-sensitive surface (hot path, DB query shape, caching,
+payload size — or the techspec's test plan flags perf scenarios) → record
+`skipped — no repo-local perf skill (gap flagged)` and suggest minting one at `/close`
+(repo-local skill pair). Not perf-sensitive → "skipped — not applicable".
+
 Record one line per sub-check; a sub-check the spec didn't anticipate → "skipped — not applicable" + a one-line reason.
 
 ### Gate 4 — Docs consistency
@@ -210,6 +225,10 @@ Present the `## QA` artifact to the user. Confirm every prior gate is either `pa
 - **Yes, tree committed** → record the go decision in the gate-line; hand back to `next_step`.
 - **Yes, tree dirty** → record `GO, conditional on commit` — name the pending commit
   (post-final-review, batched with the QA artifact) in the gate-line; hand back to `next_step`.
+- **Yes, modulo ops** → record `go-modulo-ops: <pending item>` when the code verdict is GO and
+  the only open items sit outside the code's control (a prod DBA sign-off, an ops deployment
+  window, an external approval). The pending item is named in the gate-line and tracked to
+  closure — it is never counted as a code failure, and never silently dropped.
 - **No** → ask what to address; loop the failed gate.
 
 If no `## Review` block (review-implementation) covers the verified tree, record **go-with-caveat:

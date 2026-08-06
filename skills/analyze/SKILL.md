@@ -36,7 +36,7 @@ Mixed work ("add X and clean up Y while there") → pick the dominant mode, note
 
 Accept whatever the invocation provides and resolve before starting:
 
-- **Work description** — a file the user wrote, inline prose, or a short pointer ("the export feature"). Too thin to survive the clarification step → ask.
+- **Work description** — a file the user wrote (shapes, if you want one: `templates/feature-addition/feature-template.md` for a feature, `templates/refactoring-tech-debt/refactor-template.md` for a refactor), inline prose, or a short pointer ("the export feature"). Too thin to survive the clarification step → ask.
 - **`{work_name}`** — derive from the description's filename; else propose one from the topic and confirm.
 - **Codebase access** — you read actual code. > ~1000 files → ask for starting points. Greenfield: no code to read; the inputs are the product idea + constraints.
 
@@ -73,6 +73,7 @@ The core process and output shape ARE the integration lens — nothing extra.
 ### greenfield
 There is no current state to map, so the map is the **proposed starting shape** — still reference-level, not a design:
 - **First vertical slice** — the smallest user-observable behavior to build first. The goal must be user-observable ("user can Y"), never "set up X".
+- **Slice requirement (the PRD stand-in)** — when the user hasn't written a PRD, the analysis carries the requirement contract downstream skills read, as a `## Slice requirement` section: the slice goal (user-observable, one sentence) · **Done-when** — checkboxes of specific, testable acceptance criteria (including error/empty-state handling) · **Building on** — the existing code / prior slices this slice builds on ("nothing — first slice" is a valid answer) · the constraints that bind THIS slice only. Requirement-level, not design: *what* done looks like, never *how*. A user-written PRD supersedes this section — link it instead of duplicating (full-product shape: `templates/greenfield-dev/product_requirement_template.md`). `techspec` and `tasks-breakdown` read **Done-when** and **Building on** by name.
 - **Deliberately NOT building yet** — deferred capabilities, each with what would earn it a place.
 - **Anti-scaffolding guards (reject in the doc):** horizontal layers before a slice demands them (logging pipelines, middleware stacks, CI/CD polish, monitoring, performance/security sections) · "set up X" framed as a goal · success metrics with baselines.
 - **Proposed structure** — directories / modules + the conventions to adopt, pointing at ecosystem-standard examples, not class designs.
