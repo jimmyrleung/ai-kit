@@ -72,8 +72,8 @@ Slash commands users invoke from Claude Code. Grouped by workflow family. Orches
 
 | Command                             | Role                                                          |
 | ----------------------------------- | ------------------------------------------------------------- |
-| `/qa-gates`                         | Verify implementation against spec (5 gates). Use `prefix=…`. |
-| `/implementation-quality-assurance` | Back-compat alias for `/qa-gates`                             |
+| `/qa-gates`                         | **Incorporated into the `qa-gates` skill** (2026-08-05): pre-work prior-review check folded into Gate 0, loose target input; archived. Skill invoked directly as `/qa-gates`. |
+| `/implementation-quality-assurance` | **Alias retired** (2026-08-05) — older subset of the `/qa-gates` shim (no review-skip logic, dead `@code-reviewer-agent` fan-out); nothing unique to absorb; archived. |
 
 ## Meta
 

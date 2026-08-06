@@ -1,6 +1,6 @@
 ---
 name: qa-gates
-description: "Verify an implementation against its spec — 5 pass/fail gates (build/test, AC checklist, cross-cutting invariants, docs consistency, human go/no-go). Each gate is a tool call with a recorded pass or a specific failure; skipping a gate is visibly missing in the artifact, not hidden in chat. Use to verify, validate, or QA a finished implementation. Invoked as `/qa-gates prefix=…` (back-compat alias: `/implementation-quality-assurance`) after every task for a prefix has been implemented. Per-task version: `verify-task` (same gates, narrower inputs)."
+description: "Verify an implementation against its spec — 5 pass/fail gates (build/test, AC checklist, cross-cutting invariants, docs consistency, human go/no-go). Each gate is a tool call with a recorded pass or a specific failure; skipping a gate is visibly missing in the artifact, not hidden in chat. Use to verify, validate, or QA a finished implementation, after every task for a prefix is implemented. Accepts a loose target: a prefix, a doc path, or a short description — it resolves the rest. Invoke as /qa-gates. Per-task version: verify-task (same gates, narrower inputs)."
 ---
 
 <!-- intentionally-long: documents all 5 gates verbatim — each gate is a procedural primitive the agent must execute exactly. Tier 2.4 spec explicitly chose inline-verbatim over reference-loaded gates because the gate bodies are short and load-once on entry. -->
@@ -8,36 +8,37 @@ description: "Verify an implementation against its spec — 5 pass/fail gates (b
 # QA Gates — implementation verification
 
 You verify an implementation against its spec by running 5 gates in order, each producing a
-pass or a specific failure. The artifact is a `## QA` section in the existing review/QA doc
-the prefix already owns. You do NOT review the code (`/review-implementation`'s batched
-reviewer fan-out handles that *before* you run); you verify the *outcome*.
+pass or a specific failure; the artifact is a `## QA` section in the review/QA doc the prefix
+owns. You do NOT review code (`/review-implementation` runs *before* you); you verify *outcome*.
 
-## Inputs the caller must provide (in the invoking message)
+## Inputs
 
-| Input | Required | Example | Notes |
-|---|---|---|---|
-| `prefix` | yes | `auth_oauth_feature` | The feature/bugfix/refactor identifier. Source docs at `{prefix}_*.md`. |
-| `gates_to_run` | no (default `all`) | `build,ac,cross-cutting` | Subset for partial checks (used by `verify-task`). |
-| `mode` | no (default `full`) | `streamlined` | `streamlined` skips the docs gate (P1-incident fast path). |
-| `confidence_gate` | no (default `90`) | `70` (P1) | Per-gate min confidence to count as pass without review. |
-| `artifact_path` | no (default = derive) | `auth_oauth_feature_techspec.md` | Doc to append the `## QA` section to. Derive from prefix if not given. |
-| `gate_plan_pre_written` | no (default `false`) | `true` | `true` = caller already wrote the gate-plan block (e.g. `verify-task` writes its own `## Verify — {date}` header + 3-line plan in its Step 0). Gate 0 then skips the header / plan write but still appends gate-result lines under the existing plan. |
-| `next_step` | yes | `Declare done — merge / hand back to orchestrator` | Where to hand back when all gates pass. |
+Accepts a loose target: a prefix (`auth_oauth_feature`), a doc path, or a short description
+("QA the oauth work"). Resolve it to `prefix` + `artifact_path` (the review/QA doc the prefix
+owns — derive from the `{prefix}_*.md` siblings), echo the resolution back, and proceed; ask
+only when the target is genuinely ambiguous (two prefixes match, or none does).
 
-If a required input wasn't supplied, ask the caller (or the user) for it before starting.
+Composed callers (e.g. `verify-task`) pass explicit `prefix` / `artifact_path` and override these defaults:
+
+| Input | Default | Notes |
+|---|---|---|
+| `gates_to_run` | `all` | Subset for partial checks (`verify-task`: `build,ac,cross-cutting`). |
+| `mode` | `full` | `streamlined` skips the docs gate (P1-incident fast path). |
+| `confidence_gate` | `90` | Per-gate min confidence to count as pass without review. |
+| `gate_plan_pre_written` | `false` | `true` = caller already wrote the gate-plan block with its own header (e.g. `verify-task`'s `## Verify — {date}` + 3-line plan). Gate 0 then skips the header / plan write but still appends gate-result lines under the existing plan. |
+| `next_step` | `Declare done — merge / hand back` | Where to hand back when all gates pass. |
 
 ## Artifact convention
 
-Append a `## QA` section to `artifact_path` (in place — no new file). Same `review-artifact`
-"`## Review`" convention. One date-stamped block per run. Each gate is one line.
-
-Stamp the `## QA — {date}` header with the commit/tree it verified: `(verified at: <short-sha>[ +dirty])`.
-A gate result without the hash can silently outlive the tree it tested (a later stash/rework broke
-the build while the QA block still asserted green). **Commit lifecycle (prefix-close):** gates run
+Append a `## QA` section to `artifact_path` (in place — no new file; same `review-artifact`
+`## Review` convention). One date-stamped block per run; each gate is one line. Stamp the
+`## QA — {date}` header with the tree it verified: `(verified at: <short-sha>[ +dirty])` — an
+unhashed gate result can silently outlive the tree it tested (a later stash/rework broke the
+build while the QA block still asserted green). **Commit lifecycle (prefix-close):** gates run
 on the tree as-is — a commit is NOT required first (the user reviews before committing; the
-`+dirty` stamp protects a QA block from outliving its tree). Gate 1 records committed-state
-informationally; a dirty tree at Gate 5 yields `GO, conditional on commit`, with the QA-artifact
-commit batched alongside the implementation commit after the user's final review.
+`+dirty` stamp protects the block). Gate 1 records committed-state informationally; a dirty
+tree at Gate 5 yields `GO, conditional on commit`, with the QA-artifact commit batched
+alongside the implementation commit after the user's final review.
 
 ## Procedure
 
@@ -59,6 +60,14 @@ config) becomes a Gate 3 line-item; any **migration / seed / fixture / stored-pr
 diff** forces Gate 1's executed-run branch **even if the techspec's test commands don't mention
 it** — the 2026-07-16 seed failure shipped prod-wrong values precisely because gate scope came
 from the techspec alone.
+
+**Prefix-close only — prior-review check.** Look for a `## Review — {date}` block (from
+`/review-implementation`) whose `(reviewed at: <sha>[ +dirty])` stamp covers the current tree
+(same sha; a dirty delta consisting only of doc/QA bookkeeping still counts). Covered → record
+the pointer (`Pre-work — code review: covered by ## Review — {date} (reviewed at <sha>)`) and
+let its open `follow-up` findings surface at Gate 5. Not covered → suggest running
+`/review-implementation` first; if the user proceeds anyway, Gate 5 records `go-with-caveat:
+unreviewed`. Never run a reviewer fan-out here — review is `/review-implementation`'s job.
 
 **If `gate_plan_pre_written: true`**: the caller (e.g. `verify-task`) has already written the
 gate-plan block (with its own header — `## Verify — {date}` for per-task callers) at
@@ -142,18 +151,17 @@ working tree. Record one of:
 - [~] Gate 1 — committed: no (working tree only, verified at <sha>+dirty — pending user final review + commit)
 ```
 
-Uncommitted work is the user's normal review-then-commit flow, **not a no-go** — never fail or
-block a gate on it. The safeguard against "authored but never shipped" (uncommitted edits
-masquerading as merged work) lives in Gate 5's conditional GO + the `+dirty` stamp.
+Uncommitted work is the user's normal review-then-commit flow, **not a no-go** — never fail a
+gate on it; the "authored but never shipped" safeguard lives in Gate 5's conditional GO + the
+`+dirty` stamp.
 
 ### Gate 2 — AC checklist (per-AC sub-gates)
 
 For each AC line extracted in Gate 0:
 
-- **Testable AC** (a verifiable behaviour the build/test gate already covers) — point at the
-  test that proves it. Pass = test exists and passed in Gate 1.
+- **Testable AC** — point at the test that proves it; pass = test exists and passed in Gate 1.
 - **Code-level AC** ("uses the existing auth middleware", "no new database index") — run a
-  targeted `Grep` / `Read` and record file:line evidence.
+  targeted `Grep` / `Read`; record file:line evidence.
 - **Manual AC** (UI behaviour, copy, animation) — ask the user; record their confirm.
 
 Record one line per AC:
@@ -175,11 +183,10 @@ one without a `# deliberate-asymmetry: <reason>` comment in the others → FAIL.
 "orchestrator stays ≤ 60 lines"), `Bash` `wc -l` and compare.
 
 **3c — SDK / framework version.** `Grep` `package.json` / `requirements.txt` / `Gemfile.lock` /
-`go.mod` for the SDK the techspec pins; confirm version matches. If the techspec doesn't pin
-one, note "no version pinned (acceptable)".
+`go.mod` for the SDK the techspec pins; confirm the version matches. No pin → note "no version
+pinned (acceptable)".
 
-Record one line per sub-check. If any sub-check is project-specific in a way the spec didn't
-anticipate, note "skipped — not applicable" with a one-line reason.
+Record one line per sub-check; a sub-check the spec didn't anticipate → "skipped — not applicable" + a one-line reason.
 
 ### Gate 4 — Docs consistency
 
@@ -190,12 +197,10 @@ For each sibling doc in the prefix folder (`{prefix}_analysis.md`, `{prefix}_tec
 - are file paths / function names / API signatures in the doc consistent with what shipped?
 - if the prefix has a `tasks.md`, are all tasks marked Done?
 
-Failures here are usually "the docs are stale relative to the implementation" — resolution is
-to update the docs (the global CLAUDE.md "Spec & doc updates" rule). **Propose the diff and
-let the user approve** — do not silently rewrite the docs.
-
-Skip this gate if `mode == streamlined` (P1-incident fast path; the post-mortem covers it later).
-Record as `skipped (streamlined)`.
+Failures here are usually stale docs — update them (the global CLAUDE.md "Spec & doc updates"
+rule); **propose the diff and let the user approve**, never silently rewrite. If
+`mode == streamlined` (P1 fast path; the post-mortem covers it later): skip this gate and
+record `skipped (streamlined)`.
 
 ### Gate 5 — Human go/no-go
 
@@ -203,8 +208,8 @@ Present the `## QA` artifact to the user. Confirm every prior gate is either `pa
 `accepted with a recorded reason`. Ask: ship it?
 
 - **Yes, tree committed** → record the go decision in the gate-line; hand back to `next_step`.
-- **Yes, tree dirty** → record `GO, conditional on commit` — the pending commit (post-final-review,
-  batched with the QA artifact) is named in the gate-line for `/improve` to audit. Hand back to `next_step`.
+- **Yes, tree dirty** → record `GO, conditional on commit` — name the pending commit
+  (post-final-review, batched with the QA artifact) in the gate-line; hand back to `next_step`.
 - **No** → ask what to address; loop the failed gate.
 
 If no `## Review` block (review-implementation) covers the verified tree, record **go-with-caveat:
@@ -214,36 +219,32 @@ The LLM doesn't decide go; the user does, with the gate report in front of them.
 
 ## Observation write
 
-For each gate (1-5), append one entry to the session-scoped observation buffer so `/close`
-picks it up at session end (Tier 1.3 contract — written to
-`~/.claude/observations/{YYYY-MM-DD}-{slug}.md`):
-
-Use the canonical schema from `~/.claude/observations/README.md` — numbered `### Observation N:`
-headings with the standard fields (project, skill_or_workflow: qa-gates, phase/area: gate-{id},
-outcome, friction_observed + tag, would_have_helped, improvement_suggestion, principle). Do NOT
-emit bare key-value blocks — a run that did produced a file carrying two schemas. Batch the 5
-gates into as few observations as their content warrants (a clean run can be one observation
-listing the gate outcomes; each fail/accepted gate gets its own).
+Append gate observations to the session-scoped buffer so `/close` picks them up at session end
+(Tier 1.3 contract, `~/.claude/observations/{YYYY-MM-DD}-{slug}.md`). Use the canonical schema
+from `~/.claude/observations/README.md` — numbered `### Observation N:` headings with the
+standard fields (project, skill_or_workflow: qa-gates, phase/area: gate-{id}, outcome,
+friction_observed + tag, would_have_helped, improvement_suggestion, principle); never bare
+key-value blocks (a run that did produced a two-schema file). Batch: a clean run can be one
+observation listing the gate outcomes; each fail/accepted gate gets its own.
 
 ## Halt / acceptance discipline
 
-- **Halt on fail** — do not advance to the next gate while the current one is unresolved.
-- **Accept-with-reason** is the only escape. The `## QA` artifact must carry the reason inline;
-  `/improve` audits accept-rates later.
-- **Skipping a gate is visible** — the gate-plan in Gate 0 lists all 5; an unrecorded gate at
-  end-of-run is a missing checkbox, not a silent omission.
+- **Halt on fail** — do not advance while the current gate is unresolved.
+- **Accept-with-reason** is the only escape; the reason lives inline in the `## QA` artifact
+  (`/improve` audits accept-rates later).
+- **Skipping a gate is visible** — Gate 0's plan lists all 5; an unrecorded gate is a missing
+  checkbox, not a silent omission.
 
 ## When NOT to use qa-gates
 
-- The implementation hasn't happened yet — `qa-gates` verifies outcomes; if there's nothing to
-  verify, you're in the wrong phase.
+- The implementation hasn't happened yet — qa-gates verifies outcomes, not plans.
 - A one-line typo / config tweak — gates are friction in front of trivial work.
-- Doc reviews — that's `review-artifact` (it reviews the *doc*; qa-gates verifies the *implementation*).
-- Code-quality review — that's `/review-implementation` (batched, before gates) or the calling command's pre-work fan-out.
+- Doc reviews — that's `review-artifact` (it reviews the *doc*). Code-quality review — that's
+  `/review-implementation` (batched, before gates; Gate 0 checks for its stamp).
 
 ## Composition
 
-- **`verify-task` (Tier 2.5)** — same gates, narrower inputs (one task's ACs, one task's files,
-  one task's budget). `gates_to_run: build,ac,cross-cutting`; skips docs + human go/no-go.
-- **`/close`** — picks up the 5 observation entries per run; `/improve` clusters gate-fails by
-  `gate-id` later (mechanical clustering, not inference from prose).
+- **`verify-task`** — same gates, narrower inputs (one task's ACs / files / budgets);
+  `gates_to_run: build,ac,cross-cutting`; skips docs + human go/no-go.
+- **`/close`** — picks up the observation entries; `/improve` clusters gate-fails by `gate-id`
+  (mechanical clustering, not inference from prose).

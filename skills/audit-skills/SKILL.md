@@ -156,9 +156,9 @@ skill (> 50 lines of non-frontmatter content in a command file).
 
 ### Check 10 — Naming consistency
 - All skills/commands/agents use kebab-case (no underscores, no camelCase).
-- No `name:` field collides across skills/commands/agents — except a command that wraps the
-  same-named skill (the kit's standard command-wraps-skill pairing, e.g. `/qa-gates` → `qa-gates`
-  skill), which is the intended pattern, not a collision.
+- No `name:` field collides across skills/commands/agents. (Command-wraps-skill pairing was
+  the pre-refactor convention — retired 2026-08-05, no command wrappers; a same-name command
+  today is a finding to surface, not an intended pairing.)
 - No skill name ends in `-skill`; no command name starts with `/` in the name field.
 
 ### Check 11 — Output-doc filename contract

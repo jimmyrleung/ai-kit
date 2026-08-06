@@ -66,6 +66,11 @@ what the surviving siblings *claim about* the retired/changed entity's structure
 checks catch dangling pointers, not stale descriptions of a shape that changed (verify-task
 kept instructing "continue to Workflow 2 — Review" for two weeks after implement-task's
 Workflow 2 was retired; three audit runs missed it because its own references all resolved).
+The sweep also covers **conventions, not just entities**: when a *pattern* is retired (e.g. the
+command-wraps-skill pairing), grep live bodies for it cited as doctrine or example — such
+mentions can consist entirely of live names, so the name sweep never hits them (audit-skills
+Check 10 kept teaching the retired pairing as "the intended pattern" via `/qa-gates → qa-gates`
+— both names live; caught by judgment in audit run 5, third finding of this class).
 
 **Why:** the 2026-08 agent archive silently broke review-implementation and all three cc-looper
 loop review skills (`@code-reviewer-agent` fan-outs) — discovered 5 days later by /audit-skills,
@@ -73,7 +78,8 @@ not by any error. A hand-recalled sweep pattern also missed two of the refs; the
 listing is the authoritative enumeration.
 *(added 2026-08-05 — non-technical-paths consolidation + full audit session; archive-minus-live
 refinement added same day — techspec-consolidation audit run 2; bidirectional refinement added
-same day — implementation-family consolidation, step 5)*
+same day — implementation-family consolidation, step 5; doctrine/convention refinement added
+same day — QA-family consolidation, step 6)*
 
 ## Check new names against built-in CLI commands before choosing them
 
