@@ -1,3 +1,5 @@
+> **DEPRECATED (2026-08-06):** v1 inventory page — live inventory at [`INVENTORY.md`](../../../INVENTORY.md).
+
 # Skills Inventory
 
 Skills are the methodology — each is one `SKILL.md` (some carry a `templates/` subdir). Skills run ad-hoc, or as phases inside an orchestrator command. Grouped by workflow family.

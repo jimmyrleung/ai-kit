@@ -1,3 +1,5 @@
+> **DEPRECATED (2026-08-06):** v1 inventory page — the templates concept was retired entirely (output shapes live inline in the v2 skills). Live inventory: [`INVENTORY.md`](../../../INVENTORY.md).
+
 # Templates Inventory
 
 Document templates copied/filled at the start of a workflow. One folder per workflow family. See the sibling `templates-*.md` files for file-by-file detail of each subfolder.

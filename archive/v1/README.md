@@ -1,3 +1,8 @@
+> [!WARNING]
+> **DEPRECATED (2026-08-06).** This is the **v1** README, kept as the record of the pre-refactor kit
+> (workflow-family commands, named agents, templates). The 2026-08 skill-centric refactor retired that
+> shape. Live kit: [`README.md`](../../README.md) · [`INVENTORY.md`](../../INVENTORY.md).
+
 # ai-kit
 
 A collection of skills, slash commands, agents, and templates for [Claude Code](https://claude.com/claude-code) that codify a disciplined, evidence-based approach to software engineering workflows — feature addition, bug fixing, refactoring, incident response, greenfield projects — plus a self-improving meta-layer that turns session friction into refined skills over time, and an engineering-ownership layer that keeps your own judgment sharp while you lean on AI.

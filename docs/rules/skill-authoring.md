@@ -93,8 +93,8 @@ same day — QA-family consolidation, step 6)*
 
 ## Population changes sync the self-description surfaces in the same step
 
-When a step adds, restores, or archives a skill/command/agent, update the kit's self-description
-surfaces — `INVENTORY/{skills,commands,agents}.md` and the affected `README.md` sections — in that
+When a step adds, restores, or archives a skill, update the kit's self-description
+surfaces — the root `INVENTORY.md` and the affected `README.md` sections — in that
 same step, or record an explicit deferral to a named reconciliation bite. "Done" for a population
 change includes the listings, exactly like the Codex sync.
 

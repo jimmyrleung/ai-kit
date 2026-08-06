@@ -1,3 +1,5 @@
+> **DEPRECATED (2026-08-06):** v1 inventory page — live inventory at [`INVENTORY.md`](../../../INVENTORY.md).
+
 # Commands Inventory
 
 > **Kit-refactor (2026-08-05): all commands except `/tasks-loop` are archived** (`archive/commands/`).

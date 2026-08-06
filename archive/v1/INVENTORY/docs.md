@@ -1,3 +1,5 @@
+> **DEPRECATED (2026-08-06):** v1 inventory page — live inventory at [`INVENTORY.md`](../../../INVENTORY.md).
+
 # Docs Inventory
 
 Reference documentation for the kit. Read these to understand cross-cutting decisions, not to do day-to-day work.

@@ -1,3 +1,7 @@
+> [!WARNING]
+> **DEPRECATED (2026-08-06).** v1 inventory index — the component kinds it covers (commands, agents,
+> templates) were retired by the skill-centric refactor. Live inventory: [`INVENTORY.md`](../../../INVENTORY.md).
+
 # ai-kit Inventory
 
 Quick-reference inventories for every component kind in this repo. Keep open during day-to-day use.

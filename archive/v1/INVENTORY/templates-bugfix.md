@@ -1,3 +1,5 @@
+> **DEPRECATED (2026-08-06):** v1 inventory page — the templates concept was retired. Live inventory: [`INVENTORY.md`](../../../INVENTORY.md).
+
 # Bugfix Templates Inventory
 
 Input template for the bug fix workflow.

@@ -1,3 +1,5 @@
+> **DEPRECATED (2026-08-06):** v1 inventory page — the templates concept was retired. Live inventory: [`INVENTORY.md`](../../../INVENTORY.md).
+
 # Feature-Addition Templates Inventory
 
 Input templates for the feature integration workflow. Pick the generic template, or one of the pre-filled type variants.
