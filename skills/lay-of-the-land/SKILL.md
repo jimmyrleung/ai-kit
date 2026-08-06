@@ -71,7 +71,7 @@ Sourced reconnaissance — not a design or plan. Code blocks only when a quote i
 - **Constraints & Considerations** — known fragility / tech-debt, perf / security, deploy / flag concerns — sourced, or flagged as unverified.
 - **Open Questions & Risks** — unknowns needing clarification; risks each tagged Critical / High / Mid / Low.
 - **Coverage** — searched (paths / agents / docs) vs deliberately not searched (with why).
-- **Recommended Next Steps** — which downstream workflow / skill (`analyze` · `bug-investigation`); what to focus first; stakeholders to consult.
+- **Recommended Next Steps** — which downstream workflow / skill (`analyze` · `bug-investigation` · `/triage` if unsure); what to focus first; stakeholders to consult.
 
 ### What this IS / IS NOT
 

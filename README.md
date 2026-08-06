@@ -40,7 +40,6 @@ Not sure which to run? `/triage` routes a free-text request to the right workflo
 - **`verify-task`** — Per-task closeout. Runs the build/test + AC + cross-cutting gates inside the per-task implement command, before the task is marked Done.
 - **`close`** — End-of-session retrospective. Distills decisions/learnings/friction into auto-memory + an observations log + a session log entry. Not a context dump.
 - **`improve`** — Periodic self-improvement review. Reads accumulated observations, finds friction patterns, audits skill fitness, and produces a STAGED packet of proposed edits — never edits a live file without per-item approval.
-- **`migrate-notion`** — Guide a Notion-to-Obsidian migration via the Notion MCP tool.
 
 ## Engineering ownership (retention)
 

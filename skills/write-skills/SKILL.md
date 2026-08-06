@@ -84,7 +84,7 @@ Omit a section rather than leave a placeholder.
 
 ## What this skill does NOT do
 - **Structural lint of the whole population** — `/audit-skills` owns that; this is its build sibling.
-- **Routing** — deciding *which* skill to run happens upstream (description-driven auto-selection, or the user's call), not in this skill.
+- **Routing** — deciding *which* skill to run happens upstream (`/triage`, description-driven auto-selection, or the user's call), not in this skill.
 - **Your domain logic** — you bring the one job and the trigger phrases; this skill shapes them into a skill that fires.
 
 ## Output file

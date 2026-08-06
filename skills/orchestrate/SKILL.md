@@ -43,7 +43,7 @@ The run leaves on disk: the per-worker deliverables (verbatim, indexed), the syn
 5. **Prose summaries of enumerable sets are forbidden** — counts carry the command that produced them.
 
 ## What this skill does NOT do
-- Decide *whether* to fan out — that's the caller's judgment; trivial work runs inline.
+- Decide *whether* to fan out — that's the caller's judgment (or `/triage`'s); trivial work runs inline.
 - Own pipeline-specific orchestration — `compile-kb`, `kb-update`, cc-looper keep theirs.
 - Deep-research web sweeps — the `deep-research` harness owns that shape.
 

@@ -1,6 +1,6 @@
 # Product Requirement: [Name]
 
-**Mode** *(pick one — the orchestrator branches on this):*
+**Mode** *(pick one — signals how much slicing the work deserves):*
 
 - [ ] **One-off / quick experiment** — single throwaway script or test, no slicing
 - [ ] **MVP to validate an idea** — small slicing (~3–5 slices), demoable fast
