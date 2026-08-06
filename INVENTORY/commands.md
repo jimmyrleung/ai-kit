@@ -79,4 +79,4 @@ Slash commands users invoke from Claude Code. Grouped by workflow family. Orches
 
 | Command              | Role                                                      |
 | -------------------- | --------------------------------------------------------- |
-| `/document-workflow` | Deep-dive documentation for a specific workflow operation |
+| `/document-workflow` | **Converted to the `document-workflow` skill** (2026-08-05): loose reference input, git-root output anchoring back-ported from the loop fork, output template extracted byte-identical to `skills/document-workflow/references/output-template.md` (the canonical contract); archived. Skill invoked directly as `/document-workflow`. |
