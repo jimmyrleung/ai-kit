@@ -1,6 +1,6 @@
 ---
 name: techspec
-description: "Design-phase technical specification — the committed blueprint (approach, implementation map, test plan, risks) built on an /analyze reference map or a reviewed bug investigation. Detects the work type and adapts: feature integration, greenfield slice, refactor / tech debt (phased plan with rollback points and success metrics), or bug fix / risky change (impact lens: blast radius, risk level, rollback). Single pragmatic-balance approach by default; escalates to a 3-way minimal / clean / pragmatic exploration only when architectural latitude is genuinely open. Produces {work_name}_techspec.md. Use when asked to write a techspec, technical spec, design doc, implementation plan, refactor plan, or impact analysis for defined work. Invoke as /techspec."
+description: "Design-phase technical specification — the committed blueprint (approach, implementation map, test plan, risks) built on an /analyze reference map or a reviewed bug investigation. Detects the work type and adapts: feature integration, greenfield slice, refactor / tech debt (phased plan with rollback points and success metrics), or bug fix / hotfix / incident remediation / risky change (impact lens: blast radius, risk level, rollback). Single pragmatic-balance approach by default; escalates to a 3-way minimal / clean / pragmatic exploration only when architectural latitude is genuinely open. Produces {work_name}_techspec.md. Use when asked to write a techspec, technical spec, design doc, implementation plan, refactor plan, or impact analysis for defined work. Invoke as /techspec."
 ---
 
 # techspec — committed design blueprint (integration · greenfield · refactor · fix)
@@ -81,6 +81,8 @@ The spec answers "how do we ship THIS slice" — never "how does the whole produ
 
 ### fix (impact)
 Design the fix the reviewed investigation proposed — **no re-diagnosis** (that's done) and no drift into a refactor plan. The impact half is required, not optional: **direct dependencies** (who imports / calls / instantiates the changed code — grep, don't assume), **indirect** (shared state, side effects, events, config), **test coverage** of the changed paths and — explicitly — the gaps, plus the risk lens below. Keep it proportional: the design half may be short when the fix is small; the blast radius is why this doc exists.
+
+**Hotfix variant** (live incident remediation): the implementation map becomes an executable playbook — exact commands, expected result and a validation step per action, rollback **triggers** ("if X, roll back") with exact rollback steps, and success criteria that declare victory. Severity sets the tone: P1 accepts documented technical debt for speed — record what this fix does NOT address as a hand-off list for `/post-mortem`. Escalate (flag `ESCALATION RECOMMENDED: [reason]`, don't just proceed) if remediation needs a breaking change, a data migration, a production-DB change, or compliance review.
 
 ## Risk lens (fix mode always; any mode when the change is risky)
 

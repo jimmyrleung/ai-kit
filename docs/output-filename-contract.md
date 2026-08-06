@@ -18,6 +18,7 @@ with `{feature_name}` within the integration family, etc.
 | bug-investigation (skill-centric) | `{bug_id}` | investigation | `{bug_id}_investigation.md` |
 | techspec (skill-centric) | `{work_name}` | techspec (all modes, refactor included) | `{work_name}_techspec.md` |
 | tasks-breakdown (skill-centric) | `{work_name}` | tasks (all modes; greenfield may follow a host `specs/slices/` convention) | `{work_name}_tasks.md` |
+| post-mortem (skill-centric) | `{incident_id}` | post-mortem | `postmortem.md` (in an incident dir) / `{incident_id}_postmortem.md` (alongside kit-shaped artifacts) |
 | integration-feature-dev *(archived)* | `{feature_name}` | analysis | `{feature_name}_integration.md` |
 | integration-feature-dev *(archived)* | `{feature_name}` | techspec | `{feature_name}_techspec.md` |
 | integration-feature-dev *(archived)* | `{feature_name}` | tasks | `{feature_name}_tasks.md` |
@@ -43,6 +44,13 @@ with `{feature_name}` within the integration family, etc.
 > `review-analysis`) updates the reviewed artifact in place (a `## Review` section) and produces
 > no file of its own.
 
+> **Step-8 addendum (2026-08-06):** the incident family is live again in skill-centric form — the
+> `post-mortem` skill legitimately re-emits `postmortem.md` (legacy incident-dir shape) or
+> `{incident_id}_postmortem.md`; diagnosis rides inside `bug-investigation` (incident lens,
+> `{bug_id}_investigation.md` unchanged) and hotfix planning inside fix-mode `techspec`
+> (`{work_name}_techspec.md`; `remediation_plan.md` and `diagnosis.md` stay archived-only outputs).
+> `{bug_id}_regression_test_plan.md` stays retired (absorbed by implement-task's fix lens).
+
 ## Known residual drift — none
 
 Normalized 2026-07-07 (audit proposal 02): the remaining `{feature}` spots — 3 integration-family
@@ -51,7 +59,10 @@ skill descriptions + `balanced-tasks-creation`'s companion-docs example block (�
 Check 11 verified zero drift at 2026-07-07 and 2026-07-19. Expected non-drift hits for future runs: `{prefix}` in
 `qa-gates` / `verify-task` / `qa-loop` / `qa-loop-docs` / `implement-task` (input-side vocabulary — the base-name
 family those skills resolve a loose target from, never a required invocation shape; the loop pair are
-qa-gates' headless forks, canonical in cc-looper); audit-skills Check 11's own example
+qa-gates' headless forks, canonical in cc-looper); the legacy incident artifact names
+(`incident_report.md` / `diagnosis.md` / `remediation_plan.md`) in `post-mortem`'s input contract
+and `bug-investigation`'s incident lens (input-side vocabulary — the legacy dir shape those skills
+accept, never emitted by new work); audit-skills Check 11's own example
 text; `{feature}_description.md` in `integration-analysis`'s input contract (an *input* file — this
 contract governs phase *output* docs only, and that skill's output line is already canonical).
 

@@ -1,6 +1,6 @@
 ---
 name: bug-investigation
-description: "Investigate a bug — trace the execution path from entry point to failure, identify the root cause with evidence (every hop tagged VERIFIED or ASSUMED), propose a minimal fix. Produces {bug_id}_investigation.md. Use when investigating, diagnosing, root-causing, or debugging a reported bug, error, crash, or unexpected behavior — ad-hoc, or after /lay-of-the-land recon of an unfamiliar area. Invoke as /bug-investigation."
+description: "Investigate a bug — trace the execution path from entry point to failure, identify the root cause with evidence (every hop tagged VERIFIED or ASSUMED), propose a minimal fix. Produces {bug_id}_investigation.md. Use when investigating, diagnosing, root-causing, or debugging a reported bug, error, crash, or unexpected behavior — ad-hoc, or after /lay-of-the-land recon of an unfamiliar area. Incident lens when the failure is a production incident or outage: log/trace/metric evidence with timeline correlation, severity-aware gate (P1 streamlined). Invoke as /bug-investigation."
 ---
 
 # Bug Investigation Skill
@@ -34,6 +34,15 @@ Sub-agent constraints (the coordinator passes these verbatim when launching work
 - **Bug report** — required, but loose: a file the user wrote (`bug_XXXX_short_description.md` — see the kit's `templates/bugfix/bug-report-template.md` for the shape), an issue link, or an inline description with expected vs actual + reproduction steps. Too thin to trace → ask.
 - **`{bug_id}` base name** — derive from the bug report's filename if possible; ask the user if not discoverable.
 - **Codebase access** — you read the actual code. If the codebase is large (> ~1000 files), ask the user for starting points before exploring.
+
+## Incident lens — applies when the failure is a production incident
+
+Orthogonal to the process below, triggered by an incident report / outage / live-severity signal (report shape: the kit's `templates/incident-response/incident-report.md`; logs and traces often in a `logs/` dir alongside):
+
+- **Evidence widens beyond code:** error patterns and frequencies in logs, trace timings and timeouts, metric spikes — each with timestamps, **correlated against the incident timeline** (deploys, config changes, traffic shifts). Every quantitative claim (counts, rates, durations) cites the query or log excerpt that produced it.
+- **5-Whys depth:** "the pool was exhausted" is the symptom — keep asking why until you reach the change or design that caused it, tagging each why VERIFIED/ASSUMED like any other hop.
+- **Severity sets the gate:** P1 (service down — speed beats exhaustiveness) → one streamlined pass on the main thread, confidence gate **≥ 70%**, flag uncertainty rather than chasing exhaustive analysis; P2–P4 → the normal ≥ 90% gate below.
+- **Hand-off:** the fix design is `techspec` fix mode (hotfix variant for live remediation); after resolution, offer `/post-mortem`.
 
 ## Process
 

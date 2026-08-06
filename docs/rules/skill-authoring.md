@@ -4,14 +4,15 @@
 
 Before shipping any SKILL.md / command / agent frontmatter change, parse it with node + js-yaml —
 Claude Code is lenient, but Codex / claude.ai / the API are strict (an unquoted `: ` inside a
-`description` is the classic failure). This repo ships no `node_modules`: run node from a directory
-where js-yaml is installed (e.g. `~`), or the `require()` fails with MODULE_NOT_FOUND from the repo
-root.
+`description` is the classic failure). This repo ships no `node_modules`, and js-yaml is not in the
+global npm root either (verified 2026-08-06): the reliable pattern is `npm install js-yaml` into the
+session scratchpad and run node from there; `require()` fails with MODULE_NOT_FOUND from the repo
+root and from a bare `NODE_PATH=$(npm root -g)`.
 
 **Why:** strict parsers silently drop mis-parsed skills at load time (5 skills broke at once on
 2026-06-04), and the no-local-node_modules gotcha kept recurring because it lived only in archived
 session-log narrative.
-*(added 2026-07-23 — /close repo-memory bootstrap; sources: 2026-06-04 strict-YAML sweep, 2026-07-07 and 2026-07-23 audit runs)*
+*(added 2026-07-23 — /close repo-memory bootstrap; sources: 2026-06-04 strict-YAML sweep, 2026-07-07 and 2026-07-23 audit runs; scratchpad-install refinement 2026-08-06 — step-8 session, global-root probe failed)*
 
 ## Loop skills/commands are symlinks — enumerate and edit accordingly
 
@@ -43,12 +44,18 @@ to this repo's `skills/` — a new skill dir is discoverable immediately, no syn
 by hand. `~/.codex/skills/` holds per-skill junctions plus kit-GENERATED twins (`.ai-kit-generated`
 marker) for commands/agents; when a command is converted to a skill, `sync.ps1`'s skill pass skips
 any existing real dir, so the generated twin must be removed (and the `$GenCmds` entry dropped)
-before the junction can be created — always `-WhatIf` first.
+before the junction can be created — always `-WhatIf` first. Run `sync.ps1` **in-process under
+pwsh 7** (`& C:\ai-kit\adapters\codex\sync.ps1 -WhatIf`) — invoking it via `powershell -File`
+(Windows PowerShell 5.1) misparses the script's UTF-8 em-dashes into bogus syntax errors that look
+like file corruption. Its dry-run flag is `-WhatIf`, not `-DryRun`. And don't pipe its output
+through `Select-Object`/`Get-Item` in the same call — the Format-Table stream collides and exits 1
+despite a successful sync; verify effects in a separate call.
 
 **Why:** assuming one model (all junctions or all copies) leaves stale twins shadowing new skills,
 or edits that never deploy — the twin-blocks-junction case surfaced during the first command→skill
 conversion of the kit-refactor.
-*(added 2026-08-05 — implement-task command→skill conversion session)*
+*(added 2026-08-05 — implement-task command→skill conversion session; pwsh-7/-WhatIf/format-stream
+invocation refinements 2026-08-06 — step-8 session, all three hit in one sync run)*
 
 ## Grep live consumers before archiving or retiring an entity class
 
