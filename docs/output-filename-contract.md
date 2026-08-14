@@ -1,9 +1,10 @@
 # Output-doc filename contract
 
-Single source of truth for the output-document filename each workflow phase produces. Orchestrators
-(`integration-feature-dev`, `full-bug-fix-workflow`, `refactor-techdebt-dev`, `full-incident-response`)
-and their standalone per-phase commands MUST agree with this table — cite it rather than restating a
-filename inline. Drift between an orchestrator's restatement and the standalone command's actual output
+Single source of truth for the output-document filename each workflow phase produces. Every skill
+that emits a workflow phase doc MUST agree with this table — cite it rather than restating a
+filename inline. (The v1 orchestrators named in the archived rows below — `integration-feature-dev`,
+`full-bug-fix-workflow`, `refactor-techdebt-dev`, `full-incident-response` — are retired; their rows
+are kept for reading old docs.) Drift between an orchestrator's restatement and the standalone command's actual output
 recurred across three families during skill-ification (see `~/.claude/observations/2026-05-12-skillify-*`);
 this table + `audit-skills` Check 11 exist to prevent it.
 
@@ -19,6 +20,7 @@ with `{feature_name}` within the integration family, etc.
 | techspec (skill-centric) | `{work_name}` | techspec (all modes, refactor included) | `{work_name}_techspec.md` |
 | tasks-breakdown (skill-centric) | `{work_name}` | tasks (all modes; greenfield may follow a host `specs/slices/` convention) | `{work_name}_tasks.md` |
 | post-mortem (skill-centric) | `{incident_id}` | post-mortem | `postmortem.md` (in an incident dir) / `{incident_id}_postmortem.md` (alongside kit-shaped artifacts) |
+| lay-of-the-land (skill-centric) | `{topic}` | recon (phase 0) | `{topic}_lay-of-the-land.md` |
 | integration-feature-dev *(archived)* | `{feature_name}` | analysis | `{feature_name}_integration.md` |
 | integration-feature-dev *(archived)* | `{feature_name}` | techspec | `{feature_name}_techspec.md` |
 | integration-feature-dev *(archived)* | `{feature_name}` | tasks | `{feature_name}_tasks.md` |
@@ -72,5 +74,5 @@ contract governs phase *output* docs only, and that skill's output line is alrea
 
 ## When you add a new workflow family
 
-Add its row(s) here first, pick one token, and reference this table from both the orchestrator and the
-standalone command bodies. Do not invent a parallel filename in the orchestrator.
+Add its row(s) here first, pick one token, and reference this table from the emitting skill's body.
+Do not invent a parallel filename in a consumer skill.

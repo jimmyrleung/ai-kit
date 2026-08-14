@@ -18,9 +18,10 @@ This is the deep, on-demand sibling of `/improve`'s Phase 2 inline thin audit
 ## Inputs you read
 
 - `C:\ai-kit\skills\**\SKILL.md` — all bodies + frontmatter.
-- `C:\ai-kit\commands\*.md` — frontmatter only (verify name + description).
-- `C:\ai-kit\agents\*.md` — frontmatter only.
-- `C:\ai-kit\templates\**\*.md` — existence + cross-skill template references.
+- `C:\ai-kit\commands\*.md`, `C:\ai-kit\agents\*.md`, `C:\ai-kit\templates\**\*.md` —
+  **retired 2026-08-06 (v2, archive/v1)**: all three dirs are deleted; enumerate as zero
+  and skip when absent. Specs for their checks (8, 9, and the command/agent legs of 1/10)
+  stay below, dormant, in case those entity types return.
 - The most recent `~/.claude/improvements/{date}/REVIEW.md` if present — for the
   invocation-count column in the fitness table. Optional input; skip if not present.
 - `~/.claude/improvements/last-audit.txt` — timestamp of last audit; missing = never run.
@@ -100,7 +101,12 @@ synonyms folded inline (preserve the char budget — don't tack on a new sentenc
   per Anthropic's progressive-disclosure pattern.
 
 Honor an `<!-- intentionally-long: <reason> -->` HTML comment at the top of a SKILL.md
-body — if present, downgrade the soft-flag to a noted-and-accepted line in the table.
+body. It downgrades the soft-flag unconditionally. It also covers the HARD flag —
+house decision 2026-08-13 (backlog 23) — but only when the reason names why a
+`references/` split specifically fails (read-latency, linear procedure, load-once
+contract), not just "it's long"; a marked >250 body becomes a noted-and-accepted
+line in the table, tracking its line count run-over-run. A >250 body with NO marker
+(or a marker whose reason doesn't address length) still gets a split proposal.
 
 Canonical line metric: `(Get-Content <file>).Count` — `Measure-Object -Line` undercounts
 (~40% observed) and produced a false-clean cap check.
@@ -203,8 +209,9 @@ land in backlog (≤90%) rather than proposals; that's a valid outcome.
 ## Procedure
 
 ### Phase 1 — Enumerate
-Glob the four input directories. Build a structured inventory:
-`{ skills: [...], commands: [...], agents: [...], templates: [...] }`.
+Glob the input directories that exist (skills always; commands/agents/templates only if
+restored — see Inputs). Build a structured inventory:
+`{ skills: [...], commands: [...], agents: [...], templates: [...] }` (empty arrays are valid).
 
 Also read `~/.claude/improvements/pending-trigger-tests.txt` if present: any listed skill
 gets a trigger-simulation check this run and is removed from the queue on pass.
@@ -273,7 +280,7 @@ Create or append-to today's REVIEW.md:
 ```
 # Improvement review — {YYYY-MM-DD}  (or "## Audit-derived findings — {timestamp}" if appending)
 
-**Population audited:** N skills + M commands + K agents + L templates
+**Population audited:** N skills (+ commands/agents/templates only if restored)
 **Description budget:** N skills · T total description chars (Δ vs last audit)
 **Findings:** P (across 12 checks)  ·  **Proposals staged:** P
 

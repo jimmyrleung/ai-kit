@@ -1,6 +1,6 @@
 ---
 name: improve
-description: Periodic self-improvement review. Reads the accumulated ~/.claude/observations/*.md (written by the close skill), finds friction patterns, audits skill/workflow fitness, and produces a STAGED review packet under ~/.claude/improvements/{date}/ — proposed edits to skills, agent-workflows orchestrators, MEMORY.md, and ~/.claude/CLAUDE.md, each with the exact diff and the observation it came from. NEVER edits a live file without per-item approval. Run weekly (via a scheduled task), when ~/.claude/improvements/last-review.txt is stale, or on demand — invoke as /improve.
+description: Periodic self-improvement review. Reads the accumulated ~/.claude/observations/*.md (written by the close skill), finds friction patterns, audits skill/workflow fitness, and produces a STAGED review packet under ~/.claude/improvements/{date}/ — proposed edits to skills, MEMORY.md, and ~/.claude/CLAUDE.md, each with the exact diff and the observation it came from. NEVER edits a live file without per-item approval. Run weekly (via a scheduled task), when ~/.claude/improvements/last-review.txt is stale, or on demand — invoke as /improve.
 ---
 
 <!-- intentionally-long: 5-phase distiller with concrete templates for REVIEW.md, proposals/, MARK.md and procedural rules per phase. Splitting to references/ would fragment one logical procedure and add load latency for every phase. Tier 2.1 spec records the body as a documented design choice. -->
@@ -9,7 +9,7 @@ description: Periodic self-improvement review. Reads the accumulated ~/.claude/o
 
 You are running the periodic self-improvement review. You read the evidence the `close` skill has
 been logging, you find what it's telling you, and you produce a **review packet the user approves
-or rejects**. You do NOT edit live skills, orchestrators, MEMORY.md, or CLAUDE.md directly — you
+or rejects**. You do NOT edit live skills, MEMORY.md, or CLAUDE.md directly — you
 stage everything and present it. The user is the reviewer; that's deliberate (their value-add is
 the judgement on the diff, not having it automated away).
 
@@ -23,8 +23,8 @@ to look productive. The number of changes applied is NOT a success metric — it
   ACTIONED/DECLINED — i.e. since the last review. (Window: from the date in
   `~/.claude/improvements/last-review.txt`; if missing, last 14 days.)
 - **Always:** `~/.claude/observations/README.md` (the canonical tag list); the skill inventory —
-  `C:\ai-kit\skills\**\SKILL.md` (resolves through `~/.claude/skills/` junction), the
-  `C:\ai-kit\commands\*.md` orchestrators, the `C:\ai-kit\agents\*.md` agents; `MEMORY.md`
+  `C:\ai-kit\skills\**\SKILL.md` (resolves through the `~/.claude/skills/` junction;
+  commands/agents/templates retired to archive/v1, 2026-08-06); `MEMORY.md`
   + the auto-memory topic files; `~/.claude/CLAUDE.md`.
 - **On request (a "deep" review):** the period's `git log --oneline` in each repo named in the
   observations, and selected `~/.claude/projects/<dir>/<session-id>.jsonl` transcripts — to backfill
@@ -69,7 +69,7 @@ to look productive. The number of changes applied is NOT a success metric — it
    (c) `phase/area`. Note any cluster of ≥3 — that's a pattern worth a proposal. A single occurrence
    is NOT a pattern (don't promote one-offs to permanent rules — that's the rebelytics simplification
    signal; one-offs were already routed to "say it in chat" by `close`).
-4. For each cluster, read the relevant skill/orchestrator section and form a hypothesis: is this
+4. For each cluster, read the relevant skill section and form a hypothesis: is this
    "needs stronger enforcement (a hook / a checklist gate / a structural change), not better wording"?
    Is it "a missing step"? "An assumption that's wrong in practice"? "A capability gap → maybe a new
    skill"? The default fix for a documented-but-ignored rule is rarely "say it louder" — it's "convert
@@ -77,7 +77,7 @@ to look productive. The number of changes applied is NOT a success metric — it
 
 ### Phase 2 — Audit skill/workflow fitness
 
-Build a small table: for each custom skill / orchestrator, how many times invoked this window
+Build a small table: for each custom skill, how many times invoked this window
 (count from the observations' `skill_or_workflow` field), the outcome mix (success/mostly/partial/failed),
 and a flag for: **not invoked in ≥30 days** (deletion candidate — note it, don't propose the delete
 yet, ask), **any partial/failed outcomes** (investigate), **trigger-description > 1,536 chars or vague**
@@ -99,7 +99,7 @@ fitness-table flags column and do NOT restage as a separate proposal.
 
 ### Phase 3 — Lint (the health-check pass — Karpathy's third operation)
 
-Scan the *curated* layer (skills + orchestrators + `MEMORY.md` + `~/.claude/CLAUDE.md`) for:
+Scan the *curated* layer (skills + `MEMORY.md` + `~/.claude/CLAUDE.md`) for:
 - **Contradictions** — two rules that conflict; a `MEMORY.md` entry that contradicts a skill.
 - **Stale rules** — a rule superseded by newer evidence in the observations, or by a code/tooling
   change mentioned there.

@@ -56,7 +56,7 @@ deliberately richer than `/close`'s slim continuation entry — see 3c.)
      the tasks-doc / prefix family).
 
 3. **If a cc-looper close digest is present** — `<dirname(tasks_doc_path)>/<base>_close.md`
-   (the in-repo digest the future headless `close-tasks-loop` sibling writes; see Notes →
+   (the in-repo digest cc-looper's headless `close-tasks-loop` sibling writes; see Notes →
    "The in-repo digest contract") — **prefer it**: it already holds structured friction the
    headless run extracted at the time, with live context this skill no longer has. Distill that
    digest into observations directly (Phase 3) and skip the raw reconstruction in step 4 for any
@@ -205,9 +205,9 @@ cc-looper headless run (which has no interactive `/close` at all).
   `/close`. `/close-tasks` = the artifact-aggregation closeout for runs where neither of those flushed
   (multi-session manual / cc-looper headless). All three feed the same `~/.claude/observations/` →
   `/improve` seam; `/close-tasks` is the one that closes the headless / multi-session blind spot.
-- **The in-repo digest contract (the seam to the future cc-looper hook).** A future headless
-  `close-tasks-loop` sibling (cc-looper-side; see `specs/close-tasks-loop_integration.md` in
-  cc-looper) will write a **neutral in-repo digest** at
+- **The in-repo digest contract (the cc-looper hook).** The headless
+  `close-tasks-loop` sibling (cc-looper-side; see `specs/close-tasks-loop/close-tasks-loop_integration.md`
+  in cc-looper) writes a **neutral in-repo digest** at
   `<dirname(tasks_doc_path)>/<base>_close.md` — *not* to `~/.claude/observations/` (a public,
   reusable, machine-portable skill must never hardcode a private path; and the cc-looper spawn runs
   in the target repo where that write is the documented anti-pattern + permission-fragile). This
