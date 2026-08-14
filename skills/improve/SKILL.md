@@ -189,14 +189,14 @@ name set — codenames outside it pass; this grep is the actual gate, at the aut
 ### Phase 5 — Present & (on approval) apply
 
 1. Print `REVIEW.md` to chat (the summary). Don't dump every proposal file — point at the dir.
-2. Walk the proposals — **one at a time** for small packets (≤6) and for any contentious item
-   (ask-one-question-at-a-time cadence — Pocock's `grill-with-docs`); for larger packets,
-   **family-batched AskUserQuestion rounds** (≤4 questions per call, each question = exactly one
-   proposal with its own apply/skip/defer options, batched by theme). The unit that stays atomic
-   is the per-item decision, not the round-trip:
-   "Proposal 3 — add a 'verify external assumptions' step to `analyze` Step 4, derived
-   from 4 `wrong_approach` observations in feature work. Apply / skip / defer?" For deletion and
-   new-skill candidates, *always* just ask individually — never auto-propose those as diffs, never batch them.
+2. Walk the proposals in PLAIN TEXT, turn-based — per the turn-based-review-no-ask-tool
+   memory (2 lived contexts). One message per theme family: 2–4 related proposals, each as
+   "NN — <target> — <one-line what & why> — conf X%", ending with "approve / skip / defer,
+   per item". The user replies free-form; the atomic unit is the per-item decision, not
+   the round-trip — never collapse a family into one yes/no. Do NOT use AskUserQuestion
+   for the walk. Contentious items get their own message. For deletion and new-skill
+   candidates, always ask individually — never fold into a family batch, never
+   auto-propose as diffs.
 3. For each **approved** proposal: apply *exactly* what's in the proposal file to the target. If it's
    a `MEMORY.md` edit, follow the auto-memory conventions (right `type:`, `**Why:**`/`**How to apply:**`,
    `[[links]]`, the one-line `MEMORY.md` pointer). If it's a `~/.claude/CLAUDE.md` edit, keep it a

@@ -37,7 +37,7 @@ Mixed work → dominant mode, secondary lens noted in the doc. The **risk lens**
 
 Commit directly to **pragmatic balance**: reuse existing patterns aggressively; new abstractions only where they pay back inside this work; scope-reduce and defer rather than widen; no YAGNI speculation (no feature flags, compat shims, or single-use helpers this work doesn't need); match existing conventions even when imperfect — consistency beats local optimization.
 
-**Escalate to a 3-way exploration** (minimal-changes / clean-architecture / pragmatic-balance; refactor mode: minimal-risk / clean-architecture / pragmatic-balance) ONLY when the architectural latitude is genuinely open: the approaches would land in *materially different places*, AND no upstream decision (approved proposal / ADR / analysis) already locks the shape, AND the analysis doesn't already supply the file-level map the drafts would re-derive three times. State the depth decision and why — the ~3× token cost must buy real divergence.
+**Escalate to a 3-way exploration** (minimal-changes / clean-architecture / pragmatic-balance; refactor mode: minimal-risk / clean-architecture / pragmatic-balance) ONLY when the architectural latitude is genuinely open: the approaches would land in *materially different places*, AND no upstream decision (approved proposal / ADR / analysis) already locks the shape, AND the analysis doesn't already supply the file-level map the drafts would re-derive three times. Escalating — 3-way drafts, extra fan-outs, any multi-agent exploration — is a GATE, not a note: record the justification in the doc AND get the user's explicit approval BEFORE spawning; inherit the analysis header's Execution profile when present (deviating from it is an escalation). A lived run fanned out against the documented default and the oversized design propagated into 14 tasks before review caught it. The ~3× token cost must buy real divergence.
 
 ## Input contract — loose
 
@@ -56,7 +56,13 @@ Single-approach → design on the main thread; no subagents. 3-way → launch 3 
 2. "Read the files the analysis names — don't trust summaries. Cite file:line for every pattern you reuse."
 3. "Score confidence 0–100%; if the inputs leave you below 90%, return clarification questions instead of guessing."
 
-Make one draft **probe-first / risk-first** (verify the riskiest mechanism against code before writing — in a lived run this prior produced all three unique high-value findings). When they return:
+Make one draft **probe-first / risk-first** (verify the riskiest mechanism against code before writing — in a lived run this prior produced all three unique high-value findings).
+Charter the minimal-changes draft explicitly as the **smallest-safe-delta lane** — its
+mandate is to challenge the premise's size ("what is the smallest production delta that
+satisfies the requirement?"), not to shrink the shared design. Parallel drafts inherit the
+coordinator's framing; their agreement cannot validate the premise (convergence measured
+shared framing again in a lived run — this is the premise-size variant of Convergence-risk).
+When they return:
 
 - **Convergence-risk:** what ALL drafts agree on at the same level of detail is the *highest-risk* region — agreement measures shared framing, not correctness. Verify it against code before recommending.
 - **Harvest:** factual corrections found by any draft, including losing ones, port into the winner.
@@ -67,6 +73,12 @@ Make one draft **probe-first / risk-first** (verify the riskiest mechanism again
 1. **Read the inputs end-to-end.** Description, analysis/investigation, review notes.
 2. **Map existing patterns.** Read every file the analysis names — don't rely on summaries. Search for similar features; record `file:line` as you go. Note layering, DI, naming and validation conventions, reusable utilities/services, `CLAUDE.md`/architecture-doc guidance. **Proxy/adapter/router changes map 1:1 to the consumer:** list every consumer call site as `consumer file:line → outgoing URL/signature → new-or-existing route → handler`, matched by literal route string — "calls the same method" is not coverage, and a summary count is not acceptable. *(Greenfield: map the "Building on" code named by the PRD or the analysis's `## Slice requirement`, plus prior-slice techspec precedents.)*
 3. **Design, committed.** Plan file-by-file. API contracts, data models, components — only what this work actually needs. Key algorithms, error paths, edge cases, and the tests that lock each behavior. Apply the mode lens.
+   **Complexity checkpoint (brownfield):** before writing sections, produce a
+   production-delta map — the smallest delta that satisfies the requirement — and a
+   reuse/modify/add table. Every net-new mechanism (flag, protocol, monitor, identity
+   scheme, config switch, retry/dedup layer) names the observed failure or stated
+   requirement forcing it; a mechanism with no named forcing observation is out (8 such
+   were stripped by review in a lived run after propagating into tasks, infra, and code).
 4. **Critical refactors surface separately.** Debt that MUST move for this to ship safely is documented apart from the main spec and user-approved before baking any of it in. No uninvited refactors.
 5. **Confidence gate.** Score 0–100% per the global CLAUDE.md factor breakdown (API/docs clarity 30 / similar patterns in codebase 25 / data-flow understanding 20 / complexity 15 / cross-system impact 10). **< 90% → STOP and ask clarifying questions.** ≥ 90% proceed; target ≥ 95% for ship-ready.
 6. **Write the spec** per the section contract.

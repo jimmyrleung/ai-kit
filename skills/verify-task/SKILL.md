@@ -65,10 +65,18 @@ cross-cutting sub-check. Same in-place marker discipline `review-artifact` (`## 
    stale `next start` and a stale non-watch server both produced convincing wrong evidence).
    Probe from the *calling* side (the host, not inside the container) — a probe on the wrong
    side of the boundary "verified" a DB 36/50 tests couldn't reach.
+   A running host that locks build outputs (a Web/worker process holding the old
+   assembly) is the same failure: stop it, rebuild, restart before the suite — and
+   prefer durable TRX/JUnit output so the stop/start cycle can't orphan the verdict.
 7. **Browser preflight.** Before UI-heavy verification: check a browser backend is available
    and identify any AC whose probe is destructive (needs fresh human approval). Unavailable →
    record the affected ACs `BLOCKED` and halt Gate 2 per discipline (do NOT fall back to
    spawning a dev server ad hoc — a direct `next dev` fallback caused a worker-process runaway).
+7b. **Config-readiness assertion.** After scripted config/connection setup and before
+    the suite, run one non-secret readiness assertion (value present / non-empty) — a
+    non-terminating setup failure left an empty connection string and masked 56 test
+    failures as app HTTP 500s. A `bash -n`/script failure showing `$'…\r'` is a
+    line-ending (CRLF) problem — classify that before debugging logic.
 8. **Write the `## Verify — {date}` block** to `artifact_path` inside the task's section:
 
    ```

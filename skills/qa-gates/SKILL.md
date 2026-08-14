@@ -69,6 +69,13 @@ let its open `follow-up` findings surface at Gate 5. Not covered → suggest run
 `/review-implementation` first; if the user proceeds anyway, Gate 5 records `go-with-caveat:
 unreviewed`. Never run a reviewer fan-out here — review is `/review-implementation`'s job.
 
+**Prefix-close only — lifecycle classification.** For manual / rehearsal / cutover /
+deployment tasks that cannot be code-complete, classify each by lifecycle boundary
+(`pre-merge` / `deploy` / `live`) from the tasks doc's labels (tasks-breakdown emits
+them); ask the owner only when unstated. Repository gates judge repository scope;
+`live`-boundary items surface at Gate 5 as named pending items — never as failed
+ancestor ACs (a prefix run stalled reading a release-owner rehearsal as a failed AC).
+
 **If `gate_plan_pre_written: true`**: the caller (e.g. `verify-task`) has already written the
 gate-plan block (with its own header — `## Verify — {date}` for per-task callers) at
 `artifact_path`. **Skip the header / plan write below and jump to Gate 1**; gate-result
@@ -217,6 +224,12 @@ rule); **propose the diff and let the user approve**, never silently rewrite. If
 `mode == streamlined` (P1 fast path; the post-mortem covers it later): skip this gate and
 record `skipped (streamlined)`.
 
+**Unchecked-box census (whole prefix, before requesting approval).** Enumerate every
+unchecked checkbox in Done tasks, classify each — stale marker (proven elsewhere: cite
+where) / paused live-boundary item / genuine gap — and reconcile the tasks-doc's test
+totals against the latest TRX / runner summary. AC-only correction missed 4 stale
+markers a later whole-prefix probe found; keep historical counts as dated snapshots.
+
 ### Gate 5 — Human go/no-go
 
 Present the `## QA` artifact to the user. Confirm every prior gate is either `pass` or
@@ -228,7 +241,10 @@ Present the `## QA` artifact to the user. Confirm every prior gate is either `pa
 - **Yes, modulo ops** → record `go-modulo-ops: <pending item>` when the code verdict is GO and
   the only open items sit outside the code's control (a prod DBA sign-off, an ops deployment
   window, an external approval). The pending item is named in the gate-line and tracked to
-  closure — it is never counted as a code failure, and never silently dropped.
+  closure — it is never counted as a code failure, and never silently dropped. The verdict
+  states what it AUTHORIZES — merge, continued validation, or deployment — e.g.
+  `GO (repository scope), conditional on commit; deployment checklist pending`; a green
+  code-QA run is never fresh live-provider proof.
 - **No** → ask what to address; loop the failed gate.
 
 If no `## Review` block (review-implementation) covers the verified tree, record **go-with-caveat:

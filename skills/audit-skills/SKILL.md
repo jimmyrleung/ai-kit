@@ -102,6 +102,9 @@ synonyms folded inline (preserve the char budget — don't tack on a new sentenc
 Honor an `<!-- intentionally-long: <reason> -->` HTML comment at the top of a SKILL.md
 body — if present, downgrade the soft-flag to a noted-and-accepted line in the table.
 
+Canonical line metric: `(Get-Content <file>).Count` — `Measure-Object -Line` undercounts
+(~40% observed) and produced a false-clean cap check.
+
 ### Check 5 — Cross-skill redundancy (description-based)
 Pairwise compare descriptions. For any two with ≥5 shared trigger phrases in the
 first 50 words, surface the overlap: "Skills X and Y overlap on triggers A, B, C —
@@ -137,6 +140,12 @@ Path-like strings inside fenced example blocks that illustrate a convention the 
 creates at runtime in *target* repos (e.g. close 2c's `docs/rules/testing.md` index
 example) are illustrative, not references — check the enclosing fence and whether the
 path is meant to exist in this kit before flagging.
+
+Derive the retired-name sweep list MECHANICALLY from the `archive/` directory listings
+(archived skill/command/agent names), never from recall — a hand-enumerated regex omitted
+one name and its dead refs survived the audit. When a CONVENTION (not an entity) is
+retired, add its descriptive phrases to the sweep list — live-names-only sweeps missed
+retired doctrine taught as current in 3 separate runs.
 
 ### Check 8 — Frontmatter-vs-directory mismatch
 - A `SKILL.md` whose frontmatter looks like a command (has `argument-hint`, no long
@@ -197,10 +206,17 @@ land in backlog (≤90%) rather than proposals; that's a valid outcome.
 Glob the four input directories. Build a structured inventory:
 `{ skills: [...], commands: [...], agents: [...], templates: [...] }`.
 
+Also read `~/.claude/improvements/pending-trigger-tests.txt` if present: any listed skill
+gets a trigger-simulation check this run and is removed from the queue on pass.
+
 ### Phase 2 — Run all 12 checks
 Walk each check across the relevant subset. Collect findings as (check, file) pairs;
 group by file for the report. Don't fabricate findings to look productive — zero
 findings on a check is a valid result.
+
+A detector added since the last run implies a ONE-TIME population back-sweep on its first
+run — even in a FOCUSED run (a new angle-bracket detector found a long-standing hit two
+FULL audits had missed).
 
 ### Phase 3 — Stage the packet
 Apply the keep-two rule (same as `/improve`): if there are already two or more dated

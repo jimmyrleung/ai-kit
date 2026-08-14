@@ -40,7 +40,13 @@ review scope. If `scope` was given, restrict to those tasks' files (from the tas
 Launch 3 generic subagents (general-purpose — there are no named reviewer agents to
 maintain) IN PARALLEL — same diff context, different focuses:
 
-- **correctness** — bugs, missed acceptance criteria, broken invariants.
+- **correctness** — bugs, missed acceptance criteria, broken invariants; **marker/alert
+  ownership** — an event name an alert or scheduled query matches must be unique to the
+  alert-worthy state (a shared marker could page on healthy work — caught in two runs);
+  **mocked-variant reachability** — every mocked result variant a test introduces traces
+  to a real production return site (a mocked failure branch proved unreachable: the real
+  handler returns true or throws); financial/async ordering (webhook-vs-poller,
+  confirm-vs-capture races).
 - **conventions** — adherence to the codebase's documented and observed patterns:
   `docs/rules/`, AGENTS.md / CLAUDE.md conventions, lint/format configs, and the idioms of
   the neighboring code the diff touches.
@@ -63,6 +69,10 @@ code-reviewer-agent — its confidence-filtered, actionable-output discipline):
    a concrete fix suggestion, and the confidence score. Group Critical vs Important. If nothing
    clears the bar, say so briefly — do not manufacture findings."
 
+Record the tree fingerprint (short sha + dirty) in each reviewer's brief. If an edit
+lands mid-review, dispositions require a current-tree probe and a fresh pass — two
+reviewers read pre-fix and post-fix states of the same marker and "disagreed".
+
 ### 3 — Verify findings (leads, not verdicts)
 
 Before a finding is recorded or presented: re-verify its `file:line` against current source;
@@ -75,6 +85,13 @@ stale/refuted findings with a one-line note. Distill — every recorded finding 
 Present consolidated findings by severity, plus the ship-ready refactors list. Ask per
 group: **fix now / fix later / proceed as-is**. Apply fix-now items (then re-run the repo's
 build/test to confirm nothing broke); record fix-later items as named follow-ups.
+
+After applying fix-now items, **recompute the evidence** (test counts, vectors, DI
+signatures) from a fresh run before recording — pre-fix evidence goes stale (a 180-test
+figure survived its own fix round). When the diff changed operator-visible behavior
+(runtime ordering, statuses, alert semantics), sweep sibling runbooks/deploy docs for the
+old terms, reconcile runbook SQL identifiers against the schema (6 inconsistencies
+survived QA in one run), and reset or date-pin any live PASS rows the change invalidates.
 
 ### 5 — Record
 

@@ -59,6 +59,10 @@ The bound that makes generic synthesis safe for every domain (rule 10):
 - Find the last compile: the most recent `## [YYYY-MM-DD] compile |` entry in `wiki/log.md` (or "never").
 - Collect candidate sources: `sources/**/*.md` with `status: summarized` (not yet `integrated`), OR `updated`/`date_consumed` after the last compile, plus any raw files whose `sha256_prefix` no longer matches (drift). Harvest each candidate's `## Concepts to Update` list.
 - **Unseeded raw (full-tree, not window-scoped):** diff the full `raw/` tree against `sources/` `raw:` pointers — every raw file/directory (excluding exhaust) must be claimed by some `sources/` note; unclaimed ones surface as "needs seeding" work. A window-scoped `git log <last-compile>..HEAD` probe structurally misses anything that predates the window (two PDFs sat invisible for five consecutive compiles; 15 guides sat invisible for a full cycle when only status/date/sha signals were scanned). Keep the git-log probe only as a cheap first pass; the pointer diff is authoritative. Directory-backed sources (a `raw:` pointing at a directory) are fingerprinted by their **primary file** per the grouped-note rule — not reported MISSING by a file-only check; a hash mismatch on a git-clean raw file is a **metadata anomaly** (recorded-hash typo), not drift.
+  Bucket the unclaimed set: **new-source** (needs seeding) / **companion** (artifact of an
+  already-claimed source — record it in the owning note's `## Source Trail` or the domain
+  manifest so it stops surfacing) / **non-source** (exhaust — record, don't seed). A
+  45-file sweep held 1 real source; without buckets the other 44 re-surface every run.
 - **Idempotent:** if nothing changed since the last compile, report "nothing to compile" and exit without writing. (Honor an explicit "recompile everything" request to override.)
 
 ### Phase 2 — Synthesize
@@ -74,6 +78,10 @@ The bound that makes generic synthesis safe for every domain (rule 10):
 - For each created/updated page, run a second **skeptical** pass (ideally a separate reviewer subagent or a fresh critical read) that hunts: overreach, unsupported generalizations, claims not traceable to a cited source, and contradictions with existing pages.
 - Apply outcomes: demote `confidence`, set `contested: true` + `contradictions: [page]`, or mark a non-surviving claim's page `status: draft`. This is the concrete guard against hallucinations hardening into wiki fact — runs on every domain's synthesis pages (meter it to those, not the `index`/`_meta` nav).
 - **Retroactive reach:** when a new source establishes a convention or constraint, grep the *existing* wiki pages for violations (the incremental flow never looks backward — one source invalidated ~16 spots in prior pages). Escalate hits in the digest; never auto-rewrite pages outside the run's cluster without approval (rule 8).
+- **Full-file reread on dated refreshes:** the reviewer rereads each changed page
+  end-to-end (not the diff hunks) and greps it for the replaced current-state terms —
+  dated appendices went in correct while the page's summary/heading text stayed stale in
+  two runs; hunk-scoped review is structurally blind to that.
 
 ### Phase 4 — Update navigation (orchestrator, once)
 - Patch `wiki/index.md` from the per-domain subagents' returned summaries (not by re-reading every page): add new pages under the correct type section; **recompute** the `> Last updated: … | Total pages: N` header (fix drift).
@@ -111,10 +119,18 @@ The digest, `wiki/index.md`, and `wiki/log.md` are wiki files: **the vault's cha
   (where the vault convention is ASCII-only), broken `[[wikilinks]]`, trailing whitespace.
   Incremental-only verification accumulates blind spots; the full sweep is cheap and is the backstop
   that catches drift a prior run let through.
-- **Secret scan (pinned contract):** scan staged text for secret *values* — key/token-shaped literals
-  (`(api[_-]?key|secret|token|password)\s*[:=]\s*['"][A-Za-z0-9+/_-]{16,}`, base64/hex runs ≥ 32 chars,
-  PEM headers) — not for the *words* "secret/key/token" (a keyword grep produced 110 false positives).
-  Record the pattern used in the digest so the next run reproduces the criterion instead of re-inventing it.
+- **Secret scan (pinned contract v2):** scan **added content only** (the run's diff, not
+  whole files) for secret *values*: key/token-shaped literals
+  (`(api[_-]?key|secret|token|password)\s*[:=]\s*['"][A-Za-z0-9+/_-]{16,}`), PEM headers,
+  and base64/hex runs ≥ 32 chars that ALSO pass all three filters: (1) token-boundary —
+  not embedded in a path, wikilink slug, or URL (require non-word delimiters both sides);
+  (2) mixed character classes (≥ 2 of upper/lower/digit); (3) not a declared hash —
+  `sha256_prefix` values and `## Source Trail` digest entries are provenance, exempt.
+  (A raw base64/hex grep produced 1,036 path-shaped false positives; a keyword grep 110.)
+  Record pattern + filters in the digest so the next run reproduces, never re-derives.
+- **All-hashes verification:** verify every explicit hash in new/refreshed grouped notes —
+  the primary `sha256_prefix` AND each `## Source Trail` secondary, including
+  directory-relative entries. A wrong 12-char secondary shipped past a primary-only check.
 - Before staging, transition any "pending approval" markers in `wiki/log.md`/digest to their final
   state, then re-check post-state — a marker that still said "pending user commit approval" shipped
   inside the very commit it referred to.

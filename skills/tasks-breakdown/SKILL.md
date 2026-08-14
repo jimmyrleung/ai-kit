@@ -61,11 +61,27 @@ For small, well-understood work backed by a verified exploration (plan mode, a r
 
 1. **Read the inputs end-to-end** — every `file:line`, snippet, and section. The doc lives or dies on how accurately it translates the techspec into a sequence.
 2. **Inventory the work.** Every component, file, migration, config change, test suite, DI registration, and infra touch the techspec calls for. Group by logical boundary; identify cross-task dependencies (compile-time, runtime, deploy-time).
+   Cross-repo work: pin the per-environment config matrix and the resolved file paths at
+   the first contract-defining task, and land golden fixtures with it — symmetric-env
+   assumptions and late fixtures both surfaced as review findings in a lived run.
 3. **Size each candidate to the grain**; split anything over 4h (see Sizing).
 4. **Order by dependencies.** Topological sort. **Derive, don't hand-author, parallel lists:** compute "Can run in parallel with" from the Depends-On graph (two tasks are parallel iff neither is an ancestor of the other) and verify symmetry (A lists B ⇔ B lists A) — hand-authored lists drift asymmetric.
 5. **Propose the implementation order** (foundation-first / TDD / vertical slices) in one sentence with the reason; confirm with the user when non-obvious. *(Greenfield: vertical is mandatory, not a choice.)*
 6. **Define testing per task.** Every task contains tests or explicitly says "tests covered in Task X" — none silently uncovered; name the target test file. **Enumeration-coupling check:** a task that adds/removes an artifact an existing test enumerates or counts (an inventory, a hardcoded count, a snapshot, a golden file, a manifest) owns updating those assertions — same task, listed in its Files involved, with an explicit AC; never deferred to a sibling "tests" task. **Rename sweep:** a task renaming a symbol owns every call site — grep repo-wide and assign all of them to it (a 3-of-4 coverage left the suite red in a lived run).
-7. **Operational steps get their own final task** (deploy order, package publish, feature-flag enablement, seed-data verification, smoke test) — never buried in acceptance criteria.
+   **Named-artifact coverage:** every test artifact the techspec's test plan names (a
+   harness, an integration test file, a fixture) appears in exactly one task's Files
+   involved — a named integration test omitted from every task shipped a coverage hole.
+7. **Operational steps get their own final task** (deploy order, package publish,
+   feature-flag enablement, seed-data verification, smoke test) — never buried in
+   acceptance criteria. Label each with its **lifecycle boundary** (`pre-merge` /
+   `deploy` / `live`) and order operational tasks AFTER the review/QA gates — a rollout
+   task sequenced before review shipped un-reviewed operational steps. Live rehearsal /
+   cutover checklists owned by a release owner get their own `live`-boundary task, so
+   implementation tasks can close repository-complete without them (qa-gates reads these
+   labels at Gate 0). **Deploy-producer trace:** a task whose tests assert deployed-state
+   behavior (fault tests against a deployed migration, env-dependent integration) names
+   and depends on the task that deploys that state — repository-grouped ordering hid this
+   dependency in a lived run.
 8. **Apply the mode lens** (below).
 9. **Confidence gate.** Score 0–100% per the global CLAUDE.md factor breakdown. **< 90% → STOP and ask clarifying questions.** ≥ 90% proceed; target ≥ 95% ship-ready.
 10. **Write the doc** per the section contract; confirm the base name; then **offer `/review-artifact`** before implementation builds on it.

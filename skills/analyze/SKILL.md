@@ -54,6 +54,10 @@ Consolidate: consensus (high confidence) / disagreements (flag for the user) / c
 
 1. **Understand the work.** Definition, expected outcome, constraints, edge cases, dependencies.
 2. **Ask clarification questions (MANDATORY).** Before analysis; keep going until the work is fully understood. Append Q&A to the description file's "Clarifications" section (when the description is a file).
+   Also settle the **execution profile** here, once for the whole chain: default
+   `single-approach pragmatic · balanced sizing · inline (no fan-out)`. Any deviation is
+   recorded with its justification. Downstream skills (`/techspec`, `/tasks-breakdown`)
+   inherit this line — deviating later is an escalation they must ask about.
 3. **Architecture & health** *(integration / refactor)*. Architectural patterns in play, cross-cutting concerns (auth, logging, caching); pattern consistency (High/Med/Low), documentation quality, architectural clarity. Low/Poor on an integration → recommend refactoring first.
 4. **Explore.** Entry points (routes, controllers, jobs), similar features and patterns, reusable utilities/services, feature boundaries, configuration. Examine every file the description names. *(Greenfield: explore the constraint space instead — chosen-stack conventions, comparable ecosystem examples, hard requirements.)*
    - **Coverage gaps are defined by the consumer, not the provider.** When the work is "find the missing API surface / proxies / handlers / subscribers", enumerate from the **consumer's** call list first and map each entry 1:1 to a provider entry by **literal route / signature / topic string** — not "it calls the same handler". Two routes hitting one handler are two contracts. A summary count hides gaps; a 1:1 `consumer file:line → outgoing URL/signature → provider route/handler` table exposes them.
@@ -90,7 +94,7 @@ Add to the doc:
 
 A reference document — not bloated with implementation detail. No full implementation code blocks, no "exactly how to write it". Code blocks only when explaining current state would take *more* text than the block.
 
-Core sections (all modes): **Overview** (2–3 sentences) · **Confidence score** (global CLAUDE.md format) · **Entry points** (`file:line`; greenfield: proposed entry surface) · **Similar features / examples** (`file:line`; greenfield: ecosystem examples) · **Execution flow** · **Key components & responsibilities** · **Architecture insights** · **Dependencies** (internal / external / libraries) · **Observations** (strengths, issues, opportunities) · **Side effects / impact** · **Risks & considerations** (severity Critical/High/Mid/Low) · **Essential files** — plus the mode-lens sections above.
+Core sections (all modes): **Overview** (2–3 sentences) · **Execution profile** (one line — see Process 2; downstream skills read it) · **Confidence score** (global CLAUDE.md format) · **Entry points** (`file:line`; greenfield: proposed entry surface) · **Similar features / examples** (`file:line`; greenfield: ecosystem examples) · **Execution flow** · **Key components & responsibilities** · **Architecture insights** · **Dependencies** (internal / external / libraries) · **Observations** (strengths, issues, opportunities) · **Side effects / impact** · **Risks & considerations** (severity Critical/High/Mid/Low) · **Essential files** — plus the mode-lens sections above.
 
 Four tables (omit one only if it genuinely has no rows; greenfield: "Files to Modify" is usually empty):
 

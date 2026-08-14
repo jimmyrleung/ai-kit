@@ -43,6 +43,9 @@ Launch 1–3 **generic** subagents (there are no named reviewer agents to mainta
 - "For any 'X is missing / absent / never called' finding, state the exact search that would have found it. An unrun search is not evidence of absence."
 - "Flag load-bearing claims that cite nothing — a citation-accuracy pass is structurally blind to the unsourced claim next to what IS cited."
 
+A reviewer lane killed by session limits is RESUMED via SendMessage from its transcript,
+never relaunched — a resumed lane delivered its complete report with zero rework.
+
 ### 2 — Doc-type lens
 
 Alongside the reviewer findings, apply the lens for what's under review yourself:
@@ -58,6 +61,14 @@ Alongside the reviewer findings, apply the lens for what's under review yourself
 
 - **Contract:** required sections for its mode present; nothing from the do-not-include list; no required section left as a placeholder (an empty one needs a one-sentence "why there's no substance here").
 - **Grounding:** every citation resolves by its stable anchor against current source (verify by reading, not searching); test-file locations confirmed (one Glob per named test file/project); every requirement from the description/analysis has a home — implementation map, test plan, or explicit out-of-scope; every design decision traceable to a reused pattern or a documented rationale.
+  **Consumer trace for new/widened shapes:** when the spec introduces or widens a data
+  shape, trace its consumers on UNMODIFIED lines — citation-accuracy passes are
+  structurally blind there, and both High findings in a lived run were exactly that.
+  **Executable probes:** a claim that a transform over serialized text is harmless (string
+  replace over JSON, regex over code) gets a round-trip probe executed, not reasoned (a
+  "harmless" global replace silently corrupted payloads); an exception-flow change gets a
+  catch-boundary check — which failure classes reach the new catch, and which does it
+  misclassify.
 - **Over-spec:** speculative future structure, decisions deferred work doesn't need, options presented without commitment. **Under-spec:** a key decision deferred without reason, host-convention contradictions, missing rollback/risks where the risk lens applies.
 - **Delta rule:** when the upstream analysis/investigation carries a `## Review` stamp, review the techspec's *delta* only — its decisions, section contract, and the citations it added. Don't re-ground upstream claims that review already verified.
 
