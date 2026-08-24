@@ -17,27 +17,30 @@ NODE_PATH pointed inline at the scratchpad's own node_modules (verified 2026-08-
 session-log narrative.
 *(added 2026-07-23 — /close repo-memory bootstrap; sources: 2026-06-04 strict-YAML sweep, 2026-07-07 and 2026-07-23 audit runs; scratchpad-install refinement 2026-08-06 — step-8 session, global-root probe failed)*
 
-## Loop skills/commands are symlinks — enumerate and edit accordingly
+## External junctions in skills/ — enumerate with readdir, never Glob; mind what you commit
 
-Six skill dirs (`document-workflow-loop`, `implement-task-loop`, `map-tasks`, `qa-loop`,
-`qa-loop-docs`, `review-checkpoint`) and `commands/tasks-loop.md` are Windows symlinks to the
-canonical copies under `~/projects/cc-looper/claude-config/`; `skills/find-skills` and
-`skills/teach` are external junctions. All show as untracked (`??`) in this repo's `git status` —
-never commit them here; loop-entry changes are committed in cc-looper's repo.
+Three skill dirs (`grill-me`, `grill-with-docs`, `improve-codebase-architecture`) are Windows
+junctions to `~/.agents/skills/<name>` — an external open-standard store; they are shims for a
+partially installed pack (improvements backlog 38 tracks their fate). They show as untracked
+(`??`) **with content** in `git status` — **never `git add skills/` wholesale**: this repo is
+public and a wholesale add would vendor the external content in. Stage new skills by explicit
+path. (The v1-era cc-looper symlinks and `commands/tasks-loop.md` are gone since v2, and
+`skills/find-skills` + `skills/teach` are real dirs now — this rule covers the three junctions
+above and any future junctioned entry.)
 
 - **Detection:** `Get-Item <path> -Force | Select-Object FullName, LinkType, Target` — `ls -la`
   does not mark them on Windows.
-- **Editing:** the Edit tool cannot write through a symlink path (its atomic tmp-rename fails with
-  ENOENT). Read + Edit the **canonical** cc-looper path; reserve the link paths for Read/Glob only.
-- **Scanning:** Glob and Grep do NOT traverse directory symlinks — a full-population scan silently
-  excludes all 7 linked entries. Enumerate via `Get-ChildItem` / Node `fs.readdirSync`, and grep
-  the cc-looper tree explicitly. cc-looper's templates live at its repo **root** `templates/`, not
-  `claude-config/templates/`.
+- **Editing:** the Edit tool cannot write through a link path (its atomic tmp-rename fails with
+  ENOENT). Read + Edit the **canonical** `~/.agents/skills/` path.
+- **Scanning:** Glob and Grep do NOT traverse directory junctions — a Glob-based population scan
+  silently excludes all three (it bit audit run 11's Phase 1). Enumerate `skills/` via
+  `Get-ChildItem` / Node `fs.readdirSync`.
 
-**Why:** the cc-looper runner consumes its own canonical copies at runtime; the symlinks keep one
-physical file per entry. Scans that trust Glob nearly emitted false audit findings (2026-07-07),
-and committing the links here would duplicate cc-looper's ownership.
-*(added 2026-07-23 — migrated from the ai-kit auto-memory `cc-looper-symlink-topology` (2026-05-15, last verified 2026-07-19) during the /close repo-memory bootstrap)*
+**Why:** junctions keep one physical file per entry while external tools own the canonicals;
+scans that trust Glob under-count the population and its description budget, and committing
+junction content here would duplicate external ownership into a public repo.
+*(added 2026-07-23 as the cc-looper symlink rule; rewritten 2026-08-24 — v2 dropped the cc-looper
+links, and audit run 11 found the new `~/.agents` junctions the old text didn't cover)*
 
 ## Deployment topology: skills are junction-live; commands were copies; Codex twins block conversion
 

@@ -2,13 +2,13 @@
 
 A skill-centric kit for [Claude Code](https://claude.com/claude-code) that codifies a disciplined, evidence-based approach to software engineering work — analysis, design, implementation, verification, incident response, documentation — plus a self-improving meta-layer that turns session friction into refined skills over time.
 
-This is **v2** of the kit (2026-08 refactor). The v1 kit — five workflow-family orchestrator commands, 17 named agents, document templates — is **deprecated** and preserved under [`archive/v1/`](archive/v1/). What changed, in one line: **all the methodology moved into 29 flexible, mode-detecting skills; the command / agent / template scaffolding around it was retired.**
+This is **v2** of the kit (2026-08 refactor). The v1 kit — five workflow-family orchestrator commands, 17 named agents, document templates — is **deprecated** and preserved under [`archive/v1/`](archive/v1/). What changed, in one line: **all the methodology moved into 30 flexible, mode-detecting skills; the command / agent / template scaffolding around it was retired.**
 
 ## What's in here
 
 ```
 ai-kit/
-├── skills/     29 skills — ALL the methodology lives here (one SKILL.md per folder)
+├── skills/     30 skills — ALL the methodology lives here (one SKILL.md per folder)
 ├── docs/       Cross-cutting reference docs + repo rules (docs/rules/)
 ├── adapters/   Per-tool adapters (codex/, cursor/) — same canonical source on other CLIs
 └── archive/    v1 kit (deprecated) + retired skills, kept restorable one by one
