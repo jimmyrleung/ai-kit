@@ -84,6 +84,14 @@ command-wraps-skill pairing), grep live bodies for it cited as doctrine or examp
 mentions can consist entirely of live names, so the name sweep never hits them (audit-skills
 Check 10 kept teaching the retired pairing as "the intended pattern" via `/qa-gates → qa-gates`
 — both names live; caught by judgment in audit run 5, third finding of this class).
+**Renames add three more legs:** (1) the renamed skill's own description — a mechanical
+find-replace mangles the trigger sentence ("Use when asked to analyze-implementation") and loses
+the trigger verb; rewrite it by hand and re-run the tier-1 trigger sim. (2) Sibling description
+budgets — every in-description reference grows by the name-length delta (+5 chars per ref pushed
+triage's desc over the 800 band in the analyze-work rename); re-measure the edited descs against
+audit Check 2. (3) Non-skill surfaces: `adapters/*/AGENTS.md` chain diagrams, root README chain
+diagram, INVENTORY row, `docs/output-filename-contract.md` family column — plus the per-machine
+`~/.codex` / `~/.cursor` junctions, which keep the old name until the sync scripts re-run.
 
 **Why:** the 2026-08 agent archive silently broke review-implementation and all three cc-looper
 loop review skills (`@code-reviewer-agent` fan-outs) — discovered 5 days later by /audit-skills,
@@ -108,6 +116,20 @@ found README still shipping the retired five-workflow table and pre-refactor Cod
 (backlog 33). The consumer-grep rule above catches dangling *references*; it never catches a
 *listing* that simply omits or over-includes.
 *(added 2026-08-06 — step-10 close; audit run 9 INVENTORY delta-sync + backlog 33 enumeration)*
+
+## Diff a manual skill rewrite against HEAD before shipping it
+
+When a skill body is rewritten by hand (editor reformat, reflow, restructure), compare the result
+against `git show HEAD:<path>` before committing — specifically for: words joined at former line
+breaks (reflow drops spaces: "aprovider", "byfilename"), internal references to structure that no
+longer exists ("see Process 2" after de-numbering), and load-bearing content silently dropped
+(a `{token}` derivation rule still referenced elsewhere in the doc; a cross-skill contract line).
+A reformat that only *moves* text still changes what survives.
+
+**Why:** the analyze-work rewrite (2026-08-26) shipped all three defect classes in one pass —
+5 corrupted words, a dead internal ref, and a dropped `{work_name}` rule — none of which any
+runtime error would ever surface; they were caught only by an explicit old-vs-new comparison.
+*(added 2026-08-26 — analyze-work rename/rewrite session)*
 
 ## Check new names against built-in CLI commands before choosing them
 
