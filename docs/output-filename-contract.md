@@ -15,7 +15,7 @@ with `{feature_name}` within the integration family, etc.
 
 | Family | Token | Phase | Output filename |
 |---|---|---|---|
-| analyze (skill-centric) | `{work_name}` | analysis | `{work_name}_analysis.md` |
+| analyze-work (skill-centric) | `{work_name}` | analysis | `{work_name}_analysis.md` |
 | bug-investigation (skill-centric) | `{bug_id}` | investigation | `{bug_id}_investigation.md` |
 | techspec (skill-centric) | `{work_name}` | techspec (all modes, refactor included) | `{work_name}_techspec.md` |
 | tasks-breakdown (skill-centric) | `{work_name}` | tasks (all modes; greenfield may follow a host `specs/slices/` convention) | `{work_name}_tasks.md` |

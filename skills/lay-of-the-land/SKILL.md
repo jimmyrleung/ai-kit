@@ -1,6 +1,6 @@
 ---
 name: lay-of-the-land
-description: Pre-workflow reconnaissance — a sourced map of what currently exists in an unfamiliar area of the codebase, before a requirement is written/refined or a workflow (feature-dev, refactor, bugfix) starts. Every finding carries a confidence score and a concrete source; assumptions are escalated as open questions, never presented as facts. Produces {topic}_lay-of-the-land.md. Use ad-hoc / pre-refinement, or as the Phase 0 recon that feeds analyze (integration / greenfield / refactor modes), bug-investigation, or a refinement discussion. The body of /lay-of-the-land (formerly /trigger-discovery-phase).
+description: Pre-workflow reconnaissance — a sourced map of what currently exists in an unfamiliar area of the codebase, before a requirement is written/refined or a workflow (feature-dev, refactor, bugfix) starts. Every finding carries a confidence score and a concrete source; assumptions are escalated as open questions, never presented as facts. Produces {topic}_lay-of-the-land.md. Use ad-hoc / pre-refinement, or as the Phase 0 recon that feeds analyze-work (integration / greenfield / refactor modes), bug-investigation, or a refinement discussion. The body of /lay-of-the-land (formerly /trigger-discovery-phase).
 ---
 
 # Lay of the Land Skill
@@ -9,17 +9,17 @@ You are a senior engineer joining a new team in your first week. Your job is to 
 
 You **LOCATE and REPORT what exists** — you do **not** DESIGN, SPECIFY, or PLAN. This is reconnaissance: it precedes the requirement and the workflow, it does not replace them.
 
-> **Litmus test:** if a developer can copy-paste your output and start _building_, you have gone too deep — that is `analyze` / a techspec, not recon. Recon tells them _what is there and where_, leaving them ready to write or refine the requirement. If a line states what _should_ be built or changed, delete it.
+> **Litmus test:** if a developer can copy-paste your output and start _building_, you have gone too deep — that is `analyze-work` / a techspec, not recon. Recon tells them _what is there and where_, leaving them ready to write or refine the requirement. If a line states what _should_ be built or changed, delete it.
 
 ## When to use
 
 - **Pre-refinement / "new land"**: a discussion is heading into an area nobody fully understands; you need the sourced current-state before the requirement can be written or refined.
-- **Pre-workflow Phase 0**: before `analyze` / `bug-investigation` — so those phases start from facts, not guesses.
+- **Pre-workflow Phase 0**: before `analyze-work` / `bug-investigation` — so those phases start from facts, not guesses.
 - **Ad-hoc mid-session**: a brief "how does X actually work here?" with no doc — the lightweight path (see Process).
 
 ## When NOT to use
 
-- You already know the area and need the _feature-integration_ or _refactor_ map → `analyze`. A _bug's_ root cause → `bug-investigation`. Recon is upstream of both.
+- You already know the area and need the _feature-integration_ or _refactor_ map → `analyze-work`. A _bug's_ root cause → `bug-investigation`. Recon is upstream of both.
 - Greenfield (nothing exists to reconnoitre).
 - You are being asked to design, plan, or estimate — recon is analysis-only.
 
@@ -71,7 +71,7 @@ Sourced reconnaissance — not a design or plan. Code blocks only when a quote i
 - **Constraints & Considerations** — known fragility / tech-debt, perf / security, deploy / flag concerns — sourced, or flagged as unverified.
 - **Open Questions & Risks** — unknowns needing clarification; risks each tagged Critical / High / Mid / Low.
 - **Coverage** — searched (paths / agents / docs) vs deliberately not searched (with why).
-- **Recommended Next Steps** — which downstream workflow / skill (`analyze` · `bug-investigation` · `/triage` if unsure); what to focus first; stakeholders to consult.
+- **Recommended Next Steps** — which downstream workflow / skill (`analyze-work` · `bug-investigation` · `/triage` if unsure); what to focus first; stakeholders to consult.
 
 ### What this IS / IS NOT
 

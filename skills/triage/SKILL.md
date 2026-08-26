@@ -1,6 +1,6 @@
 ---
 name: triage
-description: "Route a free-text engineering request to the right entry point in the skill-centric kit — the analyze → techspec → tasks-breakdown → implement-task chain for feature / refactor / greenfield work, bug-investigation for bugs and incidents, lay-of-the-land for unfamiliar territory, a single one-shot skill, a loop primitive (/goal | /loop | /schedule | /tasks-loop) for recurring or iterate-until-a-condition work, or 'just do it directly'. Detects mid-flight work first and recommends the next step in the chain instead of re-triaging. Asks up to 2 clarifying questions if signals are ambiguous; output is a one-line recommendation — suggestion-mode only, never auto-executes. Use when starting non-trivial work and it's unclear which skill to use, where to start, or what to run. Invoke as /triage."
+description: "Route a free-text engineering request to the right entry point in the skill-centric kit — the analyze-work → techspec → tasks-breakdown → implement-task chain for feature / refactor / greenfield work, bug-investigation for bugs and incidents, lay-of-the-land for unfamiliar territory, a single one-shot skill, a loop primitive (/goal | /loop | /schedule | /tasks-loop) for recurring or iterate-until-a-condition work, or 'just do it directly'. Detects mid-flight work first and recommends the next step in the chain instead of re-triaging. Asks ≤2 clarifying questions if signals are ambiguous; output is a one-line recommendation — suggestion-mode only, never auto-executes. Use when starting non-trivial work and it's unclear which skill to use, where to start, or what to run. Invoke as /triage."
 ---
 
 # Triage — pick the right entry skill (or skip the ceremony)
@@ -10,7 +10,7 @@ primitive (recurring / iterate-until-done work), or "just do it directly". Outpu
 one-line recommendation. **You do NOT auto-execute.**
 
 There are no workflow orchestrators to route to — each chain's entry skill detects the work type
-itself (`analyze` detects integration / greenfield / refactor; `techspec` adds fix / hotfix;
+itself (`analyze-work` detects integration / greenfield / refactor; `techspec` adds fix / hotfix;
 `bug-investigation` carries the incident lens). Triage picks the *entry point*; the skill takes it
 from there.
 
@@ -51,10 +51,10 @@ Read the request + the cwd `ls` + check `MEMORY.md` for project-level mode hints
 | Signal cluster | Route to | Notes |
 |---|---|---|
 | "bug / broken / fails / regression / wrong output / unexpected behaviour" — urgent or not | `/bug-investigation` | Incident lens engages itself on production-incident signals (outage, P1, customers); then `/review-artifact` → `/techspec` (fix / hotfix) → `/implement-task` (fix lens) → `/qa-gates` → `/post-mortem` if it was an incident |
-| "add / integrate / new feature / endpoint / page / screen" + existing codebase | `/analyze` | Integration mode; chain continues `/techspec` → `/tasks-breakdown` → `/implement-task` → `/review-implementation` → `/qa-gates` |
-| "refactor / restructure / extract / rename / consolidate / clean up / tech debt" + same-behaviour intent | `/analyze` | Refactor mode (phased plan + rollback lives in `/techspec`) |
-| "new project / from scratch / greenfield / new module / slice" + empty-ish cwd | `/analyze` | Greenfield mode (vertical-slice guarded) |
-| Unfamiliar territory — "what's even here?", pre-refinement, no requirement written yet | `/lay-of-the-land` | Phase-0 recon; feeds `/analyze`, `/bug-investigation`, or a refinement discussion |
+| "add / integrate / new feature / endpoint / page / screen" + existing codebase | `/analyze-work` | Integration mode; chain continues `/techspec` → `/tasks-breakdown` → `/implement-task` → `/review-implementation` → `/qa-gates` |
+| "refactor / restructure / extract / rename / consolidate / clean up / tech debt" + same-behaviour intent | `/analyze-work` | Refactor mode (phased plan + rollback lives in `/techspec`) |
+| "new project / from scratch / greenfield / new module / slice" + empty-ish cwd | `/analyze-work` | Greenfield mode (vertical-slice guarded) |
+| Unfamiliar territory — "what's even here?", pre-refinement, no requirement written yet | `/lay-of-the-land` | Phase-0 recon; feeds `/analyze-work`, `/bug-investigation`, or a refinement discussion |
 | One-shot artefact production ("write me a techspec for X", "review this doc", "document this endpoint") | **Short-circuit → a single skill** (table below) | Skips the chain entirely |
 | "every morning / every N hours / keep checking / watch this PR / poll / until the tests pass / until score ≥ X / re-run until" — recurring or iterate-until-condition intent | **Loop-primitive route** (table below) | The loop frame wraps whatever runs inside it — pick the frame first, then (if needed) triage the per-iteration work too |
 | Trivial — typo, one-line edit, one grep, one-question | **"Just do it directly — no skill"** | Don't summon a chain for a 30-second task |
@@ -154,7 +154,7 @@ skill's Phase-1 signals table.
 
 ## When NOT to use triage
 
-- The user named the skill explicitly ("run `/analyze`") — just go.
+- The user named the skill explicitly ("run `/analyze-work`") — just go.
 - You're mid-chain (Phase 0 caught this — exit early).
 - The task is trivial (typo, one-line edit, one grep). Triage adds friction in front of trivial work.
 - The user is asking a *question*, not requesting *work* ("how does X work?", "what does Y do?"). Don't triage Q&A.

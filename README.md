@@ -21,7 +21,7 @@ Skill-by-skill listing: [`INVENTORY.md`](INVENTORY.md).
 Feature, refactor, and greenfield work all run the **same** chain — each skill detects the work type (integration / greenfield / refactor) and applies that lens, instead of forking into per-family variants:
 
 ```
-/analyze → /techspec → /tasks-breakdown → /implement-task (× N tasks, verify-task gates inline)
+/analyze-work → /techspec → /tasks-breakdown → /implement-task (× N tasks, verify-task gates inline)
         → /review-implementation → /qa-gates
 ```
 
@@ -37,7 +37,7 @@ Two helpers at the front: **`/triage`** routes a free-text request to the right 
 ## Design principles (what v2 changed)
 
 - **Skills only.** No named agents — skills fan out to *generic* subagents, so an archived persona can never silently break a live fan-out again. No command wrappers — a `commands/` shim adds a name, not methodology. No templates — output shapes live inline in the skills that produce them.
-- **Mode detection over per-family forks.** One `analyze`, one `techspec`, one `tasks-breakdown` — each detects the work type and adapts, replacing ~5 near-duplicate per-family variants each.
+- **Mode detection over per-family forks.** One `analyze-work`, one `techspec`, one `tasks-breakdown` — each detects the work type and adapts, replacing ~5 near-duplicate per-family variants each.
 - **Loose inputs.** Every skill accepts a loose target — a description, a path, a prefix, a number, a file with a draft — resolves it, and echoes back what it resolved. Never a rigid argument shape.
 - **Suggestion-mode by default.** Skills that propose changes (`improve`, `triage`, the commit step in `close`) stage diffs or recommendations and ask before acting.
 - **Review-then-commit.** No gate hard-requires a commit; committed-state is informational (`GO, conditional on commit`). The flow stays implement → verify → review → commit.

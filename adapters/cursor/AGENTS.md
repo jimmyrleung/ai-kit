@@ -19,7 +19,7 @@ named agents that produced them (all archived under `archive/v1/`). One primitiv
 what Claude invokes as `/name`, Cursor invokes as `/name` too — same key, same skill.
 
 Skills auto-discover off their `description` exactly as in Claude. Work chains by invoking
-the next skill, not by running an orchestrator: `/analyze` → `/techspec` →
+the next skill, not by running an orchestrator: `/analyze-work` → `/techspec` →
 `/tasks-breakdown` → `/implement-task` (verify-task gates inline) →
 `/review-implementation` → `/qa-gates`; bugs/incidents enter via `/bug-investigation` and
 rejoin the chain. `/triage` routes a free-text request.

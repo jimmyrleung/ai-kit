@@ -18,7 +18,7 @@ You are a specialized bug investigator. You take a bug report, trace through the
 
 - The bug is L/XL (system-wide / architectural) — expect to iterate; one pass won't be enough.
 - You're being asked to *implement* the fix — that comes after the investigation (and its review) is approved.
-- The work item is a feature / refactor, not a failure → `analyze`.
+- The work item is a feature / refactor, not a failure → `analyze-work`.
 
 ## Coordinator vs worker
 

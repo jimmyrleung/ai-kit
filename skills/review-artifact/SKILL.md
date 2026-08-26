@@ -1,24 +1,24 @@
 ---
 name: review-artifact
-description: "Adversarial review of a pre-implementation doc — an analysis from /analyze, an investigation from /bug-investigation, a techspec from /techspec, or a tasks doc from /tasks-breakdown — before design or implementation builds on it. Fans out 1–3 generic reviewer subagents, re-grounds every finding against current source, applies the doc-type lens (altitude check for analysis/investigation; section-contract check for techspecs; decomposition check for tasks docs), applies corrections in place, and records a ## Review block with a confidence-gated recommendation. Use when an analysis, investigation, techspec, or tasks doc was just written, or when asked to review, validate, or sanity-check one. Invoke as /review-artifact (formerly /review-analysis)."
+description: "Adversarial review of a pre-implementation doc — an analysis from /analyze-work, an investigation from /bug-investigation, a techspec from /techspec, or a tasks doc from /tasks-breakdown — before design or implementation builds on it. Fans out 1–3 generic reviewer subagents, re-grounds every finding against current source, applies the doc-type lens (altitude check for analysis/investigation; section-contract check for techspecs; decomposition check for tasks docs), applies corrections in place, and records a ## Review block with a confidence-gated recommendation. Use when an analysis, investigation, techspec, or tasks doc was just written, or when asked to review, validate, or sanity-check one. Invoke as /review-artifact (formerly /review-analysis)."
 ---
 
 # review-artifact — quality gate over a pre-implementation doc
 
-You are a review coordinator. You verify that a pre-implementation doc (`{work_name}_analysis.md` from `/analyze`, `{bug_id}_investigation.md` from `/bug-investigation`, `{work_name}_techspec.md` from `/techspec`, or `{work_name}_tasks.md` from `/tasks-breakdown`) is accurate, complete, and at the right altitude — then correct it **in place** and record the verdict. You do **not** re-do the analysis, own risk gates, or design the solution.
+You are a review coordinator. You verify that a pre-implementation doc (`{work_name}_analysis.md` from `/analyze-work`, `{bug_id}_investigation.md` from `/bug-investigation`, `{work_name}_techspec.md` from `/techspec`, or `{work_name}_tasks.md` from `/tasks-breakdown`) is accurate, complete, and at the right altitude — then correct it **in place** and record the verdict. You do **not** re-do the analysis, own risk gates, or design the solution.
 
 > **Litmus test:** if you're rewriting the doc's conclusions from your own fresh analysis instead of verifying its claims, you've left the reviewer's chair.
 
 ## When to use
 
-- **Ad-hoc**: right after `/analyze`, `/bug-investigation`, `/techspec`, or `/tasks-breakdown` writes its doc, before the next phase (design / tasks / implementation) builds on it. One review per artifact — each doc type's review checks different things (see the doc-type lens).
+- **Ad-hoc**: right after `/analyze-work`, `/bug-investigation`, `/techspec`, or `/tasks-breakdown` writes its doc, before the next phase (design / tasks / implementation) builds on it. One review per artifact — each doc type's review checks different things (see the doc-type lens).
 - On request: "review / validate / sanity-check this analysis (or investigation, techspec, or tasks doc)".
 
 ## When NOT to use
 
 - Reviewing **code** → `review-implementation` (per prefix) or `/code-review`.
 - Reviewing at a loop checkpoint → `review-checkpoint` (cc-loop only).
-- The doc doesn't exist yet → run `/analyze`, `/bug-investigation`, `/techspec`, or `/tasks-breakdown` first.
+- The doc doesn't exist yet → run `/analyze-work`, `/bug-investigation`, `/techspec`, or `/tasks-breakdown` first.
 
 ## Input contract — loose
 
@@ -87,7 +87,7 @@ Read every reviewer output in full. **Findings are leads, not verdicts** — bef
 Also cross-check the artifact against **itself** — every mitigation/claim in one section against the mechanism described in another; self-contradictions survive source-checking passes because no pass compares sections to each other.
 
 Build ONE list of required changes and size **by kind, not volume**:
-- **Skeleton wrong** (structure / approach / root cause fundamentally off) → send the findings back through the producing skill (`/analyze`, `/bug-investigation`, or `/techspec`) as input and re-review the result.
+- **Skeleton wrong** (structure / approach / root cause fundamentally off) → send the findings back through the producing skill (`/analyze-work`, `/bug-investigation`, or `/techspec`) as input and re-review the result.
 - **Corrective delta** (facts, citations, wording — even a large one) → update the doc in place.
 
 ### 4 — Confirm & update in place
@@ -103,6 +103,6 @@ Confirm the change set with the user. Update **the existing** artifact (never a 
 
 ## What this skill does NOT do
 
-- **Create the doc** — `/analyze`, `/bug-investigation`, `/techspec`, and `/tasks-breakdown` own that.
+- **Create the doc** — `/analyze-work`, `/bug-investigation`, `/techspec`, and `/tasks-breakdown` own that.
 - **Risk gates, success metrics, severity routing** — the caller's or user's job.
 - **A separate review report** — the `## Review` section in the artifact IS the durable review marker.

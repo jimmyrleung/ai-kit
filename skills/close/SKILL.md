@@ -105,7 +105,7 @@ describing the session, e.g. `close-skill-spec`). Use this format per observatio
 ### Observation N: <short descriptive title>
 
 - **project:** <repo name, e.g. studying / system_design_vault / <work repo>>
-- **skill_or_workflow:** <e.g. analyze / implement-task / compile-kb / (none — ad-hoc)>
+- **skill_or_workflow:** <e.g. analyze-work / implement-task / compile-kb / (none — ad-hoc)>
 - **phase/area:** <which part, if applicable>
 - **outcome:** success | mostly | partial | failed
 - **friction_observed:** <free-text> — tag: <wrong_approach | buggy_code | misunderstood_request | scope_creep | read_skipped | rm_violation | line_budget_overrun | async_context_loss | sdk_version_drift | doc_drift | ...>

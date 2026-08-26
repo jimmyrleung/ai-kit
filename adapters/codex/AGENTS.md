@@ -20,7 +20,7 @@ archived under `archive/v1/`). One primitive, one name: what Claude invokes as `
 Codex invokes as `$name` — the v1 command→skill name divergence no longer exists.
 
 Skills auto-discover exactly as in Claude. Work chains by invoking the next skill, not by
-running an orchestrator: `$analyze` → `$techspec` → `$tasks-breakdown` → `$implement-task`
+running an orchestrator: `$analyze-work` → `$techspec` → `$tasks-breakdown` → `$implement-task`
 (verify-task gates inline) → `$review-implementation` → `$qa-gates`; bugs/incidents enter
 via `$bug-investigation` and rejoin the chain. `$triage` routes a free-text request.
 

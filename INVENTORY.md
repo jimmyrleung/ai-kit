@@ -17,7 +17,7 @@ Not in this repo: the **loop variants** (`tasks-loop`, `qa-loop`, `review-checkp
 
 | Skill | Role |
 | --- | --- |
-| `analyze` | Unified reference map of upcoming work; detects mode (integration / greenfield / refactor) and applies its lens. Produces `{work_name}_analysis.md`. |
+| `analyze-work` | Unified reference map of upcoming work; detects mode (integration / greenfield / refactor) and applies its lens. Produces `{work_name}_analysis.md`. |
 | `bug-investigation` | Trace the path from entry point to failure; evidence-based root cause (VERIFIED/ASSUMED hops), minimal-fix proposal. Incident lens for production failures (log/trace/metric evidence, severity-aware gate). Produces `{bug_id}_investigation.md`. |
 | `techspec` | Unified committed design blueprint; detects mode (integration / greenfield / refactor / fix + hotfix variant) with an orthogonal risk lens; single-approach pragmatic by default, 3-way escalation; post-write QA-scenario pass. Produces `{work_name}_techspec.md`. |
 | `tasks-breakdown` | Unified implementation-tasks decomposition; detects mode; balanced sizing by default with 3-way escalation; spec-carrying mode when the techspec is deliberately skipped. Produces `{work_name}_tasks.md`. |
