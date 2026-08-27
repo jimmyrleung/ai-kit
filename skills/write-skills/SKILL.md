@@ -88,4 +88,4 @@ Omit a section rather than leave a placeholder.
 - **Your domain logic** — you bring the one job and the trigger phrases; this skill shapes them into a skill that fires.
 
 ## Output file
-`skills/<name>/SKILL.md` in ai-kit, dir name == `name`. It is directly invocable as `/<name>` — no `commands/` wrapper needed (matches `/analyze-work`, `/improve`, `/close`). After writing, run `/audit-skills`, then dry-run `adapters/codex/sync.ps1` to propagate the new skill to Codex.
+`skills/<name>/SKILL.md` in ai-kit, dir name == `name`. It is directly invocable as `/<name>` — no `commands/` wrapper needed (matches `/analyze-work`, `/improve`, `/close`). After writing: add the skill's `INVENTORY.md` row (population-sync rule — `docs/rules/skill-authoring.md`), run `/audit-skills`, then dry-run `adapters/codex/sync.ps1` to propagate the new skill to Codex.

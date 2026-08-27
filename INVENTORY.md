@@ -1,6 +1,6 @@
 # ai-kit Inventory (v2)
 
-One row per live skill (30 total), grouped by family, plus the reference docs. Keep open during day-to-day use.
+One row per live skill (31 total), grouped by family, plus the reference docs. Keep open during day-to-day use.
 
 Not in this repo: the **loop variants** (`tasks-loop`, `qa-loop`, `review-checkpoint`, …) live in the cc-looper repo's `claude-config/` tree; native loop primitives (`/goal`, `/loop`, `/schedule`) are documented only in [`docs/loop-recipes.md`](docs/loop-recipes.md). The v1 inventory (commands, agents, templates) is archived under [`archive/v1/INVENTORY/`](archive/v1/INVENTORY/).
 
@@ -93,6 +93,7 @@ Hand-invoked rituals writing durable artifacts to `~/.claude/ownership/{topic}/`
 | --- | --- |
 | `triage-learning-content` | Content-consumption router: recommend TTS / TTS_PLUS_REVIEW / READ for an article or URL — scores, pre-consumption briefing, addressable review targets, 1× listening estimate, stable JSON for downstream workflows. Chat-only output. |
 | `teach` | Stateful teaching workspace: learn a topic over multiple sessions (glossary, learning record, missions). Explicit-only (`/teach`). |
+| `breakout-session` | ~15-minute oral-exam learning checkpoint: the user explains studied material, the coach probes Socratically → honest go/no-go verdict for moving on. Chat-only; optional learning record inside a `/teach` workspace. |
 | `find-skills` | Discover and install agent skills when looking for functionality that might exist as an installable skill. |
 
 ## Docs
