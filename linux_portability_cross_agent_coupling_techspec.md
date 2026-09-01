@@ -846,6 +846,10 @@ clarifications without rewriting the original phased design.
   `\\?\` namespace prefix. Path normalization removes equivalent `\\?\`, `\\?\UNC\`, and
   `\??\` prefixes. Junction states compare normalized raw/resolved targets; symbolic-link states
   retain exact raw-target comparison so relative baseline text remains immutable.
+- **Dangling-link identity:** resolved-target classification starts from the stored raw link target,
+  joined to the link parent when relative, rather than traversing the live entry. This keeps
+  dangling Windows junctions attributable to the canonical tree and preserves the fail-closed
+  unowned-neighbor guard during prune/rollback planning.
 - **Test-hook portability:** a hook path ending in `.py` is invoked through `sys.executable`.
   Other executable hook types retain direct invocation. This affects only the failure-injection
   surface and not normal sync actions.

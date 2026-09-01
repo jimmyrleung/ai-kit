@@ -125,7 +125,11 @@ def raw_link_target(path: Path) -> str:
 
 
 def resolved_link_target(path: Path) -> str:
-    return normalized_path(path)
+    raw = raw_link_target(path)
+    target = Path(raw)
+    if not os.path.isabs(raw):
+        target = path.parent / target
+    return normalized_path(target)
 
 
 def entry_state(path: Path) -> dict[str, Any]:

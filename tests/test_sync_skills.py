@@ -714,6 +714,16 @@ class SyncSkillsTests(unittest.TestCase):
         self.assertEqual(SYNC.strip_windows_namespace_prefix(r"\??\C:\canonical skills\analyze-work"), target)
         self.assertTrue(SYNC.states_equal(actual, planned))
 
+    def test_resolved_link_target_uses_raw_target_when_the_target_is_missing(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            holder = Path(temporary)
+            link = holder / "managed" / "analyze-work"
+            link.parent.mkdir()
+            link.symlink_to(Path("..") / "missing" / "analyze-work", target_is_directory=True)
+            expected = holder / "missing" / "analyze-work"
+            self.assertFalse(expected.exists())
+            self.assertEqual(SYNC.resolved_link_target(link), SYNC.normalized_path(expected))
+
     def test_python_action_hook_uses_the_active_interpreter(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             home = Path(temporary)

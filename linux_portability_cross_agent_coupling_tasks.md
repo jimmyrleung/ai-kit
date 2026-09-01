@@ -1371,6 +1371,8 @@ pass. A fresh hosted matrix remains required before Gate 5 can be marked complet
 - `33541996829` at `5fe6437` exposed individual Windows tracebacks through public annotations.
 - `33543082378` at `59b70ba` passed Ubuntu/macOS and proved that created Windows junctions were
   rejected only by post-state comparison.
+- `33544478522` at `1d199c6` passed Ubuntu/macOS and reduced Windows to the dangling unowned-neighbor
+  safety fixture.
 
 **Verified root causes:**
 
@@ -1378,6 +1380,8 @@ pass. A fresh hosted matrix remains required before Gate 5 can be marked complet
   fixture paths therefore failed with the Windows filename/directory syntax error.
 - Windows `os.readlink()` returns a junction substitution path with a typical `\\?\` prefix;
   exact raw-target equality rejected that representation against the planned normal drive path.
+- Resolving a dangling Windows junction through its live path lost the missing target, so the
+  unowned canonical-tree neighbor did not trigger the fail-closed prune conflict.
 - A `.py` failure-injection hook was executed directly on Windows and failed with WinError 193.
 - Two macOS fixtures mixed lexical `/var` temporary paths with canonical `/private/var` paths; one
   assertion compared aliases directly and one relative symlink resolved to `/private/Users/...`.
@@ -1389,6 +1393,8 @@ pass. A fresh hosted matrix remains required before Gate 5 can be marked complet
 - Pass `cmd.exe`, `mklink`, `/J`, link, and target as separate subprocess arguments.
 - Strip Windows namespace prefixes during normalization and compare junction raw/resolved targets
   by normalized path; symbolic links retain exact raw-target comparison.
+- Resolve link identity from the stored raw target, relative to the link parent when necessary, so
+  missing targets remain classifiable without live traversal.
 - Invoke `.py` action hooks through the current Python interpreter; preserve direct execution for
   all other hook types.
 - Resolve macOS fixture parents before direct comparison and relative-link construction.
@@ -1397,7 +1403,7 @@ pass. A fresh hosted matrix remains required before Gate 5 can be marked complet
 **Acceptance criteria:**
 
 - [x] Regression tests pin the Windows `mklink` argument vector, namespace-equivalent junction
-      state, and Python-hook interpreter.
+      state, dangling-target resolution, and Python-hook interpreter.
 - [x] The macOS fixtures compare and construct links from canonical temporary paths.
 - [x] Windows retains junction lifecycle, transaction-recovery, and PowerShell adapter coverage;
       only the POSIX execution fixture is skipped there.
@@ -1417,12 +1423,12 @@ commit/push boundary.
 `linux_portability_hosted_ci_investigation.md`, and the tasks/techspec records. **Working-tree
 files:** the same five paths. **Budgets:** no hard line budget pinned (acceptable).
 
-- [x] Gate 1 — build/test: pass (`python3 -m py_compile`; isolated sync harness 36 tests with
+- [x] Gate 1 — build/test: pass (`python3 -m py_compile`; isolated sync harness 37 tests with
   one Windows-only skip; `npm test`; `npm run check:portability`; both POSIX wrapper syntax checks;
   workflow YAML parse; `git diff --check`).
 - [ ] Gate 2 — AC checklist (5 items): BLOCKED on the publication-time hosted run.
-  - [x] AC #1 — Windows junction argument-vector and namespace-equivalence regression tests pass
-    locally.
+  - [x] AC #1 — Windows junction argument-vector, namespace-equivalence, and dangling-target
+    regression tests pass locally.
   - [x] AC #2 — Python action-hook interpreter regression test passes locally.
   - [x] AC #3 — macOS fixtures now resolve their temporary base/parent before equality or relative
     link construction; hosted tracebacks identify the exact prior aliases.
