@@ -724,6 +724,18 @@ class SyncSkillsTests(unittest.TestCase):
             self.assertFalse(expected.exists())
             self.assertEqual(SYNC.resolved_link_target(link), SYNC.normalized_path(expected))
 
+    def test_entry_state_reads_a_link_target_once(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            holder = Path(temporary)
+            target = holder / "target"
+            target.mkdir()
+            link = holder / "managed-link"
+            link.symlink_to(target, target_is_directory=True)
+            with mock.patch.object(SYNC, "raw_link_target", wraps=SYNC.raw_link_target) as read_target:
+                state = SYNC.entry_state(link)
+            self.assertEqual(state["state"], "link")
+            self.assertEqual(read_target.call_count, 1)
+
     def test_python_action_hook_uses_the_active_interpreter(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             home = Path(temporary)

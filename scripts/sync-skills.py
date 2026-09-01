@@ -124,8 +124,8 @@ def raw_link_target(path: Path) -> str:
             raise SyncError(f"cannot read link target: {path}: {exc}") from exc
 
 
-def resolved_link_target(path: Path) -> str:
-    raw = raw_link_target(path)
+def resolved_link_target(path: Path, raw_target: str | None = None) -> str:
+    raw = raw_target if raw_target is not None else raw_link_target(path)
     target = Path(raw)
     if not os.path.isabs(raw):
         target = path.parent / target
@@ -142,7 +142,7 @@ def entry_state(path: Path) -> dict[str, Any]:
             "state": "link",
             "kind": link_kind(path),
             "raw_target": raw,
-            "resolved_target": resolved_link_target(path),
+            "resolved_target": resolved_link_target(path, raw),
         }
     try:
         mode = os.lstat(path).st_mode

@@ -61,7 +61,7 @@ The failing workflow entry point is `.github/workflows/portability.yml:75`, whic
 
 ### Windows POSIX-wrapper fixture
 
-1. **VERIFIED** — `test_compatibility_posix_wrappers_forward_and_reject_private_home_override` at `tests/test_sync_skills.py:743` executes Bash wrappers.
+1. **VERIFIED** — `test_compatibility_posix_wrappers_forward_and_reject_private_home_override` at `tests/test_sync_skills.py:755` executes Bash wrappers.
 2. **VERIFIED** — the workflow has separate POSIX and PowerShell adapter exercise steps, selected by runner OS.
 3. **VERIFIED** — Windows reported the POSIX test returning exit 1 with no sync-engine error, while PowerShell syntax checks passed.
 4. **VERIFIED** — limiting this fixture to POSIX runners matches its stated surface; Windows remains covered by junction tests and the PowerShell adapter step.
@@ -86,9 +86,10 @@ The failing workflow entry point is `.github/workflows/portability.yml:75`, whic
 - In `scripts/sync-skills.py:405`, pass the `cmd.exe`, `mklink`, option, link, and target tokens as separate subprocess arguments.
 - Normalize Windows `\\?\` / `\??\` namespace prefixes and compare junction targets by normalized path while preserving exact raw-target equality for symbolic links.
 - Derive a link's resolved target from its stored raw target (relative to the link parent when needed), so dangling junctions remain classifiable without traversing the missing live target.
+- Use the same raw-target read for both `raw_target` and `resolved_target` within one state snapshot, preventing a concurrent retarget from creating an internally inconsistent baseline.
 - In `scripts/sync-skills.py:823`, prefix `.py` action hooks with `sys.executable`.
 - In `tests/test_sync_skills.py:330` and `tests/test_sync_skills.py:356`, resolve the macOS temporary parent before direct comparison or relative-target calculation.
-- In `tests/test_sync_skills.py:743`, run the POSIX-wrapper fixture only when `os.name != "nt"`.
+- In `tests/test_sync_skills.py:755`, run the POSIX-wrapper fixture only when `os.name != "nt"`.
 - Keep per-test GitHub annotations because they expose future public runner failures without requiring authenticated log access.
 
 ## Alternatives considered
@@ -102,7 +103,7 @@ The failing workflow entry point is `.github/workflows/portability.yml:75`, whic
 
 - Files changed for behavior: `scripts/sync-skills.py` and `tests/test_sync_skills.py`.
 - Test requirements: Python syntax, isolated sync harness, JavaScript portability fixtures, final portability checker, adapter syntax, and hosted Ubuntu/macOS/Windows matrix.
-- Side effects: `.py` action hooks now explicitly use the active interpreter; non-Python hooks keep direct execution. Junction paths compare by filesystem identity across equivalent namespace representations, and dangling targets remain visible to ownership checks. Junction type, ownership evidence, transaction format, preserve policy, and live-home boundaries are unchanged.
+- Side effects: `.py` action hooks now explicitly use the active interpreter; non-Python hooks keep direct execution. Junction paths compare by filesystem identity across equivalent namespace representations, dangling targets remain visible to ownership checks, and each state snapshot reads a link target once. Junction type, ownership evidence, transaction format, preserve policy, and live-home boundaries are unchanged.
 
 ## Approval
 

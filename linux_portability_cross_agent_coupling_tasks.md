@@ -1373,6 +1373,8 @@ pass. A fresh hosted matrix remains required before Gate 5 can be marked complet
   rejected only by post-state comparison.
 - `33544478522` at `1d199c6` passed Ubuntu/macOS and reduced Windows to the dangling unowned-neighbor
   safety fixture.
+- `33545034615` at `fc32e6b` passed Ubuntu, macOS, and Windows. The final review then tightened
+  single-snapshot consistency, so one fresh matrix remains required for the reviewed tree.
 
 **Verified root causes:**
 
@@ -1395,6 +1397,8 @@ pass. A fresh hosted matrix remains required before Gate 5 can be marked complet
   by normalized path; symbolic links retain exact raw-target comparison.
 - Resolve link identity from the stored raw target, relative to the link parent when necessary, so
   missing targets remain classifiable without live traversal.
+- Reuse one raw-target read for each state snapshot so a concurrent retarget cannot mix raw and
+  resolved values from different link states.
 - Invoke `.py` action hooks through the current Python interpreter; preserve direct execution for
   all other hook types.
 - Resolve macOS fixture parents before direct comparison and relative-link construction.
@@ -1403,7 +1407,7 @@ pass. A fresh hosted matrix remains required before Gate 5 can be marked complet
 **Acceptance criteria:**
 
 - [x] Regression tests pin the Windows `mklink` argument vector, namespace-equivalent junction
-      state, dangling-target resolution, and Python-hook interpreter.
+      state, dangling-target resolution, one-read state snapshots, and Python-hook interpreter.
 - [x] The macOS fixtures compare and construct links from canonical temporary paths.
 - [x] Windows retains junction lifecycle, transaction-recovery, and PowerShell adapter coverage;
       only the POSIX execution fixture is skipped there.
@@ -1423,12 +1427,12 @@ commit/push boundary.
 `linux_portability_hosted_ci_investigation.md`, and the tasks/techspec records. **Working-tree
 files:** the same five paths. **Budgets:** no hard line budget pinned (acceptable).
 
-- [x] Gate 1 — build/test: pass (`python3 -m py_compile`; isolated sync harness 37 tests with
+- [x] Gate 1 — build/test: pass (`python3 -m py_compile`; isolated sync harness 38 tests with
   one Windows-only skip; `npm test`; `npm run check:portability`; both POSIX wrapper syntax checks;
   workflow YAML parse; `git diff --check`).
 - [ ] Gate 2 — AC checklist (5 items): BLOCKED on the publication-time hosted run.
   - [x] AC #1 — Windows junction argument-vector, namespace-equivalence, and dangling-target
-    regression tests pass locally.
+    regression tests pass locally; state-snapshot coverage proves one raw-target read.
   - [x] AC #2 — Python action-hook interpreter regression test passes locally.
   - [x] AC #3 — macOS fixtures now resolve their temporary base/parent before equality or relative
     link construction; hosted tracebacks identify the exact prior aliases.
@@ -1436,3 +1440,29 @@ files:** the same five paths. **Budgets:** no hard line budget pinned (acceptabl
     POSIX wrapper execution fixture.
   - [ ] AC #5 — Ubuntu/macOS/Windows matrix: pending commit and push.
 - [ ] Gate 3 — cross-cutting: pending until Gate 2's hosted evidence is available.
+
+## Review — 2026-09-01 (reviewed at: fc32e6b+dirty)
+
+**Scope:** Hosted CI remediation code from `f0b3ca6..fc32e6b` plus the final working-tree
+single-snapshot correction.
+
+**Reviewers run:** three independent sequential passes under the Codex fan-out fallback:
+correctness/safety, repository conventions/test coverage, and simplicity/ship readiness. Each pass
+included the required deliberate second sweep and reported only findings scoring at least 80.
+
+**Finding:**
+
+- **Important, 84 — fixed-now:** `entry_state()` read the raw link target, then
+  `resolved_link_target()` read it again. A concurrent retarget could create an internally
+  inconsistent prepared baseline and leave recovery fail-closed but stuck. The first raw target is
+  now passed into the resolver, and `test_entry_state_reads_a_link_target_once` pins one read per
+  snapshot.
+
+**Post-fix verification:** isolated sync harness 38 tests passed with one Windows-only skip;
+Python syntax, Node portability fixtures, strict checker, and diff hygiene passed.
+
+**Ship-ready refactors:** none. The `cmd.exe` junction path remains necessarily platform-specific;
+replacing it with symbolic links or shell parsing would change the reviewed deployment contract.
+
+**Disposition:** all findings fixed now; no follow-up remains. Proceed to a fresh hosted matrix,
+then prefix QA.

@@ -850,6 +850,9 @@ clarifications without rewriting the original phased design.
   joined to the link parent when relative, rather than traversing the live entry. This keeps
   dangling Windows junctions attributable to the canonical tree and preserves the fail-closed
   unowned-neighbor guard during prune/rollback planning.
+- **Snapshot consistency:** one `entry_state()` call reads the raw link target once and derives the
+  normalized target from that same value. A concurrent external retarget therefore cannot mix two
+  link states inside one baseline or transaction comparison.
 - **Test-hook portability:** a hook path ending in `.py` is invoked through `sys.executable`.
   Other executable hook types retain direct invocation. This affects only the failure-injection
   surface and not normal sync actions.
