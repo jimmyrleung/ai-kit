@@ -868,3 +868,16 @@ clarifications without rewriting the original phased design.
 These refinements complete scenarios 31, 33, 34, 49, and 51 only when a new hosted matrix is green.
 They do not change ownership records, baseline restoration, preserve semantics, managed roots, or
 the explicit exclusion of legacy provider-private roots.
+
+## Final hosted verification — 2026-09-01
+
+The reviewed tree was committed as `2e7b855` and executed by hosted run `33546826508`. Ubuntu,
+macOS, and Windows all passed. This closes scenarios 31, 33, 34, 49, and 51 and confirms the final
+junction, symlink, adapter, transaction, path-normalization, and one-read snapshot behavior on the
+target runners. The run is available at
+https://github.com/jimmyrleung/ai-kit/actions/runs/33546826508.
+
+Local closure evidence also remains green: the isolated sync harness passed 38 tests with one
+Windows-only POSIX-fixture skip, and the Node portability suite, strict checker, syntax checks, and
+diff hygiene passed. The migration design, preserve policy, rollback contract, and legacy-root
+boundaries are unchanged.

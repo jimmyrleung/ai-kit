@@ -1375,6 +1375,8 @@ pass. A fresh hosted matrix remains required before Gate 5 can be marked complet
   safety fixture.
 - `33545034615` at `fc32e6b` passed Ubuntu, macOS, and Windows. The final review then tightened
   single-snapshot consistency, so one fresh matrix remains required for the reviewed tree.
+- `33546826508` at `2e7b855` passed Ubuntu, macOS, and Windows after the single-snapshot fix. This
+  is the final exact-commit hosted proof: https://github.com/jimmyrleung/ai-kit/actions/runs/33546826508
 
 **Verified root causes:**
 
@@ -1412,10 +1414,10 @@ pass. A fresh hosted matrix remains required before Gate 5 can be marked complet
 - [x] Windows retains junction lifecycle, transaction-recovery, and PowerShell adapter coverage;
       only the POSIX execution fixture is skipped there.
 - [x] Local Python/Node/checker/syntax/diff gates pass after the correction.
-- [ ] A fresh hosted run passes on Ubuntu, macOS, and Windows before Gate 5 closes.
+- [x] Hosted run `33546826508` passes on Ubuntu, macOS, and Windows at exact commit `2e7b855`.
 
-**Status:** Implemented and locally verified; hosted verification is pending the approved
-commit/push boundary.
+**Status:** Done. The reviewed implementation is locally verified, committed, pushed, and green on
+the hosted Ubuntu/macOS/Windows matrix.
 
 ## Verify — 2026-09-01 (pre-hosted run)
 
@@ -1430,7 +1432,7 @@ files:** the same five paths. **Budgets:** no hard line budget pinned (acceptabl
 - [x] Gate 1 — build/test: pass (`python3 -m py_compile`; isolated sync harness 38 tests with
   one Windows-only skip; `npm test`; `npm run check:portability`; both POSIX wrapper syntax checks;
   workflow YAML parse; `git diff --check`).
-- [ ] Gate 2 — AC checklist (5 items): BLOCKED on the publication-time hosted run.
+- [x] Gate 2 — AC checklist (5 items): pass.
   - [x] AC #1 — Windows junction argument-vector, namespace-equivalence, and dangling-target
     regression tests pass locally; state-snapshot coverage proves one raw-target read.
   - [x] AC #2 — Python action-hook interpreter regression test passes locally.
@@ -1438,8 +1440,10 @@ files:** the same five paths. **Budgets:** no hard line budget pinned (acceptabl
     link construction; hosted tracebacks identify the exact prior aliases.
   - [x] AC #4 — Windows keeps junction/transaction/PowerShell coverage and skips only the named
     POSIX wrapper execution fixture.
-  - [ ] AC #5 — Ubuntu/macOS/Windows matrix: pending commit and push.
-- [ ] Gate 3 — cross-cutting: pending until Gate 2's hosted evidence is available.
+  - [x] AC #5 — hosted run `33546826508` passed Ubuntu, macOS, and Windows at `2e7b855`.
+- [x] Gate 3 — cross-cutting: pass. No environment matrix or hard line budget applies; Python 3.12,
+  Node 24, and `js-yaml@5.4.1` match the workflow/package contract; rollback and preserve boundaries
+  are unchanged; no API, schema, auth, or performance surface was introduced.
 
 ## Review — 2026-09-01 (reviewed at: fc32e6b+dirty)
 
@@ -1466,3 +1470,34 @@ replacing it with symbolic links or shell parsing would change the reviewed depl
 
 **Disposition:** all findings fixed now; no follow-up remains. Proceed to a fresh hosted matrix,
 then prefix QA.
+
+## QA — 2026-09-01 (verified at: 2e7b855)
+
+**Target:** `prefix=linux_portability_cross_agent_coupling`
+
+**Review coverage:** the preceding `## Review — 2026-09-01` block covers the hosted-CI remediation
+through the final single-snapshot correction. Its only Important finding was fixed and regression
+tested before `2e7b855`.
+
+- [x] Gate 0 — scope and integrity: pass. The final QA scope is the reviewed five-file hosted-CI
+  remediation plus its committed code history; no unrelated working-tree files are included.
+- [x] Gate 1 — build/test: pass. The isolated sync harness passed 38 tests with one Windows-only
+  POSIX-fixture skip; `npm test`, `npm run check:portability`, Python syntax, both POSIX wrapper
+  syntax checks, workflow YAML parsing, and diff hygiene passed. Hosted run `33546826508` passed all
+  three jobs at exact commit `2e7b855`: Ubuntu, macOS, and Windows.
+- [x] Gate 2 — acceptance criteria: pass. Windows junction argument boundaries, namespace identity,
+  dangling-target safety, Python-hook execution, macOS path identity, one-read state snapshots, and
+  runner-specific adapter ownership are all pinned by executable fixtures; the final three-OS run
+  proves the target-runner behavior.
+- [x] Gate 3 — cross-cutting: pass. There is no environment asymmetry or hard line budget; Python
+  3.12, Node 24, and `js-yaml@5.4.1` are pinned; rollback, third-state refusal, explicit preserve
+  policy, and legacy-root exclusions remain intact; no API/schema/auth/performance surface changed.
+- [x] Gate 4 — documentation consistency: pass. The tasks, techspec, and hosted-CI investigation
+  agree on the final implementation and run. The unchecked-box census contains one dated historical
+  Gate-5 marker in the earlier `fc687c2+dirty` QA record; this final exact-commit QA supersedes that
+  pre-publication state without rewriting its history.
+- [x] Gate 5 — human go/no-go: **GO, conditional only on committing and pushing this final QA/close
+  documentation.** The owner approved the implementation commits and pushes, asked to fix the final
+  review finding immediately, and then asked to close the session with all commits handled here.
+
+**Final status:** Done. No implementation, live-home, review, or hosted-CI blocker remains.

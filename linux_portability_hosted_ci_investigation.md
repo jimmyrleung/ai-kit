@@ -108,3 +108,19 @@ The failing workflow entry point is `.github/workflows/portability.yml:75`, whic
 ## Approval
 
 The owner approved this five-file implementation on 2026-09-01 after the hosted tracebacks and scope were presented.
+
+## Resolution — 2026-09-01
+
+The final implementation was committed as `2e7b855`. Hosted run `33546826508` passed on Ubuntu,
+macOS, and Windows: https://github.com/jimmyrleung/ai-kit/actions/runs/33546826508. The isolated local
+harness also passed 38 tests with one Windows-only POSIX-fixture skip, and all Node/checker/syntax/
+diff checks remained green.
+
+All six root causes and the later single-snapshot consistency finding are resolved. No ownership,
+transaction, preserve, rollback, managed-root, or legacy-root boundary changed. Direct provider
+runtime attribution is still unavailable on this machine, but it is outside the sync-matrix defect
+and does not weaken the successful live-home, installer/discovery, local, or hosted evidence.
+
+- Confidence score: 99% — the final exact commit passed every local gate and all three hosted jobs.
+- 1% uncertainty — provider UI/runtime presentation was not independently exercised for every
+  provider because the required binaries or authenticated runtime were unavailable locally.
