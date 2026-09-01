@@ -1,11 +1,11 @@
-## [2026-08-31] — provider-neutral portability analysis reviewed
+## [2026-08-31] — provider-neutral portability design + tasks reviewed
 
-**Summary:** Mapped the ai-kit’s Windows coupling and Claude Code coupling, then produced and adversarially reviewed the refactor analysis. The agreed direction is one provider-neutral sync surface that manages per-skill links into `~/.claude/skills` and `~/.agents/skills`, using symlinks on Linux/macOS and directory junctions on Windows. Canonical skill structure stays intact; wording changes stay surgical; `AGENTS.md` is the provider-neutral conventions contract; and the maintenance feedback loop remains anchored under `~/.claude/`. Review verdict: **Approved with notes** (96% confidence).
-**Next:** In a fresh session, run `$techspec` from `linux_portability_cross_agent_coupling_analysis.md`. Resolve Cursor’s overlapping discovery roots, the common script language/location, whole-root-to-per-skill migration, ownership proof before replacing links, metadata compatibility, automation consumers, and final migration/verification of this Linux computer.
-**Blockers:** none — the open items are design decisions for the techspec, not external blockers.
-**Didn't work:** The first analysis pass missed Cursor’s duplicate-discovery risk and the existing whole-root `~/.claude/skills` transition seam, and treated force replacement as safer than the scripts prove. Loose regex/count units also produced 300 slash-token matches versus the exact 297 and mixed line counts with occurrence counts. The independent artifact review corrected these before design.
-**Artifacts:** `linux_portability_cross_agent_coupling_lay-of-the-land.md` · `linux_portability_cross_agent_coupling_analysis.md`
-<!-- close-receipt: 2026-08-31 20:54 · memory:0 · rules:0 · skills:0 · obs:2 -->
+**Summary:** Mapped ai-kit’s Windows and Claude Code coupling, then produced and independently reviewed the analysis, implementation techspec, and 10-task breakdown. The approved design uses one provider-neutral Python sync surface for per-skill links in `~/.claude/skills` and `~/.agents/skills`, baseline-safe rollback, surgical edits to 29 canonical skills, 51 QA scenarios, staged portability enforcement, and approval-gated live migration. Final tasks review: **Approved with notes** (97% confidence).
+**Next:** Start `$implement-task` with Task 1 in `linux_portability_cross_agent_coupling_tasks.md`.
+**Blockers:** none for Task 1. Later completion needs Windows/macOS CI evidence and explicit approval before any live collision backup, apply, or rollback.
+**Didn't work:** The initial techspec rollback model would have erased adopted links, and its first Phase 3 map promoted a contextual inventory into blanket scope. The first tasks breakdown also derived symmetric parallel lists from explicit dependencies while its acceptance criteria introduced hidden dependencies; review moved `teach` metadata earlier, split the oversized batch, serialized documentation closure, and assigned final fail-closed CI explicitly.
+**Artifacts:** `linux_portability_cross_agent_coupling_lay-of-the-land.md` · `linux_portability_cross_agent_coupling_analysis.md` · `linux_portability_cross_agent_coupling_techspec.md` · `linux_portability_cross_agent_coupling_tasks.md`
+<!-- close-receipt: 2026-08-31 22:44 · memory:0 · rules:0 · skills:0 · obs:5 -->
 
 ## [2026-08-26] — breakout-session ported from second_brain + audit run 12
 
