@@ -1335,3 +1335,27 @@ and was intentionally left out of this focused correction.
 - [ ] Gate 5 — human go/no-go: PENDING. The tree is dirty and the hosted Ubuntu/macOS/Windows
   workflow cannot run until the new workflow and implementation are committed and pushed. Awaiting
   the user's decision whether to commit/push and trigger the external matrix.
+
+## Hosted CI remediation — 2026-09-01
+
+**Run:** `33519064448` at `f0b3ca6` — Ubuntu passed; macOS failed `Check POSIX adapter syntax`;
+Windows failed `Run portability fixtures`.
+
+**Root causes:**
+
+- Both POSIX wrappers used Bash 4.2's `[[ -v VAR ]]` even though the macOS runner uses Bash 3.2.
+- `find-skills` was locked by its LF byte hash while Markdown checkout EOL was unspecified. A
+  Windows CRLF checkout therefore produced a different digest with identical skill text.
+- The workflow's multi-path `bash -n` call parsed the first wrapper and passed the second path as a
+  positional argument instead of independently checking both files.
+
+**Fixes implemented locally:**
+
+- Replaced `[[ -v VAR ]]` with Bash-3-compatible `${VAR+x}` checks in both POSIX wrappers.
+- Normalized CRLF to LF only for the neutral-reference digest and added a CRLF regression fixture;
+  the existing semantic-change fixture remains fail-closed.
+- Changed the workflow syntax step to iterate over both wrappers independently.
+
+**Local verification:** `npm test`, `npm run check:portability`, 33 sync tests (one Windows-only
+skip), both wrapper syntax checks, private-home override exit-2 behavior, and `git diff --check`
+pass. A fresh hosted matrix remains required before Gate 5 can be marked complete.

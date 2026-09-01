@@ -814,3 +814,19 @@ overlay value-shape checks, and identified stale completion/CI evidence. The app
 This section records the implementation correction without rewriting the earlier dated design and
 QA evidence. The normal-home apply is complete; only hosted cross-OS evidence and unavailable
 provider runtime attribution remain external.
+
+## Hosted CI compatibility correction — 2026-09-01
+
+The first pushed three-OS matrix run (`33519064448`) passed on Ubuntu and exposed two portability
+assumptions before Gate 5 could close:
+
+- the POSIX wrappers used `[[ -v VAR ]]`, which requires Bash 4.2 while the macOS runner provides
+  Bash 3.2; wrapper environment detection now uses the Bash-3-compatible `${VAR+x}` expansion;
+- the locked `find-skills` digest hashed checkout bytes, so a Windows CRLF checkout changed the
+  digest without changing the skill text. The neutral-reference check now normalizes CRLF to LF
+  before hashing, while a fixture proves that semantic content changes still fail.
+
+The workflow also syntax-checks each POSIX wrapper in a loop rather than passing the second path as
+an argument to the first `bash -n` invocation. These corrections refine scenarios 29, 33, and 49:
+wrapper parity includes the oldest supported runner Bash, the neutral-reference lock is textual
+rather than checkout-EOL-specific, and hosted success requires a fresh green matrix run.

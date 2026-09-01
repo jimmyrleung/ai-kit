@@ -2,7 +2,7 @@
 # Compatibility wrapper. The common Python engine owns all enumeration and mutation.
 set -euo pipefail
 
-if [[ -v CODEX_HOME ]]; then
+if [[ ${CODEX_HOME+x} ]]; then
   echo "CODEX_HOME is not accepted by the common sync; use --home for an isolated user base." >&2
   exit 2
 fi

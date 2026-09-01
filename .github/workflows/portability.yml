@@ -45,7 +45,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          bash -n adapters/codex/sync.sh adapters/cursor/sync.sh
+          for adapter in adapters/codex/sync.sh adapters/cursor/sync.sh; do
+            bash -n "$adapter"
+          done
 
       - name: Check PowerShell adapter syntax
         if: runner.os == 'Windows'

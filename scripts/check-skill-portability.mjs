@@ -299,7 +299,8 @@ function checkPopulationDocs(root, skillCount, result) {
 function checkFindSkills(root, result) {
   const file = path.join(root, 'skills', 'find-skills', 'SKILL.md');
   try {
-    const digest = crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
+    const normalized = fs.readFileSync(file, 'utf8').replace(/\r\n/g, '\n');
+    const digest = crypto.createHash('sha256').update(normalized, 'utf8').digest('hex');
     if (digest !== FIND_SKILLS_SHA256) {
       addFinding(result, { code: 'neutral-reference-changed', file, message: `find-skills hash ${digest} differs from the locked neutral reference`, kind: 'profile' });
     }

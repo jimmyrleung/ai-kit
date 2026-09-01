@@ -2,7 +2,7 @@
 # Compatibility wrapper. The common Python engine owns all enumeration and mutation.
 set -euo pipefail
 
-if [[ -v CURSOR_HOME ]]; then
+if [[ ${CURSOR_HOME+x} ]]; then
   echo "CURSOR_HOME is not accepted by the common sync; use --home for an isolated user base." >&2
   exit 2
 fi

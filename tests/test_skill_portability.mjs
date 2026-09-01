@@ -189,6 +189,14 @@ function testPopulationAndNeutralReference() {
   } finally {
     fs.rmSync(changed, { recursive: true, force: true });
   }
+
+  const crlf = copyFixture();
+  try {
+    mutateSkill(crlf, 'find-skills', (raw) => raw.replace(/\r?\n/g, '\r\n'));
+    assert.equal(hasCode(checkRepository(crlf, 'structural'), 'neutral-reference-changed'), false);
+  } finally {
+    fs.rmSync(crlf, { recursive: true, force: true });
+  }
 }
 
 function testCouplingModesAndClasses() {
