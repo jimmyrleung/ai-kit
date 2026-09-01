@@ -507,7 +507,7 @@ artifacts; each target file was excluded from its own reference list.
 | `docs/cursor-portability-assessment.md` | 3 | Cursor README, INVENTORY, Codex assessment |
 | `INVENTORY.md` | 3 | README, skill-authoring rule, write-skills |
 
-The deployed `/home/jleung/.codex/AGENTS.md` contains a copied kit-mechanics block rather than a
+The deployed `~/.codex/AGENTS.md` contains a copied kit-mechanics block rather than a
 link. A source Codex instruction change therefore has an out-of-repo manual refresh consumer.
 
 ## Side effects and impact

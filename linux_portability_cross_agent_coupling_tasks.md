@@ -1000,7 +1000,7 @@ second pass over the remaining workflow/config and private-instruction surfaces.
   transitional checker after final CI enforcement. Both now prescribe `npm run check:portability`;
   the transitional command remains only in the package/test implementation and dated verification
   history. Confidence: 98% — current-document search and the final checker confirm closure.
-- **Important — follow-up (score 88):** `/home/jleung/.codex/AGENTS.md:264` contains the copied
+- **Important — follow-up (score 88):** `~/.codex/AGENTS.md:264` contains the copied
   `kit-mechanics` block from the older 2026-08-06 adapter snapshot, including the retired
   `~/.codex/skills` deployment wording. The markers remain intact, and the public Codex adapter
   docs require manual refresh; no repository automation or silent private-file overwrite is
