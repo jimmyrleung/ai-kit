@@ -329,7 +329,7 @@ class SyncSkillsTests(unittest.TestCase):
     @unittest.skipUnless(os.name != "nt", "canonical directory-link coverage is exercised by the Windows matrix")
     def test_canonical_directory_links_are_enumerated_and_deployed(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
-            base = Path(temporary)
+            base = Path(temporary).resolve()
             checkout = copy_checkout(base / "checkout-holder")
             external = base / "external" / "linked-skill"
             external.mkdir(parents=True)
@@ -360,7 +360,7 @@ class SyncSkillsTests(unittest.TestCase):
             claude_root.mkdir(parents=True)
             agents_root.mkdir(parents=True)
             target = REPO_ROOT / "skills" / "analyze-work"
-            raw = os.path.relpath(target, claude_root)
+            raw = os.path.relpath(target, claude_root.resolve())
             link = claude_root / "analyze-work"
             os.symlink(raw, link, target_is_directory=True)
             original_lstat = link.lstat()
@@ -685,6 +685,38 @@ class SyncSkillsTests(unittest.TestCase):
             self.assertIn("ownership-mismatch", result.stderr)
             self.assertEqual(filesystem_snapshot(home), before)
 
+    def test_windows_junction_command_passes_each_argument_without_nested_quoting(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            holder = Path(temporary)
+            path = holder / "managed root" / "analyze-work"
+            target = holder / "canonical skills" / "analyze-work"
+            completed = subprocess.CompletedProcess([], 0, "", "")
+            with mock.patch.object(SYNC.os, "name", "nt"), mock.patch.object(
+                SYNC.subprocess, "run", return_value=completed
+            ) as run:
+                SYNC.create_link(path, target)
+            run.assert_called_once_with(
+                ["cmd.exe", "/d", "/c", "mklink", "/J", str(path), str(target)],
+                capture_output=True,
+                text=True,
+            )
+
+    def test_python_action_hook_uses_the_active_interpreter(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            home = Path(temporary)
+            hook = home / "race hook.py"
+            root = home / ".claude" / "skills"
+            engine = SYNC.SyncEngine(REPO_ROOT, home)
+            with mock.patch.dict(os.environ, {"AI_KIT_SYNC_ACTION_HOOK": str(hook)}), mock.patch.object(
+                SYNC.subprocess, "run"
+            ) as run:
+                engine.invoke_hook(root, "analyze-work")
+            run.assert_called_once_with(
+                [sys.executable, str(hook), str(root), "analyze-work"],
+                check=True,
+            )
+
+    @unittest.skipUnless(os.name != "nt", "POSIX compatibility wrappers are exercised on POSIX runners")
     def test_compatibility_posix_wrappers_forward_and_reject_private_home_override(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             home = Path(temporary)

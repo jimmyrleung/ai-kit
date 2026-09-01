@@ -387,8 +387,11 @@ def json_manifest(repo_root: str, roots: dict[str, dict[str, Any]], transaction:
 def create_link(path: Path, target: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     if os.name == "nt":
-        command = f'mklink /J "{path}" "{target}"'
-        result = subprocess.run(["cmd.exe", "/d", "/s", "/c", command], capture_output=True, text=True)
+        result = subprocess.run(
+            ["cmd.exe", "/d", "/c", "mklink", "/J", str(path), str(target)],
+            capture_output=True,
+            text=True,
+        )
         if result.returncode != 0:
             detail = (result.stderr or result.stdout).strip()
             raise SyncError(f"cannot create junction {path}: {detail}")
@@ -803,8 +806,11 @@ class SyncEngine:
         hook = os.environ.get("AI_KIT_SYNC_ACTION_HOOK")
         if not hook:
             return
+        command = [hook, str(root), name]
+        if Path(hook).suffix.lower() == ".py":
+            command.insert(0, sys.executable)
         try:
-            subprocess.run([hook, str(root), name], check=True)
+            subprocess.run(command, check=True)
         except (OSError, subprocess.CalledProcessError) as exc:
             raise SyncError(f"test action hook failed for {root}/{name}: {exc}") from exc
 

@@ -1359,3 +1359,66 @@ Windows failed `Run portability fixtures`.
 **Local verification:** `npm test`, `npm run check:portability`, 33 sync tests (one Windows-only
 skip), both wrapper syntax checks, private-home override exit-2 behavior, and `git diff --check`
 pass. A fresh hosted matrix remains required before Gate 5 can be marked complete.
+
+## Hosted CI harness remediation — 2026-09-01
+
+**Investigation:** `linux_portability_hosted_ci_investigation.md`
+
+**Runs:**
+
+- `33538333563` at `b536a3e` moved both remaining failures into `Run isolated sync harness`.
+- `33539563300` at `fe4e735` exposed the two macOS tracebacks.
+- `33541996829` at `5fe6437` exposed individual Windows tracebacks through public annotations.
+
+**Verified root causes:**
+
+- Windows `mklink /J` received one nested-quoted command argument through `cmd.exe /s /c`; valid
+  fixture paths therefore failed with the Windows filename/directory syntax error.
+- A `.py` failure-injection hook was executed directly on Windows and failed with WinError 193.
+- Two macOS fixtures mixed lexical `/var` temporary paths with canonical `/private/var` paths; one
+  assertion compared aliases directly and one relative symlink resolved to `/private/Users/...`.
+- The POSIX-wrapper execution fixture ran on Windows despite the workflow's separate PowerShell
+  adapter path.
+
+**Approved minimal implementation:**
+
+- Pass `cmd.exe`, `mklink`, `/J`, link, and target as separate subprocess arguments.
+- Invoke `.py` action hooks through the current Python interpreter; preserve direct execution for
+  all other hook types.
+- Resolve macOS fixture parents before direct comparison and relative-link construction.
+- Gate the POSIX-wrapper execution fixture to POSIX runners. Retain per-test CI annotations.
+
+**Acceptance criteria:**
+
+- [x] Regression tests pin the Windows `mklink` argument vector and Python-hook interpreter.
+- [x] The macOS fixtures compare and construct links from canonical temporary paths.
+- [x] Windows retains junction lifecycle, transaction-recovery, and PowerShell adapter coverage;
+      only the POSIX execution fixture is skipped there.
+- [x] Local Python/Node/checker/syntax/diff gates pass after the correction.
+- [ ] A fresh hosted run passes on Ubuntu, macOS, and Windows before Gate 5 closes.
+
+**Status:** Implemented and locally verified; hosted verification is pending the approved
+commit/push boundary.
+
+## Verify — 2026-09-01 (pre-hosted run)
+
+**Task ID:** Hosted CI harness remediation
+
+**Prefix:** `linux_portability_cross_agent_coupling`
+
+**Files from task:** `scripts/sync-skills.py`, `tests/test_sync_skills.py`,
+`linux_portability_hosted_ci_investigation.md`, and the tasks/techspec records. **Working-tree
+files:** the same five paths. **Budgets:** no hard line budget pinned (acceptable).
+
+- [x] Gate 1 — build/test: pass (`python3 -m py_compile`; isolated sync harness 35 tests with
+  one Windows-only skip; `npm test`; `npm run check:portability`; both POSIX wrapper syntax checks;
+  workflow YAML parse; `git diff --check`).
+- [ ] Gate 2 — AC checklist (5 items): BLOCKED on the publication-time hosted run.
+  - [x] AC #1 — Windows junction argument-vector regression test passes locally.
+  - [x] AC #2 — Python action-hook interpreter regression test passes locally.
+  - [x] AC #3 — macOS fixtures now resolve their temporary base/parent before equality or relative
+    link construction; hosted tracebacks identify the exact prior aliases.
+  - [x] AC #4 — Windows keeps junction/transaction/PowerShell coverage and skips only the named
+    POSIX wrapper execution fixture.
+  - [ ] AC #5 — Ubuntu/macOS/Windows matrix: pending commit and push.
+- [ ] Gate 3 — cross-cutting: pending until Gate 2's hosted evidence is available.

@@ -830,3 +830,30 @@ The workflow also syntax-checks each POSIX wrapper in a loop rather than passing
 an argument to the first `bash -n` invocation. These corrections refine scenarios 29, 33, and 49:
 wrapper parity includes the oldest supported runner Bash, the neutral-reference lock is textual
 rather than checkout-EOL-specific, and hosted success requires a fresh green matrix run.
+
+## Hosted sync-harness correction — 2026-09-01
+
+Subsequent hosted runs moved the remaining macOS and Windows failures into the isolated sync
+harness and exposed their tracebacks. The detailed evidence is in
+`linux_portability_hosted_ci_investigation.md`; this section records the resulting design
+clarifications without rewriting the original phased design.
+
+- **Windows junction command boundary:** `cmd.exe` receives the built-in command and every
+  `mklink /J` operand as separate subprocess arguments. The engine does not pre-quote an entire
+  command argument and does not enable `shell=True`. This preserves argument boundaries and the
+  selected non-privileged junction mechanism.
+- **Test-hook portability:** a hook path ending in `.py` is invoked through `sys.executable`.
+  Other executable hook types retain direct invocation. This affects only the failure-injection
+  surface and not normal sync actions.
+- **macOS fixture identity:** temporary paths used for direct equality or relative-symlink
+  construction are resolved first so `/var` and `/private/var` aliases cannot change the intended
+  target.
+- **Adapter test ownership:** Bash wrapper execution belongs to POSIX runners. Windows retains the
+  PowerShell syntax/dry-run steps plus the full junction and transaction harness; it does not run a
+  second provider surface through Git Bash.
+- **Failure observability:** the unittest result emits one bounded GitHub annotation per failure
+  during Actions runs. Local output and test behavior are unchanged.
+
+These refinements complete scenarios 31, 33, 34, 49, and 51 only when a new hosted matrix is green.
+They do not change ownership records, baseline restoration, preserve semantics, managed roots, or
+the explicit exclusion of legacy provider-private roots.
