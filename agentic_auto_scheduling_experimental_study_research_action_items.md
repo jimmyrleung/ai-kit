@@ -4,7 +4,7 @@
 
 **Provenance:** derived 2026-07-05 from `agentic_auto_scheduling_experimental_study.pdf` (PACT 2025, arXiv 2511.00592) and a 3-vote adversarially-verified deep-research sweep of the Dec 2025 – Jul 2026 literature. Full source notes and caveats: [`agentic_auto_scheduling_experimental_study.md`](agentic_auto_scheduling_experimental_study.md). Evidence tags used below: **[COMPILOT]**, **[Magellan]**, **[KernelSkill]**, **[KernelPro]**, **[llvm-autofix]**, **[ACCLAIM]**, **[AHE]**, **[AutoPass]**, **[Anthropic]** — links in the companion doc.
 
-**Scope note:** items marked *(cc-looper)* need runner changes in the sibling cc-looper repo; ai-kit owns the skill-side contract. Skill edits, when applied, propagate to Codex via `adapters/codex/sync.ps1` per the standing sync rule.
+**Scope note:** items marked *(cc-looper)* need runner changes in the sibling cc-looper repo; ai-kit owns the skill-side contract. Validate skill edits with `npm test` and `npm run check:portability`, then deploy the common roots with `python3 scripts/sync-skills.py` per the standing sync rule.
 
 ---
 

@@ -1,10 +1,11 @@
 # Loop recipes — pairing ai-kit processes with native loop primitives
 
-**What this is.** The adapter layer between ai-kit's runner-agnostic skills and Claude Code's loop
-primitives (`/goal`, `/loop`, `/schedule`, and plain turn-based prompting). Work skills stay
-decoupled: they emit deterministic, machine-checkable criteria (pinned `Status:` lines,
+**What this is.** The provider-specific overlay between ai-kit's runner-agnostic skills and Claude
+Code's loop primitives (`/goal`, `/loop`, `/schedule`, and plain turn-based prompting). Work
+skills stay decoupled: they emit deterministic, machine-checkable criteria (pinned `Status:` lines,
 `**Recommendation:** go|no-go`, pass/fail gates) and never name a runner. Primitive-specific wiring
-lives in exactly two places — this doc and `/triage`'s loop-primitive routing table.
+lives in this document and the provider adapter mechanics; the `triage` skill points here by runner
+category without repeating these spellings.
 
 **Source.** Claude Code team guidance on loop engineering (X post, 2026-07-06), captured at
 [`claude_guide_loop_engineering.md`](../claude_guide_loop_engineering.md). Related:
@@ -41,10 +42,17 @@ what runs inside each iteration.
   `~/.claude/improvements`, local KB vaults, or private local-only repos. Anything reading those
   must run locally.
 - **`/loop` runs on this machine** and dies with it. For unattended cadences on a machine that
-  sleeps, use the OS scheduler instead (Windows Task Scheduler → `claude -p "<prompt>"`).
+  sleeps, use the matching OS scheduler instead:
+  - Windows: Task Scheduler.
+  - macOS: a `launchd` LaunchAgent.
+  - Linux: a `systemd --user` timer (or cron when systemd is unavailable).
+  Keep the scheduled command and its local-file assumptions on the same OS/user context.
 - **`/goal` availability varies by CLI build** — verify it exists (`/goal` with no arguments) before
   wiring a recipe to it; unverified on this machine as of 2026-07-07, and headless (`claude -p`)
   compatibility is likewise unverified.
+- **Current capability caveat:** runner frames, headless execution, permissions, and stdin behavior
+  vary by installed provider and version. Check the installed runner's help and its adapter guide
+  before wiring a recipe; treat an unverified capability as unavailable rather than inferred.
 - **Match the interval to the change rate** of the thing watched; prefer reacting to events over
   polling (the guide's own usage rule).
 - **Pilot before a large run** — for tasks-doc streams, `--count 1-2` on a new doc shape first.
@@ -61,7 +69,9 @@ this stays compatible with the skill's "never run unprompted, only offer" rule �
 **is** the offer; Phase 5 (walk the proposals + apply) stays interactive in your next session.
 
 - Runner: **local only** (reads `~/.claude/observations`, writes `~/.claude/improvements`).
-- Wiring: Windows Task Scheduler, weekly → `claude -p "/improve — phases 1-4 only: stage the packet, do not present or apply"`.
+- Wiring: use the matching host scheduler — Windows Task Scheduler, macOS `launchd` LaunchAgent,
+  or Linux `systemd --user` timer/cron — to run the provider's verified local headless invocation
+  weekly (for example, `claude -p "/improve — phases 1-4 only: stage the packet, do not present or apply"`).
 - Guard: if `~/.claude/improvements/last-review.txt` is <7 days old, the run should no-op.
 
 ### 2. `/audit-skills` after authoring bursts
@@ -101,5 +111,5 @@ replace the runner.
 
 Skills emit verifiable, deterministic completion criteria and never name a loop runner. If a recipe
 here needs a skill to change, the change is "make the criterion more deterministic," not "mention
-the primitive." Primitive names appear in exactly two places: this doc and `/triage`'s routing
-table.
+the primitive." Provider primitive names appear in this document and the relevant provider adapter
+mechanics; the `triage` skill uses runner categories and links here.

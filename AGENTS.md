@@ -9,5 +9,5 @@ Durable repo-scoped rules live in `docs/rules/` — one topic file per concern, 
 This index is the only part loaded every session (cap: ~12 lines).
 
 <!-- rules-index:begin -->
-- [skill-authoring](docs/rules/skill-authoring.md) — read before editing, validating, enumerating, or converting skills/commands/agents in this repo (strict-YAML check, symlinked loop entries, ~/.claude + ~/.codex deployment topology).
+- [skill-authoring](docs/rules/skill-authoring.md) — read before editing, validating, enumerating, or converting skills/commands/agents in this repo (strict-YAML checker, common two-root sync, provider overlay/profile rules).
 <!-- rules-index:end -->

@@ -1,19 +1,19 @@
 ---
 name: record-decision
-description: Capture a decision the moment it surfaces mid-work as a full ADR-template record. Fills Context/Decision/Alternatives from the session and AI-DRAFTS the rationale, hard-flagged UNREVIEWED so it never passes as owned — /close later sweeps unreviewed records for you to review and own. Use when a decision surfaces in an ad-hoc or time-pressured session where writing a full ADR now isn't feasible — 'we decided', 'record/log/document/note this decision', 'capture this choice', 'write an ADR for this'. Invoke as /record-decision.
+description: Capture a decision the moment it surfaces mid-work as a full ADR-template record. Fills Context/Decision/Alternatives from the session and AI-DRAFTS the rationale, hard-flagged UNREVIEWED so it never passes as owned — the close skill later sweeps unreviewed records for you to review and own. Use when a decision surfaces in an ad-hoc or time-pressured session where writing a full ADR now isn't feasible — 'we decided', 'record/log/document/note this decision', 'capture this choice', 'write an ADR for this'.
 ---
 
 # record-decision — capture the decision now, own it later
 
 You are a decision capturer. When a consequential choice surfaces mid-work — in a small task, a follow-up, or an exploration that turned up something worth settling — you snapshot it *immediately* into a full ADR-template record, so the decision and its context don't evaporate the moment the session moves on. You fill the factual sections from the session and you AI-**draft** the rationale, but you flag that draft `UNREVIEWED`, loudly — because a rationale the human hasn't owned is a reconstruction, not an ADR. The owning comes later, when there's bandwidth.
 
-> **The trade you are making:** a full, owned ADR asks for the most effort at the worst time, so decisions go unrecorded. You invert it — cheap capture now, owned review later. The cost is an AI-drafted rationale that *must* be reviewed before it's trusted; the `UNREVIEWED` flag and the `/close` sweep are what keep that debt honest.
+> **The trade you are making:** a full, owned ADR asks for the most effort at the worst time, so decisions go unrecorded. You invert it — cheap capture now, owned review later. The cost is an AI-drafted rationale that *must* be reviewed before it's trusted; the `UNREVIEWED` flag and the close-skill sweep are what keep that debt honest.
 
 > **Litmus test:** if you're polishing prose, steelmanning the rejected option, or telling the user the rationale is settled — stop. Owning the rationale is the human's job, done at review. You capture and flag; you do not own.
 
 ## When to use
 - **Ad-hoc:** a decision surfaces in a session with no techspec — small task, follow-up, exploration — and writing a full ADR right now isn't feasible. "We decided…", "let's record this", "capture this choice".
-- As the cheap capture step `/close` (or a workflow) reaches for when a decision deserves a standalone record but the moment isn't right to author one.
+- As the cheap capture step the close skill (or a workflow) reaches for when a decision deserves a standalone record but the moment isn't right to author one.
 
 ## When NOT to use
 - **The user has the time and wants to own it now** → still capture here, but let them write or confirm the Rationale in the same sitting and stamp `status: owned` — no `UNREVIEWED` debt created.
@@ -26,11 +26,11 @@ You are a decision capturer. When a consequential choice surfaces mid-work — i
 - **`{slug}`** — short kebab name for the decision.
 
 ## Process
-1. **Gate it.** Apply the ADR gate — record only if **(a)** hard/costly to reverse, **or (b)** surprising to a future reader without the context, **or (c)** a genuine trade-off with a rejected alternative. If none hold, don't record it — say so. (Same gate `/close` uses.)
+1. **Gate it.** Apply the ADR gate — record only if **(a)** hard/costly to reverse, **or (b)** surprising to a future reader without the context, **or (c)** a genuine trade-off with a rejected alternative. If none hold, don't record it — say so. (Same gate the close skill uses.)
 2. **Resolve the home** (see Output file) and **`NNNN`** — the next integer above the highest existing `NNNN-*.md` / `adr-NNNN-*.md` in that dir. One sequence per decision home, whatever wrote the earlier records — never fork a parallel numbering.
 3. **Fill the factual sections from the session** — Context, Decision, Alternatives considered (each with why-rejected). These are reconstructable facts; fill them faithfully, never invent to fill a gap.
 4. **AI-draft the owned sections, flagged.** Draft Rationale and Consequences as a *reconstruction*, marked «AI-reconstructed — verify/rewrite», and stamp the header `status: ai-drafted · UNREVIEWED`. Never write the draft as settled fact.
-5. **Hand back the debt.** Tell the user the record's path and that it's `UNREVIEWED` — `/close` will sweep it, or they can review and own the Rationale now if they have a minute. Do **not** mark it owned yourself.
+5. **Hand back the debt.** Tell the user the record's path and that it's `UNREVIEWED` — the close skill will sweep it, or they can review and own the Rationale now if they have a minute. Do **not** mark it owned yourself.
 6. **Confidence gate.** Below 90% on whether the decision even clears the ADR gate, ask rather than manufacture a record.
 
 ## Output structure
@@ -39,7 +39,7 @@ A full ADR-template record plus the flag:
 # ADR-NNNN: <decision>
 
 > **status: ai-drafted · UNREVIEWED** — the Rationale and Consequences below are an AI reconstruction
-> from the working session, NOT yet owned. Verify or rewrite them (directly, or via /close's review
+> from the working session, NOT yet owned. Verify or rewrite them (directly, or via the close skill's review
 > sweep), then flip to `status: owned`.
 
 ## Context             <session facts — the situation that forced the choice>
@@ -65,7 +65,7 @@ A full ADR-template record plus the flag:
 
 ## What this skill does NOT do
 - **Own the decision** — only the human writes or confirms the Rationale; that happens at review, not capture.
-- **Sweep / remind about unreviewed records** — `/close` runs the review sweep at session end.
+- **Sweep / remind about unreviewed records** — the close skill runs the review sweep at session end.
 - **Record decisions that already live in a techspec/PRD** — those have a home; this is for the homeless ones.
 
 ## Output file

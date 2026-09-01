@@ -1,13 +1,13 @@
 ---
 name: review-implementation
-description: "Batched post-implementation code review for a prefix — run once after the prefix's tasks are implemented (or at a mid-run boundary for long task lists) instead of the retired per-task reviewer fan-out. Fans out 3 parallel generic reviewer subagents, verifies findings against current source, dispositions them with the user, and records a sha-stamped `## Review — {date}` block in the prefix's review/QA doc for /qa-gates to reference. Invoke as /review-implementation prefix=… after the last task, before /qa-gates. Reviews code, not docs (docs: review-artifact) and not outcomes (outcomes: qa-gates); headless loop sibling: review-checkpoint (cc-loop only)."
+description: "Batched post-implementation code review for a prefix — run once after the prefix's tasks are implemented (or at a mid-run boundary for long task lists) instead of the retired per-task reviewer fan-out. Fans out 3 parallel generic reviewer subagents, verifies findings against current source, dispositions them with the user, and records a sha-stamped `## Review — {date}` block in the prefix's review/QA doc for the `qa-gates` skill to reference. Run with prefix=… after the last task, before `qa-gates`. Reviews code, not docs (docs: `review-artifact`) and not outcomes (outcomes: `qa-gates`); headless loop sibling: review-checkpoint (cc-loop only)."
 ---
 
 # Review Implementation — batched post-implementation code review
 
 You review the code a prefix's tasks produced — once, as a batch — instead of paying for a
-reviewer fan-out inside every `/implement-task` run. Findings are verified against current
-source, dispositioned with the user, and recorded in the prefix's artifact so `/qa-gates`
+reviewer fan-out inside every `implement-task` run. Findings are verified against current
+source, dispositioned with the user, and recorded in the prefix's artifact so `qa-gates`
 can point at this run instead of re-reviewing.
 
 ## Inputs the caller must provide (in the invoking message)
@@ -31,7 +31,7 @@ review are separate blocks.
 
 ### 1 — Context + diff
 
-`Read` the `{prefix}_*.md` docs (techspec, tasks — for ACs, pinned conventions, budgets).
+Inspect the `{prefix}_*.md` docs (techspec, tasks — for ACs, pinned conventions, budgets).
 Run `git status --short` and `git diff <base>..HEAD` (plus untracked files) to establish the
 review scope. If `scope` was given, restrict to those tasks' files (from the tasks doc).
 
@@ -48,7 +48,7 @@ maintain) IN PARALLEL — same diff context, different focuses:
   handler returns true or throws); financial/async ordering (webhook-vs-poller,
   confirm-vs-capture races).
 - **conventions** — adherence to the codebase's documented and observed patterns:
-  `docs/rules/`, AGENTS.md / CLAUDE.md conventions, lint/format configs, and the idioms of
+  `docs/rules/`, AGENTS.md and loaded instruction-layer conventions, lint/format configs, and the idioms of
   the neighboring code the diff touches.
 - **simplicity + ship-ready refactors** — over-abstraction, dead code, unnecessary
   complexity; ADDITIONALLY emit a **"Ship-ready refactors"** list: small, low-risk
@@ -97,19 +97,19 @@ survived QA in one run), and reset or date-pin any live PASS rows the change inv
 
 Write the `## Review — {date}` block: reviewers run, each finding with its disposition
 (`fixed-now` / `follow-up` / `rejected-stale`), ship-ready refactors applied vs deferred,
-and the `reviewed at` stamp. Hand back: next step is `/qa-gates prefix=…` once every task
+and the `reviewed at` stamp. Hand back: next step is `qa-gates prefix=…` once every task
 is Done.
 
 ## Observation write
 
 Append 1 observation per run to the session-scoped buffer (canonical schema from
 `~/.claude/observations/README.md`, `skill_or_workflow: review-implementation`) — outcome,
-finding counts by disposition, friction if any — so `/close` → `/improve` sees
+finding counts by disposition, friction if any — so `close` → `improve` sees
 batched-review runs the way it already sees gate runs.
 
 ## When NOT to use
 
-- **Per-task review mid-implementation** — deliberately retired from `/implement-task`
+- **Per-task review mid-implementation** — deliberately retired from `implement-task`
   (token economics: the fan-out re-loaded the same context once per task to review a small
   diff). If a single task is genuinely risky, review just its diff ad-hoc — don't
   resurrect the per-task fan-out as a habit.
@@ -120,8 +120,8 @@ batched-review runs the way it already sees gate runs.
 
 ## Composition
 
-- **Pipeline:** `/implement-task` per task (Workflows 1+3, no embedded review) →
-  `/review-implementation` → `/qa-gates`.
+- **Pipeline:** `implement-task` per task (Workflows 1+3, no embedded review) →
+  `review-implementation` → `qa-gates`.
 - **`qa-gates` pre-work:** a `## Review` block whose stamp covers the final tree → qa-gates
   records the pointer and skips its own reviewer fan-out; open `follow-up` items surface at
   Gate 5.

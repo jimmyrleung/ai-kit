@@ -33,20 +33,21 @@ the tenth is an approval-gated live migration after review and QA.
 
 | Task | Title | Complexity | Est. Time | Depends On | Status |
 | --- | --- | --- | --- | --- | --- |
-| 1 | Build the common sync engine and compatibility surface | L | 6–8h | — | Not Started |
-| 2 | Build the strict portability checker | M | 3–4h | Task 1 | Not Started |
-| 3 | Enforce provider profiles in policy and transitional CI | M | 3–4h | Task 2 | Not Started |
-| 4 | Neutralize low-risk invocation and handoff wording | M | 3–4h | Task 3 | Not Started |
-| 5 | Neutralize research and discovery workflows | M | 3–4h | Task 3 | Not Started |
-| 6 | Neutralize review, design, and learning workflows | M | 3–4h | Task 3 | Not Started |
-| 7 | Neutralize routing, orchestration, and maintenance workflows | M | 3–4h | Task 3 | Not Started |
-| 8 | Reconcile public, policy, and historical documentation | M | 2–4h | Tasks 4, 5, 6, 7 | Not Started |
-| 9 | Reconcile provider mechanics and enforce final portability | M | 2–4h | Task 8 | Not Started |
-| 10 | Migrate and verify the Linux user-home roots | S | 1–2h | Task 9 + review/QA gates | Not Started |
+| 1 | Build the common sync engine and compatibility surface | L | 6–8h | — | Done |
+| 2 | Build the strict portability checker | M | 3–4h | Task 1 | Done |
+| 3 | Enforce provider profiles in policy and transitional CI | M | 3–4h | Task 2 | Done |
+| 4 | Neutralize low-risk invocation and handoff wording | M | 3–4h | Task 3 | Done |
+| 5 | Neutralize research and discovery workflows | M | 3–4h | Task 3 | Done |
+| 6 | Neutralize review, design, and learning workflows | M | 3–4h | Task 3 | Done |
+| 7 | Neutralize routing, orchestration, and maintenance workflows | M | 3–4h | Task 3 | Done |
+| 8 | Reconcile public, policy, and historical documentation | M | 2–4h | Tasks 4, 5, 6, 7 | Done |
+| 9 | Reconcile provider mechanics and enforce final portability | M | 2–4h | Task 8 | Done |
+| 10 | Migrate and verify the Linux user-home roots | S | 1–2h | Task 9 + review/QA gates | Done |
 
-**Overall Progress**: 0/10 tasks completed (0%)
+**Overall Progress**: 10/10 implementation tasks completed (100%); hosted cross-OS CI remains a
+publication-time external gate and is not represented as a local pass.
 
-**Last Updated**: 2026-08-31
+**Last Updated**: 2026-09-01
 
 **Parallelism:** After Task 3, Tasks 4–7 can run in parallel. Tasks 8–10 are deliberately serial;
 Task 10 is post-gate.
@@ -149,7 +150,18 @@ return the two newly created repository files to an absent state. No normal-home
 this stage. For an isolated fixture, finish any prepared transaction and exercise the fixture's
 baseline-restoring uninstall before discarding the fixture.
 
-**Status:** Not Started
+## Verify — 2026-08-31
+
+- [x] Gate 1 — build/test: pass (`python3 tests/test_sync_skills.py`; 29 tests, 1 platform-specific Windows test skipped; `python3 -m py_compile`; `bash -n` for both POSIX wrappers)
+- [x] Gate 2 — AC #1: pass (isolated apply/check and 31 links per root: `tests/test_sync_skills.py:107`)
+- [x] Gate 2 — AC #2: pass (conflict fixtures preserve roots, entries, targets, and manifest: `tests/test_sync_skills.py:243`, `259`, `376`, `394`)
+- [x] Gate 2 — AC #3: pass (created/adopted/retargeted recovery and baseline rollback: `tests/test_sync_skills.py:220`, `281`, `413`, `424`)
+- [x] Gate 2 — AC #4: pass (POSIX wrappers are forwarding-only; PowerShell wrappers are translators-only: `adapters/codex/sync.sh`, `adapters/cursor/sync.sh`, and `tests/test_sync_skills.py:472`)
+- [x] Gate 2 — AC #5: pass for the isolated rehearsal (stop-before-disposition and unchanged child inventory: `tests/test_sync_skills.py:542`).
+- [x] Gate 2 — AC #6: pass for locally applicable POSIX syntax and sync tests; the Windows junction case is implemented at `tests/test_sync_skills.py:519` and the macOS/Windows runtime evidence is covered by the Task 3 matrix and remains externally pending.
+- [x] Gate 3 — cross-cutting: pass (no explicit line/SDK budget in Task 1; LF attributes cover `.sh`, `.py`, and `.mjs`; `git diff --check` passed; normal-home state untouched)
+
+**Status:** Done
 
 ### Task 2 — Build the strict portability checker
 
@@ -217,7 +229,17 @@ scenarios 30–37 and 42.
 the previous `.gitignore`. Task 1 remains usable because the common engine intentionally does not
 parse YAML.
 
-**Status:** Not Started
+## Verify — 2026-08-31
+
+- [x] Gate 1 — build/test: pass (`npm test`; all portability fixtures passed; `npm run check:portability:transition` completed with 0 errors and 410 transitional warnings)
+- [x] Gate 2 — AC #1: pass (strict-YAML, duplicate-key, bounds, unknown-field, overlay, and coupling fixtures: `tests/test_skill_portability.mjs`)
+- [x] Gate 2 — AC #2: pass (all 31 live directories enumerate and structural/profile mode exits 0; transitional mode reports coupling as warnings)
+- [x] Gate 2 — AC #3: pass (`skills/teach/SKILL.md` retains Cursor explicit-only metadata and `skills/teach/agents/openai.yaml` sets Codex `allow_implicit_invocation: false`)
+- [x] Gate 2 — AC #4: pass (independent README population drift fixture fails with `population-count-drift`)
+- [x] Gate 2 — AC #5: pass (`package-lock.json` contains only `js-yaml@5.4.1` and its `argparse` dependency; `node_modules/` is ignored and untracked)
+- [x] Gate 3 — cross-cutting: pass (Node `24.x` engine and `js-yaml@5.4.1` are pinned; no explicit line budget; `git diff --check` passed)
+
+**Status:** Done
 
 ### Task 3 — Enforce provider profiles in policy and transitional CI
 
@@ -280,7 +302,16 @@ scenarios 33, 34, 36, 42, and 49.
 **Rollback plan:** Restore the three modified policy files and return the workflow to an absent
 state. Tasks 1–2 continue to run locally without making CI or the new profile policy mandatory.
 
-**Status:** Not Started
+## Verify — 2026-08-31
+
+- [x] Gate 1 — build/test: pass for locally runnable checks (`npm test`; `node scripts/check-skill-portability.mjs --mode structural` with 0 errors; `npm run check:portability:transition` with 0 errors and 410 warnings; Python syntax/tests; POSIX shell syntax). The workflow's Windows/macOS runtime is not executable in this Linux session and remains a required remote matrix check.
+- [x] Gate 2 — AC #1: pass (workflow has syntax, structural/profile, both test suites, transitional checker, isolated sync, and OS-specific wrapper dry-run steps: `.github/workflows/portability.yml`)
+- [x] Gate 2 — AC #2: pass (structural/profile mode enumerates 31 live skills with 0 errors; fixture suite covers unknown and unjustified fields)
+- [x] Gate 2 — AC #3: pass (`teach` retains Cursor explicit-only frontmatter, Codex policy sets `allow_implicit_invocation: false`, and the locked `find-skills` digest remains unchanged)
+- [x] Gate 2 — AC #4: pass (rule, audit skill, and authoring skill use the common checker/sync profile; full target-file reads, strict parsing, workflow YAML parsing, and `git diff --check` passed)
+- [x] Gate 3 — cross-cutting: pass (workflow grants only `contents: read`, pins action majors/runtime versions, omits package-manager caching, and uses isolated temporary homes; installed provider validator unavailable locally and no inference was made)
+
+**Status:** Done
 
 ### Task 4 — Neutralize low-risk invocation and handoff wording
 
@@ -346,7 +377,16 @@ test-plan scenarios 35, 37, 38, and 40.
 closure to prove Tasks 1–3 remain valid and no partial wording assumption escaped into another
 batch.
 
-**Status:** Not Started
+## Verify — 2026-08-31
+
+- [x] Gate 1 — build/test: pass (`npm test`; transitional portability checker exits 0 with 300 warnings; Python syntax/tests; POSIX shell syntax; `git diff --check`)
+- [x] Gate 2 — AC #1: pass (all 31 live frontmatters remain strict/profile-valid; no Task 4 target carries a new coupling finding)
+- [x] Gate 2 — AC #2: pass (target headings, artifact contracts, thresholds, named inputs, and workflow order were preserved; changes are sentence-level wording edits only)
+- [x] Gate 2 — AC #3: pass (repository-wide search found no remaining slash-form reference to a Task 4 skill in the edited target set; caller references in later semantic batches remain assigned to their owners)
+- [x] Gate 2 — AC #4: pass by before/after description comparison: trigger phrases and routing distinctions are unchanged apart from removing provider-specific slash syntax and suffixes; `teach` remains explicit-only
+- [x] Gate 3 — cross-cutting: pass (no explicit line/SDK budget; strict checker, fixture suite, and diff checks pass; no whole-file rewrites or new artifacts)
+
+**Status:** Done
 
 ### Task 5 — Neutralize research and discovery workflows
 
@@ -405,7 +445,16 @@ workflows while preserving their evidence and named-input contracts.
 **Rollback plan:** Restore only this six-file batch, then rerun strict parsing, caller closure, and
 the affected behavior probes. The common deployment and executable policy remain intact.
 
-**Status:** Not Started
+## Verify — 2026-08-31
+
+- [x] Gate 1 — build/test: pass (`npm test`; transitional portability checker exits 0 with 230 warnings; `git diff --check`)
+- [x] Gate 2 — AC #1: pass (all provider/tool/convention findings assigned to the six files are closed; no Task 5 target carries a coupling finding)
+- [x] Gate 2 — AC #2: pass (named arguments, modes, evidence tags, worker counts, thresholds, topology rules, and output contracts were preserved; target line counts and headings match `HEAD`)
+- [x] Gate 2 — AC #3: pass (repository-wide caller search leaves only slash-form references in the later Task 6/7 owner batches; no Task 5 target retains one)
+- [x] Gate 2 — AC #4: pass (strict checker and focused semantic probes for analysis modes, investigation evidence, compilation guards, handler detection, Terraform topology, named inputs, confidence gates, and filenames)
+- [x] Gate 3 — cross-cutting: pass (frontmatter remains strict/profile-valid; changed files are sentence/line patches only; no new artifacts or whole-file rewrites)
+
+**Status:** Done
 
 ### Task 6 — Neutralize review, design, and learning workflows
 
@@ -464,7 +513,16 @@ their review counts, modes, gates, sizing, and output contracts.
 **Rollback plan:** Restore only this six-file batch, then rerun strict parsing, caller closure, and
 the affected behavior probes. The common deployment and executable policy remain intact.
 
-**Status:** Not Started
+## Verify — 2026-09-01
+
+- [x] Gate 1 — build/test: pass (`npm test`; transitional portability checker exits 0 with 126 warnings; `git diff --check`)
+- [x] Gate 2 — AC #1: pass (all Task 6 target provider/tool/convention findings are closed; no target coupling finding)
+- [x] Gate 2 — AC #2: pass (Socratic cadence, reviewer counts, modes, gates, sizing, thresholds, approvals, learning cadence, and outputs preserved; line counts equal `HEAD` and heading shape is unchanged apart from reviewed inline label wording)
+- [x] Gate 2 — AC #3: pass (repository-wide caller search leaves only later Task 7 owner references; no Task 6 target retains a slash-form handoff)
+- [x] Gate 2 — AC #4: pass (strict checker and focused semantic probes for reviewer dispatch, evidence disposition, task sizing, techspec depth, QA gates, output filenames, and one-step-per-turn learning behavior)
+- [x] Gate 3 — cross-cutting: pass (strict/profile-valid frontmatter; sentence/line patches only; no new artifacts or whole-file rewrites)
+
+**Status:** Done
 
 ### Task 7 — Neutralize routing, orchestration, and maintenance workflows
 
@@ -486,10 +544,11 @@ behavior even when structural tests pass.
 - `skills/improve/SKILL.md` — modify
 - `skills/orchestrate/SKILL.md` — modify
 - `skills/triage/SKILL.md` — modify
+- `tests/test_skill_portability.mjs` — modify; keep the live-corpus transition assertion future-proof and inject the invocation fixture into frontmatter
 
 **Implementation steps:**
 
-1. Read and snapshot all four files before editing, including anchored maintenance paths, approval
+1. Read and snapshot all four skill files before editing, including anchored maintenance paths, approval
    gates, dispatch persistence, verification tiers, route order, and output contracts.
 2. Apply the exact Phase 3 file-map deltas and capability-based orchestration rule; preserve the
    anchored `~/.claude` maintenance stores.
@@ -528,11 +587,20 @@ behavior even when structural tests pass.
 **Reference:** Techspec Phase 3 rows for `close`, `improve`, `orchestrate`, and `triage`; specific
 rules following **Committed edit rules**; test-plan scenarios 35, 37–40.
 
-**Rollback plan:** Restore the four files as one high-risk batch, rerun the semantic probes, and
-keep the checker in transitional mode until a corrected batch is ready. Anchored maintenance data
-is never migrated or rewritten by this task.
+**Rollback plan:** Restore the four skill files and the test-harness maintenance as one high-risk
+batch, rerun the semantic probes, and keep the checker in transitional mode until a corrected batch
+is ready. Anchored maintenance data is never migrated or rewritten by this task.
 
-**Status:** Not Started
+## Verify — 2026-09-01
+
+- [x] Gate 1 — build/test: pass (`npm test`; transitional portability checker exits 0 with 4 warnings; `git diff --check`)
+- [x] Gate 2 — AC #1: pass (all Task 7 target skill coupling findings are closed; the test harness contains only fixture/transition maintenance)
+- [x] Gate 2 — AC #2: pass (anchored stores, offer/approval and commit boundaries, convention-target routing, loop categories, classification order, confidence gate, and dispatch/persist/verify/resume behavior preserved)
+- [x] Gate 2 — AC #3: pass (high-risk semantic probes confirm capability-based orchestration, runner-neutral triage output, and staged improve proposals with no private-file writes)
+- [x] Gate 2 — AC #4: pass (strict/profile parsing, repository-wide caller search, replaced-token search, fixture coverage, and changed-file coupling checks pass)
+- [x] Gate 3 — cross-cutting: pass (frontmatter remains strict/profile-valid; skill changes are sentence/line patches with no heading reorganization; test changes are limited to stale live-corpus assumptions)
+
+**Status:** Done
 
 ### Task 8 — Reconcile public, policy, and historical documentation
 
@@ -556,6 +624,7 @@ historical assessment bodies and change only their supersession banners/current 
 - `agentic_auto_scheduling_experimental_study_research_action_items.md` — modify
 - `docs/codex-portability-assessment.md` — modify
 - `docs/cursor-portability-assessment.md` — modify
+- `tests/test_skill_portability.mjs` — modify; keep the population-drift fixture aligned with the derived count
 
 **Implementation steps:**
 
@@ -596,11 +665,20 @@ historical assessment bodies and change only their supersession banners/current 
 **Reference:** Techspec Phase 4 file table; test-plan scenarios 36, 42, 47, and 49; repository
 preserve-history rule.
 
-**Rollback plan:** Restore the seven documentation files together so population counts, entry
-points, and supersession status cannot become partially inconsistent. Repository code and canonical
-skills remain functional.
+**Rollback plan:** Restore the seven documentation files and the synchronized population-drift
+fixture together so counts, entry points, supersession status, and their test remain consistent.
+Repository code and canonical skills remain functional.
 
-**Status:** Not Started
+## Verify — 2026-09-01
+
+- [x] Gate 1 — build/test: pass (`npm test`; structural checker exits 0; transitional checker exits 0 with 3 warnings; `git diff --check`)
+- [x] Gate 2 — AC #1: pass (derived 31 skills agrees with README, inventory rows, and the repo rule's population claim)
+- [x] Gate 2 — AC #2: pass (owned current documentation uses the common sync/check path; provider-native loop wiring remains isolated to `docs/loop-recipes.md`)
+- [x] Gate 2 — AC #3: pass (both historical assessment bodies are byte-identical after excluding only their new supersession banners/current links)
+- [x] Gate 2 — AC #4: pass (common engine and both wrapper help outputs match the README commands; AGENTS index resolves; owned-document probes pass)
+- [x] Gate 3 — cross-cutting: pass (documentation changes stay within the seven owned docs; the test change only updates the stale population fixture; no new runtime artifacts)
+
+**Status:** Done
 
 ### Task 9 — Reconcile provider mechanics and enforce final portability
 
@@ -618,6 +696,11 @@ closure task proves root and adapter documentation together before live migratio
 **Files involved:**
 
 - `.github/workflows/portability.yml` — modify; promote the checker invocation to final mode
+- `scripts/sync-skills.py` — modify; enumerate canonical directory-link children without losing the source entry path
+- `tests/test_sync_skills.py` — modify; cover deployment of a symlinked canonical skill directory
+- `skills/audit-skills/SKILL.md` — modify; clear the final checker's remaining live Windows-path findings
+- `docs/rules/skill-authoring.md` — modify; make the final checker the shipping validation command
+- `agentic_auto_scheduling_experimental_study_research_action_items.md` — modify; align its validation command with final CI
 - `adapters/codex/README.md` — modify
 - `adapters/codex/AGENTS.md` — modify
 - `adapters/cursor/README.md` — modify
@@ -667,19 +750,30 @@ closure task proves root and adapter documentation together before live migratio
 **Reference:** Techspec Phase 4 adapter rows; **Patterns reused** managed-block contract; test-plan
 scenarios 41, 42, 45, and 48.
 
-**Rollback plan:** Restore the four adapter documents together and return the workflow invocation to
-Task 3's explicit transitional mode. Reapply only after the mechanics claims, common-entry links,
-and final checker results are internally consistent. The thin wrappers from Task 1 remain
-operational.
+**Rollback plan:** Restore the canonical directory-link handling and its regression fixture along
+with the audit residual, policy rule, research-action note, four adapter documents, and workflow;
+then return the workflow invocation to Task 3's explicit transitional mode. Reapply only after the
+mechanics claims, common-entry links, and final checker results are internally consistent. The thin
+wrappers from Task 1 remain operational.
 
-**Status:** Not Started
+## Verify — 2026-09-01
+
+- [x] Gate 1 — build/test: pass (`npm run check:portability` exits 0 with 0 errors and 0 warnings; `npm test`; `python3 tests/test_sync_skills.py` — 29 tests, 1 platform-specific test skipped; `python3 -m py_compile`; `bash -n`; workflow YAML parse; `git diff --check`). The Windows/macOS runtime matrix is configured but cannot be executed in this Linux session and remains a required remote check.
+- [x] Gate 2 — AC #1: pass (both adapter READMEs point deployment to the root `scripts/sync-skills.py`; wrapper source remains forwarding/translation-only; no independent deployment algorithm or provider-private root is presented as the common path)
+- [x] Gate 2 — AC #2: pass (Codex and Cursor mechanics retain the private-instruction and anchored-store contracts; both public adapter instruction files require manual copied-block refresh; static source search found no tracked script that writes a private convention file)
+- [x] Gate 2 — AC #3: pass (Cursor documents source equivalence and no precedence; the synthetic shared/Claude/Codex/Cursor probe enumerated all four roots, accepted one canonical target, and rejected a divergent target)
+- [x] Gate 2 — AC #4: pass (Codex/Cursor claims were checked against current provider documentation and local `codex-cli 0.151.0`; the common engine's canonical directory-link regression is covered without changing canonical workflow semantics)
+- [x] Gate 2 — AC #5: pass (CI invokes `npm run check:portability`; final checker and repository-wide current-doc/config closure are green; the three-OS matrix remains externally pending rather than inferred)
+- [x] Gate 3 — cross-cutting: pass (Task 9 implementation changes are limited to the listed engine/test, audit, policy, adapter, and workflow surfaces; no runtime artifacts were added; wrapper help parity passed 2/2)
+
+**Status:** Done
 
 ### Task 10 — Migrate and verify the Linux user-home roots
 
 **Description:** After repository review and QA pass, apply the common engine to this Linux
-computer, resolve the two known real-directory collisions only with explicit user approval, and
-record honest runtime acceptance. This task crosses the live lifecycle boundary and changes no
-repository source.
+computer while preserving the two externally owned canonical-name entries by explicit per-root
+policy, and record honest runtime acceptance. This task crosses the live lifecycle boundary and
+changes no repository source after the policy implementation is verified.
 
 - **Complexity:** S
 - **Estimated time:** 1–2h
@@ -694,29 +788,32 @@ repository source.
 - `~/.agents/skills` — inspect, preserve unrelated entries, add approved ai-kit links, and verify
 - `~/.claude/ownership/ai-kit-skill-sync.json` — create through the common engine
 - `~/.codex/skills` and `~/.cursor/skills` — inspect for attribution/equivalence only; never modify
-- The two expected `~/.agents/skills/find-skills` and `~/.agents/skills/teach` collisions — move to
-  named sibling backups only after separate explicit approval
+- The two externally owned `~/.agents/skills/find-skills` and `~/.agents/skills/teach` entries —
+  preserve in place with `--preserve agents/find-skills --preserve agents/teach`; do not move or
+  overwrite them
 
 **Implementation steps:**
 
 1. Confirm review-implementation and all `qa-gates` evidence is passing or carries an explicitly
    recorded acceptance reason before any live action.
-2. Run the common dry-run and reconcile its actual conflict inventory with the two expected names;
-   any extra or changed state stops the task.
-3. Re-verify each collision is an empty, unrelated, non-package-managed real directory. Ask for
-   explicit approval before moving either entry to a named sibling backup.
-4. After approved backups, rerun dry-run and require a complete, conflict-free plan for both roots.
-5. Run apply, read-only check, strict portability checker, both test suites, shell syntax, and
-   repository count probes.
-6. Exercise installed Codex and Claude discovery. Record Cursor and any ambiguous legacy-root
+2. Re-verify each external entry is still the user-owned directory or link intended for
+   preservation; do not move, rename, overwrite, or discard either entry.
+3. Run `python3 scripts/sync-skills.py --dry-run --preserve agents/find-skills --preserve agents/teach`
+   and reconcile its inventory. Any extra or changed state stops the task.
+4. Require a complete, conflict-free plan for 31 managed Claude links, 29 managed Agents links,
+   and 2 explicitly preserved Agents entries. The preserves must not appear in the manifest plan.
+5. Run apply with the same preserve flags, then run the qualified read-only check with the same
+   flags. Confirm an unqualified check fails closed instead of silently accepting the exception.
+6. Run the strict portability checker, both test suites, shell syntax, and repository count probes.
+7. Exercise installed Codex and Claude discovery. Record Cursor and any ambiguous legacy-root
    attribution as `passed`, `failed`, `ambiguous`, or `unavailable` with evidence.
-7. Confirm legacy provider-private roots, unrelated entries, canonical targets, and collision
-   backups remain untouched after the common engine's managed actions.
-8. Retain backups until runtime acceptance and an isolated rollback drill have both passed.
+8. Confirm legacy provider-private roots, unrelated entries, canonical targets, and the preserved
+   external entries remain untouched after the common engine's managed actions.
+9. Run the isolated rollback drill; retained preserved entries must remain intact and unowned.
 
 **Testing requirements:**
 
-- Execute techspec scenarios 44–46 and 50 against the normal-home plan only after approval; use the
+- Execute techspec scenarios 44–46, 50, and 52 against the normal-home plan only after approval; use the
   Task 1 harness for scenario 51 interruption coverage rather than injecting failure into the
   normal home.
 - Compare pre/post child names, entry types, raw/resolved targets, unrelated entries, and legacy
@@ -727,27 +824,87 @@ repository source.
 
 **Acceptance criteria:**
 
-- The common read-only check proves every canonical skill resolves from each managed root and every
-  finalized manifest record matches live filesystem state.
-- The two approved collision backups remain recoverable; unrelated entries, targets, and legacy
-  roots compare unchanged before and after apply.
+- The qualified common read-only check proves all 31 canonical names are accounted for: 31 managed
+  Claude links, 29 managed Agents links, and 2 explicitly preserved entries; every finalized
+  manifest record matches live filesystem state.
+- The two preserved external entries remain at their original paths and outside the manifest;
+  unrelated entries, targets, and legacy roots compare unchanged before and after apply.
 - Both repository test suites, strict checker, shell syntax checks, population probes, and the
   repository CI matrix are green.
 - Each locally relevant provider has an evidence-backed acceptance classification with no
   unsupported precedence or source-attribution claim.
 - An isolated mixed-baseline rollback drill preserves adopted entries, clears fixture-created
-  entries, restores fixture-retargeted entries, and converges after interruption.
+  entries, restores fixture-retargeted entries, leaves preserved entries intact and unowned, and
+  converges after interruption.
 
 **Reference:** Techspec Phase 4, **Local migration playbook**; test-plan scenarios 44–46, 50, and
 51; **Rollback strategy**.
 
-**Rollback plan:** If live acceptance fails, stop and preserve the manifest and collision backups.
-With separate explicit user approval, recover any prepared transaction, preview and run the
-baseline-restoring uninstall, verify adopted Claude links are unchanged, and restore the two named
-collision backups to their original names. Never touch canonical targets, unrelated entries, or
-legacy provider-private roots.
+**Rollback plan:** If live acceptance fails, stop and preserve the manifest. With separate explicit
+user approval, recover any prepared transaction, preview and run the baseline-restoring uninstall,
+verify adopted Claude links are unchanged, and verify the two preserved external entries remain
+untouched and unowned. Never touch canonical targets, unrelated entries, or legacy provider-private
+roots.
 
-**Status:** Not Started
+## Verify — 2026-09-01 (preserve-policy implementation)
+
+**Scope:** The explicit per-root preserve policy, its wrapper forwarding, isolated fixtures, and
+documentation/spec alignment. The normal-home apply, provider runtime exercise, and rollback remain
+the separate live boundary below.
+
+- [x] Gate 1 — build/test: pass (`python3 tests/test_sync_skills.py` — 29 tests, 1 platform-specific
+      skip; `npm test`; `npm run check:portability`; Python/Node/POSIX syntax; `git diff --check`).
+- [x] Gate 2 — AC checklist: pass for the implementation scope. Isolated tests prove existing
+      external entries remain real and content-preserved, qualified check accepts 60 managed links
+      plus 2 preserves, unqualified check fails closed, missing/owned preserve entries fail safely,
+      and uninstall leaves preserved entries intact. **Accepted:** live-home apply and provider
+      runtime ACs are intentionally deferred pending the Gate 5 decision and later runtime evidence.
+- [x] Gate 3 — cross-cutting: pass. `--preserve` is validated per managed root, rejected with
+      uninstall/prune, forwarded by both PowerShell wrappers, excluded from the manifest, and
+      documented in the root, rule, adapter, techspec, analysis addendum, and task playbook. No
+      explicit size or SDK budget applies.
+
+## Verify — 2026-09-01 (live migration)
+
+- [x] Gate 1 — build/test and live state: pass. The qualified normal-home check exits 0; the
+      manifest has schema 1, 31 Claude records, 29 Agents records, and no prepared transaction.
+      The repository test/check/syntax gates remain green after apply.
+- [x] Gate 2 — acceptance criteria: pass with explicit runtime classifications. The two preserved
+      entries remain real mode-755 directories at their original paths and outside the manifest;
+      `.claude/skills` has 31 canonical links and `.agents/skills` has 29 managed canonical links
+      plus the 2 preserved directories. The legacy Codex root was not modified. Codex and Claude
+      runtime probes were attempted read-only but are classified `unavailable` because Codex
+      returned HTTP 401 and Claude reported missing configuration/disabled subscription access;
+      Cursor is `unavailable` because `cursor-agent` is not installed.
+- [~] Gate 3 — cross-cutting: accepted with reason. The hosted Ubuntu/macOS/Windows matrix cannot
+      run from this Linux session; the committed CI workflow remains the required external check.
+      No normal-home rollback was run because acceptance passed, and any rollback remains separately
+      approval-gated.
+
+## Preflight — 2026-09-01 (read-only)
+
+- [x] `python3 scripts/sync-skills.py --dry-run` against the normal home made no filesystem or
+  manifest changes and reported only the two expected unowned canonical-name entries:
+  `~/.agents/skills/find-skills` and `~/.agents/skills/teach`.
+- [x] Both external paths are mode-755 real directories with no children through depth 2; they
+  contain no package or skill files. The user confirmed the explicit preservation policy; no
+  ownership manifest exists yet and no backup paths will be created.
+- [x] The existing `~/.claude/skills` and legacy `~/.codex/skills` inventories were inspected;
+  their canonical links and unrelated provider/system/loop entries remain unchanged. The native
+  `~/.cursor/skills` root is absent. No live apply, collision move, manifest write, or legacy-root
+  change has occurred.
+- [x] The qualified policy command is ready:
+  `python3 scripts/sync-skills.py --dry-run --preserve agents/find-skills --preserve agents/teach`.
+  It is expected to exit 0 without filesystem or manifest changes and to report 2 preserved
+  entries plus 60 managed links.
+- [x] Installed provider binaries are present for later runtime checks: Codex `0.151.0`, Claude
+  Code `2.1.251`, and Cursor `3.17.21`; discovery exercise remains deferred until the managed roots
+  are applied.
+- [x] User confirmed option 1 on 2026-09-01: preserve both external entries in place; no collision
+  move or backup approval is needed. Separate approval remains required before the live apply and
+  any live rollback action.
+
+**Status:** Done
 
 ## Deployment sequencing
 
@@ -755,8 +912,8 @@ legacy provider-private roots.
 2. Run `review-implementation` after all nine repository tasks are complete.
 3. Run `qa-gates` for `linux_portability_cross_agent_coupling`; every gate must pass or carry a
    recorded acceptance reason.
-4. Only then start Task 10 at the `live` boundary, with explicit approval for each collision backup
-   and for any rollback action against the normal home.
+4. Task 10 crossed the `live` boundary on 2026-09-01 after explicit approval, using the confirmed
+   preserve flags. Any future normal-home rollback remains separately approval-gated.
 
 ## Notes & decisions
 
@@ -780,8 +937,17 @@ legacy provider-private roots.
 - **2026-08-31 — PR discipline:** Tasks 1–9 should land as separate reviewable commits/PRs in task
   order, except Tasks 4–7 may be reviewed concurrently as independent semantic batches. Task 10 is
   operational state change and has no repository PR.
-- **2026-08-31 — local safety:** Repository completion does not authorize Task 10. The normal-home
-  collision moves, apply, and any rollback remain explicit live approvals.
+- **2026-08-31 — local safety:** Repository completion did not authorize Task 10; the normal-home
+  migration remained approval-gated until the explicit live approval recorded below.
+- **2026-09-01 — external skill ownership (superseded by source verification below):** The user
+  identified both home entries as externally owned skills and requested preserving them outside
+  ai-kit ownership. The initial Task 10 run therefore left both paths untouched.
+- **2026-09-01 — post-review source verification:** The source lock identifies `find-skills` as
+  `vercel-labs/skills` and `teach` as `mattpocock/skills`. After independent review proved the paths
+  were empty, the user approved all fixes; the placeholders were backed up and both upstream skills
+  were restored at their original paths.
+- **2026-09-01 — live safety:** Repository completion does not authorize Task 10. The preserve
+  policy is confirmed, but normal-home apply and any rollback remain explicit live approvals.
 
 ## Confidence score
 
@@ -808,5 +974,364 @@ independent decomposition review closed every verified ownership, sizing, and de
   proved by the Task 3 matrix before Task 10 can start.
 - **Provider presentation (does not block repository tasks):** Cursor is unavailable locally and
   duplicate presentation order is undocumented; the accepted contract is target equivalence only.
-- **Live collision disposition (blocks Task 10 only):** the two current real-directory collisions
-  must still be reverified and separately approved at execution time.
+- **Live apply (blocks Task 10 only):** the two preserved entries must still be reverified and the
+  normal-home apply must be separately approved at execution time.
+
+## Review — 2026-09-01 (reviewed at: fc687c2 +dirty)
+
+**Scope:** Tasks 1–9, including the common sync engine, portability checker, canonical skill edits,
+provider adapters, policy/documentation closure, and CI workflow. The native three-worker fan-out
+was attempted in parallel but did not return within the bounded five-minute wait; three independent
+local review passes then covered correctness, conventions, and simplicity, including one deliberate
+second pass over the remaining workflow/config and private-instruction surfaces.
+
+### Findings
+
+- **Critical:** none at the ≥80 confidence threshold.
+- **Important — fixed-now (score 85):** `scripts/sync-skills.py:433` skipped symlinked or junctioned
+  child directories under the canonical `skills/` tree, while `docs/rules/skill-authoring.md:26`
+  allows such external canonical entries. A direct fixture showed a real skill plus a symlinked
+  skill enumerating only the real one. The engine now follows directory links for inspection while
+  retaining the canonical entry path, and `tests/test_sync_skills.py:220` covers deployment and
+  completeness for the linked entry. Confidence: 96% — the pre-fix behavior was directly reproduced
+  and the post-fix test passed; cross-platform junction execution remains CI-owned.
+- **Important — fixed-now (score 90):** `docs/rules/skill-authoring.md:11` and
+  `agentic_auto_scheduling_experimental_study_research_action_items.md:6` still prescribed the
+  transitional checker after final CI enforcement. Both now prescribe `npm run check:portability`;
+  the transitional command remains only in the package/test implementation and dated verification
+  history. Confidence: 98% — current-document search and the final checker confirm closure.
+- **Important — follow-up (score 88):** `/home/jleung/.codex/AGENTS.md:264` contains the copied
+  `kit-mechanics` block from the older 2026-08-06 adapter snapshot, including the retired
+  `~/.codex/skills` deployment wording. The markers remain intact, and the public Codex adapter
+  docs require manual refresh; no repository automation or silent private-file overwrite is
+  authorized. Disposition: follow-up for the owner before Codex runtime acceptance in Task 10.
+  Confidence: 99% — the private file was read directly; it is outside the public repository diff.
+
+### Ship-ready refactors
+
+- None. The four wrappers are already forwarding/translation-only, and further cleanup would
+  expand the reviewed scope without a correctness benefit.
+
+**Review outcome:** 2 fixed-now findings, 1 operational follow-up, 0 Critical findings. The next
+step is `qa-gates prefix=linux_portability_cross_agent_coupling`.
+
+## QA — 2026-09-01 (verified at: fc687c2 +dirty)
+
+**Scope:** Prefix Tasks 1–9, repository boundary only. Task 10 remains the separate live-home
+boundary and is not included in this QA run.
+
+**Gate plan:** Execute Gates 0–4 against the current tree and record every unavailable external
+check or owner-only follow-up explicitly. Gate 5 is the human ship/no-ship decision.
+
+### Gate 0 — scope and artifact integrity
+
+- [x] Reconciled task statuses, acceptance criteria, file map, review stamp, unchecked markers,
+      pinned versions, budgets, and untracked artifacts. Tasks 1–9 are Done; Task 10 is Not
+      Started by design. The review stamp is `fc687c2 +dirty`; the current diff has 48 tracked
+      paths plus six untracked top-level paths (`.github/`, `package-lock.json`, `package.json`,
+      `scripts/`, `skills/teach/agents/`, `tests/`). Two generated `__pycache__` directories are
+      present below untracked test/source directories and are excluded from the intended source
+      file map.
+
+### Gate 1 — build and test
+
+- [x] Local build/test gate passed: `npm ci --ignore-scripts`; `npm test`; `npm run
+      check:portability` (31 skills, 0 errors, 0 warnings); `python3 tests/test_sync_skills.py`
+      (29 tests, 1 platform-specific skip); Python syntax; both POSIX shell syntax; workflow YAML
+      parse; both POSIX wrapper `--help` parity checks; and `git diff --check` all exited 0.
+- [~] Remote cross-OS matrix is not executable in this Linux session. The committed workflow
+      remains the required Ubuntu/macOS/Windows execution path; acceptance is deferred to hosted
+      CI before merge and before Task 10 live runtime acceptance.
+
+### Gate 2 — acceptance criteria
+
+- [x] Gate 2 — AC #1: pass (both adapter READMEs use the root `scripts/sync-skills.py` entry
+      point; wrappers remain forwarding/translation-only; no provider-private root is presented
+      as the common deployment path).
+- [x] Gate 2 — AC #2: pass (the copied-block and anchored-store contracts remain documented;
+      private instruction refresh is manual; static source inspection found no tracked script that
+      writes a private convention file).
+- [x] Gate 2 — AC #3: pass (Cursor documents source equivalence with no precedence promise; the
+      four-root synthetic probe accepted one canonical target and rejected a divergent target).
+- [x] Gate 2 — AC #4: pass (Codex/Cursor mechanics were checked against current provider evidence
+      and local `codex-cli 0.151.0`; the linked-canonical-directory regression is tested without
+      changing canonical workflow semantics).
+- [~] Gate 2 — AC #5: local pass with explicit remote acceptance reason (final CI invocation,
+      final checker, and current repository documentation/config closure pass locally; the hosted
+      Ubuntu/macOS/Windows matrix is still pending and is required before merge/live acceptance).
+
+### Gate 3 — cross-cutting invariants
+
+- [x] Gate 3 — environment and release readiness: pass (the workflow matrix is explicitly
+      Ubuntu/macOS/Windows with read-only permissions; no `.env*` files were found; normal-home
+      state was not touched; no API, schema, auth, payment, or production hot-path change is in
+      scope for Tasks 1–9).
+- [x] Gate 3 — toolchain and budget: pass (local Node `v24.20.0` and `js-yaml@5.4.1` satisfy the
+      Node 24 contract; local Python `3.14.7` satisfies the Python 3.12+ source contract while
+      CI pins Python 3.12; LF attributes cover executable sources; no explicit implementation
+      line/size budget is specified by the authoritative techspec; `npm ls --depth=0` is minimal).
+- [x] Gate 3 — performance: not applicable (the change is a filesystem safety tool and static
+      checker; no performance budget or latency-sensitive path is specified).
+
+### Gate 4 — documentation consistency
+
+- [x] Gate 4 — task records: pass (Tasks 1–9 have completed Verify blocks and `Status: Done`;
+      Task 10 remains intentionally `Not Started` because it is the post-QA live boundary).
+- [x] Gate 4 — documentation/config closure: pass (current documentation prescribes
+      `npm run check:portability`; the only remaining transitional command is the intentionally
+      retained package script and it is not the shipping/CI command; the final workflow invokes the
+      fail-closed command;
+      required rule/index/source files exist; adapter and root docs agree on the common two-root
+      entry point).
+- [x] Gate 4 — review linkage: pass (the review block is stamped at `fc687c2 +dirty` and covers
+      Tasks 1–9; this QA block records the current gate evidence and its remote-check limitation).
+- [x] Gate 4 — unchecked-marker census: pass with two intentional open items (the Gate 5 human
+      decision and Task 10's separate live-apply approval; no completed task contains an unchecked
+      acceptance or verification item).
+
+### Gate 5 — human decision
+
+- **Pre-decision result:** Gates 0–4 pass for the repository boundary, with the hosted
+  Ubuntu/macOS/Windows matrix recorded as an explicit pending acceptance item. The generated
+  local `__pycache__` directories are verification artifacts below untracked source/test roots,
+  not intended repository deliverables.
+- **Live-boundary safeguards:** A GO here does not approve the normal-home apply or rollback
+  actions. Task 10 must use the confirmed preserve flags and obtain separate explicit approval for
+  each live state-changing action.
+- [x] User approved the recorded QA result and the normal-home apply on 2026-09-01; the live
+      verification and runtime classifications are recorded in the Task 10 blocks below.
+
+## Review — 2026-09-01 (preserve policy; reviewed at: fc687c2 +dirty)
+
+**Scope:** The post-QA preserve-policy change only: `scripts/sync-skills.py`, both PowerShell
+translators, the sync test additions, and the associated root/rule/adapter/spec/task documentation.
+The review used three independent sequential passes because native worker fan-out was unavailable.
+
+### Findings
+
+- **Critical:** none at the ≥80 confidence threshold.
+- **Important:** none. Pass 1 verified that preserved entries are existing directories or links,
+  remain outside the ownership manifest, cannot hide an owned record, and cannot be combined with
+  uninstall/prune. Pass 2 verified common CLI and PowerShell forwarding parity plus the explicit
+  qualified-check requirement. Pass 3 verified isolated preservation, fail-closed unqualified
+  behavior, uninstall retention, and no change to the 31-skill source checker.
+- **Follow-up:** the normal-home apply and provider runtime checks remain intentionally pending the
+  Gate 5 decision and are not represented as completed by this review.
+
+**Confidence:** 97% — the implementation is covered by isolated tests and a real-home dry-run;
+the remaining uncertainty is limited to unexecuted cross-OS/provider runtime evidence and the
+not-yet-approved live state change.
+
+## QA — 2026-09-01 (preserve policy; repository boundary)
+
+**Scope:** Preserve-policy implementation and documentation alignment after the earlier prefix QA.
+Task 10 was `Not Started` when this repository-boundary QA was recorded; its later live verification
+below records the approved apply. No rollback was needed.
+
+### Gate 0 — scope and artifact integrity
+
+- [x] Pass. The reviewed change is limited to the common sync policy, PowerShell argument
+      forwarding, isolated sync tests, and the root/rule/adapter/spec/task documentation. The
+      source portability contract remains 31 canonical skills.
+
+### Gate 1 — build and test
+
+- [x] Pass. `npm ci --ignore-scripts`, `npm test`, and `npm run check:portability` pass with 31
+      skills, 0 errors, and 0 warnings. `python3 tests/test_sync_skills.py` passes 29 tests with
+      1 platform-specific skip; Python/Node/POSIX syntax, workflow YAML parsing, and `git diff
+      --check` also pass.
+- [~] The hosted Ubuntu/macOS/Windows matrix remains unavailable in this Linux session and is
+      still required before live provider acceptance.
+
+### Gate 2 — acceptance criteria
+
+- [x] Preserve behavior: isolated fixtures prove two external entries remain real and content-
+      preserved, stay out of the manifest, survive uninstall, and are accepted only when explicitly
+      named for the managed root.
+- [x] Safety behavior: missing, invalid, or already-owned preserved entries fail before mutation;
+      unqualified normal-home dry-run still exits 1 with exactly the two expected entries.
+- [x] Contract behavior: qualified normal-home dry-run exits 0 with `adopt=31`, `create=29`, and
+      `preserved=2`; both PowerShell wrappers expose `-Preserve` forwarding.
+- [x] Source contract: the strict portability checker remains source-level and passes the 31-skill
+      corpus; no canonical `find-skills` or `teach` body was changed for this policy.
+- [~] At the time of this repository-boundary QA, live apply and provider discovery were pending
+      Gate 5 and cross-OS/runtime evidence; the later live verification records the actual outcome.
+
+### Gate 3 — cross-cutting invariants
+
+- [x] Pass. No API, schema, auth, data, or production hot-path change is in scope. No explicit
+      implementation size budget applies. Preserve flags are rejected with uninstall/prune and do
+      not alter manifest schema or legacy-root behavior.
+
+### Gate 4 — documentation consistency
+
+- [x] Pass. Root README, authoring rules, both adapter READMEs/AGENTS files, techspec, analysis
+      decision addendum, and Task 10 use the same per-root preserve semantics and population
+      counts. The task has a verification block and three observation entries.
+
+### Gate 5 — human decision
+
+- **Result:** Repository-boundary QA passes with the hosted matrix and live-home/provider checks
+  explicitly pending.
+- **Decision resolved:** approved on 2026-09-01. The normal-home apply used
+  `--preserve agents/find-skills --preserve agents/teach`; any rollback remains a separate explicit
+  approval.
+
+## QA — 2026-09-01 (post-live migration)
+
+**Scope:** Prefix `linux_portability_cross_agent_coupling`, Tasks 1–10, including the approved
+normal-home apply. This is the final prefix QA record; earlier QA blocks retain their pre-live
+context.
+
+### Gate 0 — scope and artifact integrity
+
+- [x] Pass. Tasks 1–10 are marked `Done`; the repository change set and the live-home state are
+      recorded separately. No legacy provider-private root or canonical target was a mutation
+      target.
+
+### Gate 1 — build and test
+
+- [x] Pass. `npm test`, `npm run check:portability`, `python3 tests/test_sync_skills.py` (29 tests,
+      1 platform-specific skip), Python/Node/POSIX syntax, workflow YAML parsing, and `git diff
+      --check` pass. The qualified normal-home check also exits 0.
+- [~] Accepted limitation: the hosted Ubuntu/macOS/Windows matrix cannot be executed from this
+      Linux session; its committed workflow remains the external cross-OS verification owner.
+
+### Gate 2 — acceptance criteria
+
+- [x] Pass. The live manifest contains 31 Claude records and 29 Agents records, with no prepared
+      transaction; the qualified check accounts for all 31 canonical names through 60 managed links
+      plus 2 explicit preserves.
+- [x] Pass. `~/.agents/skills/find-skills` and `~/.agents/skills/teach` remain real mode-755
+      directories at their original paths and are absent from ownership records. Unqualified check
+      fails closed on exactly those entries.
+- [x] Pass. Repository tests, strict checker, shell checks, population checks, and the isolated
+      rollback/interruption fixtures are green.
+- [~] Accepted limitation: Codex and Claude read-only runtime probes were unavailable (Codex HTTP
+      401; Claude missing configuration and disabled subscription access); Cursor is unavailable
+      because `cursor-agent` is not installed. No provider was marked passed from side effects.
+
+### Gate 3 — cross-cutting invariants
+
+- [x] Pass. The sync engine touched only the two managed roots and the anchored ownership manifest;
+      `.codex/skills` and the absent `.cursor/skills` root were not modified. No API, schema, auth,
+      data, or production hot-path change is involved. Rollback was not run because acceptance
+      passed and remains separately approval-gated.
+
+### Gate 4 — documentation consistency
+
+- [x] Pass. The root README, authoring rule, provider adapters, analysis addendum, techspec, and
+      Task 10 all describe the same preserve policy and live population. The live verification,
+      review, QA, and observation records are present.
+
+### Gate 5 — human decision
+
+- [x] Pass. The user explicitly approved the live apply on 2026-09-01. The apply completed using
+      the two preserve flags; no rollback approval was requested or used.
+
+## Post-review remediation — 2026-09-01
+
+**Target:** Independent read-only review findings across Tasks 1, 2, 3, and 10.
+
+**Implementation:**
+
+- Added durable per-action replacement progress before a retarget/restore unlink. Recovery now
+  accepts an absent path only when the prepared manifest records that exact authorized transition.
+- Added interruption fixtures after replacement authorization and after unlink for both checkout
+  retarget and baseline restore paths.
+- Tightened `--preserve` so a directory/link must contain a readable `SKILL.md`; empty placeholders
+  fail closed instead of being counted as usable external skills.
+- Recovered the two external live skills from their lock-recorded upstream sources. Empty originals
+  are retained under `~/.agents/skill-backups/2026-09-01-portability-review/`; `find-skills` is from
+  `vercel-labs/skills` and `teach` is from `mattpocock/skills`.
+- Added Cursor overlay shape validation for string/list `paths`, non-empty string `icon`, and the
+  documented `color` enum, plus malformed-value fixtures.
+- Added Python bytecode exclusions, repaired the overview/truncated ledger text, and added manual
+  workflow dispatch. The earlier QA block is a dated historical result and is superseded by the
+  verification below.
+
+**Acceptance criteria:**
+
+- [x] A retry converges after interruption immediately before or after a replacement unlink, while
+  an unrecorded third state still fails closed.
+- [x] Empty preserve directories fail; valid external skills pass the qualified live check and stay
+  outside the ownership manifest.
+- [x] Malformed Cursor overlay shapes fail with field-specific diagnostics; valid documented shapes
+  pass.
+- [x] Repository tests, strict checks, syntax checks, and diff hygiene pass with generated Python
+  caches ignored.
+- [x] Documentation distinguishes local verification from the hosted Ubuntu/macOS/Windows matrix;
+  the matrix remains required after the workflow is committed and pushed.
+
+**Status:** Implemented; verification recorded below. Hosted cross-OS execution remains an explicit
+external evidence item rather than a claimed local result.
+
+## Verify — 2026-09-01
+
+**Task ID:** Post-review remediation
+
+**Prefix:** `linux_portability_cross_agent_coupling`
+
+**Files:** `scripts/sync-skills.py`, `tests/test_sync_skills.py`,
+`scripts/check-skill-portability.mjs`, `tests/test_skill_portability.mjs`, `.gitignore`,
+`.github/workflows/portability.yml`, `README.md`, `docs/rules/skill-authoring.md`, and the three
+prefix documents. Live scope is limited to the two external skill paths and their dated backup.
+
+**Budgets:** no line budget pinned (acceptable). Node 24 and `js-yaml@5.4.1` remain the pinned
+toolchain contract.
+
+- [x] Gate 1 — build/test: pass (`npm test`; `npm run check:portability`; sync harness 33 tests,
+  one Windows-only skip; Python/Node/POSIX/workflow syntax; `git diff --check`).
+- [x] Gate 2 — AC checklist (5 items): pass.
+  - [x] AC #1 — interruption after durable authorization and after unlink converges for retarget and
+    restore; a real-directory third state is rejected and its sentinel remains unchanged.
+  - [x] AC #2 — empty preserve fixture fails; qualified live check passes with 60 managed links and
+    two validated external skills; manifest transaction is null and Agents records remain 29.
+  - [x] AC #3 — valid string/list/icon/color fixtures pass; malformed values emit
+    `cursor-paths-shape`, `cursor-icon-shape`, or `cursor-color-shape`.
+  - [x] AC #4 — all repository checks pass; `git check-ignore` attributes both Python cache probes
+    to `.gitignore:5`.
+  - [x] AC #5 — local evidence is green and the task/techspec explicitly retain hosted matrix
+    execution as a publication-time external item.
+- [x] Gate 3 — cross-cutting: pass (no environment matrix or line budget; Node `24.x` and
+  `js-yaml@5.4.1` match package and lock; replacement authorization preserves rollback safety;
+  no API/schema/auth/performance surface; live changes were limited to the two external skill
+  paths plus their recoverable empty-directory backup).
+
+## Review — 2026-09-01 (reviewed at: fc687c2+dirty)
+
+**Scope:** Post-review remediation implementation and its new tests.
+
+**Reviewers run:** three independent sequential passes under the Codex fan-out fallback:
+correctness/safety, conventions/test coverage, and simplicity/ship readiness. Each pass included
+the required deliberate second sweep and reported only findings scoring at least 80.
+
+**Findings:** none at or above the reporting threshold. The replacement transition is durably
+authorized before unlink, unexpected third states remain conflicts, preserved entries require a
+real skill envelope, and Cursor overlay values now match the documented shapes.
+
+**Ship-ready refactors:** none. Deduplicating the small readable-`SKILL.md` probe would be cosmetic
+and was intentionally left out of this focused correction.
+
+**Disposition:** proceed to prefix QA. No follow-up finding remains open from this review.
+
+## QA — 2026-09-01 (verified at: fc687c2+dirty; post-review remediation)
+
+- [x] Gate 1 — build/test: pass (`npm test`; final portability checker 31 skills, zero
+  errors/warnings; sync harness 33 tests with one Windows-only skip; Python/Node/POSIX/workflow
+  syntax; `git diff --check`).
+- [~] Gate 1 — committed: no. The implementation and QA artifact remain in the working tree at
+  `fc687c2+dirty`, pending the user's final review and commit decision.
+- [x] Gate 2 — AC checklist: pass. The five remediation ACs pass, the qualified live check reports
+  60 managed links plus two external skills, the manifest is finalized at 31/29 records, and the
+  skills CLI discovers both external entries from `~/.agents/skills`.
+- [x] Gate 3 — cross-cutting: pass. No environment asymmetry or line budget applies; Node `24.x`
+  and `js-yaml@5.4.1` remain pinned; rollback authorization and third-state refusal are tested;
+  bytecode caches are ignored; legacy roots remain outside ownership. Hosted matrix execution is a
+  named publication boundary, not local evidence.
+- [x] Gate 4 — docs consistency: pass. README, authoring rule, analysis correction, techspec
+  correction, task overview, review, and QA agree. Unchecked-box census: zero. Historical
+  `Not Started` references occur only inside dated pre-live QA context and are retained as history.
+- [ ] Gate 5 — human go/no-go: PENDING. The tree is dirty and the hosted Ubuntu/macOS/Windows
+  workflow cannot run until the new workflow and implementation are committed and pushed. Awaiting
+  the user's decision whether to commit/push and trigger the external matrix.

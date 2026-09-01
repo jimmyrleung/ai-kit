@@ -2,7 +2,7 @@
 
 One row per live skill (31 total), grouped by family, plus the reference docs. Keep open during day-to-day use.
 
-Not in this repo: the **loop variants** (`tasks-loop`, `qa-loop`, `review-checkpoint`, …) live in the cc-looper repo's `claude-config/` tree; native loop primitives (`/goal`, `/loop`, `/schedule`) are documented only in [`docs/loop-recipes.md`](docs/loop-recipes.md). The v1 inventory (commands, agents, templates) is archived under [`archive/v1/INVENTORY/`](archive/v1/INVENTORY/).
+Not in this repo: the **loop variants** (`tasks-loop`, `qa-loop`, `review-checkpoint`, …) live in the cc-looper repo's `claude-config/` tree; provider-specific loop wiring is documented only in [`docs/loop-recipes.md`](docs/loop-recipes.md). The v1 inventory (commands, agents, templates) is archived under [`archive/v1/INVENTORY/`](archive/v1/INVENTORY/).
 
 ## Skills
 
@@ -66,7 +66,7 @@ Hand-invoked rituals writing durable artifacts to `~/.claude/ownership/{topic}/`
 
 | Skill | Role |
 | --- | --- |
-| `record-decision` | Cheap mid-work decision capture: full ADR-template record, AI-drafted rationale hard-flagged `UNREVIEWED`; you own the Rationale at review — in-session, or swept later by `/close`. |
+| `record-decision` | Cheap mid-work decision capture: full ADR-template record, AI-drafted rationale hard-flagged `UNREVIEWED`; you own the Rationale at review — in-session, or swept later by the `close` skill. |
 | `onboard-me` | Cold-read walkthrough of UNFAMILIAR code by a "staff engineer" — one step per turn, Socratic, assumptions listed every message. |
 
 ### Session lifecycle & self-improvement
@@ -74,7 +74,7 @@ Hand-invoked rituals writing durable artifacts to `~/.claude/ownership/{topic}/`
 | Skill | Role |
 | --- | --- |
 | `close` | End-of-session retrospect → persist to the right layer (repo `docs/rules/`, auto-memory, observations) + slim SESSION_LOG entry + propose a commit. |
-| `close-tasks` | End-of-tasks-doc closeout when per-session `/close` didn't run — reconstructs the run from durable artifacts, emits observations + a roll-up SESSION_LOG entry, idempotently. |
+| `close-tasks` | End-of-tasks-doc closeout when per-session `close` did not run — reconstructs the run from durable artifacts, emits observations + a roll-up SESSION_LOG entry, idempotently. |
 | `improve` | Periodic self-improvement review of accumulated observations → STAGED review packet under `~/.claude/improvements/{date}/`; never edits a live file without per-item approval. |
 | `audit-skills` | On-demand structural audit of the skill population (strict-YAML, description budget, triggers, redundancy, dead refs); stages proposals, never auto-edits. |
 | `write-skills` | Author a new skill — or fix one that won't fire — so it triggers reliably and passes `audit-skills` by construction. |
@@ -83,7 +83,7 @@ Hand-invoked rituals writing durable artifacts to `~/.claude/ownership/{topic}/`
 
 | Skill | Role |
 | --- | --- |
-| `orchestrate` | Run an ad-hoc multi-agent fan-out well: dispatch contract, persist-on-arrival, verification tiering, cross-agent synthesis, provider-aware model choice. |
+| `orchestrate` | Run an ad-hoc multi-agent fan-out well: dispatch contract, persist-on-arrival, verification tiering, cross-agent synthesis, capability-based worker selection. |
 | `walkthrough` | Disposition a list of open items one per turn — findings, open questions, decision backlogs — with per-item confidence and dated rounds persisted to the artifact. |
 | `walkthrough-implementation` | Dependency-ordered tour of a completed, not-yet-committed implementation — stated rationale as the review mechanism; fixes applied in-turn. |
 
@@ -92,8 +92,8 @@ Hand-invoked rituals writing durable artifacts to `~/.claude/ownership/{topic}/`
 | Skill | Role |
 | --- | --- |
 | `triage-learning-content` | Content-consumption router: recommend TTS / TTS_PLUS_REVIEW / READ for an article or URL — scores, pre-consumption briefing, addressable review targets, 1× listening estimate, stable JSON for downstream workflows. Chat-only output. |
-| `teach` | Stateful teaching workspace: learn a topic over multiple sessions (glossary, learning record, missions). Explicit-only (`/teach`). |
-| `breakout-session` | ~15-minute oral-exam learning checkpoint: the user explains studied material, the coach probes Socratically → honest go/no-go verdict for moving on. Chat-only; optional learning record inside a `/teach` workspace. |
+| `teach` | Stateful teaching workspace: learn a topic over multiple sessions (glossary, learning record, missions). Explicit-only invocation. |
+| `breakout-session` | ~15-minute oral-exam learning checkpoint: the user explains studied material, the coach probes Socratically → honest go/no-go verdict for moving on. Chat-only; optional learning record inside a `teach` workspace. |
 | `find-skills` | Discover and install agent skills when looking for functionality that might exist as an installable skill. |
 
 ## Docs

@@ -1,6 +1,6 @@
 ---
 name: document-workflow
-description: "Deep-dive documentation of one workflow operation: locate the entry point, trace the happy path and branching hop-by-hop through real source, and write the canonical workflow doc (sequence of calls, data inventory, business rules, configuration, source files) under workflows/ at the target repo's git root. Backend mode by default (endpoint, message consumer, scheduled job); full-stack mode only when explicitly signaled (end-to-end, from the client). Accepts a loose reference: a handler or method name, a file path, or a description. Use when asked to document a workflow, endpoint, handler, route, consumer, job, or flow, or to create or update a workflow doc. Invoke as /document-workflow."
+description: "Deep-dive documentation of one workflow operation: locate the entry point, trace the happy path and branching hop-by-hop through real source, and write the canonical workflow doc (sequence of calls, data inventory, business rules, configuration, source files) under workflows/ at the target repo's git root. Backend mode by default (endpoint, message consumer, scheduled job); full-stack mode only when explicitly signaled (end-to-end, from the client). Accepts a loose reference: a handler or method name, a file path, or a description. Use when asked to document a workflow, endpoint, handler, route, consumer, job, or flow, or to create or update a workflow doc."
 ---
 
 # document-workflow — deep-dive doc for one workflow operation
@@ -119,7 +119,7 @@ current or tasks-doc directory (a doc written elsewhere is reported missing by d
 
 - Fresh doc: `Created` = `Last Updated` = today; one initial Change Log row
   (`Initial documentation pass` / `First version`).
-- Updating an existing doc: Read it first; keep `Created`, bump `Last Updated`, append one
+- Updating an existing doc: inspect it first; keep `Created`, bump `Last Updated`, append one
   Change Log row per update (group related edits).
 - `Generated From` = short SHA of `HEAD` (`git rev-parse --short HEAD`), advanced on every
   update — it means "the codebase state this doc was last verified against". If the call

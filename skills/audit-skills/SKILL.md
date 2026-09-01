@@ -1,58 +1,58 @@
 ---
 name: audit-skills
-description: On-demand structural audit of the local Claude skill/command/agent population — frontmatter validity, description size + aggregate description budget, trigger-keyword coverage, body length, cross-skill redundancy, dead references, frontmatter-vs-directory mismatch, naming consistency, volatile-content rot. Stages proposals under ~/.claude/improvements/{date}/ with one per finding; never auto-edits. Run after authoring a new skill, before a publish-quality run, or accept the staleness prompt at session start. Invoke as /audit-skills. Complements /improve's friction-driven Phase 2 inline audit.
+description: On-demand structural audit of the canonical skill population — frontmatter validity, description size + aggregate description budget, trigger-keyword coverage, body length, cross-skill redundancy, dead references, frontmatter-vs-directory mismatch, naming consistency, and volatile-content rot. Stages proposals under the active improvements store with one per finding; never auto-edits. Use after authoring a new skill, before a publish-quality run, or when the staleness prompt appears. Complements the improve skill's friction-driven inline audit.
 ---
 
 <!-- intentionally-long: 12 checks documented inline; splitting to references/ would hurt usability because each check is short, the procedure flows linearly, and progressive disclosure adds latency for no readability win at this size. -->
 
-# Audit Skills — structural quality pass over the local skill population
+# Audit Skills — structural quality pass over the canonical skill population
 
-You are running a structural audit of the user's custom skills, commands, and agents.
-You do NOT edit any live file; you stage proposals under `~/.claude/improvements/{date}/`
-exactly like `/improve` does. Same approval discipline: the user reviews and approves
+You are running a structural audit of the repository's canonical skills, commands, and agents.
+You do NOT edit any live file; you stage proposals under the active improvements store
+exactly like the improve skill does. Same approval discipline: the user reviews and approves
 one at a time.
 
-This is the deep, on-demand sibling of `/improve`'s Phase 2 inline thin audit
+This is the deep, on-demand sibling of the improve skill's inline thin audit
 (vague-description + >150-line flags). It runs wider (12 checks) and only when invoked.
 
 ## Inputs you read
 
-- `C:\ai-kit\skills\**\SKILL.md` — all bodies + frontmatter.
-- `C:\ai-kit\commands\*.md`, `C:\ai-kit\agents\*.md`, `C:\ai-kit\templates\**\*.md` —
+- `<repo-root>/skills/**/SKILL.md` — all bodies + frontmatter.
+- `<repo-root>/commands/*.md`, `<repo-root>/agents/*.md`, `<repo-root>/templates/**/*.md` —
   **retired 2026-08-06 (v2, archive/v1)**: all three dirs are deleted; enumerate as zero
   and skip when absent. Specs for their checks (8, 9, and the command/agent legs of 1/10)
   stay below, dormant, in case those entity types return.
-- The most recent `~/.claude/improvements/{date}/REVIEW.md` if present — for the
+- The most recent dated `REVIEW.md` in the active improvements store if present — for the
   invocation-count column in the fitness table. Optional input; skip if not present.
-- `~/.claude/improvements/last-audit.txt` — timestamp of last audit; missing = never run.
+- `last-audit.txt` in the active improvements store — timestamp of last audit; missing = never run.
 
-Resolution via the `~/.claude/{skills,commands,agents}/` junctions is fine — same files.
+Resolution through provider deployment links is fine — same files.
 Exclude bundled/system skills and Anthropic-shipped skills from any proposal.
 
 ## Outputs you write
 
-- `~/.claude/improvements/{YYYY-MM-DD}/REVIEW.md` (one section per check; fitness table).
-- `~/.claude/improvements/{YYYY-MM-DD}/proposals/NN-[audit]-<slug>.md` — one per
+- `<active-improvements-root>/{YYYY-MM-DD}/REVIEW.md` (one section per check; fitness table).
+- `<active-improvements-root>/{YYYY-MM-DD}/proposals/NN-[audit]-<slug>.md` — one per
   **high-confidence finding (>90%)**, ready for one-at-a-time apply/skip/defer review.
-  Tag filenames with `[audit]` so `/improve` and the human can tell audit-derived
+  Tag filenames with `[audit]` so the improve skill and the human can tell audit-derived
   proposals from friction-derived ones.
-- `~/.claude/improvements/backlog/NN-<slug>.md` — one per **lower-confidence finding
+- `<active-improvements-root>/backlog/NN-<slug>.md` — one per **lower-confidence finding
   (≤90%)**. **Persistent across audit runs** (NOT under the dated `{date}/` dir).
   Re-evaluated every run — confidence may rise with more data and promote to a proposal,
   or fall and close as won't-do.
-- `~/.claude/improvements/last-audit.txt` — today's date + run-summary counts + the
+- `<active-improvements-root>/last-audit.txt` — today's date + run-summary counts + the
   aggregate description budget (skill count · total description chars) for Check 2's
   growth comparison next run.
 - Only on the user's explicit, per-item approval: the actual target files.
 
-If `REVIEW.md` already exists for today (because `/improve` ran earlier), append a
+If `REVIEW.md` already exists for today (because the improve skill ran earlier), append a
 `## Audit-derived findings — {YYYY-MM-DD HH:mm}` section to it instead of overwriting.
 
 ## Checks (12 total)
 
 ### Check 1 — Frontmatter validity
 For each SKILL.md / command / agent file:
-- `---` fences front and back; the frontmatter block parses under a **STRICT YAML parser (js-yaml)** — not just the Claude-lenient/regex check. Specifically flag an **unquoted `description:` (or any plain scalar) containing `: ` (colon-space)** or other YAML-special constructs (leading `[`/`{`/`&`/`*`/`|`/`>`, an unescaped `#` mid-scalar) that strict parsers (**Codex**, claude.ai, the open-standard, the API) reject while Claude Code tolerates. Validate with **Node + js-yaml** (the local PyYAML segfaults on this machine — see memory `skill-frontmatter-strict-yaml`; don't reach for it). Each failure → a proposal that quotes the value.
+- `---` fences front and back; the frontmatter block parses under a **STRICT YAML parser (js-yaml)** — not just a regex check. Specifically flag an **unquoted `description:` (or any plain scalar) containing `: ` (colon-space)** or other YAML-special constructs (leading `[`/`{`/`&`/`*`/`|`/`>`, an unescaped `#` mid-scalar) that strict parsers reject while lenient tools tolerate. Validate with **Node + js-yaml** (the local PyYAML segfaults on this machine — see memory `skill-frontmatter-strict-yaml`; don't reach for it). Each failure → a proposal that quotes the value.
 - `name:` matches the directory (skills) or filename stem (commands/agents). **Commands
   (`commands/*.md`) carry no `name:` field by kit convention — the filename is the name.**
   Absence of `name:` on a command is an expected non-finding; flag only a `name:` that is
@@ -77,8 +77,8 @@ For each SKILL.md / command / agent file:
   process detail discoverable in the body — then propose a trim of exactly that; trigger
   keywords are the head doing its job, never trim those. A non-consolidation skill in this
   band gets a trim proposal.
-- > 1,024: hard fail — **exceeds the portable/open-standard cap** (Codex / claude.ai / API
-  reject). Always a proposal with a concrete rewrite. (Claude Code's own 1,536 cap is
+- > 1,024: hard fail — **exceeds the portable/open-standard cap**. Always a proposal with a
+  concrete rewrite. (A hosting tool's own higher cap is
   academic once 1,024 is enforced.)
 - **Aggregate budget:** every description is always in startup context, so the population's
   total matters, not just each file's. Sum description chars across all skills; report
@@ -130,7 +130,7 @@ Scan each SKILL.md, command, and agent body for:
   incident-response,refactoring-tech-debt}/` segments (stale post-3.1 flatten).
 - File references that don't resolve (templates that no longer exist; cross-skill
   references to skills that have been deleted or renamed).
-- `~/.claude/` paths that don't resolve through the junctions.
+- provider deployment paths that don't resolve through their managed links.
 
 Each finding: one proposal per file with exact line numbers and the suggested
 replacement path.
@@ -155,16 +155,16 @@ retired doctrine taught as current in 3 separate runs.
 
 ### Check 8 — Frontmatter-vs-directory mismatch
 - A `SKILL.md` whose frontmatter looks like a command (has `argument-hint`, no long
-  description) → propose "might belong at `C:\ai-kit\commands\`".
+  description) → propose "might belong at `<repo-root>/commands/`".
 - A command file whose frontmatter looks like a skill (long description with trigger
   phrases, no `argument-hint`) → propose the inverse.
 - An agent file whose frontmatter looks like a command/skill → propose moving.
 
-Anti-pattern context: `discovery-agent.md` was misfiled at `~/.claude/commands/`
+Anti-pattern context: `discovery-agent.md` was misfiled in a provider command directory
 pre-3.1. This check is what would have caught that class of mistake.
 
 ### Check 9 — Coverage: commands without skill bodies
-For each `C:\ai-kit\commands\<X>.md`, check whether it has a corresponding skill OR
+For each `<repo-root>/commands/<X>.md`, check whether it has a corresponding skill OR
 whether it is itself the implementation (thin self-contained command — fine for
 one-shots). Soft-flag any thin command where the body length suggests it should be a
 skill (> 50 lines of non-frontmatter content in a command file).
@@ -178,11 +178,11 @@ skill (> 50 lines of non-frontmatter content in a command file).
 
 ### Check 11 — Output-doc filename contract
 For each workflow family (orchestrator + its standalone per-phase commands), the output-doc filenames
-must agree with `C:\ai-kit\docs\output-filename-contract.md`. Flag: (a) a `{token}_<suffix>.md`
+must agree with `<repo-root>/docs/output-filename-contract.md`. Flag: (a) a `{token}_<suffix>.md`
 reference whose token disagrees with the family's canonical token (e.g. `{feature}_techspec.md` or
 `{prefix}_techspec.md` where the contract says `{feature_name}`); (b) an orchestrator-stated output
 filename with no matching standalone command output (or vice-versa); (c) a family/phase not yet listed
-in the contract table. Read filenames from command/skill bodies (grep `_techspec.md` / `_integration.md`
+in the contract table. Extract filenames from command/skill bodies (search `_techspec.md` / `_integration.md`
 / `_tasks.md` / `_investigation.md` / `_impact_analysis.md` / `_regression_test_plan.md` / `_audit.md`
 / `_plan.md` and the bare incident names). Surface mismatches; propose the token normalization, don't
 silently rewrite.
@@ -209,11 +209,11 @@ land in backlog (≤90%) rather than proposals; that's a valid outcome.
 ## Procedure
 
 ### Phase 1 — Enumerate
-Glob the input directories that exist (skills always; commands/agents/templates only if
+Enumerate the input directories that exist (skills always; commands/agents/templates only if
 restored — see Inputs). Build a structured inventory:
 `{ skills: [...], commands: [...], agents: [...], templates: [...] }` (empty arrays are valid).
 
-Also read `~/.claude/improvements/pending-trigger-tests.txt` if present: any listed skill
+Also read `pending-trigger-tests.txt` in the active improvements store if present: any listed skill
 gets a trigger-simulation check this run and is removed from the queue on pass.
 
 ### Phase 2 — Run all 12 checks
@@ -226,14 +226,14 @@ run — even in a FOCUSED run (a new angle-bracket detector found a long-standin
 FULL audits had missed).
 
 ### Phase 3 — Stage the packet
-Apply the keep-two rule (same as `/improve`): if there are already two or more dated
-dirs under `~/.claude/improvements/`, delete all but the most recent one (so after
+Apply the keep-two rule (same as the improve skill): if there are already two or more dated
+dirs under the active improvements root, delete all but the most recent one (so after
 creating today's there are exactly two). The user is the only deleter — surface the
 candidate dirs and ask before removing. The `backlog/` dir is NOT a dated dir and is
 NEVER pruned by the keep-two rule.
 
 **Disposition rule (confidence gate):** for each finding, score confidence per the
-project's "Score Confidence" guidance (CLAUDE.md). If **> 90%** (strictly greater —
+project's loaded "Score Confidence" guidance. If **> 90%** (strictly greater —
 91% and up), stage as a `proposals/NN-[audit]-<slug>.md` file. If **≤ 90%**, write to
 `backlog/NN-<slug>.md` instead — same finding, but flagged for re-evaluation on the
 next audit run. Keep numbering stable across the two directories (a finding that
@@ -256,7 +256,7 @@ because by definition the finding isn't ready to mechanically apply):
 # Backlog NN: <title>
 
 **Target:** <path>
-**Type:** edit-skill | edit-orchestrator | edit-memory | edit-CLAUDE.md | design-question
+**Type:** edit-skill | edit-orchestrator | edit-memory | edit-private-instructions | design-question
 **Derived from:** <which Check, which audit run>
 **Original confidence:** X% — <why not >90% on first sighting>
 **Last re-evaluated:** YYYY-MM-DD
@@ -304,18 +304,18 @@ Create or append-to today's REVIEW.md:
 - <patterns, not per-file>
 ```
 
-Write one `proposals/NN-[audit]-<slug>.md` per finding using `/improve`'s proposal
+Write one `proposals/NN-[audit]-<slug>.md` per finding using the improve skill's proposal
 template (Target / Type / Derived from / Confidence / Change / Rationale).
 
 Write `last-audit.txt` with today's date.
 
 ### Phase 4 — Present & (on approval) apply
-Same procedure as `/improve` Phase 5:
+Same procedure as the improve skill's Phase 5:
 1. Print REVIEW.md (the summary) to chat. Point at the dir, don't dump proposals.
 2. Walk proposals one at a time. Ask before each: "Apply / skip / defer?"
 3. For each approved proposal: apply *exactly* what's in it.
 4. Route commits by target per Tier 3.1: skill/command/agent/template edits → `ai-kit`;
-   `CLAUDE.md` / `observations/` / `improvements/` / `hooks/` → `claude-home`.
+   private instructions / `observations/` / `improvements/` / `hooks/` → the active maintenance home.
    Run the secret-scan before pushing (the ai-kit pre-commit hook does this).
 5. Ask before committing; ask before pushing. Never auto-push.
 6. Print a one-line close summary: `findings: P · applied: A · declined: D · deferred: F · commit: <hash or "skipped">`.
@@ -323,23 +323,23 @@ Same procedure as `/improve` Phase 5:
 ## Staleness behaviour
 At session start: if `last-audit.txt` is missing OR > 90 days old AND the skill count
 has changed by > 3 since the timestamp inside `last-audit.txt`, offer once:
-"It's been D days since the last skill audit (N new/changed skills) — run /audit-skills now?"
-Same offer-don't-run discipline as `/improve`. Never run unprompted.
+"It's been D days since the last skill audit (N new/changed skills) — run audit-skills now?"
+Same offer-don't-run discipline as the improve skill. Never run unprompted.
 
-## Composition with /improve
+## Composition with the improve skill
 
-- `/improve` keeps its inline Phase 2 thin audit (vague-description + >150-line flags).
+- The improve skill keeps its inline Phase 2 thin audit (vague-description + >150-line flags).
   It still runs every week as part of friction review and is fine for the small
   population subset that has invocations.
-- `/audit-skills` runs on-demand and on a 90-day floor.
-- When both surface the same finding: `/improve` checks for an `[audit]`-tagged
+- This skill runs on-demand and on a 90-day floor.
+- When both surface the same finding: the improve skill checks for an `[audit]`-tagged
   proposal on the same target in the current staging dir; if present, it marks its
   own finding "already staged by audit-skills NN-…" and does not restage.
 
 ## What this skill does NOT do
-- **Effectiveness scoring** (which skills work well) — `/improve`'s fitness table owns this.
-- **CLAUDE.md / MEMORY.md / orchestrator lint** — `/improve` Phase 3 owns this.
-- **New-skill synthesis** (capability gaps) — `/improve` owns this via observation patterns.
+- **Effectiveness scoring** (which skills work well) — the improve skill's fitness table owns this.
+- **Private instruction / memory / orchestrator lint** — the improve skill's Phase 3 owns this.
+- **New-skill synthesis** (capability gaps) — the improve skill owns this via observation patterns.
 - **Auto-fix** — every finding is a proposal the user approves one at a time.
 - **Effectiveness benchmarking** — out of scope. See the agent-tuning research note.
 

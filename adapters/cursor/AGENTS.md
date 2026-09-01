@@ -6,17 +6,21 @@ project-root `AGENTS.md` (and `CLAUDE.md`) as rules: paste this below the includ
 your private AGENTS.md, or copy/link it into the root of a project you run Cursor in (a
 global read-location analog of `~/.claude/CLAUDE.md` is **[verify on installed binary]**).
 
-> Rewritten 2026-08-06 for the **v2 kit** (skill-centric refactor). Base mechanics verified
-> vs Cursor docs (`cursor.com/docs`) 2026-05-19 + live probe on `cursor-agent`. Cursor ships
-> near-daily — re-verify tagged items after an update.
+> Rewritten 2026-08-06 for the **v2 kit** (skill-centric refactor). Current mechanics are
+> checked against the [Cursor Agent Skills documentation](https://prod.cursor.com/docs/skills)
+> and [Cursor subagent documentation](https://prod.cursor.com/docs/subagents), accessed 2026-09-01.
+> Cursor is version-sensitive; re-verify after an update.
 
 ## The v2 surface (what Cursor sees)
 
-`adapters/cursor/sync.sh` (WSL — operative) / `sync.ps1` (Windows parity) links **every
-canonical skill 1:1** into `~/.cursor/skills/` — nothing else. There are **no generated
-twins**: v1's orchestrator-skills and native-subagent files are gone with the commands and
-named agents that produced them (all archived under `archive/v1/`). One primitive, one name:
-what Claude invokes as `/name`, Cursor invokes as `/name` too — same key, same skill.
+The common engine enumerates every canonical skill once and manages per-skill links in
+`~/.claude/skills/` and `~/.agents/skills/`; the adapter scripts only forward to that engine.
+Cursor's current documentation lists `~/.agents/skills/` and `~/.cursor/skills/` plus
+Claude/Codex compatibility roots. It can therefore surface duplicate entries. Require every
+ai-kit occurrence to resolve to the same canonical `skills/<name>/` directory; make no
+precedence claim and do not deduplicate provider roots here.
+Cursor explicitly invokes skills with `/name` and may select them from `description`; the
+shared `SKILL.md` body receives no provider transform.
 
 Skills auto-discover off their `description` exactly as in Claude. Work chains by invoking
 the next skill, not by running an orchestrator: `/analyze-work` → `/techspec` →
@@ -26,14 +30,16 @@ rejoin the chain. `/triage` routes a free-text request.
 
 ## How to read the kit's fan-out idiom
 
-v2 skill bodies say things like *"fan out 1–3 generic reviewer subagents in parallel, then
-consolidate"* — generic workers, no named agent personas. In Cursor:
+Current Cursor documentation supports subagents in the CLI, including foreground and
+background/parallel work. Skills provide the work contract; they do not provide a fan-out
+implementation. In Cursor:
 
-- **Parallel generic fan-out** → use Cursor's **native subagent facility** where your build
-  exposes it for ad-hoc spawns; otherwise run the same passes as **independent sequential
-  passes** (fresh perspective each pass, no shared scratch state), then do the skill's own
-  consolidation step. Do **not** write or run an orchestration script for it (the kit owns
-  no fan-out harness, by decision).
+- **Native fan-out** → use Cursor's subagent facility for independent passes when the installed
+  CLI exposes it; use foreground work when the parent needs an immediate result and background
+  work for long-running or parallel passes. Keep the skill's consolidation step in the parent.
+- **Fallback** → if the needed facility is unavailable or blocked by the current mode, run the
+  same passes independently and sequentially (fresh perspective, no shared scratch state).
+  Never add a kit-owned orchestration script to compensate.
 - **Multi-round re-run loops** (e.g. `/review-artifact` re-review after corrections) do
   **not** run autonomously — surface the verdict and let the human drive any re-run. This
   collapses into the skill's existing "confirm with the user" steps.
@@ -42,14 +48,11 @@ consolidate"* — generic workers, no named agent personas. In Cursor:
 - **`create a todo list` / phase gates** → use Cursor's plan/todo facility; honor gates as
   written (e.g. "confidence ≥ 90%" — surface it, do not silently pass).
 
-The v1-era CLI parity gap (forum **#160426**: `cursor-agent` ignores user-level
-`~/.cursor/agents/`) no longer affects the kit — v2 installs nothing there. It only matters
-again if named agent files ever return.
 
-## Structured user questions (no Cursor `AskUserQuestion` analog)
+## Structured user questions
 
-The kit prefers a structured "ask the user" tool. The Cursor CLI has none **[verify: tool
-surface]** — when a skill calls for it, **degrade to a numbered plain-text list** and accept
+The public Cursor docs do not establish a structured question tool for every CLI build. If
+the installed surface does not expose one, **degrade to a numbered plain-text list** and accept
 a free-text reply:
 
 ```
@@ -60,20 +63,23 @@ Pick one (reply with the number, or describe your own):
 
 Keep the question batching/discipline the kit specifies; only the *rendering* changes.
 
-## Model references
+## Worker model and explicit overrides
 
-Claude model names in skill bodies (Opus workers in `/orchestrate`, tier notes) are
-**advisory** — follow `/orchestrate`'s own provider-aware worker table when fanning out;
-otherwise use the session's configured model (Cursor subagents default to `model: inherit`).
-`docs/model-assignments.md` is historical (v1 agent pins; the agents are archived).
+Use the parent/session model by default. Current Cursor subagent documentation uses
+`model: inherit` as the default; an explicit worker-model override is appropriate only when
+the active facility supports it and the task requires it. Team, plan, or mode restrictions may
+still select a compatible fallback. Record the effective choice with the verification evidence.
+Do not import historical model pins or provider branches from `docs/model-assignments.md`
+into canonical skill instructions.
 
-## Claude-only primitives
+## Loop and goal mechanics
 
-`/goal`, `/loop`, `/schedule`, `/compact`, plan mode, and the cc-looper loop skills are
-Claude Code / runner facilities with **no Cursor analog**. Where `/triage` routes to a loop
-primitive, treat it as a manual recurrence in Cursor (run the underlying skill each
-iteration). A context reset in Cursor is a new session — the SESSION_LOG handoff discipline
-still applies.
+Current Cursor documentation exposes `/loop` to run a prompt or skill repeatedly at an interval.
+Use it only after checking the installed CLI's current syntax; `/goal` and `/schedule` are not
+assumed here. Skills remain the source of verifiable completion criteria. If the native loop is
+unavailable or blocked, treat recurrence as manual and keep provider wiring in
+`docs/loop-recipes.md`. A context reset in Cursor is a new session — the SESSION_LOG handoff
+discipline still applies. See the [Cursor Agent Skills documentation](https://prod.cursor.com/docs/skills).
 
 ## Anchored feedback loop
 
@@ -85,8 +91,19 @@ harness. **WSL caveat:** `~` resolves to the *WSL* home under `cursor-agent`-in-
 your Claude feedback store lives in the Windows home, link the WSL `~/.claude` to it (e.g.
 `ln -s /mnt/c/Users/<you>/.claude ~/.claude`) so observations land in one store, not two.
 
-## Adapter posture
+## Private instruction refresh
 
-The adapter is **additive**: it never edits canonical `skills/*/SKILL.md`. Sync is
-idempotent; re-run `sync.sh` (dry-run with `--dry-run` first) after the skill population
-changes, then restart `cursor-agent`.
+This file is a public mechanics layer, not a copy of private conventions. If it is copied
+into a private project or user instruction file, manually refresh the copied
+`kit-mechanics` block after adapter edits. No repository script or sync wrapper may overwrite
+that private file.
+
+## Common sync posture
+
+The adapter remains additive: it never edits canonical `skills/*/SKILL.md`. Use the root
+`scripts/sync-skills.py` entry point for deployment; the adapter scripts are compatibility
+wrappers only. Run a dry-run first, then restart `cursor-agent` after a successful sync.
+
+If an externally owned entry occupies a canonical skill name, use the common engine's explicit
+`--preserve <claude|agents>/<skill-name>` policy (or PowerShell `-Preserve`) on dry-run, apply, and
+check. It remains unowned and the flag must be repeated for qualified checks.

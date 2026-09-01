@@ -1,6 +1,6 @@
 ---
 name: walkthrough-implementation
-description: "Walk the owner through a completed, not-yet-committed implementation in dependency-ordered steps — code, the why behind each decision, and what to notice — so gaps surface while cheap to fix. Use when the user says walk me through the implementation, explain what we built, show me the code, or wants a tour/recap of finished work they own; also when a change set is ready to commit but never explained end to end. Stated rationale is the review mechanism — it catches what reviewers and QA gates missed. Fixes applied and verified in-turn. Invoke as /walkthrough-implementation."
+description: "Walk the owner through a completed, not-yet-committed implementation in dependency-ordered steps — code, the why behind each decision, and what to notice — so gaps surface while cheap to fix. Use when the user says walk me through the implementation, explain what we built, show me the code, or wants a tour/recap of finished work they own; also when a change set is ready to commit but never explained end to end. Stated rationale is the review mechanism — it catches what reviewers and QA gates missed. Fixes applied and verified in-turn."
 ---
 
 # walkthrough-implementation — explain owned work so gaps surface pre-commit
@@ -35,7 +35,7 @@ but unshipped work still qualifies (findings become follow-up commits); resist w
 - The feature's docs if they exist (techspec/tasks) — changes made mid-walkthrough sync to them.
 
 ## Process
-1. **Read the change set first.** Enumerate the files, read the ones you will explain. Never
+1. **Inspect the change set first.** Enumerate the files, read the ones you will explain. Never
    explain from memory of a diff.
 2. **Publish a roadmap before step 1.** N steps (4–7 for a feature-sized change; ~4–6 files per
    step as a guide, not a rule), each a coherent layer, in a small table. The user redirects
@@ -49,11 +49,11 @@ but unshipped work still qualifies (findings become follow-up commits); resist w
 6. **When a change is requested: apply, verify, sync, record — in the same turn.** Build + tests +
    any repo-specific format/encoding check; update the techspec/tasks docs; record the *rationale*
    in a dated notes entry, not just the change.
-7. **When a decision needs the user,** mirror `/walkthrough`'s discipline inline — one decision per
+7. **When a decision needs the user,** mirror the walkthrough skill's discipline inline — one decision per
    question, options with a recommendation, record the answer verbatim. If a batch of decisions
-   accumulates, hand the list to `/walkthrough` proper.
+   accumulates, hand the list to the walkthrough skill proper.
 8. **Close with a summary table** of the steps plus an ordered list of open items, blockers first.
-   Score confidence per the global CLAUDE.md format, naming what remains unverified.
+   Score confidence per the loaded confidence format, naming what remains unverified.
 
 ## Important rules
 1. **Verify before declaring a defect.** Trace the *whole* chain — base types, property

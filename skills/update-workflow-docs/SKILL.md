@@ -1,6 +1,6 @@
 ---
 name: update-workflow-docs
-description: "Refresh existing workflow docs after the code moved on — per-doc commit-diff staleness detection using each doc's Generated From sha + Source Files table, drift buckets (Current / Stale / Unverifiable), and targeted in-place updates that preserve untouched sections verbatim. Use when workflow docs already exist and the code changed since they were generated, or when asked to update, refresh, re-sync, or check staleness or drift of workflow, endpoint, handler, or flow docs. Never bumps docs that didn't drift. Invoke as /update-workflow-docs."
+description: "Refresh existing workflow docs after the code moved on — per-doc commit-diff staleness detection using each doc's Generated From sha + Source Files table, drift buckets (Current / Stale / Unverifiable), and targeted in-place updates that preserve untouched sections verbatim. Use when workflow docs already exist and the code changed since they were generated, or when asked to update, refresh, re-sync, or check staleness or drift of workflow, endpoint, handler, or flow docs. Never bumps docs that didn't drift."
 ---
 
 # update-workflow-docs — staleness triage + in-place refresh for workflow docs
@@ -29,7 +29,7 @@ Accept whatever the invocation provides and resolve before starting; echo the re
 
 ## Process
 
-1. **Inventory the docs.** Glob the docs root for `*.md` containing a `## Summary` table. Skip generation artifacts (`_*.md`, `*_qa.md`, `*_close.md`, `project-overview.md`, README). Per doc capture: title, `Generated From` short sha, `Last Updated`, `Mode`, and the ordered `## Source Files` path list.
+1. **Inventory the docs.** Enumerate the docs root for `*.md` containing a `## Summary` table. Skip generation artifacts (`_*.md`, `*_qa.md`, `*_close.md`, `project-overview.md`, README). Per doc capture: title, `Generated From` short sha, `Last Updated`, `Mode`, and the ordered `## Source Files` path list.
 2. **Detect drift — one staleness query per doc**, in the code root:
    ```
    git log --oneline <generated-from>..HEAD -- <source path 1> <source path 2> …

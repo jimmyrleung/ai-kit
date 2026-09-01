@@ -1,6 +1,6 @@
 ---
 name: implement-task
-description: "Implement one task from an implementation tasks document — or a reviewed bug fix — end-to-end: implement per the techspec and codebase conventions, test, build, then run the verify-task gates before marking it Done. A fix target (reviewed investigation + fix-mode techspec; tasks doc optional) gets the fix lens: minimal root-cause change, bug-scenario + edge-case tests. No per-task code review — that is batched per prefix via /review-implementation. Accepts a loose target: a prefix, a tasks-doc path, a task number, a bug id or investigation doc, or a short description — it resolves the rest. Use when asked to implement, work on, or pick up a task from a tasks doc, or to implement or apply a bug fix after its investigation is reviewed. Invoke as /implement-task."
+description: "Implement one task from an implementation tasks document — or a reviewed bug fix — end-to-end: implement per the techspec and codebase conventions, test, build, then run the verify-task gates before marking it Done. A fix target (reviewed investigation + fix-mode techspec; tasks doc optional) gets the fix lens: minimal root-cause change, bug-scenario + edge-case tests. No per-task code review — that is batched per prefix via the review-implementation skill. Accepts a loose target: a prefix, a tasks-doc path, a task number, a bug id or investigation doc, or a short description — it resolves the rest. Use when asked to implement, work on, or pick up a task from a tasks doc, or to implement or apply a bug fix after its investigation is reviewed."
 ---
 
 # Goal
@@ -13,7 +13,7 @@ Accept whatever the invocation provides and resolve three things before starting
 **tasks doc**, the **task** (its section in that doc), and the **prefix** (the
 reference-file family). Any of these forms is enough:
 
-- **Prefix + task number** (`/implement-task auth_oauth 3`) — the tasks doc is the doc
+- **Prefix + task number** (`implement-task auth_oauth 3`) — the tasks doc is the doc
   owning the prefix (typically `{prefix}_tasks.md`); the task is its Task 3 section.
 - **Tasks-doc path alone** — pick the first task that is not Done and whose dependencies
   are met; if several are equally next, ask which.
@@ -25,7 +25,7 @@ reference-file family). Any of these forms is enough:
   A tasks doc is optional — many fixes have none: then the "task" is the investigation's
   proposed minimal fix and the investigation doc stands in for the tasks doc. The **fix
   lens** below applies. If the investigation has no `## Review` block, flag it and suggest
-  `/review-artifact` first — confirm with the user before implementing on an unreviewed
+  the review-artifact skill first — confirm with the user before implementing on an unreviewed
   investigation.
 - **Nothing usable** — if exactly one `*_tasks.md` with open tasks exists in the working
   tree, use it; otherwise ask rather than guess.
@@ -74,14 +74,14 @@ When implementation surfaces work beyond the task's boundaries:
 
 > **No per-task code review.** The reviewer fan-out that used to run here as Workflow 2 was
 > retired (token economics: it re-loaded the same context once per task to review a small
-> diff). Code review now happens once per prefix, batched, via `/review-implementation` —
+> diff). Code review now happens once per prefix, batched, via the review-implementation skill —
 > see the last-task hook in Workflow 3. Numbering keeps Workflow 3's name for symmetry with
 > `implement-task-loop`.
 
 ### Workflow 1 - Implementation
 
 1. Create todo list with all steps for that process.
-2. Context: Read all relevant files, starting with the prefix's reference files
+2. Context: inspect all relevant files, starting with the prefix's reference files
 3. Plan implementation: Create a step-by-step implementation plan
 4. Implement: Write the code following the techspec and coding standards
 
@@ -115,4 +115,4 @@ When implementation surfaces work beyond the task's boundaries:
    section — don't silently rewrite the upstream doc. Record deviations from the spec with
    rationale.
 4. Provide summary with modified/created files
-5. **Last-task suggest hook:** if every task in the prefix's tasks document is now marked Done, suggest `/review-implementation prefix={prefix}` (batched code review) followed by `/qa-gates prefix={prefix}` before declaring the feature/refactor complete. (Suggestions only — the user invokes them.) If earlier tasks remain, do not suggest yet — unless the task list is long (>~6 tasks) and a natural boundary was just crossed, in which case a mid-run `/review-implementation prefix={prefix} scope=…` may be worth suggesting. A tasks-doc-less fix is its own last task: suggest both immediately after Workflow 3.
+5. **Last-task suggest hook:** if every task in the prefix's tasks document is now marked Done, suggest the review-implementation skill with `prefix={prefix}` (batched code review) followed by the qa-gates skill with `prefix={prefix}` before declaring the feature/refactor complete. (Suggestions only — the user invokes them.) If earlier tasks remain, do not suggest yet — unless the task list is long (>~6 tasks) and a natural boundary was just crossed, in which case a mid-run review-implementation pass with `prefix={prefix}` and `scope=…` may be worth suggesting. A tasks-doc-less fix is its own last task: suggest both immediately after Workflow 3.

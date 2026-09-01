@@ -133,7 +133,7 @@ claim about which duplicate Cursor presents first.
 
 | Metric | Baseline verified 2026-08-31 | Minimum acceptable result | Measurement |
 | --- | --- | --- | --- |
-| Managed population | `~/.claude/skills`: 31 ai-kit links; `~/.agents/skills`: 0 ai-kit links and two real-directory collisions | 31/31 canonical skills resolve from each managed root; zero unresolved ai-kit names | `python3 scripts/sync-skills.py --check` plus resolved-target enumeration |
+| Managed population | `~/.claude/skills`: 31 ai-kit links; `~/.agents/skills`: 0 ai-kit links and two real-directory collisions | 31 canonical skills are accounted for in each managed root; the normal-home exception may be 31 managed Claude links plus 29 managed Agents links and 2 explicitly preserved entries | Qualified `python3 scripts/sync-skills.py --check --preserve ...` plus resolved-target enumeration |
 | Deployment implementations | Four scripts contain independent enumeration/mutation logic | One implementation; four wrappers contain no link classification or mutation logic | `rg` for enumeration/link primitives outside `scripts/sync-skills.py` |
 | Platform assurance | No tracked test or CI host | Same suite green on Ubuntu, macOS, and Windows | GitHub Actions matrix result |
 | Ownership safety | Force can replace unproven links | Zero test case changes an unowned entry or target; every replacement is manifest-owned or exact-current adoption | Safety fixture assertions and before/after inode/content checks |
@@ -168,6 +168,7 @@ deployment contract before canonical skill behavior changes.
 ```text
 python3 scripts/sync-skills.py [--dry-run] [--check | --uninstall]
                                [--force] [--prune] [--home <isolated-home>]
+                               [--preserve <claude|agents>/<skill-name> ...]
 ```
 
 - Default home: `Path.home()`; tests always pass `--home`.
@@ -193,6 +194,13 @@ python3 scripts/sync-skills.py [--dry-run] [--check | --uninstall]
 - `--prune`: report manifest-owned entries whose canonical skill disappeared.
   `--prune --force` runs the same per-entry baseline restoration as uninstall after a global
   preflight; it never follows or changes a target.
+- `--preserve <claude|agents>/<skill-name>`: explicitly leave an existing directory or link with
+  a canonical skill name outside ai-kit ownership for that invocation. The entry must already
+  exist with a readable `SKILL.md`, is validated but never recorded in the manifest, and one flag
+  is required per entry. The flags must be repeated for a qualified `--check`; without them,
+  apply/check fails closed on the unowned canonical-name entry. Preserve policy does not change
+  the canonical source count and is invalid with `--uninstall` or `--prune`; it requires no
+  manifest-schema change.
 - Exit `0`: complete requested state; `1`: conflicts, incomplete population, or runtime failure;
   `2`: invalid CLI combination/argument.
 
@@ -202,8 +210,8 @@ report-only `--prune` remain valid; only `--prune --force` mutates orphaned mana
 
 The POSIX wrappers first reject a set `CODEX_HOME`/`CURSOR_HOME`, then forward common CLI arguments
 unchanged and preserve the exit code. Each PowerShell wrapper exposes `-WhatIf`, `-Check`,
-`-Uninstall`, `-Force`, `-Prune`, and `-UserHome`; these map respectively to `--dry-run`,
-`--check`, `--uninstall`, `--force`, `--prune`, and `--home`. It retains `-CodexHome` or
+`-Uninstall`, `-Force`, `-Prune`, `-Preserve`, and `-UserHome`; these map respectively to
+`--dry-run`, `--check`, `--uninstall`, `--force`, `--prune`, `--preserve`, and `--home`. It retains `-CodexHome` or
 `-CursorHome` only to emit migration guidance and exit 2. Provider-private environment variables
 are rejected the same way. Those legacy values mean a directory such as `~/.codex`; they cannot be
 derived into the user base containing both `.claude` and `.agents` without an unsafe semantic
@@ -274,12 +282,13 @@ not overwritten by later applies or checkout moves.
 
 Before the first filesystem action, the engine atomically writes `transaction` with operation
 (`apply`, `prune`, or `uninstall`), phase `prepared`, and the complete ordered action plan including
-baselines. A retry accepts only two observed states per action: the recorded pre-action state or
-the exact planned post-action state. It resumes/finalizes those states idempotently; any third state
-is a conflict. After every action reaches its post-state, one atomic manifest replacement commits
-the new finalized records and clears `transaction`. This covers interruption before the first
-action, between roots, after the last action, and around finalization without a separate lock or
-journal file.
+baselines. A link replacement durably advances its action from `pending` to
+`replacement-authorized` before unlinking. Retry accepts the recorded pre-action state, the exact
+planned post-action state, or—only for an action carrying that durable authorization—the absent
+replacement transition. Any other state is a conflict. After every action reaches its post-state,
+one atomic manifest replacement commits the new finalized records and clears `transaction`. This
+covers interruption before replacement, after unlink, between roots, after the last action, and
+around finalization without a separate lock or journal file.
 
 The common engine validates canonical directories and readable `SKILL.md` presence using the
 Python standard library. It does not parse YAML. Strict frontmatter syntax, duplicate keys,
@@ -344,7 +353,7 @@ one repeatable check before broad canonical edits land.
 | `tests/test_skill_portability.mjs` | Create | Fixture-test malformed YAML, unknown fields, provider overlays, count drift, and unclassified coupling. | Structural audit checks |
 | `package.json` | Create | Pin Node 24, `js-yaml@5.4.1`, and checker/test commands. | Existing Node + js-yaml validation method |
 | `package-lock.json` | Create | Lock the only test dependency for reproducible CI. | npm lock contract |
-| `.gitignore` | Modify | Ignore `node_modules/`; preserve existing private-evidence exclusions. | Minimal tool-output exclusion |
+| `.gitignore` | Modify | Ignore `node_modules/` and Python bytecode caches; preserve existing private-evidence exclusions. | Minimal tool-output exclusion |
 | `.github/workflows/portability.yml` | Create | Run shell syntax, strict checker, tests, wrapper dry-runs, and sync fixtures on Ubuntu/macOS/Windows. | New automation host forced by cross-OS requirement |
 | `skills/teach/agents/openai.yaml` | Create | Set `policy.allow_implicit_invocation: false` for Codex while keeping Cursor's canonical flag. | Official Codex optional metadata contract |
 | `docs/rules/skill-authoring.md` | Modify | Replace stale Windows/v1 topology with common sync, profile rules, and automated commands. | Existing repo-rule location |
@@ -536,23 +545,26 @@ retired, and the superseding artifacts. This follows the repository's preserve-h
 
 #### Local migration playbook
 
-1. Run `python3 scripts/sync-skills.py --dry-run`; expected initial result on this machine is two
-   conflicts at `~/.agents/skills/find-skills` and `~/.agents/skills/teach`, with no mutation.
-2. Re-verify both colliding real directories are empty and unrelated to a package manager.
-3. Ask the user for explicit approval to move each collision to a named sibling backup. Do not
-   overwrite or discard either entry.
-4. Re-run dry-run; it must plan 31 adoptions/links per root with zero conflicts.
-5. Run apply, then `python3 scripts/sync-skills.py --check`.
-6. Run the portability checker, both test suites, shell syntax, and repository count probes.
-7. Restart/exercise locally installed Codex and Claude. Record Cursor as `not exercised` unless a
+1. Re-verify the two externally owned entries at `~/.agents/skills/find-skills` and
+   `~/.agents/skills/teach`; do not move, overwrite, or discard either entry.
+2. Run `python3 scripts/sync-skills.py --dry-run --preserve agents/find-skills --preserve agents/teach`;
+   the only non-managed results must be those two explicit preserves, with no mutation.
+3. Require a complete plan of 31 managed Claude links, 29 managed Agents links, and 2 preserved
+   Agents entries. The preserve flags are a per-invocation exception and are not written to the
+   manifest.
+4. Run apply with the same preserve flags, then run the qualified read-only check with the same
+   flags. Also confirm that an unqualified check fails closed rather than accepting the exception.
+5. Run the portability checker, both test suites, shell syntax, and repository count probes.
+6. Restart/exercise locally installed Codex and Claude. Record Cursor as `not exercised` unless a
    runtime is present. Do not claim source attribution when a legacy root makes it ambiguous.
-8. Leave `~/.codex/skills` and any `~/.cursor/skills` entries untouched. Record Cursor duplicates
+7. Leave `~/.codex/skills` and any `~/.cursor/skills` entries untouched. Record Cursor duplicates
    as acceptable only when every occurrence resolves to the same canonical source.
 
 #### Deployment and phase acceptance
 
 - Documentation and wrappers land before normal-root apply.
-- Apply happens once on this Linux computer after collision approval.
+- Apply happens once on this Linux computer after the preserve policy has been confirmed and the
+  qualified dry-run is conflict-free.
 - Phase success: both roots pass exact population check; repository CI is green; all locally
   available runtime checks are honestly classified as passed, failed, ambiguous, or unavailable.
 
@@ -560,9 +572,9 @@ retired, and the superseding artifacts. This follows the repository's preserve-h
 
 If runtime acceptance fails, keep legacy provider-private roots in service. With explicit user
 approval, preview and run baseline-restoring `--uninstall`, confirm the 31 adopted Claude links
-remain exactly as they were before apply, restore the two collision backups to their original
-names, and revert Phase 4 docs. If a prepared transaction exists, resume it before any manual
-step. Never change a target directory or touch an unrecorded entry.
+remain exactly as they were before apply, confirm the two preserved Agents entries remain untouched,
+and revert Phase 4 docs. If a prepared transaction exists, resume it before any manual step. Never
+change a target directory or touch an unrecorded entry.
 
 ## Testing strategy
 
@@ -611,7 +623,7 @@ matching the post-review whole-design confidence below.
 | 19 | Unowned dangling neighbor | Owned orphan adjacent to an unrecorded dangling link | Unowned neighbor is reported as conflict and remains byte-for-byte unchanged; no partial action occurs | High | Yes |
 | 20 | Managed root itself is link/junction | Either managed root points at another directory | `root-layout-conflict`; engine does not traverse or mutate either root | High | Yes |
 | 21 | Preflight-to-action race | Fixture hook swaps a preflighted link or creates a collision immediately before action | Action-time revalidation stops all unsafe changes; no false ownership record is written | High | Yes |
-| 22 | Link-creation interruption recovery | Inject failure after the prepared transaction and after one exact link action | Nonzero exit; complete baselines remain durable; retry recognizes pre/post states and converges without treating the planned link as a fresh adoption | High | Yes |
+| 22 | Link-replacement interruption recovery | Inject failure after durable replacement authorization, after unlink, and after one exact link action | Nonzero exit; complete baselines remain durable; retry recognizes authorized transition/pre/post states and converges without treating the planned link as a fresh adoption | High | Yes |
 | 23 | Manifest finalization interruption recovery | Inject failure before/during the prepared write and final atomic replacement | Manifest is absent, old-valid, prepared-valid, or finalized-valid—never partial; retry resumes or finalizes the fixed plan | High | Yes |
 | 24 | Rollback preview | Mixed created/adopted/retargeted fixture plus `--dry-run --uninstall` | Plans unlink/leave/restore actions respectively; no entry, root, target, or manifest bytes/timestamps change | High | Yes |
 | 25 | Baseline-restoring rollback | Same mixed fixture plus `--uninstall` | Created entries become absent, adopted entries remain identical, retargeted entries regain original type/raw target; unrelated/legacy roots remain; finalized records clear atomically | High | Yes |
@@ -633,14 +645,15 @@ matching the post-review whole-design confidence below.
 | 41 | Cursor duplicate equivalence | Synthetic and installed occurrences across `.agents`, `.claude`, `.codex`, and `.cursor` roots | Every ai-kit duplicate resolves to one canonical source; divergent target fails; no precedence claim is made | High | Yes mechanically; runtime manual |
 | 42 | Documentation/config closure | README, inventory, rule index, adapters, loop recipe, package/lock, ignores, attributes, and workflow | No old live topology or count claim remains; commands/files agree; generated/dependency outputs are correctly classified | High | Yes + review |
 | 43 | Whole-root migration procedure | Isolated root link/junction whose target contains canonical plus unrelated children | Engine refuses it; inventory is recorded; migration stops without dispositions; approved unmanaged child links preserve every name/resolved target while old target remains unchanged | High | Manual procedure + automated fixture checks |
-| 44 | Local two-root migration | Current Linux home after separately approved collision backups | 31/31 both roots, unrelated entries preserved, legacy roots untouched, common check exits 0 | High | Manual apply + automated check |
+| 44 | Local two-root migration | Current Linux home with the two explicitly preserved Agents entries | 31 managed Claude links plus 29 managed Agents links and 2 preserved entries; unrelated entries preserved, legacy roots untouched, qualified common check exits 0 | High | Manual apply + automated check |
 | 45 | Runtime acceptance classification | Locally installed Claude/Codex and unavailable or duplicate-ambiguous Cursor | Each provider records passed, failed, ambiguous, or unavailable with evidence; no side-effect is treated as source proof | High | Manual |
-| 46 | Local rollback drill | Replica of 31 adopted Claude links plus newly created shared-root links and, after approval, normal-home plan | Preview classifies adopted vs created; rollback leaves the 31 Claude links byte-identical, clears created shared links, restores collision backups, and preserves targets/unrelated entries | High | Isolated automated; normal home manual |
+| 46 | Local rollback drill | Replica of 31 adopted Claude links plus newly created shared-root links and the preserved-entry policy | Preview classifies adopted vs created; rollback leaves the 31 Claude links byte-identical, clears created managed links, leaves preserved entries untouched, and preserves targets/unrelated entries | High | Isolated automated; normal home manual |
 | 47 | Historical-document preservation | Two assessment diffs | Only supersession banners/current cross-links change; decision-history bodies remain byte-identical | Medium | Yes |
 | 48 | Private instruction-block preservation | Public adapter/include workflow | Public changes identify manual refresh; no repository script writes a private convention file; copied-block review is explicit | Medium | Yes statically; block review manual |
 | 49 | CI/toolchain contract | Workflow source plus Ubuntu/macOS/Windows run artifacts | Read-only permissions; Python 3.12, Node 24, locked install, current pinned action majors, syntax/checker/tests/wrappers all execute on intended hosts | High | Yes |
 | 50 | CLI usability smoke | Dry-run/check/apply/rollback summaries on each OS | Root, counts, classifications, conflicts, action, and next step are understandable; no generic performance threshold | Low | Manual |
 | 51 | Interrupted rollback recovery | Failure injection before first action, between roots, after last action, and around finalization | Prepared rollback remains durable; retry accepts only exact pre/post states, converges idempotently, and rejects any third-party state | High | Yes |
+| 52 | Explicit per-root preservation | Existing real directories or links at canonical names plus `--preserve agents/<skill-name>` | Dry-run/apply/check account for the preserved entries without recording or changing them; missing, invalid, owned, or omitted preserve policy fails closed; uninstall leaves them intact | High | Yes |
 
 Tests are **not** needed for application APIs, databases, DI, browser/device behavior, or business
 data because this refactor changes none of those surfaces. Full accessibility/security audits are
@@ -667,7 +680,8 @@ Ownership, target-preservation, or cross-OS failure
 
 Local runtime failure after apply
   -> recover any prepared transaction, preview and run baseline-restoring --uninstall only with
-     explicit approval, restore collision backups, and continue using untouched legacy roots.
+     explicit approval, verify preserved external entries remain untouched, and continue using
+     untouched legacy roots.
 ```
 
 No phase alters canonical target contents through the sync engine, so rollback never requires data
@@ -687,7 +701,7 @@ link/junction entries and returns each to its immutable first-managed baseline.
 | Installed Codex validator rejects a declared foreign-provider extension | Record the expected profile note; repository checker still fails unknown extensions. If runtime stops loading the skill, open a new compatibility design rather than generating a twin silently. |
 | A provider-specific term proves behavior-bearing during Phase 3 | Keep it in the narrow provider adapter/doc and replace the canonical sentence with the capability contract. |
 | A `CLAUDE.md` workflow target has no discoverable active-harness equivalent | Stop that edit and ask which private convention file owns the proposal; do not guess. |
-| Current collision directories are not empty or are package-managed | Stop local migration; leave them intact and ask the user for a disposition. Repository phases can still complete. |
+| Current external entries are not valid preserved directories or links | Stop local migration; leave them intact and ask the user for a disposition. Repository phases can still complete. |
 | CI provider action major changes | Re-verify official action documentation and update the pinned major in a focused automation change. |
 
 ## Risks
@@ -695,6 +709,7 @@ link/junction entries and returns each to its immutable first-managed baseline.
 | Risk | Likelihood | Impact | Mitigation |
 | --- | --- | --- | --- |
 | Unowned entry is replaced | Low after design | Critical user-data loss | Full preflight; manifest + live-target proof; real dirs/unrecorded links never forceable. |
+| Preserved exception is omitted or mis-scoped | Low after design | High | Require existing canonical-name entries, validate each root/name pair, keep preserves out of the manifest, and make unqualified apply/check fail closed. |
 | Rollback erases or rewrites pre-existing discovery | Low after review | Critical | Immutable first-managed baseline; prepared transaction; created/adopted/retargeted lifecycle tests. |
 | Interrupted action loses provenance | Low after review | High | Prepared plan is atomic before action; retry permits only exact pre/post states. |
 | Junction operation affects target | Low | High | Windows fixture asserts target inode/content survives relink and orphan paths. |
@@ -762,7 +777,7 @@ Factor calculation:
 - The reviewed analysis was re-grounded against the live 31-skill tree, four adapters, policy docs,
   and current local discovery roots.
 - The current machine baselines were re-derived: 31 ai-kit Claude links, zero ai-kit shared-root
-  links, and the two named real-directory collisions.
+  links, and the two externally owned real-directory entries that are now explicitly preserved.
 - Every net-new mechanism maps to a named safety, parity, rollback, or assurance requirement.
 - Official Codex/Cursor documents confirm the roots and overlap; the Agent Skills standard fixes
   the metadata fields and bounds used by the checker.
@@ -777,5 +792,25 @@ Factor calculation:
   this Linux machine before the matrix exists.
 - **Minor implementation judgement:** exact CLI diagnostic wording and failure-injection hook shape
   may change during coding while exit semantics and transaction states remain fixed.
-- **Does not block repository phases:** local migration still depends on user approval for two
-  collision backups; refusal leaves repository work valid but local acceptance incomplete.
+- **Does not block repository phases:** local migration still depends on separate approval for the
+  normal-home apply and any rollback action; refusal leaves repository work valid but local
+  acceptance incomplete.
+
+## Post-review implementation correction — 2026-09-01
+
+The independent review reproduced an interruption between unlink and recreate, proved that the two
+preserved normal-home entries were empty rather than discoverable skills, found missing Cursor
+overlay value-shape checks, and identified stale completion/CI evidence. The approved correction is:
+
+- each retarget/restore action carries durable `pending` / `replacement-authorized` progress;
+- a preserved entry must expose a readable `SKILL.md`, not merely occupy the expected path;
+- Cursor `paths`, `icon`, and `color` values follow the documented string/list/string/enum shapes;
+- the two live external skills are restored from the provenance already recorded in
+  `~/.agents/.skill-lock.json`, with the empty placeholders retained as a dated backup;
+- local green checks and hosted matrix evidence are reported separately. The workflow supports
+  push, pull-request, and manual dispatch, but Ubuntu/macOS/Windows execution cannot be claimed
+  until the workflow is committed, pushed, and run.
+
+This section records the implementation correction without rewriting the earlier dated design and
+QA evidence. The normal-home apply is complete; only hosted cross-OS evidence and unavailable
+provider runtime attribution remain external.

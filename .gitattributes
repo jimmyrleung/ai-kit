@@ -1,3 +1,5 @@
 # Shell scripts must check out LF — a CRLF working copy breaks bash under WSL
 # (core.autocrlf=true would otherwise stamp CRLF on *.sh at checkout).
 *.sh text eol=lf
+*.py text eol=lf
+*.mjs text eol=lf

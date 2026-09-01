@@ -1,6 +1,6 @@
 ---
 name: analyze-work
-description: "Pre-implementation analysis of upcoming work — a reference map (entry points, patterns to follow, similar features, scope boundaries, risks), not a design doc. Detects and adapts to the work type: integrating a feature into an existing codebase, starting a new project / greenfield build (vertical-slice guarded), or a refactor / tech-debt request. Produces {work_name}_analysis.md. Use when asked to analyze, audit, scope, or map a feature integration, a new project, or a refactor / tech debt before designing or implementing it. Invoke as /analyze-work."
+description: "Pre-implementation analysis of upcoming work — a reference map (entry points, patterns to follow, similar features, scope boundaries, risks), not a design doc. Detects and adapts to the work type: integrating a feature into an existing codebase, starting a new project / greenfield build (vertical-slice guarded), or a refactor / tech-debt request. Produces {work_name}_analysis.md. Use when asked to analyze, audit, scope, or map a feature integration, a new project, or a refactor / tech debt before designing or implementing it."
 ---
 
 # analyze-work — pre-implementation reference map (integration · greenfield · refactor)
@@ -19,7 +19,7 @@ You must **LOCATE and REFERENCE**, and **must not** DESIGN and SPECIFY as design
 ## When to use
 
 - **Ad-hoc**: about to integrate a feature, start a new project, or refactor / pay down tech debt — and you want the map before designing.
-- **After recon**: `/lay-of-the-land` produced a current-state map and a concrete work item is now defined.
+- **After recon**: the `lay-of-the-land` skill produced a current-state map and a concrete work item is now defined.
 
 ## When NOT to use
 
@@ -196,7 +196,7 @@ The expected output is a reference document — not a bloated document with impl
 
 **IMPORTANT**: the only scenario code blocks are allowed is when explaining current state would take _more_ text than the block.
 
-Core sections (all modes): **Overview** (2–3 sentences) · **Confidence score** (global CLAUDE.md format) · **Entry points** (`file:line`; greenfield: proposed entry surface) · **Similar features / examples** (`file:line`; greenfield: ecosystem examples) · **Execution flow** · **Key components & responsibilities** · **Architecture insights** · **Dependencies** (internal / external / libraries) · **Observations** (strengths, issues, opportunities) · **Side effects / impact** · **Risks & considerations** (severity Critical/High/Mid/Low) · **Essential files** — plus the mode-lens sections above.
+Core sections (all modes): **Overview** (2–3 sentences) · **Confidence score** (loaded confidence format) · **Entry points** (`file:line`; greenfield: proposed entry surface) · **Similar features / examples** (`file:line`; greenfield: ecosystem examples) · **Execution flow** · **Key components & responsibilities** · **Architecture insights** · **Dependencies** (internal / external / libraries) · **Observations** (strengths, issues, opportunities) · **Side effects / impact** · **Risks & considerations** (severity Critical/High/Mid/Low) · **Essential files** — plus the mode-lens sections above.
 
 Four tables (omit one only if it genuinely has no rows; greenfield: "Files to Modify" is usually empty):
 
@@ -234,4 +234,4 @@ Four tables (omit one only if it genuinely has no rows; greenfield: "Files to Mo
 
 ## Output file
 
-Write to `{work_name}_analysis.md`, alongside the description file (or where the user says). No discoverable base name → ask before writing. After writing, **offer `/review-artifact`** before anything designs or implements on top of the doc (the design phase is `/techspec`).
+Write to `{work_name}_analysis.md`, alongside the description file (or where the user says). No discoverable base name → ask before writing. After writing, **offer the `review-artifact` skill** before anything designs or implements on top of the doc (the design phase is `techspec`).

@@ -1,12 +1,12 @@
 ---
 name: verify-task
-description: "Per-task implementation verification — composes the qa-gates skill with per-task inputs (one task's ACs, one task's files, one task's budgets) and runs gates 1 (build/test) + 2 (AC checklist) + 3 (cross-cutting invariants). Skips gates 4 (docs) and 5 (human go/no-go) — those are prefix-level concerns. Invoked at end-of-Workflow-1 inside the implement-task skill (tasks-doc tasks and fix-lens bug fixes alike), before the task is marked Done. Records a `## Verify — {date}` block in the task's section of the tasks-doc and logs 3 observations per run for /close → /improve. Per-prefix sibling: qa-gates (Tier 2.4)."
+description: "Per-task implementation verification — composes the qa-gates skill with per-task inputs (one task's ACs, one task's files, one task's budgets) and runs gates 1 (build/test) + 2 (AC checklist) + 3 (cross-cutting invariants). Skips gates 4 (docs) and 5 (human go/no-go) — those are prefix-level concerns. Invoked at the end of Workflow 1 inside the implement-task skill (tasks-doc tasks and fix-lens bug fixes alike), before the task is marked Done. Records a `## Verify — {date}` block in the task's section of the tasks-doc and logs 3 observations per run for the close skill → improve skill. Per-prefix sibling: qa-gates (Tier 2.4)."
 ---
 
 # Verify Task — per-task closeout
 
 You verify that a single just-implemented task passes the per-task gates before the calling
-implement command marks it Done. You do NOT review code quality (`/review-implementation`'s
+implement command marks it Done. You do NOT review code quality (the review-implementation skill's
 batched per-prefix review handles that); you verify the *outcome of this task only*.
 
 ## Inputs the caller must provide (in the invoking message)
@@ -32,7 +32,7 @@ cross-cutting sub-check. Same in-place marker discipline `review-artifact` (`## 
 
 ### Step 0 — Resolve per-task inputs and write the gate plan
 
-1. `Read` `tasks_doc_path` and locate the task's section (matching `task_id` — usually a
+1. read `tasks_doc_path` and locate the task's section (matching `task_id` — usually a
    heading like `### Task 3: …` or a numbered checklist item).
 2. **Extract per-task ACs.** From the task's section, collect any line that looks like an AC
    — bullets under an "Acceptance criteria" subsection (the post-2.2 tasks-doc template),
@@ -43,11 +43,11 @@ cross-cutting sub-check. Same in-place marker discipline `review-artifact` (`## 
    present and record it in the gate plan — Gate 1's result is judged against it (a failure the
    baseline names is pre-existing; one it doesn't name is this task's).
 3. **Extract per-task files-list.** Collect any file-path strings in the task's section
-   ("Files: …", "Touches: …", visible paths). Also run `Bash` `git diff --name-only HEAD~3..HEAD`
+   ("Files: …", "Touches: …", visible paths). Also run a shell command such as `git diff --name-only HEAD~3..HEAD`
    (widen the window if needed) to get the just-edited file set. **Union** the two lists;
    record both in the gate plan so a divergence is visible.
-4. **Extract per-task line budgets.** `Read` the techspec at `{prefix}_techspec.md` (or
-   `specs/slices/<slice>/techspec.md` for slice-style prefixes) and grep for any budget lines
+4. **Extract per-task line budgets.** read the techspec at `{prefix}_techspec.md` (or
+   `specs/slices/<slice>/the techspec file` for slice-style prefixes) and grep for any budget lines
    attached to files in the per-task files-list. Record budgets found; "no budget pinned
    (acceptable)" if none. Treat unlabeled `~`/approximate sizes as **forecasts**: record
    actual-vs-forecast as variance in the Verify block, never as a Gate 3 FAIL; only explicit
@@ -112,7 +112,7 @@ each checkbox.
 - **Halt on fail.** Do not advance to the next gate while the current one is unresolved.
   The calling implement command must NOT mark the task Done while any gate is failing.
 - **Accept-with-reason** is the only escape. The `## Verify` block must carry the reason
-  inline (`accepted: <reason>`); `/improve` audits per-task accept-rates later.
+  inline (`accepted: <reason>`); the improve skill audits per-task accept-rates later.
 - **Skipping a gate is visible.** The 3-checkbox plan from Step 0 makes any unrecorded gate
   a missing checkbox, not a silent omission.
 - **Numbers are verbatim, filled after the run.** Suite results are recorded as
@@ -123,7 +123,7 @@ each checkbox.
 ## Observation write
 
 For each of the 3 gates ran, append one entry to the session-scoped observation buffer so
-`/close` picks it up (Tier 1.3 contract):
+The close skill picks it up (Tier 1.3 contract):
 
 ```
 skill_or_workflow: verify-task
@@ -136,7 +136,7 @@ would_have_helped: <if fail/accepted>
 principle: <generalizable takeaway>
 ```
 
-3 entries per run. The `task_id` field is the per-task-clustering hook for `/improve`.
+3 entries per run. The `task_id` field is the per-task-clustering hook for the improve skill.
 
 ## When NOT to use verify-task
 
@@ -154,9 +154,9 @@ Workflow 3 — Post implementation directly.
 - **`qa-gates` (Tier 2.4)** — the gate-body provider. `verify-task` is a thin wrapper that
   resolves per-task inputs, writes the `## Verify` plan, and calls `qa-gates` with
   `gates_to_run: build,ac,cross-cutting` and `gate_plan_pre_written: true`.
-- **`/close`** — picks up the 3 per-task observation entries per run; `/improve` clusters
+- **The close skill** — picks up the 3 per-task observation entries per run; the improve skill clusters
   per-task gate-fails by `gate-id` AND `task_id` (mechanical clustering).
 - **The `implement-task` skill** — the sole caller (its fix lens covers bug fixes; the
   loop variant reviews at checkpoints instead); it invokes `verify-task` at
-  end-of-Workflow-1 before continuing to Workflow 3 — Post implementation. The post-2.4 last-task `/qa-gates` suggest
+  end-of-Workflow-1 before continuing to Workflow 3 — Post implementation. The post-2.4 last-task qa-gates suggest
   hint at end-of-Workflow-3 is unrelated and untouched — the two skills compose.

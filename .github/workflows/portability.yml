@@ -1,0 +1,95 @@
+name: Portability
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  portability:
+    name: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - macos-latest
+          - windows-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24.x'
+
+      - name: Install locked JavaScript dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Check Python syntax
+        run: python -m py_compile scripts/sync-skills.py tests/test_sync_skills.py
+
+      - name: Check POSIX adapter syntax
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash -n adapters/codex/sync.sh adapters/cursor/sync.sh
+
+      - name: Check PowerShell adapter syntax
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $files = @('adapters/codex/sync.ps1', 'adapters/cursor/sync.ps1')
+          foreach ($file in $files) {
+            $tokens = $null
+            $errors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile(
+              (Join-Path $PWD $file), [ref]$tokens, [ref]$errors
+            ) | Out-Null
+            if ($errors.Count -gt 0) {
+              $errors | ForEach-Object { Write-Error $_.Message }
+              exit 1
+            }
+          }
+
+      - name: Run portability fixtures
+        run: npm test
+
+      - name: Run final portability checker
+        run: npm run check:portability
+
+      - name: Run isolated sync harness
+        run: python tests/test_sync_skills.py
+
+      - name: Exercise POSIX adapters with a dry run
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          set -euo pipefail
+          fixture_home="$RUNNER_TEMP/ai-kit-portability-home"
+          mkdir -p "$fixture_home"
+          bash adapters/codex/sync.sh --dry-run --home "$fixture_home"
+          bash adapters/cursor/sync.sh --dry-run --home "$fixture_home"
+          python scripts/sync-skills.py --dry-run --home "$fixture_home"
+
+      - name: Exercise PowerShell adapters with a dry run
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $fixtureHome = Join-Path $env:RUNNER_TEMP 'ai-kit-portability-home'
+          New-Item -ItemType Directory -Force -Path $fixtureHome | Out-Null
+          pwsh -NoProfile -File adapters/codex/sync.ps1 -WhatIf -UserHome $fixtureHome
+          pwsh -NoProfile -File adapters/cursor/sync.ps1 -WhatIf -UserHome $fixtureHome
+          python scripts/sync-skills.py --dry-run --home $fixtureHome

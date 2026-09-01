@@ -1,6 +1,6 @@
 ---
 name: improve
-description: Periodic self-improvement review. Reads the accumulated ~/.claude/observations/*.md (written by the close skill), finds friction patterns, audits skill/workflow fitness, and produces a STAGED review packet under ~/.claude/improvements/{date}/ — proposed edits to skills, MEMORY.md, and ~/.claude/CLAUDE.md, each with the exact diff and the observation it came from. NEVER edits a live file without per-item approval. Run weekly (via a scheduled task), when ~/.claude/improvements/last-review.txt is stale, or on demand — invoke as /improve.
+description: Periodic self-improvement review. Reads the accumulated ~/.claude/observations/*.md (written by the close skill), finds friction patterns, audits skill/workflow fitness, and produces a STAGED review packet under ~/.claude/improvements/{date}/ — proposed edits to skills, MEMORY.md, and the active harness's loaded private instruction file, each with the exact diff and the observation it came from. NEVER edits a live file without per-item approval. Run weekly (via a scheduled task), when ~/.claude/improvements/last-review.txt is stale, or on demand.
 ---
 
 <!-- intentionally-long: 5-phase distiller with concrete templates for REVIEW.md, proposals/, MARK.md and procedural rules per phase. Splitting to references/ would fragment one logical procedure and add load latency for every phase. Tier 2.1 spec records the body as a documented design choice. -->
@@ -9,7 +9,8 @@ description: Periodic self-improvement review. Reads the accumulated ~/.claude/o
 
 You are running the periodic self-improvement review. You read the evidence the `close` skill has
 been logging, you find what it's telling you, and you produce a **review packet the user approves
-or rejects**. You do NOT edit live skills, MEMORY.md, or CLAUDE.md directly — you
+or rejects**. You do NOT edit live skills, MEMORY.md, or the active harness's loaded private instruction
+file directly — you
 stage everything and present it. The user is the reviewer; that's deliberate (their value-add is
 the judgement on the diff, not having it automated away).
 
@@ -23,12 +24,16 @@ to look productive. The number of changes applied is NOT a success metric — it
   ACTIONED/DECLINED — i.e. since the last review. (Window: from the date in
   `~/.claude/improvements/last-review.txt`; if missing, last 14 days.)
 - **Always:** `~/.claude/observations/README.md` (the canonical tag list); the skill inventory —
-  `C:\ai-kit\skills\**\SKILL.md` (resolves through the `~/.claude/skills/` junction;
-  commands/agents/templates retired to archive/v1, 2026-08-06); `MEMORY.md`
-  + the auto-memory topic files; `~/.claude/CLAUDE.md`.
+  the current repository root's `skills/**/SKILL.md` (and any deployed link under
+  `~/.claude/skills/`; commands/agents/templates retired to archive/v1, 2026-08-06); `MEMORY.md`
+  + the auto-memory topic files; the active harness's loaded private instruction file.
+- **Convention targets:** resolve repo-scoped conventions from the applicable `AGENTS.md` cascade in
+  the current workspace; resolve user-level conventions from the active harness's loaded private
+  instruction file. If mirrored private files can diverge, stage one proposal per target and require
+  user approval; never treat one target as universal.
 - **On request (a "deep" review):** the period's `git log --oneline` in each repo named in the
   observations, and selected `~/.claude/projects/<dir>/<session-id>.jsonl` transcripts — to backfill
-  observations the close skill missed, or to verify a pattern. (Read-only; safe.) Skip this for a
+  observations the close skill missed, or to verify a pattern. (Inspection-only; safe.) Skip this for a
   routine weekly run unless something looks off.
 
 ## Outputs you write
@@ -46,7 +51,7 @@ to look productive. The number of changes applied is NOT a success metric — it
 
 ### Phase 1 — Gather & pattern-mine
 
-0. **Check predictions first.** Read the previous packet's applied proposals' `**Prediction:**`
+0. **Check predictions first.** Inspect the previous packet's applied proposals' `**Prediction:**`
    lines (and any still-open predictions from earlier packets). Judge each against this window's
    observations: met / missed / no evidence yet. A missed prediction stages a revert-or-revise
    proposal before anything new is mined — an applied change that didn't deliver must not
@@ -55,7 +60,7 @@ to look productive. The number of changes applied is NOT a success metric — it
    `~/.claude/observations/*.md` files in scope. If there are none → say so, print the fitness table
    (Phase 2), update `last-review.txt`, stop. Don't fabricate work.
    For a dense window (>~50 in-scope observation files), do NOT grep the corpus into one dump — the
-   Read tool truncates long `friction_observed` lines and the tag sits at the end. Fan out N
+   file-inspection capability truncates long `friction_observed` lines and the tag sits at the end. Fan out N
    extraction subagents over date-range batches, each returning a compact pipe-delimited skeleton
    (`file | obs# | skill | outcome | tags | friction-oneline | improvement-oneline`), and cluster
    from the skeletons.
@@ -92,14 +97,14 @@ one run's metrics describe, they don't compare.
 
 *Note:* the two thin checks above are a friction-driven sample. For a deep structural audit (10
 checks, including frontmatter validity, trigger-keyword coverage, cross-skill redundancy, dead
-references, and frontmatter-vs-directory mismatch), run `/audit-skills` — it's the on-demand
+references, and frontmatter-vs-directory mismatch), run the `audit-skills` skill — it's the on-demand
 sibling of this pass. When a recent `~/.claude/improvements/{date}/proposals/NN-[audit]-*.md`
 already covers a finding here, mark it `"already staged by audit-skills NN-..."` in the
 fitness-table flags column and do NOT restage as a separate proposal.
 
 ### Phase 3 — Lint (the health-check pass — Karpathy's third operation)
 
-Scan the *curated* layer (skills + `MEMORY.md` + `~/.claude/CLAUDE.md`) for:
+Scan the *curated* layer (skills + `MEMORY.md` + the active harness's loaded private instruction file) for:
 - **Contradictions** — two rules that conflict; a `MEMORY.md` entry that contradicts a skill.
 - **Stale rules** — a rule superseded by newer evidence in the observations, or by a code/tooling
   change mentioned there.
@@ -107,7 +112,8 @@ Scan the *curated* layer (skills + `MEMORY.md` + `~/.claude/CLAUDE.md`) for:
   (and ideally not last window either); a `[[link]]` pointing at a memory file that doesn't exist.
 - **Repeatedly-violated rules** — a rule the observations show keeps getting broken → propose
   converting it to structural enforcement (a hook / a gate) or deleting it.
-- **CLAUDE.md bloat** — is `~/.claude/CLAUDE.md` or any project `CLAUDE.md` growing past the point
+- **Private-instruction bloat** — is the active harness's private instruction file or any project
+  instruction file growing past the point
   where adherence degrades? Propose demoting the least-load-bearing rules to `feedback_*.md` memory
   entries (this is the assessment §4 / §6c warning, made operational).
 - **MEMORY.md index discipline** — is `MEMORY.md` near 200 lines? Propose consolidations.
@@ -164,7 +170,7 @@ For each proposal, write `proposals/NN-<slug>.md`:
 # Proposal NN: <title>
 
 **Target:** <path to the live file that would change>
-**Type:** edit-skill | edit-orchestrator | edit-memory | edit-CLAUDE.md | new-skill (candidate only)
+**Type:** edit-skill | edit-orchestrator | edit-memory | edit-private-instructions | new-skill (candidate only)
 **Derived from:** observation(s) <file#N>, <file#N> — quote the relevant `friction_observed` / `improvement_suggestion` / `principle` lines.
 **Confidence:** X% — <why not 100%>.
 **Prediction:** <one line — the observable outcome in the next N runs/windows if this change works;
@@ -193,13 +199,13 @@ name set — codenames outside it pass; this grep is the actual gate, at the aut
    memory (2 lived contexts). One message per theme family: 2–4 related proposals, each as
    "NN — <target> — <one-line what & why> — conf X%", ending with "approve / skip / defer,
    per item". The user replies free-form; the atomic unit is the per-item decision, not
-   the round-trip — never collapse a family into one yes/no. Do NOT use AskUserQuestion
+   the round-trip — never collapse a family into one yes/no. Do NOT use a structured question tool
    for the walk. Contentious items get their own message. For deletion and new-skill
    candidates, always ask individually — never fold into a family batch, never
    auto-propose as diffs.
 3. For each **approved** proposal: apply *exactly* what's in the proposal file to the target. If it's
    a `MEMORY.md` edit, follow the auto-memory conventions (right `type:`, `**Why:**`/`**How to apply:**`,
-   `[[links]]`, the one-line `MEMORY.md` pointer). If it's a `~/.claude/CLAUDE.md` edit, keep it a
+   `[[links]]`, the one-line `MEMORY.md` pointer). If it's an active private-instruction edit, keep it a
    pointer/rule, not bloat. Where an applied change is cheaply executable (a hook, regex, parser),
    verify it by execution — pipe sample payloads through it — not by re-reading the diff.
 4. Annotate each consumed observation in its source file. For >~10 files, use ONE idempotent
@@ -209,12 +215,12 @@ name set — codenames outside it pass; this grep is the actual gate, at the aut
    observation file all of whose observations are now resolved → `~/.claude/observations/archive/`.
 5. Update `~/.claude/improvements/last-review.txt` to today.
 6. **Housekeeping (with cross-machine sync routing):** `git status --short` in any repo you touched;
-   generate an imperative commit message (e.g. `chore: apply /improve review {date} — N changes`);
+   generate an imperative commit message (e.g. `chore: apply improve review {date} — N changes`);
    **ask before committing**; on approval `git add` + `git commit` (never `reset`/`clean`/`checkout --`
    — the safety hook blocks those anyway). When applying changes, route each by target:
-   - Edits to a skill / command / agent / template land in `C:\ai-kit\` (public). **Run the
+   - Edits to a skill / command / agent / template land in the current repository root (public). **Run the
      secret-scan before pushing — ai-kit's pre-commit hook does this automatically.**
-   - Edits to `CLAUDE.md` / `observations/` / `improvements/` / `hooks/` land in `~/.claude/`
+   - Edits to private instruction files / `observations/` / `improvements/` / `hooks/` land in `~/.claude/`
      (private, claude-home).
    After local commits, propose `git push` for each repo separately. Suggestion-mode — ask before
    each push. Never auto-push.
@@ -223,9 +229,9 @@ name set — codenames outside it pass; this grep is the actual gate, at the aut
 ## Staleness-fallback behaviour
 
 At the start of a session where this skill is invoked (or if you notice it early in a session):
-read `~/.claude/improvements/last-review.txt`. If it's >7 days old AND there are un-reviewed
+inspect `~/.claude/improvements/last-review.txt`. If it's >7 days old AND there are un-reviewed
 observations AND there's no `~/.claude/improvements/review-decline.txt` newer than 30 days, offer:
-"It's been D days since the last /improve review and there are N new observations — run it now?"
+"It's been D days since the last improve review and there are N new observations — run it now?"
 On decline, write/refresh `review-decline.txt` (suppresses the prompt for 30 days). Never *run*
 the review unprompted — only offer.
 
@@ -237,11 +243,11 @@ the review unprompted — only offer.
   already kept genuine one-offs out of the observations log; if one slipped in, don't promote it.
 - **Prefer enforcement over wording.** A rule the observations show keeps getting broken should
   become a hook or a gate or get deleted — not get rewritten in bold.
-- **Don't duplicate stores.** A finding that's already a `MEMORY.md` rule, a git fact, or a CLAUDE.md
-  line doesn't need a new home — propose editing the existing one.
+- **Don't duplicate stores.** A finding that's already a `MEMORY.md` rule, a git fact, or a private
+  instruction-layer line doesn't need a new home — propose editing the existing one.
 - **Project-agnostic.** Reviews the study pipeline (`study-notes-review` → `assessment` → `insights`
   → `review` → `flashcards`) alongside engineering — the observations log is unified.
-- **Read-only on git history.** Reads `log` / `status` / `diff`; at most `add` + `commit` of changes
+- **No changes to git history.** Inspect `log` / `status` / `diff`; at most `add` + `commit` of changes
   you approved. Never rewrites history.
 - **This is Component 3 (and, with cross-machine sync, Component 4) of the self-improving triangle —
   see §5 of `ai-patterns-assessment-response.md` and `tier-2-imp-2-1.md`.**

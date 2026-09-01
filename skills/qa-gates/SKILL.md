@@ -1,6 +1,6 @@
 ---
 name: qa-gates
-description: "Verify an implementation against its spec — 5 pass/fail gates (build/test, AC checklist, cross-cutting invariants, docs consistency, human go/no-go). Each gate is a tool call with a recorded pass or a specific failure; skipping a gate is visibly missing in the artifact, not hidden in chat. Use to verify, validate, or QA a finished implementation, after every task for a prefix is implemented. Accepts a loose target: a prefix, a doc path, or a short description — it resolves the rest. Invoke as /qa-gates. Per-task version: verify-task (same gates, narrower inputs)."
+description: "Verify an implementation against its spec — 5 pass/fail gates (build/test, AC checklist, cross-cutting invariants, docs consistency, human go/no-go). Each gate is a tool call with a recorded pass or a specific failure; skipping a gate is visibly missing in the artifact, not hidden in chat. Use to verify, validate, or QA a finished implementation, after every task for a prefix is implemented. Accepts a loose target: a prefix, a doc path, or a short description — it resolves the rest. Per-task version: verify-task (same gates, narrower inputs)."
 ---
 
 <!-- intentionally-long: documents all 5 gates verbatim — each gate is a procedural primitive the agent must execute exactly. Tier 2.4 spec explicitly chose inline-verbatim over reference-loaded gates because the gate bodies are short and load-once on entry. -->
@@ -9,7 +9,7 @@ description: "Verify an implementation against its spec — 5 pass/fail gates (b
 
 You verify an implementation against its spec by running 5 gates in order, each producing a
 pass or a specific failure; the artifact is a `## QA` section in the review/QA doc the prefix
-owns. You do NOT review code (`/review-implementation` runs *before* you); you verify *outcome*.
+owns. You do NOT review code (the `review-implementation` skill runs *before* you); you verify *outcome*.
 
 ## Inputs
 
@@ -44,7 +44,7 @@ alongside the implementation commit after the user's final review.
 
 ### Gate 0 — Setup (free)
 
-`Read` the source doc(s) at `{prefix}_*.md` (techspec, tasks, analysis, audit, investigation —
+Inspect the source doc(s) at `{prefix}_*.md` (techspec, tasks, analysis, audit, investigation —
 whichever exist). Extract:
 
 - the acceptance criteria list (from tasks/techspec)
@@ -62,12 +62,12 @@ it** — the 2026-07-16 seed failure shipped prod-wrong values precisely because
 from the techspec alone.
 
 **Prefix-close only — prior-review check.** Look for a `## Review — {date}` block (from
-`/review-implementation`) whose `(reviewed at: <sha>[ +dirty])` stamp covers the current tree
+the `review-implementation` skill) whose `(reviewed at: <sha>[ +dirty])` stamp covers the current tree
 (same sha; a dirty delta consisting only of doc/QA bookkeeping still counts). Covered → record
 the pointer (`Pre-work — code review: covered by ## Review — {date} (reviewed at <sha>)`) and
 let its open `follow-up` findings surface at Gate 5. Not covered → suggest running
-`/review-implementation` first; if the user proceeds anyway, Gate 5 records `go-with-caveat:
-unreviewed`. Never run a reviewer fan-out here — review is `/review-implementation`'s job.
+the `review-implementation` skill first; if the user proceeds anyway, Gate 5 records `go-with-caveat:
+unreviewed`. Never run a reviewer fan-out here — review is the `review-implementation` skill's job.
 
 **Prefix-close only — lifecycle classification.** For manual / rehearsal / cutover /
 deployment tasks that cannot be code-complete, classify each by lifecycle boundary
@@ -92,7 +92,7 @@ Otherwise, append the gate plan as the first lines of the `## QA — {date}` sec
 - [ ] Gate 5 — human go/no-go
 ```
 
-### Gate 1 — Build & test (`Bash`)
+### Gate 1 — Build & test (shell command runner)
 
 Run the build + test commands the techspec specifies (default: `npm run build && npm test`
 or the repo equivalent — `pytest`, `terraform fmt && terraform validate`, …). **Halt on
@@ -168,7 +168,7 @@ For each AC line extracted in Gate 0:
 
 - **Testable AC** — point at the test that proves it; pass = test exists and passed in Gate 1.
 - **Code-level AC** ("uses the existing auth middleware", "no new database index") — run a
-  targeted `Grep` / `Read`; record file:line evidence.
+  targeted text search / file inspection; record file:line evidence.
 - **Manual AC** (UI behaviour, copy, animation) — ask the user; record their confirm.
 
 Record one line per AC:
@@ -180,16 +180,16 @@ Record one line per AC:
 
 ### Gate 3 — Cross-cutting invariants
 
-The three global CLAUDE.md "Verification before completion" checks; each is one structured tool call.
+The three loaded instruction-layer "Verification before completion" checks; each is one structured tool call.
 
 **3a — env asymmetry.** For repos with multiple environments (Terraform `dev/test/staging/prod`,
-`.env.{env}` files), `Read` all env files in parallel; diff structurally. Any key present in
+`.env.{env}` files), inspect all env files in parallel; diff structurally. Any key present in
 one without a `# deliberate-asymmetry: <reason>` comment in the others → FAIL.
 
 **3b — line budgets.** For each file the techspec pinned a budget on ("techspec ≤ 150 lines",
-"orchestrator stays ≤ 60 lines"), `Bash` `wc -l` and compare.
+"orchestrator stays ≤ 60 lines"), use the shell command runner for `wc -l` and compare.
 
-**3c — SDK / framework version.** `Grep` `package.json` / `requirements.txt` / `Gemfile.lock` /
+**3c — SDK / framework version.** Search `package.json` / `requirements.txt` / `Gemfile.lock` /
 `go.mod` for the SDK the techspec pins; confirm the version matches. No pin → note "no version
 pinned (acceptable)".
 
@@ -205,7 +205,7 @@ this gate never invents generic thresholds. Check for a repo-local perf/regressi
 (`.claude/skills/`, or the repo's rules index). Present → run its checks as this sub-check.
 Absent while the change touches a perf-sensitive surface (hot path, DB query shape, caching,
 payload size — or the techspec's test plan flags perf scenarios) → record
-`skipped — no repo-local perf skill (gap flagged)` and suggest minting one at `/close`
+`skipped — no repo-local perf skill (gap flagged)` and suggest minting one at the `close` skill
 (repo-local skill pair). Not perf-sensitive → "skipped — not applicable".
 
 Record one line per sub-check; a sub-check the spec didn't anticipate → "skipped — not applicable" + a one-line reason.
@@ -213,13 +213,13 @@ Record one line per sub-check; a sub-check the spec didn't anticipate → "skipp
 ### Gate 4 — Docs consistency
 
 For each sibling doc in the prefix folder (`{prefix}_analysis.md`, `{prefix}_techspec.md`,
-`{prefix}_tasks.md`, `{prefix}_investigation.md`, …), `Read` and check:
+`{prefix}_tasks.md`, `{prefix}_investigation.md`, …), inspect and check:
 
 - did the implementation reveal a gap the doc should record?
 - are file paths / function names / API signatures in the doc consistent with what shipped?
 - if the prefix has a `tasks.md`, are all tasks marked Done?
 
-Failures here are usually stale docs — update them (the global CLAUDE.md "Spec & doc updates"
+Failures here are usually stale docs — update them (the loaded instruction-layer "Spec & doc updates"
 rule); **propose the diff and let the user approve**, never silently rewrite. If
 `mode == streamlined` (P1 fast path; the post-mortem covers it later): skip this gate and
 record `skipped (streamlined)`.
@@ -254,7 +254,7 @@ The LLM doesn't decide go; the user does, with the gate report in front of them.
 
 ## Observation write
 
-Append gate observations to the session-scoped buffer so `/close` picks them up at session end
+Append gate observations to the session-scoped buffer so the `close` skill picks them up at session end
 (Tier 1.3 contract, `~/.claude/observations/{YYYY-MM-DD}-{slug}.md`). Use the canonical schema
 from `~/.claude/observations/README.md` — numbered `### Observation N:` headings with the
 standard fields (project, skill_or_workflow: qa-gates, phase/area: gate-{id}, outcome,
@@ -266,7 +266,7 @@ observation listing the gate outcomes; each fail/accepted gate gets its own.
 
 - **Halt on fail** — do not advance while the current gate is unresolved.
 - **Accept-with-reason** is the only escape; the reason lives inline in the `## QA` artifact
-  (`/improve` audits accept-rates later).
+  (the `improve` skill audits accept-rates later).
 - **Skipping a gate is visible** — Gate 0's plan lists all 5; an unrecorded gate is a missing
   checkbox, not a silent omission.
 
@@ -275,11 +275,11 @@ observation listing the gate outcomes; each fail/accepted gate gets its own.
 - The implementation hasn't happened yet — qa-gates verifies outcomes, not plans.
 - A one-line typo / config tweak — gates are friction in front of trivial work.
 - Doc reviews — that's `review-artifact` (it reviews the *doc*). Code-quality review — that's
-  `/review-implementation` (batched, before gates; Gate 0 checks for its stamp).
+  the `review-implementation` skill (batched, before gates; Gate 0 checks for its stamp).
 
 ## Composition
 
 - **`verify-task`** — same gates, narrower inputs (one task's ACs / files / budgets);
   `gates_to_run: build,ac,cross-cutting`; skips docs + human go/no-go.
-- **`/close`** — picks up the observation entries; `/improve` clusters gate-fails by `gate-id`
+- **`close`** — picks up the observation entries; `improve` clusters gate-fails by `gate-id`
   (mechanical clustering, not inference from prose).

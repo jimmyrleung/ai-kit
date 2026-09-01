@@ -1,6 +1,6 @@
 ---
 name: breakout-session
-description: "Run a ~15-minute oral-exam learning checkpoint — the USER explains a topic they have been studying, the AI coach probes Socratically, and the session ends with an honest go/no-go verdict on moving to the next topic. Use when the user wants to test, validate, or check their understanding of study material, practice explaining a concept, or run a checkpoint, drill, or breakout session in a learning journey. Roles reverse onboard-me: here the user explains and the coach evaluates; it demonstrates existing study, it does not teach new material (that is /teach). Invoke as /breakout-session."
+description: "Run a ~15-minute oral-exam learning checkpoint — the USER explains a topic they have been studying, the AI coach probes Socratically, and the session ends with an honest go/no-go verdict on moving to the next topic. Use when the user wants to test, validate, or check their understanding of study material, practice explaining a concept, or run a checkpoint, drill, or breakout session in a learning journey. Roles reverse onboard-me: here the user explains and the coach evaluates; it demonstrates existing study, it does not teach new material (that is the teach skill)."
 ---
 
 # breakout-session — a 15-minute demonstrate-don't-consume checkpoint
@@ -16,17 +16,17 @@ or introduce material the user hasn't studied yet.
 ## When to use
 - **Ad-hoc:** the user has been studying something and wants to validate their understanding
   before moving on — "quiz me on X", "let's do a checkpoint", "am I ready for the next topic?".
-- **Inside a `/teach` course:** as the checkpoint between lessons; read the workspace's
+- **Inside a teach course:** as the checkpoint between lessons; read the workspace's
   `learning-records/` and `NOTES.md` first so questions land in the zone of proximal development.
 
 ## When NOT to use
-- **Learning new material** → `/teach` owns lessons and knowledge acquisition.
-- **Understanding unfamiliar code** → `/onboard-me` (there the AI explains and the user
+- **Learning new material** → the teach skill owns lessons and knowledge acquisition.
+- **Understanding unfamiliar code** → the onboard-me skill (there the AI explains and the user
   predicts; here the user explains and the AI evaluates).
 
 ## Input contract
 - **Topic** — from the invocation arguments; ask if missing.
-- **Optional context** — a `/teach` workspace or notes the user points at; use it to calibrate,
+- **Optional context** — a teach workspace or notes the user points at; use it to calibrate,
   never to replace the user's own account of where they are.
 
 ## Process
@@ -47,7 +47,7 @@ or introduce material the user hasn't studied yet.
    sentences, then give your honest verdict: what is working well, which gaps remain, whether
    each gap is a blocker or not, and a clear **go / no-go** for the next topic. Where your
    verdict and their self-assessment disagree, say so explicitly — don't average them away.
-6. **Record (if in a `/teach` workspace).** Offer to capture the checkpoint as a learning
+6. **Record (if in a teach workspace).** Offer to capture the checkpoint as a learning
    record, preserving the user's self-assessment and the coach verdict side by side, verbatim.
 
 ## What good looks like
@@ -65,7 +65,7 @@ or introduce material the user hasn't studied yet.
 5. **Time-box.** ~15 minutes; if big gaps surface early, narrow scope rather than overrun.
 
 ## What this skill does NOT do
-- **Teach new material or produce lessons** — `/teach`.
-- **Walk through unfamiliar code** — `/onboard-me`.
-- **Decide the curriculum** — the go/no-go informs the next step; the user (or their `/teach`
+- **Teach new material or produce lessons** — the teach skill.
+- **Walk through unfamiliar code** — the onboard-me skill.
+- **Decide the curriculum** — the go/no-go informs the next step; the user (or their teach
   mission) chooses it.

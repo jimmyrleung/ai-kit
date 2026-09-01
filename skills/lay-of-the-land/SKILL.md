@@ -1,6 +1,6 @@
 ---
 name: lay-of-the-land
-description: Pre-workflow reconnaissance — a sourced map of what currently exists in an unfamiliar area of the codebase, before a requirement is written/refined or a workflow (feature-dev, refactor, bugfix) starts. Every finding carries a confidence score and a concrete source; assumptions are escalated as open questions, never presented as facts. Produces {topic}_lay-of-the-land.md. Use ad-hoc / pre-refinement, or as the Phase 0 recon that feeds analyze-work (integration / greenfield / refactor modes), bug-investigation, or a refinement discussion. The body of /lay-of-the-land (formerly /trigger-discovery-phase).
+description: Pre-workflow reconnaissance — a sourced map of what currently exists in an unfamiliar area of the codebase, before a requirement is written/refined or a workflow (feature-dev, refactor, bugfix) starts. Every finding carries a confidence score and a concrete source; assumptions are escalated as open questions, never presented as facts. Produces {topic}_lay-of-the-land.md. Use ad-hoc / pre-refinement, or as the Phase 0 recon that feeds analyze-work (integration / greenfield / refactor modes), bug-investigation, or a refinement discussion. This is the body of the former trigger-discovery-phase skill.
 ---
 
 # Lay of the Land Skill
@@ -14,7 +14,7 @@ You **LOCATE and REPORT what exists** — you do **not** DESIGN, SPECIFY, or PLA
 ## When to use
 
 - **Pre-refinement / "new land"**: a discussion is heading into an area nobody fully understands; you need the sourced current-state before the requirement can be written or refined.
-- **Pre-workflow Phase 0**: before `analyze-work` / `bug-investigation` — so those phases start from facts, not guesses.
+- **Pre-workflow Phase 0**: before the `analyze-work` or `bug-investigation` skills — so those phases start from facts, not guesses.
 - **Ad-hoc mid-session**: a brief "how does X actually work here?" with no doc — the lightweight path (see Process).
 
 ## When NOT to use
@@ -25,7 +25,7 @@ You **LOCATE and REPORT what exists** — you do **not** DESIGN, SPECIFY, or PLA
 
 ## Input contract
 
-- **A requirement / discovery doc** (primary path) — the file the user wrote. **Read it end-to-end, plus every file it references**, before anything else.
+- **A requirement / discovery doc** (primary path) — the file the user wrote. **Inspect it end-to-end, plus every file it references**, before anything else.
 - **Or a brief description** (fallback path) — a one-line ask mid-session, no doc.
 - **`{topic}` base name** — derive from the doc filename if possible; ask if not discoverable.
 - **Discovery items** — if the doc has a section headed _Discovery Topics_ / _Discovery Items_ (or equivalent), that section is the **spine**: one finding per item. If absent, derive 3–7 discovery questions from the requirement and confirm them at the Understanding gate.
@@ -33,7 +33,7 @@ You **LOCATE and REPORT what exists** — you do **not** DESIGN, SPECIFY, or PLA
 
 ## Coordinator vs worker
 
-- **No mandate handed to you (default — main thread):** you are the _coordinator_. Few discovery items / small area → do the recon yourself. Otherwise launch **parallel built-in `Explore` sub-agents — one per discovery item (or grouped)** for breadth; each returns located evidence (`file:line`, doc URLs), not conclusions. Then consolidate, score, run the confidence gate, write the file. Do not use a custom discovery agent — `Explore` is the worker.
+- **No mandate handed to you (default — main thread):** you are the _coordinator_. Few discovery items / small area → do the recon yourself. Otherwise launch **parallel generic exploration subagents — one per discovery item (or grouped)** for breadth; each returns located evidence (`file:line`, doc URLs), not conclusions. Then consolidate, score, run the confidence gate, write the file. Do not use a custom discovery agent — the generic exploration worker is the worker.
 - **You were spawned as a worker:** do one thorough location pass for the item(s) you were given and return the evidence (paths, `file:line`, doc URLs, short quotes). **Do not** spawn further sub-agents, draw conclusions beyond the evidence, or write a file.
 
 Worker constraints (the coordinator passes these verbatim):
@@ -43,25 +43,25 @@ Worker constraints (the coordinator passes these verbatim):
 
 ## Process
 
-1. **Read everything.** The requirement / discovery doc end-to-end **and every file it references**. (Fallback path: parse the brief description.)
+1. **Inspect everything.** The requirement / discovery doc end-to-end **and every file it references**. (Fallback path: parse the brief description.)
 2. **Understanding gate (MANDATORY).**
    - _Doc path:_ play back — in your own words — the ask, the area in scope, and the discovery items (the doc's section, or the 3–7 you derived). **Stop and get the user's sign-off before exploring.** No assumption about intent survives this gate.
    - _Fallback path:_ state a one-line scope ("Reconnoitring X to answer Y — say if that is wrong") and proceed; no full stop.
      Record the agreed Understanding + items verbatim in the output.
-3. **Plan the sweep.** Map each discovery item to where the answer likely lives (entry points, modules, configs, tests, docs). Decide solo vs `Explore` fan-out.
-4. **Explore for evidence.** Start at obvious entry points (routes, handlers, schemas). Trace flows entry → exit, data UI ↔ store. For every claim capture a concrete source: `file:line` for code, a URL (context7 / web) for library behaviour. Examine every file the requirement names.
+3. **Plan the sweep.** Map each discovery item to where the answer likely lives (entry points, modules, configs, tests, docs). Decide solo vs generic exploration fan-out.
+4. **Search for evidence.** Start at obvious entry points (routes, handlers, schemas). Trace flows entry → exit, data UI ↔ store. For every claim capture a concrete source: `file:line` for code, a URL (context7 / web) for library behaviour. Examine every file the requirement names.
 5. **Adjudicate each discovery item.** Each ends in exactly one state:
    - **Answered** — finding + confidence + concrete source. (≥ 95% = answered; 90–94% = answered-with-caveat, caveat stated.)
    - **Open question** — < 90%, or no source found. It moves to Open Questions; it is **not** guessed.
-6. **Build the coverage ledger.** Record what you searched (paths, `Explore` agents dispatched, docs / URLs) and what you deliberately did **not** search and why. An unchecked area is a visible line item here — never a silent omission.
-7. **Confidence gate.** Overall score 0–100% in the global CLAUDE.md format. ✅ 90–100% current-state specific & sourced · ⚠️ 70–89% reasonable with gaps · ❌ < 70% too many unknowns. **If < 90%: STOP — name what is missing, ask, sweep again.** At ≥ 90%, present the consolidated recon to the user, confirm, then write the file.
+6. **Build the coverage ledger.** Record what you searched (paths, generic exploration workers dispatched, docs / URLs) and what you deliberately did **not** search and why. An unchecked area is a visible line item here — never a silent omission.
+7. **Confidence gate.** Overall score 0–100% in the loaded confidence format. ✅ 90–100% current-state specific & sourced · ⚠️ 70–89% reasonable with gaps · ❌ < 70% too many unknowns. **If < 90%: STOP — name what is missing, ask, sweep again.** At ≥ 90%, present the consolidated recon to the user, confirm, then write the file.
 
 ## Output structure
 
 Sourced reconnaissance — not a design or plan. Code blocks only when a quote is shorter than describing it. Sections:
 
 - **Understanding** — the agreed ask + discovery items (verbatim from the gate).
-- **Confidence score** — global CLAUDE.md format (numeric, "Why N%" bullets, "100−N% uncertainty" bullets).
+- **Confidence score** — loaded confidence format (numeric, "Why N%" bullets, "100−N% uncertainty" bullets).
 - **Scope & Boundaries** — what this recon covers; in / out; areas excluded (and why).
 - **Discovery Findings** — the spine. Per item: `**Item** — finding · Confidence: N% · Source: file:line | URL`. This is where "no assumptions" is enforced: no source ⇒ it is not a finding, it is an Open Question.
 - **Current State** — how it works today; key flows; entry & exit points — each line sourced.
@@ -71,7 +71,7 @@ Sourced reconnaissance — not a design or plan. Code blocks only when a quote i
 - **Constraints & Considerations** — known fragility / tech-debt, perf / security, deploy / flag concerns — sourced, or flagged as unverified.
 - **Open Questions & Risks** — unknowns needing clarification; risks each tagged Critical / High / Mid / Low.
 - **Coverage** — searched (paths / agents / docs) vs deliberately not searched (with why).
-- **Recommended Next Steps** — which downstream workflow / skill (`analyze-work` · `bug-investigation` · `/triage` if unsure); what to focus first; stakeholders to consult.
+- **Recommended Next Steps** — which downstream workflow / skill (`analyze-work` · `bug-investigation` · `triage` if unsure); what to focus first; stakeholders to consult.
 
 ### What this IS / IS NOT
 

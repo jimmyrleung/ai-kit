@@ -1,67 +1,86 @@
 # Skill authoring — repo rules
 
-## Validate frontmatter with a strict YAML parser (node + js-yaml)
+## Validate frontmatter with the repository portability checker
 
-Before shipping any SKILL.md / command / agent frontmatter change, parse it with node + js-yaml —
-Claude Code is lenient, but Codex / claude.ai / the API are strict (an unquoted `: ` inside a
-`description` is the classic failure). This repo ships no `node_modules`, and js-yaml is not in the
-global npm root either (verified 2026-08-06): the reliable pattern is `npm init -y` **then**
-`npm install js-yaml` in the session scratchpad and run node from there — without a `package.json`,
-`npm install --no-save` walks UP the tree and installs into an ancestor (silent no-op locally;
-verified 2026-08-06, comparison session). `cd` into the scratchpad is required; `require()` fails
-with MODULE_NOT_FOUND from the repo root, from a bare `NODE_PATH=$(npm root -g)`, and even with
-NODE_PATH pointed inline at the scratchpad's own node_modules (verified 2026-08-06, step-9 session).
+Before shipping any `SKILL.md` frontmatter change, run the repository-owned strict checker from
+the repo root:
 
-**Why:** strict parsers silently drop mis-parsed skills at load time (5 skills broke at once on
-2026-06-04), and the no-local-node_modules gotcha kept recurring because it lived only in archived
-session-log narrative.
-*(added 2026-07-23 — /close repo-memory bootstrap; sources: 2026-06-04 strict-YAML sweep, 2026-07-07 and 2026-07-23 audit runs; scratchpad-install refinement 2026-08-06 — step-8 session, global-root probe failed)*
+```bash
+npm ci
+npm test
+npm run check:portability
+```
 
-## External junctions in skills/ — enumerate with readdir, never Glob; mind what you commit
+The checker parses every frontmatter block with `js-yaml`, enforces the Agent Skills standard
+profile, and validates only the reviewed provider overlays. It catches the classic strict-YAML
+failure: an unquoted `: ` inside a plain `description` scalar. Use a quoted description whenever
+it contains YAML-special syntax. The final checker is fail-closed for coupling and documentation
+drift; transitional mode remains an isolated fixture/test mode, not the shipping gate.
 
-Three skill dirs (`grill-me`, `grill-with-docs`, `improve-codebase-architecture`) are Windows
-junctions to `~/.agents/skills/<name>` — an external open-standard store; they are shims for a
-partially installed pack (improvements backlog 38 tracks their fate). They show as untracked
-(`??`) **with content** in `git status` — **never `git add skills/` wholesale**: this repo is
-public and a wholesale add would vendor the external content in. Stage new skills by explicit
-path. (The v1-era cc-looper symlinks and `commands/tasks-loop.md` are gone since v2, and
-`skills/find-skills` + `skills/teach` are real dirs now — this rule covers the three junctions
-above and any future junctioned entry.)
+**Why:** strict parsers silently drop mis-parsed skills at load time, and one repository command
+keeps validation reproducible across the supported CLIs.
+*(updated 2026-08-31 — common Python/Node portability implementation)*
 
-- **Detection:** `Get-Item <path> -Force | Select-Object FullName, LinkType, Target` — `ls -la`
-  does not mark them on Windows.
-- **Editing:** the Edit tool cannot write through a link path (its atomic tmp-rename fails with
-  ENOENT). Read + Edit the **canonical** `~/.agents/skills/` path.
-- **Scanning:** Glob and Grep do NOT traverse directory junctions — a Glob-based population scan
-  silently excludes all three (it bit audit run 11's Phase 1). Enumerate `skills/` via
-  `Get-ChildItem` / Node `fs.readdirSync`.
+## External links in skills/ — enumerate entries explicitly; mind what you commit
 
-**Why:** junctions keep one physical file per entry while external tools own the canonicals;
-scans that trust Glob under-count the population and its description budget, and committing
-junction content here would duplicate external ownership into a public repo.
-*(added 2026-07-23 as the cc-looper symlink rule; rewritten 2026-08-24 — v2 dropped the cc-looper
-links, and audit run 11 found the new `~/.agents` junctions the old text didn't cover)*
+The canonical `skills/` tree may contain symlinked or junctioned entries owned by an external
+open-standard store. They are deployment shims, not automatically publishable source. They show
+as untracked entries **with content** in `git status` — **never stage `skills/` wholesale**: this
+repo is public and a wholesale add could vendor externally owned content. Stage new skills by
+explicit path, and edit the link target when the external store owns the canonical file.
 
-## Deployment topology: skills are junction-live; commands were copies; Codex twins block conversion
+- **Detection:** inspect directory-entry metadata and link targets with a platform-appropriate
+  filesystem API; a plain directory listing may not identify every link kind.
+- **Editing:** do not write through an externally owned link when the editor uses an atomic
+  temporary-file rename. Read and edit the canonical target instead.
+- **Scanning:** use an explicit directory enumeration such as Node `fs.readdirSync` and account
+  for supported link entries. A glob-only population scan can silently under-count the corpus.
 
-Three deploy surfaces, three sync semantics. `~/.claude/skills` is a single **wholesale junction**
-to this repo's `skills/` — a new skill dir is discoverable immediately, no sync step.
-`~/.claude/commands/*.md` were **real file copies** — an edit or removal had to be mirrored there
-by hand. `~/.codex/skills/` holds per-skill junctions plus kit-GENERATED twins (`.ai-kit-generated`
-marker) for commands/agents; when a command is converted to a skill, `sync.ps1`'s skill pass skips
-any existing real dir, so the generated twin must be removed (and the `$GenCmds` entry dropped)
-before the junction can be created — always `-WhatIf` first. Run `sync.ps1` **in-process under
-pwsh 7** (`& C:\ai-kit\adapters\codex\sync.ps1 -WhatIf`) — invoking it via `powershell -File`
-(Windows PowerShell 5.1) misparses the script's UTF-8 em-dashes into bogus syntax errors that look
-like file corruption. Its dry-run flag is `-WhatIf`, not `-DryRun`. And don't pipe its output
-through `Select-Object`/`Get-Item` in the same call — the Format-Table stream collides and exits 1
-despite a successful sync; verify effects in a separate call.
+**Why:** links keep one physical file per entry while another store owns the canonical content;
+scans that ignore link entries under-count the population, and staging linked content can duplicate
+external ownership in a public repo.
+*(updated 2026-08-31 — cross-platform link handling)*
 
-**Why:** assuming one model (all junctions or all copies) leaves stale twins shadowing new skills,
-or edits that never deploy — the twin-blocks-junction case surfaced during the first command→skill
-conversion of the kit-refactor.
-*(added 2026-08-05 — implement-task command→skill conversion session; pwsh-7/-WhatIf/format-stream
-invocation refinements 2026-08-06 — step-8 session, all three hit in one sync run)*
+## Deployment topology: one source, two managed roots, provider overlays
+
+`skills/` is the canonical source. The common sync engine at `scripts/sync-skills.py` manages
+per-skill links under `<home>/.claude/skills/` and `<home>/.agents/skills/`, with ownership and
+rollback state in `<home>/.claude/ownership/ai-kit-skill-sync.json`. The Codex and Cursor shell
+and PowerShell adapters are thin argument translators; they must not enumerate skills or mutate
+the roots independently.
+
+Use an isolated home for previews and tests. The common commands are:
+
+```bash
+python3 scripts/sync-skills.py --dry-run --home <isolated-home>
+python3 scripts/sync-skills.py --check --home <isolated-home>
+python3 scripts/sync-skills.py --uninstall --dry-run --home <isolated-home>
+```
+
+The adapters expose equivalent provider syntax (`--dry-run` on POSIX, `-WhatIf` on PowerShell)
+and forward to the same engine. A normal apply or uninstall is state-changing; preview it first.
+The engine preserves adopted links and restores recorded baselines, while `--force` and `--prune`
+remain explicit opt-ins for stale owned state and orphan cleanup.
+
+If a managed root has an externally owned directory or link whose name matches a canonical skill,
+preserve it explicitly with `--preserve <claude|agents>/<skill-name>` on dry-run, apply, and check.
+The entry must already exist as a directory or link with a readable `SKILL.md` and remains outside
+the ownership manifest. Repeat the flag for every qualified check; an unqualified invocation fails
+closed instead of silently accepting a partial population. Preserve policy is not valid with
+`--uninstall` or `--prune`.
+
+The live canonical population count is currently 31 and is derived by `scripts/check-skill-portability.mjs`, not maintained
+by the sync adapters. Enumerate it with `fs.readdirSync` (or an equivalent directory enumeration)
+that follows supported link entries; do not use a glob that silently omits junctioned directories.
+
+Provider-specific behavior belongs in a documented overlay: reviewed Cursor fields stay in
+frontmatter only where their behavior is justified, and Codex policy stays in a skill-local
+`agents/openai.yaml`. The canonical body remains capability-oriented and does not assume one
+provider's tool names, model names, convention file, or checkout path.
+
+**Why:** one engine gives all providers the same conflict, ownership, and recovery semantics while
+overlays keep genuinely provider-specific metadata explicit.
+*(updated 2026-08-31 — common sync engine and standard/overlay profile)*
 
 ## Grep live consumers before archiving or retiring an entity class
 

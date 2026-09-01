@@ -1,6 +1,6 @@
 ---
 name: bug-investigation
-description: "Investigate a bug — trace the execution path from entry point to failure, identify the root cause with evidence (every hop tagged VERIFIED or ASSUMED), propose a minimal fix. Produces {bug_id}_investigation.md. Use when investigating, diagnosing, root-causing, or debugging a reported bug, error, crash, or unexpected behavior — ad-hoc, or after /lay-of-the-land recon of an unfamiliar area. Incident lens when the failure is a production incident or outage: log/trace/metric evidence with timeline correlation, severity-aware gate (P1 streamlined). Invoke as /bug-investigation."
+description: "Investigate a bug — trace the execution path from entry point to failure, identify the root cause with evidence (every hop tagged VERIFIED or ASSUMED), propose a minimal fix. Produces {bug_id}_investigation.md. Use when investigating, diagnosing, root-causing, or debugging a reported bug, error, crash, or unexpected behavior — ad-hoc, or after the `lay-of-the-land` skill maps an unfamiliar area. Incident lens when the failure is a production incident or outage: log/trace/metric evidence with timeline correlation, severity-aware gate (P1 streamlined)."
 ---
 
 # Bug Investigation Skill
@@ -12,7 +12,7 @@ You are a specialized bug investigator. You take a bug report, trace through the
 ## When to use
 
 - **Ad-hoc**: a bug came in and you want a thorough evidence-based diagnosis before touching code.
-- **After recon**: `/lay-of-the-land` mapped an unfamiliar area and the failure is now scoped enough to trace.
+- **After recon**: the `lay-of-the-land` skill mapped an unfamiliar area and the failure is now scoped enough to trace.
 
 ## When NOT to use
 
@@ -22,7 +22,7 @@ You are a specialized bug investigator. You take a bug report, trace through the
 
 ## Coordinator vs worker
 
-- **No mandate/constraints handed to you (default — you're on the main thread):** you're the *coordinator*. For a small bug, do the investigation yourself on the main thread. For a medium bug, launch **1–3 generic subagents** (Explore / general-purpose — there are no named investigation agents to maintain) for breadth (each gets the bug report + the constraints below), then consolidate: areas of consensus on root cause (high confidence), areas of disagreement (flag for the user), confidence-weighted findings. If a critical disagreement exists (> 2-point confidence delta on the root cause), return to the user with specific questions. Then run the confidence gate and write the file.
+- **No mandate/constraints handed to you (default — you're on the main thread):** you're the *coordinator*. For a small bug, do the investigation yourself on the main thread. For a medium bug, launch **1–3 generic subagents** (generic exploration / general-purpose — there are no named investigation agents to maintain) for breadth (each gets the bug report + the constraints below), then consolidate: areas of consensus on root cause (high confidence), areas of disagreement (flag for the user), confidence-weighted findings. If a critical disagreement exists (> 2-point confidence delta on the root cause), return to the user with specific questions. Then run the confidence gate and write the file.
 - **You were spawned as a sub-agent with the constraints below:** you're a *worker*. Do one thorough investigation pass and return it to the coordinator. **Do not** spawn further sub-agents and **do not** write a file.
 
 Sub-agent constraints (the coordinator passes these verbatim when launching workers):
@@ -42,11 +42,11 @@ Orthogonal to the process below, triggered by an incident report / outage / live
 - **Evidence widens beyond code:** error patterns and frequencies in logs, trace timings and timeouts, metric spikes — each with timestamps, **correlated against the incident timeline** (deploys, config changes, traffic shifts). Every quantitative claim (counts, rates, durations) cites the query or log excerpt that produced it.
 - **5-Whys depth:** "the pool was exhausted" is the symptom — keep asking why until you reach the change or design that caused it, tagging each why VERIFIED/ASSUMED like any other hop.
 - **Severity sets the gate:** P1 (service down — speed beats exhaustiveness) → one streamlined pass on the main thread, confidence gate **≥ 70%**, flag uncertainty rather than chasing exhaustive analysis; P2–P4 → the normal ≥ 90% gate below.
-- **Hand-off:** the fix design is `techspec` fix mode (hotfix variant for live remediation); after resolution, offer `/post-mortem`.
+- **Hand-off:** the fix design is the `techspec` skill in fix mode (hotfix variant for live remediation); after resolution, offer the `post-mortem` skill.
 
 ## Process
 
-1. **Read the bug report.** Extract: what's broken, how to reproduce, expected vs actual behavior, affected components. Note any suspected files the reporter named.
+1. **Inspect the bug report.** Extract: what's broken, how to reproduce, expected vs actual behavior, affected components. Note any suspected files the reporter named.
 2. **Locate the relevant code.** Search the codebase for: entry points (API endpoints, UI handlers, jobs), the core business logic related to the bug, data-access layers, error-handling code.
 3. **Trace the execution path.** Follow the code flow from entry point to the failure point — document each function/method in the call chain, note variable states and transformations, identify exactly where expectations diverge from reality. **Tag every hop** in the chain **`VERIFIED`** (you observed it this session — a log line, a test run, a debugger/DB probe, code actually read) or **`ASSUMED`** (inferred), and for each `ASSUMED` hop name the observation that would verify it. The trace map must make visible which links the diagnosis actually rests on — a chain that reads confident but hides one `ASSUMED` load-bearing hop is the documented confident-but-wrong failure mode.
 4. **Analyze the root cause.** Determine *why* it fails and categorize: Logic Error (wrong condition / bad calculation) · State Management (race condition / stale data) · Data Validation (missing check / wrong type) · Integration (API change / dependency problem) · Configuration (environment-specific). Check git history if relevant (when was the buggy code introduced?). If you find multiple plausible causes, investigate the most likely first.
@@ -54,17 +54,17 @@ Orthogonal to the process below, triggered by an incident report / outage / live
    - **Positive control first:** prove the probe can see data of the target class at all (query a known-to-exist event in-window) before interpreting an empty result as absence.
    - **Right channel / full enumeration:** enumerate which log channels/stores are actually enabled (platform operational channels, not just the default) and paginate to completion — page 1 of a filtered read is not the population.
    - **Sample the identifier format:** pull one known instance of the target class and copy its exact identifier encoding before sweeping (a GUID sweep missed base64-encoded protobuf ids).
-   - **History before blame:** grep the repo's SESSION_LOG / ADR / techspec artifacts for the suspect symbol before root-causing it as a mistake — a recorded decision was called a copy-paste error at 95% confidence. For authz bugs, enumerate scheme → handler → claims issued before reasoning from an endpoint's policy attribute.
+   - **History before blame:** search the repo's SESSION_LOG / ADR / techspec artifacts for the suspect symbol before root-causing it as a mistake — a recorded decision was called a copy-paste error at 95% confidence. For authz bugs, enumerate scheme → handler → claims issued before reasoning from an endpoint's policy attribute.
 5. **Propose a minimal solution.** **Gate: only once the root-cause hop is `VERIFIED`** — while it is still `ASSUMED`, the deliverable is the next probe (what to observe, where), not a fix proposal. Reference exact `file:line`. Describe the smallest change that addresses the root cause. Explain *why* it fixes the cause (not the symptom). Mention any alternative approaches considered. Do **not** write full implementation code — describe the change.
 6. **Consolidate (coordinator, medium bug).** Merge the worker outputs: consensus on root cause, disagreements (flag), confidence-weighted findings. If a critical disagreement on the root cause exists, return to the user with specific questions before continuing.
-7. **Confidence gate.** Score 0–100% using the user's global CLAUDE.md factor breakdown (for this phase ≈ root-cause clarity & evidence 40% / codebase understanding 30% / solution simplicity 15% / similar-pattern coverage 15%). **If < 90%: STOP — name what's missing, ask more clarifying questions, repeat the process.** ✅ 90–100% root cause specific & verifiable · ⚠️ 70–89% reasonable but with gaps · ❌ < 70% vague or unsupported. At ≥ 90%, present the consolidated investigation to the user and ask if it's OK to write the file; on confirmation, write it.
+7. **Confidence gate.** Score 0–100% using the loaded confidence factor breakdown (for this phase ≈ root-cause clarity & evidence 40% / codebase understanding 30% / solution simplicity 15% / similar-pattern coverage 15%). **If < 90%: STOP — name what's missing, ask more clarifying questions, repeat the process.** ✅ 90–100% root cause specific & verifiable · ⚠️ 70–89% reasonable but with gaps · ❌ < 70% vague or unsupported. At ≥ 90%, present the consolidated investigation to the user and ask if it's OK to write the file; on confirmation, write it.
 
 ## Output structure
 
 The investigation must give a review pass everything it needs to validate your findings. Include:
 
 - **Executive summary** — 1–2 sentences: what's broken, why, how to fix.
-- **Confidence score** — global CLAUDE.md format (numeric, "Why N%" bullets, "100−N% uncertainty" bullets).
+- **Confidence score** — loaded confidence format (numeric, "Why N%" bullets, "100−N% uncertainty" bullets).
 - **Bug understanding** — reported issue, expected vs actual behavior, reproduction steps.
 - **Entry point** — with `file:line`.
 - **Execution path trace** — the call chain from entry to failure, with the variable state at each step, each hop tagged `VERIFIED` (with the observation) or `ASSUMED` (with the probe that would verify it).
@@ -73,7 +73,7 @@ The investigation must give a review pass everything it needs to validate your f
 - **Proposed solution** — specific `file:line` references, the minimal change described (not coded), why it fixes the root cause.
 - **Alternative approaches considered** — if any.
 - **Impact assessment preview** — files affected, tests needed, potential side effects.
-- **Incident additions** (incident lens only): **Incident timeline** — the correlated event sequence with timestamps (error onset vs deploys, config changes, traffic shifts — the correlation evidence the lens gathered, laid out for `/post-mortem` to build on) · **Scope of impact** — affected users / services / data and duration, derived from the evidence, not estimated · **Hypotheses ruled out** — each with the evidence that ruled it out (this list is what stops a war room re-litigating dead ends).
+- **Incident additions** (incident lens only): **Incident timeline** — the correlated event sequence with timestamps (error onset vs deploys, config changes, traffic shifts — the correlation evidence the lens gathered, laid out for the `post-mortem` skill to build on) · **Scope of impact** — affected users / services / data and duration, derived from the evidence, not estimated · **Hypotheses ruled out** — each with the evidence that ruled it out (this list is what stops a war room re-litigating dead ends).
 
 ### What this investigation IS / IS NOT
 
@@ -87,4 +87,4 @@ The investigation must give a review pass everything it needs to validate your f
 
 ## Output file
 
-Write the investigation to `{bug_id}_investigation.md`, alongside the bug report. If no base name is discoverable from the inputs, ask the user before writing. After writing, **offer `/review-artifact`** over the investigation before any fix is implemented on top of it (a risky fix then gets `/techspec` in fix mode for the design + blast radius).
+Write the investigation to `{bug_id}_investigation.md`, alongside the bug report. If no base name is discoverable from the inputs, ask the user before writing. After writing, **offer the `review-artifact` skill** over the investigation before any fix is implemented on top of it (a risky fix then gets the `techspec` skill in fix mode for the design + blast radius).

@@ -1,6 +1,6 @@
 ---
 name: onboard-me
-description: "Engineering-ownership ritual for UNFAMILIAR code you must understand — someone else's module/workflow/service, an inherited area, a codebase you're new to (NOT code you just wrote). The AI plays a staff engineer giving a cold-read walkthrough as a real back-and-forth: ONE step per turn, Socratic — you predict the next hop — assumptions listed every message. Use to get up to speed on, learn, or onboard onto unfamiliar code — 'walk me through this service', 'help me understand this module'. Appends a dated session summary to ~/.claude/ownership/{topic}/onboarding.md. Invoke as /onboard-me."
+description: "Engineering-ownership ritual for UNFAMILIAR code you must understand — someone else's module/workflow/service, an inherited area, a codebase you're new to (NOT code you just wrote). The AI plays a staff engineer giving a cold-read walkthrough as a real back-and-forth: ONE step per turn, Socratic — you predict the next hop — assumptions listed every message. Use to get up to speed on, learn, or onboard onto unfamiliar code — 'walk me through this service', 'help me understand this module'. Appends a dated session summary to ~/.claude/ownership/{topic}/onboarding.md."
 ---
 
 # onboard-me — a cold-read walkthrough from a staff engineer
@@ -11,7 +11,7 @@ You are an experienced engineer on this codebase, sitting next to a sharp new te
 
 ## How to run the conversation
 
-1. **Resolve `{topic}`** and the entry point (a file, a route, a feature name). Read the actual code as you go — `Explore`/`Read`; confirm library/framework behaviour via context7 → web, never memory.
+1. **Resolve `{topic}`** and the entry point (a file, a route, a feature name). Inspect the actual code as you go — use file inspection and search capabilities; confirm library/framework behaviour via context7 → web, never memory.
 2. **Go one step at a time. This is the core rule.** Each turn:
    - Explain **one** thing — a single component, hop, or concept. A few sentences, not a page.
    - **List the assumptions** you made this turn under an `Assumptions:` line (what you inferred but didn't verify, what you're taking on faith). Every message, no exceptions.
@@ -35,5 +35,5 @@ You are an experienced engineer on this codebase, sitting next to a sharp new te
 2. **List assumptions every message** — the feature that keeps you honest and the user critical.
 3. **Be Socratic** — make them predict the next hop before you reveal it.
 4. **Unfamiliar code only** — having your own work explained back to you is anti-retention, not onboarding.
-5. **Read the real code; verify libraries via context7/web** — a confident cold-read that's wrong is worse than a flagged uncertainty.
+5. **Inspect the real code; verify libraries via context7/web** — a confident cold-read that's wrong is worse than a flagged uncertainty.
 6. **Always leave the map** — append the dated session summary to `onboarding.md` (even a partial one); the accumulating terrain map is the durable payoff, not the chat.

@@ -1,0 +1,17 @@
+{
+  "name": "ai-kit",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": "24.x"
+  },
+  "scripts": {
+    "test": "node tests/test_skill_portability.mjs",
+    "check:portability": "node scripts/check-skill-portability.mjs --mode final",
+    "check:portability:transition": "node scripts/check-skill-portability.mjs --mode transitional"
+  },
+  "devDependencies": {
+    "js-yaml": "5.4.1"
+  }
+}

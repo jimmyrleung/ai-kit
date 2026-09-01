@@ -1,6 +1,6 @@
 ---
 name: docs-tasks-creator
-description: Scan a codebase and emit a tasks doc with one `document-workflow` task per detected HTTP route / message handler / background job, plus a synthesized `project-overview.md`. For monorepos, detect workspaces, ask which to scan, and emit one tasks doc per chosen workspace. v1 detectors cover Next.js (App Router / Pages API / Server Actions), Express, Fastify, NestJS, ASP.NET Core (attribute + minimal API), GRPC .NET, and .NET BackgroundService. The emitted tasks doc is consumer-agnostic — work each task however you like (manual `/document-workflow`, looped, batch).
+description: Scan a codebase and emit a tasks doc with one `document-workflow` task per detected HTTP route / message handler / background job, plus a synthesized `project-overview.md`. For monorepos, detect workspaces, ask which to scan, and emit one tasks doc per chosen workspace. v1 detectors cover Next.js (App Router / Pages API / Server Actions), Express, Fastify, NestJS, ASP.NET Core (attribute + minimal API), GRPC .NET, and .NET BackgroundService. The emitted tasks doc is consumer-agnostic — work each task however you like (manually, in a loop, or in batch).
 arguments: codebase_path output_dir
 ---
 
@@ -28,17 +28,17 @@ Each emitted task is independent — the `Reference:` line points at the handler
 
 ### Phase 1 — Monorepo detection and workspace selection
 
-Read orientation files at the codebase root: `README*`, `package.json`, `pnpm-workspace.yaml`, `nx.json`, `turbo.json`, `lerna.json`, `rush.json`, and any `*.sln` / `*.csproj` files at depth ≤ 2.
+Inspect orientation files at the codebase root: `README*`, `package.json`, `pnpm-workspace.yaml`, `nx.json`, `turbo.json`, `lerna.json`, `rush.json`, and any `*.sln` / `*.csproj` files at depth ≤ 2.
 
 Check for monorepo signals in **this precedence order** (use the first match):
 
 | Signal | Workspace enumeration |
 |---|---|
-| `pnpm-workspace.yaml` | Read its `packages:` field; resolve glob patterns against codebase root; each resolved dir containing a `package.json` is a workspace |
-| `package.json` `workspaces` field | Read the array (or `.packages`); resolve globs; each resolved dir with a `package.json` is a workspace |
-| `nx.json` | Glob `**/project.json`; each match's directory is a workspace |
-| `lerna.json` | Read `packages:` field (default `["packages/*"]`); resolve globs |
-| `rush.json` | Read `projects[].projectFolder`; each entry is a workspace |
+| `pnpm-workspace.yaml` | Inspect its `packages:` field; resolve glob patterns against codebase root; each resolved dir containing a `package.json` is a workspace |
+| `package.json` `workspaces` field | Inspect the array (or `.packages`); resolve globs; each resolved dir with a `package.json` is a workspace |
+| `nx.json` | Enumerate `**/project.json`; each match's directory is a workspace |
+| `lerna.json` | Inspect its `packages:` field (default `["packages/*"]`); resolve globs |
+| `rush.json` | Inspect `projects[].projectFolder`; each entry is a workspace |
 | `turbo.json` (and no JS workspaces yet detected) | Turborepo relies on `package.json` workspaces; treat as that signal |
 | Multiple `.csproj` reachable from a `.sln` | Parse `Project(...)` lines in the `.sln`; **first drop test projects** (name or dir matching `*.Tests`, `*.UnitTests`, `*.IntegrationTests`, `tests/**`) — they have no documentable surface; each remaining `.csproj` directory is a workspace. If exactly one non-test project remains (the canonical src+tests layout), that is single-repo mode, no selection prompt. For a layered single-app solution (one Web/host project with handlers + class libraries), prefer single-repo mode with `service` derived from the handler class, not monorepo mode with one workspace per library `.csproj`. |
 | **Heuristic fallback** | If multiple top-level dirs (e.g. `apps/`, `services/`, `packages/`, `libs/`) each contain a `package.json` or `.csproj`, each such dir is a workspace |
@@ -47,7 +47,7 @@ Check for monorepo signals in **this precedence order** (use the first match):
 
 **If 2+ workspaces detected** → monorepo mode. Ask the user which to scan:
 
-- **2–4 workspaces** — prefer `AskUserQuestion` with one option per workspace plus an "All workspaces" option; set `multiSelect: true`.
+- **2–4 workspaces** — prefer the structured question interface with one option per workspace plus an "All workspaces" option; set `multiSelect: true`.
 - **5+ workspaces** — emit a plain-text list of workspaces (one per line with the workspace path) and ask the user to reply with comma-separated workspace names, `"all"`, or `"none"`.
 
 Present each workspace as `<workspace-slug>` `(<relative path>)`. The workspace slug is derived as:
@@ -79,23 +79,23 @@ Walk the workspace's top two directory levels. Multiple detectors may apply with
 
 ### Phase 3 — Per-detector entry-point scan
 
-For each active detector in the current workspace, find entry points using the recipe below. Use `Glob` + `Grep` + `Read` only — no Bash recursion, no shell expansion.
+For each active detector in the current workspace, find entry points using the recipe below. Use file enumeration, text search, and file inspection only — no shell recursion, no shell expansion.
 
 #### Next.js App Router
 
-Glob `app/**/route.{ts,tsx,js,jsx}`. For each match, find exported HTTP verb functions: `export async function GET`, `export async function POST`, `export async function PUT`, `export async function DELETE`, `export async function PATCH`, `export async function HEAD`, `export async function OPTIONS`. One entry point per exported verb per file. URL path derived from the file path (`app/api/users/[id]/route.ts` → `/api/users/[id]`).
+Enumerate `app/**/route.{ts,tsx,js,jsx}`. For each match, find exported HTTP verb functions: `export async function GET`, `export async function POST`, `export async function PUT`, `export async function DELETE`, `export async function PATCH`, `export async function HEAD`, `export async function OPTIONS`. One entry point per exported verb per file. URL path derived from the file path (`app/api/users/[id]/route.ts` → `/api/users/[id]`).
 
 #### Next.js Pages API
 
-Glob `pages/api/**/*.{ts,tsx,js,jsx}`. For each match, the default export is the handler. URL path derived from file path (`pages/api/users/[id].ts` → `/api/users/[id]`). One entry point per file.
+Enumerate `pages/api/**/*.{ts,tsx,js,jsx}`. For each match, the default export is the handler. URL path derived from file path (`pages/api/users/[id].ts` → `/api/users/[id]`). One entry point per file.
 
 #### Next.js Server Actions
 
-Grep for `'use server'` (single OR double quote forms). For file-level directives (line 1 of the file), every exported async function is an action. For function-level directives (first line of a function body), only that function is an action. **Discovery is fuzzy** — flag each detected action with `[TODO: verify entry point]` in the task body's acceptance criteria so the doer verifies the entry point during tracing.
+Search for `'use server'` (single OR double quote forms). For file-level directives (line 1 of the file), every exported async function is an action. For function-level directives (first line of a function body), only that function is an action. **Discovery is fuzzy** — flag each detected action with `[TODO: verify entry point]` in the task body's acceptance criteria so the doer verifies the entry point during tracing.
 
 #### Express
 
-Grep for these patterns (case-sensitive, `\.` is a literal dot):
+Search for these patterns (case-sensitive, `\.` is a literal dot):
 - `\bapp\.(get|post|put|delete|patch|all)\(`
 - `\brouter\.(get|post|put|delete|patch|all)\(`
 - Any variable name suffixed `Router` or `router` with the same verbs.
@@ -104,31 +104,31 @@ For each match, capture: HTTP verb, URL path (first string arg), handler referen
 
 #### Fastify
 
-Grep for `\bfastify\.(get|post|put|delete|patch|head|options|route)\(` and the same on any `app` variable bound to a Fastify instance. Same capture as Express.
+Search for `\bfastify\.(get|post|put|delete|patch|head|options|route)\(` and the same on any `app` variable bound to a Fastify instance. Same capture as Express.
 
 #### NestJS
 
-Grep for `@Controller(` — each match is a controller class. For each, walk methods in that class file and find `@Get(`, `@Post(`, `@Put(`, `@Delete(`, `@Patch(`, `@All(`, `@Options(`, `@Head(` decorators. Also detect message/event consumers: `@MessagePattern(`, `@EventPattern(`. One entry point per decorated method.
+Search for `@Controller(` — each match is a controller class. For each, walk methods in that class file and find `@Get(`, `@Post(`, `@Put(`, `@Delete(`, `@Patch(`, `@All(`, `@Options(`, `@Head(` decorators. Also detect message/event consumers: `@MessagePattern(`, `@EventPattern(`. One entry point per decorated method.
 
 #### ASP.NET Core (attribute)
 
-Grep for `\[Http(Get|Post|Put|Delete|Patch|Head|Options)\b`. Each match is on a method in a controller class. Use `[Route(` attributes on the class and the method to derive the URL path. `Reference:` is `<file>:<ClassName>.<MethodName>`.
+Search for `\[Http(Get|Post|Put|Delete|Patch|Head|Options)\b`. Each match is on a method in a controller class. Use `[Route(` attributes on the class and the method to derive the URL path. `Reference:` is `<file>:<ClassName>.<MethodName>`.
 
 #### ASP.NET minimal API
 
-Grep for `\.Map(Get|Post|Put|Delete|Patch)\(`. Each match is an entry point. URL path is the first string arg.
+Search for `\.Map(Get|Post|Put|Delete|Patch)\(`. Each match is an entry point. URL path is the first string arg.
 
 #### GRPC .NET
 
-Glob `**/*.proto`. For each `service X { rpc Y(...) returns (...) }`, also find the C# implementation: a class inheriting from `<X>.<X>Base`. One entry point per RPC method. `Reference:` is the C# implementation: `<file>:<ClassName>.<MethodName>`. If the C# implementation is missing, emit the task anyway and flag `[TODO: verify — proto declares the RPC but no C# implementation was found in the scanned root]`.
+Enumerate `**/*.proto`. For each `service X { rpc Y(...) returns (...) }`, also find the C# implementation: a class inheriting from `<X>.<X>Base`. One entry point per RPC method. `Reference:` is the C# implementation: `<file>:<ClassName>.<MethodName>`. If the C# implementation is missing, emit the task anyway and flag `[TODO: verify — proto declares the RPC but no C# implementation was found in the scanned root]`.
 
 #### .NET background workers
 
-Grep for `:\s*BackgroundService\b` and `:\s*IHostedService\b` (with the class declaration on the same line). For each class, the entry point is its `ExecuteAsync` (BackgroundService) or `StartAsync` (IHostedService) method. Trigger description: "Background worker" — also note any obvious interval/schedule (e.g. `Task.Delay(TimeSpan.FromSeconds(...))` constants).
+Search for `:\s*BackgroundService\b` and `:\s*IHostedService\b` (with the class declaration on the same line). For each class, the entry point is its `ExecuteAsync` (BackgroundService) or `StartAsync` (IHostedService) method. Trigger description: "Background worker" — also note any obvious interval or cadence (e.g. `Task.Delay(TimeSpan.FromSeconds(...))` constants).
 
 #### Azure Functions (.NET isolated / in-process)
 
-Grep for `[Function(` (isolated: `[Function("name")]` / `[Function(nameof(X))]`; in-process: `[FunctionName("name")]`). For each decorated method the **trigger type** comes from the first parameter's attribute:
+Search for `[Function(` (isolated: `[Function("name")]` / `[Function(nameof(X))]`; in-process: `[FunctionName("name")]`). For each decorated method the **trigger type** comes from the first parameter's attribute:
 - `[HttpTrigger(...)]` → REST (verb + route from the attribute args).
 - `[ServiceBusTrigger("queue"/"topic", ...)]` → message handler (queue/topic name).
 - `[TimerTrigger("cron")]` → scheduled job (note the cron).
@@ -211,7 +211,7 @@ Write `<workspace-output-dir>/_docs-tasks.md` in this exact shape:
 
 > Generated by `docs-tasks-creator` on YYYY-MM-DD from `<workspace path>`.
 > Each task below describes one workflow to document. Work them however you like —
-> manually via `/document-workflow`, looped, or in batch. The output doc follows
+> manually, through the workflow skill, in a loop, or in batch. The output doc follows
 > the `document-workflow` output format.
 > Re-running this skill regenerates the full inventory — manually flip `Status: Done`
 > for handlers already documented, or delete those tasks before re-working.

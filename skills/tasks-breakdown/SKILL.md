@@ -1,11 +1,11 @@
 ---
 name: tasks-breakdown
-description: "Decompose an approved techspec into an ordered implementation tasks doc — dependency-sorted tasks with files, steps, testing, and acceptance criteria. Detects the work type: integration, greenfield slice (vertical ordering, anti-scaffolding guards), or refactor (safety sequencing, per-task rollback). Balanced sizing by default; 3-way granular / balanced / pragmatic exploration only when the grain is genuinely uncertain; spec-carrying mode embeds locked decisions when the techspec is deliberately skipped. Produces {work_name}_tasks.md. Use when asked to break work into tasks, create a tasks doc or task list, or turn a spec or plan into implementation tasks. Invoke as /tasks-breakdown."
+description: "Decompose an approved techspec into an ordered implementation tasks doc — dependency-sorted tasks with files, steps, testing, and acceptance criteria. Detects the work type: integration, greenfield slice (vertical ordering, anti-scaffolding guards), or refactor (safety sequencing, per-task rollback). Balanced sizing by default; 3-way granular / balanced / pragmatic exploration only when the grain is genuinely uncertain; spec-carrying mode embeds locked decisions when the techspec is deliberately skipped. Produces {work_name}_tasks.md. Use when asked to break work into tasks, create a tasks doc or task list, or turn a spec or plan into implementation tasks."
 ---
 
 # tasks-breakdown — ordered implementation tasks (integration · greenfield · refactor)
 
-You are a senior software engineer decomposing an approved design into an ordered, executable implementation tasks document — each task independently startable, testable, and completable. You TRANSLATE the techspec into a sequence; you do **not** re-design it (that's `/techspec`) or implement it (that's `/implement-task`).
+You are a senior software engineer decomposing an approved design into an ordered, executable implementation tasks document — each task independently startable, testable, and completable. You TRANSLATE the techspec into a sequence; you do **not** re-design it (that's the `techspec` skill) or implement it (that's the `implement-task` skill).
 
 > **Litmus test:** if a task step re-derives design rationale instead of citing the techspec, or you can't say "this task is finished" with a single observable check, you've left the lane — cite, or split.
 
@@ -16,9 +16,9 @@ You are a senior software engineer decomposing an approved design into an ordere
 
 ## When NOT to use
 
-- No design and the work isn't trivial → `/techspec` first (or spec-carrying — a deliberate user choice, never a silent default).
-- Implementing a task → `/implement-task`. Converting a tasks doc for the loop runner → `map-tasks`.
-- Reviewing a tasks doc → `/review-artifact` (tasks lens).
+- No design and the work isn't trivial → the `techspec` skill first (or spec-carrying — a deliberate user choice, never a silent default).
+- Implementing a task → the `implement-task` skill. Converting a tasks doc for the loop runner → `map-tasks`.
+- Reviewing a tasks doc → the `review-artifact` skill (tasks lens).
 
 ## Modes — detect, echo, adapt
 
@@ -46,7 +46,7 @@ Accept whatever the invocation provides, in order of authority:
 2. **Analysis** (`{work_name}_analysis.md`) — scope boundaries and clarifications. Missing → note the gap in the confidence score.
 3. **Work description** — the requirement: a file the user wrote (PRD, investigation, a draft, a detailed prompt), inline prose, or a short pointer.
 
-**Techspec missing → stop and say so** — tasks from a description alone invent design detail that doesn't belong here. Options: `/techspec` first, or the user deliberately chooses **spec-carrying**. Derive `{work_name}` from the input filenames; else propose one and confirm.
+**Techspec missing → stop and say so** — tasks from a description alone invent design detail that doesn't belong here. Options: the `techspec` skill first, or the user deliberately chooses **spec-carrying**. Derive `{work_name}` from the input filenames; else propose one and confirm.
 
 ## Spec-carrying mode (deliberate fast path)
 
@@ -55,11 +55,11 @@ For small, well-understood work backed by a verified exploration (plan mode, a r
 - A **`## Locked decisions`** section — every design choice that would have lived in the techspec, each grounded in a `file:line` you verified THIS session (no inherited citations).
 - The header names the exploration artifact as the authoritative input.
 - Implementation steps carry the detail a techspec reference would have carried — real names, before/after snippets for non-trivial edits.
-- **Escalation guard:** locked decisions exceeding ~5, or any one you can't ground → the work has outgrown the fast path; go write the `/techspec`.
+- **Escalation guard:** locked decisions exceeding ~5, or any one you can't ground → the work has outgrown the fast path; go write the `techspec`.
 
 ## Process
 
-1. **Read the inputs end-to-end** — every `file:line`, snippet, and section. The doc lives or dies on how accurately it translates the techspec into a sequence.
+1. **Inspect the inputs end-to-end** — every `file:line`, snippet, and section. The doc lives or dies on how accurately it translates the techspec into a sequence.
 2. **Inventory the work.** Every component, file, migration, config change, test suite, DI registration, and infra touch the techspec calls for. Group by logical boundary; identify cross-task dependencies (compile-time, runtime, deploy-time).
    Cross-repo work: pin the per-environment config matrix and the resolved file paths at
    the first contract-defining task, and land golden fixtures with it — symmetric-env
@@ -83,8 +83,8 @@ For small, well-understood work backed by a verified exploration (plan mode, a r
    and depends on the task that deploys that state — repository-grouped ordering hid this
    dependency in a lived run.
 8. **Apply the mode lens** (below).
-9. **Confidence gate.** Score 0–100% per the global CLAUDE.md factor breakdown. **< 90% → STOP and ask clarifying questions.** ≥ 90% proceed; target ≥ 95% ship-ready.
-10. **Write the doc** per the section contract; confirm the base name; then **offer `/review-artifact`** before implementation builds on it.
+9. **Confidence gate.** Score 0–100% per the loaded confidence factor breakdown. **< 90% → STOP and ask clarifying questions.** ≥ 90% proceed; target ≥ 95% ship-ready.
+10. **Write the doc** per the section contract; confirm the base name; then **offer the `review-artifact` skill** before implementation builds on it.
 
 ## Mode lenses
 
@@ -106,7 +106,7 @@ Required, in roughly this order (delete, don't placeholder):
 4. **Detailed tasks** — per task: Description (1–3 sentences, why it's its own task) · Complexity / Estimated time / Depends on / Can run in parallel with (· **Risk**, refactor mode) · **Files involved** (path + modify/create/delete — every path from the techspec or a `file:line` you verified; none invented) · **Implementation steps** (cite, don't re-derive: "Add X per techspec §4.3"; snippets ≤ ~15 lines, real names — no placeholder `[NewThing]`) · **Testing requirements** (specific scenarios, or "Tests covered in Task X") · **Acceptance criteria** (observable outcomes, not restated steps; plus tests pass / build green; **each AC verifies against an independent source** — a captured value may not cite the upstream doc as its only proof; point at the live file, a command output, or an explicit user confirmation) · **Reference** (techspec § or locked decision; precedent `file:line`) (· **Rollback plan**, refactor mode) · **Status**: Not Started. **Size budgets** when a file is size-sensitive: distinguish a hard cap (an AC, gate-enforced) from a `~` forecast (planning data); for a shared cumulative file several tasks grow, state each task's expected delta and the final ceiling.
 5. **Locked decisions** — spec-carrying mode only (see above).
 6. **Notes & decisions** — running log; seed with the approach choice and any non-obvious sequencing call.
-7. **Confidence score** — global CLAUDE.md format: `Confidence score: N% — <one-line why>`, then **Why N%** (3–5 bullets of concrete evidence) and **100−N% uncertainty** (2–4 bullets, each with an impact note: blocks starting which task?).
+7. **Confidence score** — loaded confidence format: `Confidence score: N% — <one-line why>`, then **Why N%** (3–5 bullets of concrete evidence) and **100−N% uncertainty** (2–4 bullets, each with an impact note: blocks starting which task?).
 
 Optional (only with substance): Dependency graph · Deployment sequencing · Rollback plan (doc-level — effects a single PR revert can't undo) · Definition of Done · Risks.
 
@@ -118,4 +118,4 @@ Map 1:1 to the techspec — every step traceable to a section or verified code r
 
 ## Output file
 
-Write to `{work_name}_tasks.md` alongside the inputs — all modes (greenfield: follow a host `specs/slices/slice-NN-*/tasks.md` convention when the repo already uses one). No discoverable base name → ask before writing. After writing, **offer `/review-artifact`**.
+Write to `{work_name}_tasks.md` alongside the inputs — all modes (greenfield: follow a host `specs/slices/slice-NN-*/tasks.md` convention when the repo already uses one). No discoverable base name → ask before writing. After writing, **offer the `review-artifact` skill**.

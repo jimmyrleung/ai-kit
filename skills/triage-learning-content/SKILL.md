@@ -1,6 +1,6 @@
 ---
 name: triage-learning-content
-description: "Recommend how to consume a piece of learning content — listen (TTS), listen with targeted visual review (TTS_PLUS_REVIEW), or focused reading (READ) — so scarce reading time goes only where it materially helps. Use when given a URL or article and asked how to consume it, whether it works as audio, listen vs read, to triage saved articles or a reading backlog, or when another workflow needs a consumption recommendation (scores, briefing, review sections) as JSON. Covers web articles, blog posts, newsletters, essays first; other types get the same rubric. Invoke as /triage-learning-content."
+description: "Recommend how to consume a piece of learning content — listen (TTS), listen with targeted visual review (TTS_PLUS_REVIEW), or focused reading (READ) — so scarce reading time goes only where it materially helps. Use when given a URL or article and asked how to consume it, whether it works as audio, listen vs read, to triage saved articles or a reading backlog, or when another workflow needs a consumption recommendation (scores, briefing, review sections) as JSON. Covers web articles, blog posts, newsletters, essays first; other types get the same rubric."
 ---
 
 # triage-learning-content — route content to its cheapest effective consumption mode
@@ -19,8 +19,8 @@ summarize the content, generate audio, or manage a reading queue.
 - **Orchestrated:** another workflow needs a consumption recommendation — return only the JSON block.
 
 ## When NOT to use (handoffs)
-- Routing an engineering request → `/triage` (unrelated despite the name).
-- Synthesizing already-consumed content into a KB → `/compile-kb`.
+- Routing an engineering request → the triage skill (unrelated despite the name).
+- Synthesizing already-consumed content into a KB → the compile-kb skill.
 - "Summarize this article" → not this skill; a summary is what this skill refuses to be.
 - Generating audio or a TTS narration script → downstream workflow (a future prepare-for-tts).
 - Post-consumption "what is worth remembering" (DONE / REVISIT / STUDY) → future sibling skill.

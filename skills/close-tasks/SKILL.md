@@ -1,30 +1,30 @@
 ---
 name: close-tasks
-description: End-of-tasks-doc closeout. Artifact-aggregation, NOT context-distillation — reconstructs a tasks-doc's run from durable artifacts (per-task completion notes, `## Verify`/`## Review`/`## QA` blocks, sibling `_qa.md` / `_checkpoint-*_review.md`, `.cc-loop/state.json`, `git log`) rather than scanning live conversation. Emits observations (tagged with the skill that actually ran, so `/improve` finally sees loop runs) + a roll-up SESSION_LOG entry, idempotently via a harvest marker. Run once when a tasks-doc's implementation run is complete — possibly spanning multiple sessions, possibly manual, possibly cc-looper headless — where per-session `/close` did not run. Invoke as /close-tasks. Sibling of `/close` (which distills live context for design/research sessions).
+description: End-of-tasks-doc closeout. Artifact-aggregation, NOT context-distillation — reconstructs a tasks-doc's run from durable artifacts (per-task completion notes, `## Verify`/`## Review`/`## QA` blocks, sibling `_qa.md` / `_checkpoint-*_review.md`, `.cc-loop/state.json`, `git log`) rather than scanning live conversation. Emits observations (tagged with the skill that actually ran, so the improve skill finally sees loop runs) + a roll-up SESSION_LOG entry, idempotently via a harvest marker. Run once when a tasks-doc's implementation run is complete — possibly spanning multiple sessions, possibly manual, possibly cc-looper headless — where the per-session close skill did not run. Sibling of the close skill (which distills live context for design/research sessions).
 ---
 
 # Close-tasks — end-of-tasks-doc closeout
 
 You are closing out a **tasks-doc's implementation run**, not a session. The run may have spanned
 2–3 sessions, been driven by hand or by cc-looper headless, and the conversation context of the
-earlier sessions is gone. So this skill does **not** retrospect on live context the way `/close`
+earlier sessions is gone. So this skill does **not** retrospect on live context the way the close skill
 does — it **reconstructs the run from durable artifacts** and harvests the improvement signal that
-would otherwise be stranded (the cc-looper / multi-session blind spot in the `close → /improve`
+would otherwise be stranded (the cc-looper / multi-session blind spot in the `close → improve skill`
 pipeline).
 
 **Consumer-agnostic.** It reads artifacts, so it does not care whether the tasks were implemented
-manually (`/implement-task`), by cc-looper (`implement-task-loop`), or a mix.
+manually (the implement-task skill), by cc-looper (`implement-task-loop`), or a mix.
 
-**It is lossier than `/close` for *narrative* friction** ("this cost me 20 min because X" from a
+**It is lossier than the close skill for *narrative* friction** ("this cost me 20 min because X" from a
 cleared session is gone) — and that is an accepted trade. What survives is **structured** friction:
 gate fails, accept-with-reason lines, `Status: Paused` notes, retry counts, doc-drift findings —
 all of which the implement / verify / qa machinery writes into artifacts. Reconstruct from those;
 don't invent the narrative you can't see.
 
-Four phases. Move through them in order; ask before the git step. This skill reuses `/close`'s
+Four phases. Move through them in order; ask before the git step. This skill reuses the close skill's
 auto-memory conventions, observation format, SESSION_LOG placement/archive rules, and cross-machine
 sync routing verbatim — it does not restate them; it points at them. (Its roll-up entry format is
-deliberately richer than `/close`'s slim continuation entry — see 3c.)
+deliberately richer than the close skill's slim continuation entry — see 3c.)
 
 ---
 
@@ -39,15 +39,15 @@ deliberately richer than `/close`'s slim continuation entry — see 3c.)
 
 ## Phase 1 — Resolve scope & gather artifacts
 
-1. **Read the harvest marker.** Look in `tasks_doc_path` for a line:
+1. **Inspect the harvest marker.** Look in `tasks_doc_path` for a line:
    `<!-- close-tasks: harvested through <sha> @ <YYYY-MM-DD> -->`.
    If present, this run's harvest window is `<sha>..HEAD`; only tasks/commits after it are new.
    If absent, the window is the whole run (first commit that touched the doc → `HEAD`).
-   This marker is what makes `/close-tasks` **idempotent and re-runnable** — running it twice, or
+   This marker is what makes the close-tasks skill **idempotent and re-runnable** — running it twice, or
    running it after the doc gains more tasks later, harvests only the delta.
 
 2. **Detect what actually ran** (sets the `skill_or_workflow` tag on every observation — this is
-   the field `/improve`'s fitness table counts, and the whole reason this skill exists):
+   the field the improve skill's fitness table counts, and the whole reason this skill exists):
    - `.cc-loop/state.json` present → read it: `action`, `mode`, per-task `terminalStatus` /
      `attempt`, `qa` / `checkpoints` records. `skill_or_workflow` = `implement-task-loop`
      (+ `qa-loop` if a `qa` record exists, + `review-checkpoint` per checkpoint).
@@ -76,7 +76,7 @@ deliberately richer than `/close`'s slim continuation entry — see 3c.)
 ## Phase 2 — Reconstruct friction & triage
 
 From the gathered artifacts, derive the run's improvement signal. Map artifact evidence → friction,
-**evidence-cited to `file:line` or a state.json field** (so `/improve` can weight artifact-
+**evidence-cited to `file:line` or a state.json field** (so the improve skill can weight artifact-
 reconstructed signal honestly against live-context signal):
 
 | Artifact evidence | → friction (tag) |
@@ -89,11 +89,11 @@ reconstructed signal honestly against live-context signal):
 | Doc-drift finding in `_qa.md` Gate 4 | `doc_drift` |
 | Checkpoint review `abort` / `fix-then-proceed` | quote the recommendation + the blocking finding |
 
-Then **categorize** each item exactly as `/close` Phase 1 does — (a) → auto-memory (user-scoped or
-cross-repo durable), (b) → observations (skill/workflow-performance evidence for `/improve`),
-(c) → repo memory (repo-scoped durable — follow `/close` 2c's `docs/rules/` + AGENTS.md-index
+Then **categorize** each item exactly as the close skill's Phase 1 does — (a) → auto-memory (user-scoped or
+cross-repo durable), (b) → observations (skill/workflow-performance evidence for the improve skill),
+(c) → repo memory (repo-scoped durable — follow the close skill's 2c `docs/rules/` + AGENTS.md-index
 conventions; rare for an implementation run), (d) → SESSION_LOG roll-up, (e) → just say it in chat.
-Apply `/close`'s ADR gate for (a)/(c) and its **don't-manufacture** rule: a clean run — all tasks
+Apply the close skill's ADR gate for (a)/(c) and its **don't-manufacture** rule: a clean run — all tasks
 `Done`, no gate fails, no pauses, no retries — yields **zero observations, zero memory, zero repo
 rules, one thin SESSION_LOG roll-up line**, and that is correct.
 
@@ -109,9 +109,9 @@ per close; `{short-slug}` describes the tasks-doc (e.g. `auth-oauth-tasks-close`
 
 - `skill_or_workflow:` = the value **detected in Phase 1 step 2** — this is the load-bearing field;
   it is what makes `implement-task-loop` / `qa-loop` / `review-checkpoint` finally show up in
-  `/improve`'s fitness table and pattern-mining instead of counting as zero.
+  the improve skill's fitness table and pattern-mining instead of counting as zero.
 - `friction_observed:` — cite the artifact evidence (`file:line` / `state.json` field). If it is
-  reconstructed-not-lived, say so plainly in the free-text so `/improve` weights it accordingly.
+  reconstructed-not-lived, say so plainly in the free-text so the improve skill weights it accordingly.
 - Tags from the `~/.claude/observations/README.md` list; align with the `/insights` taxonomy.
 - **Run-metrics block (loop/multi-session runs):** append one fenced block at the top of the
   observations file, reconstructed from artifacts:
@@ -131,7 +131,7 @@ Numbered within the file. **Don't manufacture** — see Phase 2.
 
 ### 3b — Auto-memory (rare for an implementation run)
 
-For each (a) item, follow `/close`'s auto-memory conventions **exactly** (the `~/.claude/projects/<project>/memory/`
+For each (a) item, follow the close skill's auto-memory conventions **exactly** (the `~/.claude/projects/<project>/memory/`
 files, right `type:`, `**Why:**`/`**How to apply:**`, `[[links]]`, the `MEMORY.md` pointer, the
 check-for-existing-file rule). Implementation runs rarely produce durable rules — usually zero here.
 
@@ -139,7 +139,7 @@ check-for-existing-file rule). Implementation runs rarely produce durable rules 
 
 Find the git root (`git rev-parse --show-toplevel`; fall back to `~/SESSION_LOG.md`). **Prepend**
 one entry for the **whole tasks-doc run** (not per session/task). The roll-up keeps
-`Done:`/`Decisions:` — deliberately richer than `/close`'s slim continuation entry, because a
+`Done:`/`Decisions:` — deliberately richer than the close skill's slim continuation entry, because a
 multi-session run's net delivery and completion-note decisions aren't recoverable from any single
 session's context:
 
@@ -155,14 +155,14 @@ session's context:
 **Artifacts:** <tasks-doc, _qa.md, checkpoint reviews, key commits>
 ```
 
-Apply `/close`'s archive rule if SESSION_LOG is getting long (~30+ entries → oldest half to
+Apply the close skill's archive rule if SESSION_LOG is getting long (~30+ entries → oldest half to
 `SESSION_LOG_ARCHIVE.md`).
 
 ### 3d — Update the harvest marker
 
 Write/refresh in `tasks_doc_path` (a single Edit; place it just under the H1 or at EOF, wherever
 it already is): `<!-- close-tasks: harvested through <HEAD-sha> @ <YYYY-MM-DD> -->`. This closes
-the idempotency loop — the next `/close-tasks` only harvests what came after.
+the idempotency loop — the next close-tasks run only harvests what came after.
 
 ---
 
@@ -173,7 +173,7 @@ the idempotency loop — the next `/close-tasks` only harvests what came after.
    (e.g. `chore: close-tasks roll-up for <doc> — N observations, marker updated`). On approval
    `git add <files>` + `git commit`. Never `reset`/`clean`/`checkout --`/force-push. If the user
    declines, leave the tree as-is.
-3. **Cross-machine sync routing** — identical to `/close` Phase 3.3: edits to
+3. **Cross-machine sync routing** — identical to the close skill's Phase 3.3: edits to
    `~/.claude/observations/` (the new file) / `MEMORY.md` / memory files route to the
    `~/.claude/` (private) tree; tasks-doc / `_qa.md` / source route to the target repo. One commit
    per repo, **ask before each commit and each push**, never auto-push, run the ai-kit secret-scan
@@ -186,37 +186,37 @@ the idempotency loop — the next `/close-tasks` only harvests what came after.
 ## When to use / When NOT
 
 **Use** when a tasks-doc's implementation run is finished (or at a real stopping point) and the
-per-session `/close` did *not* run for the sessions that did the work — the canonical cases being
-(a) a multi-session manual run where you deliberately skipped per-session `/close`, and (b) a
-cc-looper headless run (which has no interactive `/close` at all).
+per-session close did *not* run for the sessions that did the work — the canonical cases being
+(a) a multi-session manual run where you deliberately skipped per-session close, and (b) a
+cc-looper headless run (which has no interactive close at all).
 
 **Don't use** for:
-- A design / research / planning session with live context worth distilling — that's `/close`
+- A design / research / planning session with live context worth distilling — that's the close skill
   (context-distillation; this skill deliberately does not scan conversation).
-- A run where you *did* `/close` every session — the observations are already captured; re-harvesting
-  via artifacts would double-count (the marker prevents this for *re-runs* of `/close-tasks`, not
-  for the `/close`-then-`/close-tasks` overlap — don't stack them on the same window).
-- A single trivial task — `/close`'s don't-manufacture rule already covers it; nothing to harvest.
+- A run where you *did* run close every session — the observations are already captured; re-harvesting
+  via artifacts would double-count (the marker prevents this for *re-runs* of close-tasks, not
+  for the close-then-close-tasks overlap — don't stack them on the same window).
+- A single trivial task — the close skill's don't-manufacture rule already covers it; nothing to harvest.
 
 ## Notes
 
-- **Relationship to the pipeline.** `/close` = live-context distiller (design/research). `verify-task`
+- **Relationship to the pipeline.** The close skill = live-context distiller (design/research). `verify-task`
   = per-task structured-signal capture inside the *interactive* implement commands, flushed by
-  `/close`. `/close-tasks` = the artifact-aggregation closeout for runs where neither of those flushed
+  close. close-tasks = the artifact-aggregation closeout for runs where neither of those flushed
   (multi-session manual / cc-looper headless). All three feed the same `~/.claude/observations/` →
-  `/improve` seam; `/close-tasks` is the one that closes the headless / multi-session blind spot.
+  improve seam; close-tasks is the one that closes the headless / multi-session blind spot.
 - **The in-repo digest contract (the cc-looper hook).** The headless
   `close-tasks-loop` sibling (cc-looper-side; see `specs/close-tasks-loop/close-tasks-loop_integration.md`
   in cc-looper) writes a **neutral in-repo digest** at
   `<dirname(tasks_doc_path)>/<base>_close.md` — *not* to `~/.claude/observations/` (a public,
   reusable, machine-portable skill must never hardcode a private path; and the cc-looper spawn runs
   in the target repo where that write is the documented anti-pattern + permission-fragile). This
-  interactive `/close-tasks` is the on-your-machine **promoter**: it reads that in-repo digest
+  interactive close-tasks run is the on-your-machine **promoter**: it reads that in-repo digest
   (Phase 1 step 3) and lands it in `~/.claude/observations/`. That keeps the runner-coupled half
   decoupled and public-safe.
 - **Project-agnostic.** Works for any tasks-doc-shaped run (study pipeline, docs runs, etc.) — it
   reads artifacts, not domain.
-- **Read-only on git history.** Reads `status`/`diff`/`log`/`rev-parse`; at most `add` + `commit`.
+- **History-only on git.** Reads `status`/`diff`/`log`/`rev-parse`; at most `add` + `commit`.
   Never rewrites history.
 - **Don't manufacture entries.** A clean run produces zero observations, zero memory, zero repo
-  rules, one thin SESSION_LOG roll-up — and that's correct (inherited from `/close`).
+  rules, one thin SESSION_LOG roll-up — and that's correct (inherited from the close skill).

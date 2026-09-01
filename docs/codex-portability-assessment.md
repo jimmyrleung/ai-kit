@@ -1,5 +1,14 @@
 # Codex Portability Assessment
 
+> **Superseded 2026-08-31.** This assessment is a historical decision and runtime record. The
+> current implementation is the common two-root sync and provider-overlay contract described in
+> the [root README](../README.md), [analysis](../linux_portability_cross_agent_coupling_analysis.md),
+> [technical specification](../linux_portability_cross_agent_coupling_techspec.md),
+> [tasks](../linux_portability_cross_agent_coupling_tasks.md), and
+> [Codex adapter mechanics](../adapters/codex/README.md). Its decision-history body is preserved
+> verbatim below; old generated populations and provider-private install paths are not current
+> instructions.
+
 > **Date:** 2026-05-17 · **Scope:** can ai-kit's commands / skills / agents / templates be
 > driven by **OpenAI Codex CLI** as well as Claude Code, from **one canonical source + per-tool
 > adapters**? · **Deliverable:** assessment only (no implementation; next steps are listed, not

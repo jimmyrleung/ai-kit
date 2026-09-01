@@ -1,3 +1,12 @@
+## [2026-09-01] — provider-neutral portability implemented and live-aligned
+
+**Summary:** Implemented and independently reviewed the provider-neutral two-root skill migration: one transactional sync engine, strict portability checks, neutralized canonical skills, and a live Linux apply that now exposes all 31 skills to both providers while preserving `find-skills` and `teach` as valid external installs. Local QA Gates 1–4 are green (33 sync tests pass with one Windows-only skip; strict checker: 31 skills, 0 errors, 0 warnings).
+**Next:** Publish the scoped ai-kit and Claude-home close commits, then inspect the hosted Ubuntu/macOS/Windows workflow run and record its URL/result to close QA Gate 5.
+**Blockers:** Hosted cross-OS evidence requires an ai-kit commit and push; direct provider runtime attribution remained unavailable locally, but installer/discovery evidence is green and this does not block the migration.
+**Didn't work:** The first preserve rule accepted empty directories as accounted external skills, and the first transaction retry model did not durably authorize the unlink-to-replacement transition. `npx skills check -g` also did not resolve the legacy global lock. The final implementation requires a readable external `SKILL.md`, persists replacement authorization, rejects third states, and verifies discovery through the installer CLI plus the qualified checker.
+**Artifacts:** `linux_portability_cross_agent_coupling_tasks.md` · `linux_portability_cross_agent_coupling_analysis.md` · `linux_portability_cross_agent_coupling_techspec.md` · `scripts/sync-skills.py` · `tests/test_sync_skills.py` · `~/.claude/observations/2026-09-01-ai-kit-{preserve-policy,post-review-remediation}.md`
+<!-- close-receipt: 2026-09-01 09:52 · memory:0 · rules:1 · skills:0 · obs:11 -->
+
 ## [2026-08-31] — provider-neutral portability design + tasks reviewed
 
 **Summary:** Mapped ai-kit’s Windows and Claude Code coupling, then produced and independently reviewed the analysis, implementation techspec, and 10-task breakdown. The approved design uses one provider-neutral Python sync surface for per-skill links in `~/.claude/skills` and `~/.agents/skills`, baseline-safe rollback, surgical edits to 29 canonical skills, 51 QA scenarios, staged portability enforcement, and approval-gated live migration. Final tasks review: **Approved with notes** (97% confidence).

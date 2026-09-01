@@ -1,24 +1,24 @@
 ---
 name: review-artifact
-description: "Adversarial review of a pre-implementation doc — an analysis from /analyze-work, an investigation from /bug-investigation, a techspec from /techspec, or a tasks doc from /tasks-breakdown — before design or implementation builds on it. Fans out 1–3 generic reviewer subagents, re-grounds every finding against current source, applies the doc-type lens (altitude check for analysis/investigation; section-contract check for techspecs; decomposition check for tasks docs), applies corrections in place, and records a ## Review block with a confidence-gated recommendation. Use when an analysis, investigation, techspec, or tasks doc was just written, or when asked to review, validate, or sanity-check one. Invoke as /review-artifact (formerly /review-analysis)."
+description: "Adversarial review of a pre-implementation doc — an analysis from `analyze-work`, an investigation from `bug-investigation`, a techspec from `techspec`, or a tasks doc from `tasks-breakdown` — before design or implementation builds on it. Fans out 1–3 generic reviewer subagents, re-grounds every finding against current source, applies the doc-type lens (altitude check for analysis/investigation; section-contract check for techspecs; decomposition check for tasks docs), applies corrections in place, and records a ## Review block with a confidence-gated recommendation. Use when an analysis, investigation, techspec, or tasks doc was just written, or when asked to review, validate, or sanity-check one."
 ---
 
 # review-artifact — quality gate over a pre-implementation doc
 
-You are a review coordinator. You verify that a pre-implementation doc (`{work_name}_analysis.md` from `/analyze-work`, `{bug_id}_investigation.md` from `/bug-investigation`, `{work_name}_techspec.md` from `/techspec`, or `{work_name}_tasks.md` from `/tasks-breakdown`) is accurate, complete, and at the right altitude — then correct it **in place** and record the verdict. You do **not** re-do the analysis, own risk gates, or design the solution.
+You are a review coordinator. You verify that a pre-implementation doc (`{work_name}_analysis.md` from `analyze-work`, `{bug_id}_investigation.md` from `bug-investigation`, `{work_name}_techspec.md` from `techspec`, or `{work_name}_tasks.md` from `tasks-breakdown`) is accurate, complete, and at the right altitude — then correct it **in place** and record the verdict. You do **not** re-do the analysis, own risk gates, or design the solution.
 
 > **Litmus test:** if you're rewriting the doc's conclusions from your own fresh analysis instead of verifying its claims, you've left the reviewer's chair.
 
 ## When to use
 
-- **Ad-hoc**: right after `/analyze-work`, `/bug-investigation`, `/techspec`, or `/tasks-breakdown` writes its doc, before the next phase (design / tasks / implementation) builds on it. One review per artifact — each doc type's review checks different things (see the doc-type lens).
+- **Ad-hoc**: right after `analyze-work`, `bug-investigation`, `techspec`, or `tasks-breakdown` writes its doc, before the next phase (design / tasks / implementation) builds on it. One review per artifact — each doc type's review checks different things (see the doc-type lens).
 - On request: "review / validate / sanity-check this analysis (or investigation, techspec, or tasks doc)".
 
 ## When NOT to use
 
 - Reviewing **code** → `review-implementation` (per prefix) or `/code-review`.
 - Reviewing at a loop checkpoint → `review-checkpoint` (cc-loop only).
-- The doc doesn't exist yet → run `/analyze-work`, `/bug-investigation`, `/techspec`, or `/tasks-breakdown` first.
+- The doc doesn't exist yet → run `analyze-work`, `bug-investigation`, `techspec`, or `tasks-breakdown` first.
 
 ## Input contract — loose
 
@@ -34,7 +34,7 @@ Skip the review (say so and stop) **only if ALL** hold: the work item is small/i
 
 ### 1 — Launch reviewers
 
-Launch 1–3 **generic** subagents (there are no named reviewer agents to maintain) to review whether the artifact is accurate and complete, handing each the artifact + support docs. With 2–3 reviewers: make lanes explicitly non-overlapping, name which lane owns the highest-stakes part, and make at least one **layer-scoped** (trace one end-to-end path through the artifact's subject — request → handler → store, or equivalent) rather than dimension-scoped — lived runs put both criticals in the layer-scoped lane. Brief each lane with the hypothesized failure mode **and an explicit invitation to refute it**. **P1 dial:** reviewing a P1 incident investigation while the incident is live → one reviewer on the tightest lane (root cause + proposed fix only) — speed beats exhaustiveness, matching the investigation's own streamlined ≥ 70% gate; full review depth returns with `/post-mortem` after resolution. Reviewer constraints (verbatim):
+Launch 1–3 **generic** subagents (there are no named reviewer agents to maintain) to review whether the artifact is accurate and complete, handing each the artifact + support docs. With 2–3 reviewers: make lanes explicitly non-overlapping, name which lane owns the highest-stakes part, and make at least one **layer-scoped** (trace one end-to-end path through the artifact's subject — request → handler → store, or equivalent) rather than dimension-scoped — lived runs put both criticals in the layer-scoped lane. Brief each lane with the hypothesized failure mode **and an explicit invitation to refute it**. **P1 dial:** reviewing a P1 incident investigation while the incident is live → one reviewer on the tightest lane (root cause + proposed fix only) — speed beats exhaustiveness, matching the investigation's own streamlined ≥ 70% gate; full review depth returns with the `post-mortem` skill after resolution. Reviewer constraints (verbatim):
 
 - "Put extra effort on the highest-stakes parts (root cause / proposed solution / integration points / scope boundaries / risk assessment — whichever apply)."
 - "Establish a confidence score (0–100%) for the doc."
@@ -43,7 +43,7 @@ Launch 1–3 **generic** subagents (there are no named reviewer agents to mainta
 - "For any 'X is missing / absent / never called' finding, state the exact search that would have found it. An unrun search is not evidence of absence."
 - "Flag load-bearing claims that cite nothing — a citation-accuracy pass is structurally blind to the unsourced claim next to what IS cited."
 
-A reviewer lane killed by session limits is RESUMED via SendMessage from its transcript,
+A reviewer lane killed by session limits is RESUMED via the message channel from its transcript,
 never relaunched — a resumed lane delivered its complete report with zero rework.
 
 ### 2 — Doc-type lens
@@ -60,7 +60,7 @@ Alongside the reviewer findings, apply the lens for what's under review yourself
 **Techspec — contract check** (committed blueprint, per the `techspec` skill's section contract):
 
 - **Contract:** required sections for its mode present; nothing from the do-not-include list; no required section left as a placeholder (an empty one needs a one-sentence "why there's no substance here").
-- **Grounding:** every citation resolves by its stable anchor against current source (verify by reading, not searching); test-file locations confirmed (one Glob per named test file/project); every requirement from the description/analysis has a home — implementation map, test plan, or explicit out-of-scope; every design decision traceable to a reused pattern or a documented rationale.
+- **Grounding:** every citation resolves by its stable anchor against current source (verify by inspection, not search alone); test-file locations confirmed (one file-enumeration pass per named test file/project); every requirement from the description/analysis has a home — implementation map, test plan, or explicit out-of-scope; every design decision traceable to a reused pattern or a documented rationale.
   **Consumer trace for new/widened shapes:** when the spec introduces or widens a data
   shape, trace its consumers on UNMODIFIED lines — citation-accuracy passes are
   structurally blind there, and both High findings in a lived run were exactly that.
@@ -82,12 +82,12 @@ Alongside the reviewer findings, apply the lens for what's under review yourself
 
 ### 3 — Consolidate & re-ground
 
-Read every reviewer output in full. **Findings are leads, not verdicts** — before a finding drives an edit: open its cited `file:line` in the **current** source/artifact and confirm it still holds (drop refuted findings); re-grade severity yourself; if it carries a concrete repro ("X raises"), execute it once rather than reasoning to confidence. Open every **SUSPECTED** finding's source before it enters the change list (most won't survive); spot-check VERIFIED ones. Two limits: a live-state claim can't be re-grounded by re-reading the doc — verify against the live system or route to the user; when two reviewers contradict, check whether both are right about **different code paths** first.
+Inspect every reviewer output in full. **Findings are leads, not verdicts** — before a finding drives an edit: open its cited `file:line` in the **current** source/artifact and confirm it still holds (drop refuted findings); re-grade severity yourself; if it carries a concrete repro ("X raises"), execute it once rather than reasoning to confidence. Open every **SUSPECTED** finding's source before it enters the change list (most won't survive); spot-check VERIFIED ones. Two limits: a live-state claim can't be re-grounded by re-inspecting the doc — verify against the live system or route to the user; when two reviewers contradict, check whether both are right about **different code paths** first.
 
 Also cross-check the artifact against **itself** — every mitigation/claim in one section against the mechanism described in another; self-contradictions survive source-checking passes because no pass compares sections to each other.
 
 Build ONE list of required changes and size **by kind, not volume**:
-- **Skeleton wrong** (structure / approach / root cause fundamentally off) → send the findings back through the producing skill (`/analyze-work`, `/bug-investigation`, or `/techspec`) as input and re-review the result.
+- **Skeleton wrong** (structure / approach / root cause fundamentally off) → send the findings back through the producing skill (`analyze-work`, `bug-investigation`, or `techspec`) as input and re-review the result.
 - **Corrective delta** (facts, citations, wording — even a large one) → update the doc in place.
 
 ### 4 — Confirm & update in place
@@ -103,6 +103,6 @@ Confirm the change set with the user. Update **the existing** artifact (never a 
 
 ## What this skill does NOT do
 
-- **Create the doc** — `/analyze-work`, `/bug-investigation`, `/techspec`, and `/tasks-breakdown` own that.
+- **Create the doc** — `analyze-work`, `bug-investigation`, `techspec`, and `tasks-breakdown` own that.
 - **Risk gates, success metrics, severity routing** — the caller's or user's job.
 - **A separate review report** — the `## Review` section in the artifact IS the durable review marker.

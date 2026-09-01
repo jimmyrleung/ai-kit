@@ -602,3 +602,35 @@ Proceed to `techspec`. It can decide the common script language/location, compat
 of the current adapter scripts, metadata compatibility model, automation host, overlapping-root
 handling, ownership proof, and exact local-machine migration checks without reopening the scope or
 the preserved contracts above.
+
+## Decision addendum — 2026-09-01
+
+The local collision disposition is now decided. The user confirmed that the existing
+`~/.agents/skills/find-skills` and `~/.agents/skills/teach` directories are externally owned skills,
+not ai-kit entries. They remain at their original paths; no move, backup, overwrite, or content
+inspection beyond the recorded read-only preflight is part of the migration.
+
+The implementation adds an explicit per-root `--preserve <claude|agents>/<skill-name>` policy to
+the common sync engine. A preserved entry must already exist as a directory or link with a readable
+`SKILL.md`, is validated but never recorded in the ai-kit ownership manifest, and must be named
+again for a qualified check. An unqualified apply or check fails closed rather than hiding the
+exception. The source portability checker remains source-level and continues to require the 31
+canonical repository skills.
+
+For this home, the intended qualified end state is 31 managed Claude links, 29 managed Agents
+links, and 2 explicitly preserved Agents entries. This addendum supersedes the earlier
+recommendation to move the two empty collision directories while preserving the rest of the
+analysis as the pre-decision reference.
+
+## Post-implementation correction — 2026-09-01
+
+The independent implementation review found that the two preserved paths were empty placeholders,
+not discoverable skills. The existing `~/.agents/.skill-lock.json` supplied the missing provenance:
+`find-skills` is from `vercel-labs/skills`, while `teach` is from `mattpocock/skills`. The user then
+approved applying all review fixes.
+
+The two empty directories were moved intact to
+`~/.agents/skill-backups/2026-09-01-portability-review/`, and current upstream copies were installed
+at the original `~/.agents/skills/<name>` paths. Both now contain readable `SKILL.md` envelopes and
+remain outside ai-kit ownership. This correction supersedes only the earlier no-move disposition;
+the 31-Claude / 29-Agents-managed / 2-external population and legacy-root boundaries are unchanged.

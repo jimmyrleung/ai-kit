@@ -1,72 +1,78 @@
 # ai-kit → Cursor CLI adapter (v2)
 
 Makes the **single canonical ai-kit source** consumable by the **Cursor CLI**
-(`cursor-agent`), alongside Claude Code and Codex, from one source of truth —
-extending the existing `~/.claude` / `~/.codex` junction model.
+(`cursor-agent`). The common deployment engine is `../../scripts/sync-skills.py`; this
+adapter supplies only Cursor compatibility and runtime guidance.
 
 > Design + decision record: `../../docs/cursor-portability-assessment.md`
-> (written for the v1 kit; the symlink mechanism survived the 2026-08 v2
-> refactor, the generated surfaces did not). Base mechanics verified against
-> Cursor docs (`cursor.com/docs`) 2026-05-19 and probed live on `cursor-agent`.
-> Cursor ships near-daily — re-verify items tagged **[verify on installed
-> binary]** after an update.
+> (historical; the v2 implementation uses the common engine). Current skill and subagent
+> mechanics are checked against the [Cursor Agent Skills documentation](https://prod.cursor.com/docs/skills)
+> and [Cursor subagent documentation](https://prod.cursor.com/docs/subagents), accessed 2026-09-01.
+> Cursor is version-sensitive; re-verify claims against the installed CLI.
 
 ## What this is (and is not)
 
 - **Category-1, additive, Claude-untouched.** Nothing here edits the canonical
-  `skills/*/SKILL.md`. The adapter only creates symlinks/junctions in Cursor's
-  home (`~/.cursor/skills`).
-- **No kit-owned fan-out harness** (recorded decision: rely on the native
-  harness, never an orchestration script in a skill). Fan-out reading rules are
-  *instruction*, in `AGENTS.md`.
+  `skills/*/SKILL.md`.
+- **Compatibility only.** `sync.sh` and `sync.ps1` forward to the common engine; they contain
+  no canonical enumeration, link classification, mutation, or rollback implementation.
+- **No kit-owned fan-out harness.** Use Cursor's native facility when available; the
+  capability fallback and reading rules are documented in `AGENTS.md`.
 
 ## How it works (v2)
 
-One mechanism left: every canonical `skills/<name>/` gets a per-skill
-**symlink** (WSL/Linux) or **junction** (Windows) →
-`${CURSOR_HOME:-~/.cursor}/skills/<name>` — Cursor's native user-level skills
-root. The `SKILL.md` spec is identical, so **no body transform**. What Claude
-invokes as `/name`, Cursor invokes as `/name` too — same key, same skill.
-Junctioned skills auto-discover off their `description`, exactly as in Claude.
+The common engine enumerates every canonical `skills/<name>/` directory once and manages
+per-skill links in exactly `~/.claude/skills/` and `~/.agents/skills/`. Cursor's current
+documentation also lists `~/.cursor/skills/` and the Claude/Codex compatibility roots,
+but the common engine does not create or modify those provider-private roots. The
+`SKILL.md` body is shared without a provider transform; see the [Cursor skill directories
+and format](https://prod.cursor.com/docs/skills).
 
-The v1 kit also **generated** Cursor-only artifacts: 8 orchestrator/executor
-skills (from `commands/`, `disable-model-invocation: true`) and 17 native
-subagents (from `agents/`, at `~/.cursor/agents/`). v2 retired those
-populations entirely (archived under `archive/v1/`), so **nothing is generated
-anymore** — the sync's generation paths are dormant and its allowlist is empty.
-Run `--prune` once after upgrading from v1 to remove the leftovers (including
-symlinks left dangling by the `archive/v1` move).
+The adapter does not generate provider-specific skill copies, command/agent twins, or
+subagent files. Historical v1 generation details remain in the superseded assessment;
+the common engine's explicit `--prune` behavior applies only to its managed roots.
 
-## Usage
+## Duplicate discovery: source equivalence, no precedence
+
+Cursor can discover the same ai-kit skill from more than one root. The source-equivalence
+rule is: every ai-kit occurrence must resolve to the same canonical `skills/<name>/` directory.
+This adapter makes **no precedence claim** and does not attempt provider-root deduplication.
+
+## Deployment
+The root [`README.md`](../../README.md) is the canonical installation guide. Run the common
+engine from the repository root, previewing the normal home before applying:
 
 ```bash
-# WSL / Linux (PRIMARY — cursor-agent is typically run under WSL because the
-# Windows Cursor CLI hard-codes a PowerShell shell with cold-start hangs).
-# Run from inside WSL so it targets the WSL ~/.cursor:
-bash adapters/cursor/sync.sh --dry-run
-bash adapters/cursor/sync.sh
-bash adapters/cursor/sync.sh --prune            # report v1 leftovers
-bash adapters/cursor/sync.sh --prune --force    # remove them
+python3 scripts/sync-skills.py --dry-run
+python3 scripts/sync-skills.py --check
+```
+
+The adapter paths remain compatibility entry points and forward the common switches unchanged:
+
+```bash
+bash adapters/cursor/sync.sh --dry-run --home <isolated-home>
 ```
 
 ```powershell
-# Windows-native parity (only if you run cursor-agent natively on Windows):
-pwsh adapters/cursor/sync.ps1 -WhatIf
-pwsh adapters/cursor/sync.ps1
+pwsh adapters/cursor/sync.ps1 -WhatIf -UserHome <isolated-home>
 ```
 
-Then **restart `cursor-agent`** to pick up new skills.
+When a managed root contains an externally owned canonical-name entry, pass
+`--preserve agents/<skill-name>` (or `-Preserve agents/<skill-name>` through PowerShell) once per
+entry on dry-run, apply, and check. Preserved entries stay outside ai-kit ownership and the flag
+must be repeated for qualified checks; the wrappers only translate and forward this policy.
 
-The sync is **idempotent** and safe: it never clobbers a non-kit entry, never
-deletes a symlink/junction target, and `--prune` (`-Prune`) is report-only
-unless `--force` (`-Force`).
+They reject `CURSOR_HOME` / `-CursorHome` for sync-root selection; use `--home` / `-UserHome`
+only for an isolated common user base. Restart `cursor-agent` after a sync.
 
-> **WSL vs Windows `$HOME` — the original symptom.** `cursor-agent` resolves
-> config against the invoking shell's home. Under WSL that is `/home/<you>`
-> (a different `~/.cursor` than `C:\Users\<you>\.cursor`). The kit's skills
-> were "invisible in `cursor-agent`" purely because they lived in the Windows
-> home while `cursor-agent` ran under WSL — **not** a format incompatibility.
-> Run `sync.sh` *inside* the WSL environment you launch `cursor-agent` from.
+The common engine is **idempotent** and safety-gated: it never changes a non-kit entry or
+link target, and it records ownership/baselines before mutation. The wrappers do not write
+private instruction files; `--check` is read-only.
+
+> **Same-home rule.** Cursor reads user-level skills on the machine where the agent runs.
+> Run the common sync in the same OS/user-home context as `cursor-agent`: a WSL run writes
+> the WSL `~/.agents`/`~/.claude` roots, while a native Windows run writes that Windows
+> user's roots. This is a home mismatch issue, not a skill-format incompatibility.
 
 > **Line endings:** `sync.sh` must stay LF (`.gitattributes` enforces it) —
 > a CRLF checkout breaks bash under WSL.
@@ -80,15 +86,9 @@ keep a private conventions AGENTS.md (see below), do **not** plain-copy over
 it: paste the kit file's contents between its `<!-- kit-mechanics:begin/end -->`
 markers and refresh that block after kit edits.
 
-## The v1 subagent parity gap (#160426) — now moot for the kit
+Refresh the copied block manually after adapter edits; no repository script or sync wrapper
+may overwrite a private conventions file.
 
-v1 generated 17 native subagents at `~/.cursor/agents/`, which the Cursor
-**CLI** never loaded (user-level agents ignored — Cursor-staff-acknowledged
-IDE↔CLI parity bug, forum **#160426**, ack 2026-05-13; the IDE reads them
-fine). v2 archived the named-agent population, so the kit no longer installs
-anything there and the bug no longer affects it. `--prune --force` removes the
-v1-generated files. The bug reference only matters again if named agent files
-ever return to the kit.
 
 ## Your personal conventions do not transfer (read this)
 
@@ -129,6 +129,6 @@ Codex, *and* the Cursor CLI.
 ## Commit vs. gitignore
 
 ai-kit is a public repo. `adapters/cursor/{sync.sh,sync.ps1,AGENTS.md,README.md}`
-are source — commit them. Symlinks live in `~/.cursor/skills` (outside the
-repo) — nothing is written into the tree, so there is nothing to gitignore
-here.
+are source — commit them. Managed links live in `~/.claude/skills` and
+`~/.agents/skills` outside the repo — nothing is written into the tree, so there is
+nothing to gitignore here.

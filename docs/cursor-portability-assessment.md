@@ -1,5 +1,14 @@
 # Cursor CLI Portability Assessment
 
+> **Superseded 2026-08-31.** This assessment preserves the historical Cursor duplicate-root
+> observation and its dated runtime evidence. The current implementation is the common two-root
+> sync plus provider-specific adapter mechanics described in the [root README](../README.md),
+> [analysis](../linux_portability_cross_agent_coupling_analysis.md),
+> [technical specification](../linux_portability_cross_agent_coupling_techspec.md),
+> [tasks](../linux_portability_cross_agent_coupling_tasks.md), and
+> [Cursor adapter mechanics](../adapters/cursor/README.md). The body below is preserved verbatim;
+> its old discovery paths and counts are historical, not current common-install instructions.
+
 > **Date:** 2026-05-19 · **Scope:** can ai-kit's skills / agents / commands be
 > driven by the **Cursor CLI** (`cursor-agent`) as well as Claude Code and
 > Codex, from **one canonical source + per-tool adapters**? · **Deliverable:**

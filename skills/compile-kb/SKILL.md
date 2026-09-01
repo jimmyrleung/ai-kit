@@ -1,6 +1,6 @@
 ---
 name: compile-kb
-description: "Compile a non-Hermes markdown KB vault — synthesize accumulated source notes into a regeneratable `wiki/` tree of cross-source trend/topic pages (kept separate from `raw/`+`sources/`), adversarially review changed pages, and emit a dated 'what changed' compilation digest (incremental + idempotent). Use when asked to compile, consolidate, synthesize, roll up, convert, migrate, or initialize a KB / wiki / vault, for a weekly or mid-week compilation, or to extract trends across accumulated notes. Detects an uninitialized vault and converts it (approval-gated); a generic synthesis head covers every domain, with optional archetype heads (study/journal/content-gen/client-technical) as enhancements, never gates. Invoke as /compile-kb."
+description: "Compile a non-Hermes markdown KB vault — synthesize accumulated source notes into a regeneratable `wiki/` tree of cross-source trend/topic pages (kept separate from `raw/`+`sources/`), adversarially review changed pages, and emit a dated 'what changed' compilation digest (incremental + idempotent). Use when asked to compile, consolidate, synthesize, roll up, convert, migrate, or initialize a KB / wiki / vault, for a weekly or mid-week compilation, or to extract trends across accumulated notes. Detects an uninitialized vault and converts it (approval-gated); a generic synthesis head covers every domain, with optional archetype heads (study/journal/content-gen/client-technical) as enhancements, never gates."
 arguments: vault_path
 ---
 
@@ -53,7 +53,7 @@ A multi-domain compile or conversion runs as an **orchestrator + per-domain suba
 The bound that makes generic synthesis safe for every domain (rule 10):
 - **Synthesis input is `sources/<domain>/*.md` only — never walk `raw/` for bulk content.** A real source earned a `sources/` summary; bulk code/binary never did, so it is structurally invisible to synthesis.
 - **Exclude exhaust:** `**/repos/**`, `node_modules`, `dist/`, lockfiles, media, and the SCHEMA's listed exhaust — never synthesis input, never per-file `sources/` notes. First-party lesson/sample code is a *study source* explored on demand.
-- **Unknown extensions pause** (rule 10): a known-ingestable set (`.md`, `.html`) converts; anything unrecognized asks first. This guard keeps the synthesis engine off coverage reports and sample apps. PDF sources: if the harness Read tool can't render PDFs in this environment, extract text via `pdftotext` or Python + PyMuPDF (`fitz`) to a temp file and work from that — a named fallback, not a per-run rediscovery.
+- **Unknown extensions pause** (rule 10): a known-ingestable set (`.md`, `.html`) converts; anything unrecognized asks first. This guard keeps the synthesis engine off coverage reports and sample apps. PDF sources: if the harness inspection capability can't render PDFs in this environment, extract text via `pdftotext` or Python + PyMuPDF (`fitz`) to a temp file and work from that — a named fallback, not a per-run rediscovery.
 
 ### Phase 1 — Find work (incremental)
 - Find the last compile: the most recent `## [YYYY-MM-DD] compile |` entry in `wiki/log.md` (or "never").
@@ -137,7 +137,7 @@ The digest, `wiki/index.md`, and `wiki/log.md` are wiki files: **the vault's cha
 - **Show the diff to the user. Commit curated files only, with the user's OK** (or per an automated workflow's explicit expectation). Never auto-commit a vault you were told to leave uncommitted.
 
 ### Confidence gate
-Score the compile (CLAUDE.md format). Any synthesis page you can't support at ≥ high confidence ships as `confidence: medium|low` and/or `status: draft` — never as asserted fact. If the overall compile is < 90% sound, surface what's uncertain instead of committing.
+Score the compile (loaded confidence format). Any synthesis page you can't support at ≥ high confidence ships as `confidence: medium|low` and/or `status: draft` — never as asserted fact. If the overall compile is < 90% sound, surface what's uncertain instead of committing.
 
 ## Process (convert — the migration mechanic)
 Conversion is **not** a compile head — it's the one-time, approval-gated relocation that gets a populated vault into the canonical `raw/`+`sources/`+`wiki/` layout so the generic head can synthesize it. Already-canonical vaults skip it entirely.

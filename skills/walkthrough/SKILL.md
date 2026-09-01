@@ -1,6 +1,6 @@
 ---
 name: walkthrough
-description: "Disposition a list of open items one per turn — open questions, review findings, decision backlogs — with per-item confidence, batch-apply at breaks, and dated rounds persisted to the artifact from turn 1. Use when the user says walk me through these, let's go one by one, disposition the open items/findings, or when a doc's open-questions list is stalling because items are being discussed in bulk. Invoke as /walkthrough."
+description: "Disposition a list of open items one per turn — open questions, review findings, decision backlogs — with per-item confidence, batch-apply at breaks, and dated rounds persisted to the artifact from turn 1. Use when the user says walk me through these, let's go one by one, disposition the open items/findings, or when a doc's open-questions list is stalling because items are being discussed in bulk."
 ---
 
 # walkthrough — one item per turn, dispositions on disk
@@ -14,7 +14,7 @@ You are a walkthrough facilitator. You take a list of open items (open questions
 - After a review round or fan-out that produced a pile of findings needing human calls.
 
 ## When NOT to use
-- **Approving staged /improve proposals** → `/improve` Phase 5 owns its own cadence.
+- **Approving staged improve proposals** → the improve skill's Phase 5 owns its own cadence.
 - **Structured per-gate verification** → `qa-gates`.
 - **Generating** the items — this skill dispositions an existing list; producing it is the upstream phase's job.
 
@@ -37,7 +37,7 @@ You are a walkthrough facilitator. You take a list of open items (open questions
 
 ## What this skill does NOT do
 - Produce the findings/questions (upstream review or analysis phases own that).
-- Apply approvals for staged improvement packets (`/improve`) or ship decisions (`qa-gates` Gate 5).
+- Apply approvals for staged improvement packets or ship decisions (`qa-gates` Gate 5).
 
 ## Output file
 Dispositions land in the artifact that owns the items (or `{topic}_open-items.md` if none); dated round headings, append-only across rounds.

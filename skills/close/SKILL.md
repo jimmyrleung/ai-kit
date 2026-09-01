@@ -1,6 +1,6 @@
 ---
 name: close
-description: "End-of-session ritual. Retrospect on the session (decisions + why, learnings, dead ends, open tasks, references, files touched), persist the durable parts to the right layer — repo-scoped rules/standards/how-tos to the repo's docs/rules/ (indexed from AGENTS.md) or, offer-gated, a repo-local skill pair (.claude/skills/ + .agents/skills/), user/cross-repo facts to auto-memory, skill/workflow-performance evidence to ~/.claude/observations/ — prepend a slim continuation-only SESSION_LOG.md entry at the git root, and propose a commit. Run at the end of a working session — invoke as /close, when the user says they're wrapping up, before a /clear or /compact context reset, or at a natural pause after a task or PR lands. NOT a context dump: it distills, it doesn't transcribe."
+description: "End-of-session ritual. Retrospect on the session (decisions + why, learnings, dead ends, open tasks, references, files touched), persist the durable parts to the right layer — repo-scoped rules/standards/how-tos to the repo's docs/rules/ (indexed from AGENTS.md) or, offer-gated, a repo-local skill pair (.claude/skills/ + .agents/skills/), user/cross-repo facts to auto-memory, skill/workflow-performance evidence to ~/.claude/observations/ — prepend a slim continuation-only SESSION_LOG.md entry at the git root, and propose a commit. Run at the end of a working session, when the user says they're wrapping up, before a context reset, or at a natural pause after a task or PR lands. NOT a context dump: it distills, it doesn't transcribe."
 ---
 
 <!-- intentionally-long: linear end-of-session ritual — 3 phases with 5 persistence sinks documented inline; each section is short and the procedure flows top-to-bottom, so a references/ split would add read latency for no navigation win. -->
@@ -8,7 +8,7 @@ description: "End-of-session ritual. Retrospect on the session (decisions + why,
 # Close — end-of-session ritual
 
 You are closing out a working session. Goal: leave breadcrumbs so the next session (possibly
-days later, possibly after a `/compact` reset) doesn't rebuild context from vibes — AND leave
+days later, possibly after a context reset) doesn't rebuild context from vibes — AND leave
 structured evidence of how the workflow performed, so the periodic improvement review has data.
 
 **This is a curated briefing, not a transcript.** Distill. Do not dump the conversation. Do not
@@ -42,7 +42,7 @@ Scan *this session's* context — only what's actually relevant; ignore noise �
   recording — drop it.
 - **Unreviewed decision records** — if a decision dir exists (`docs/decisions/`, `adr/`, or
   `~/.claude/ownership/{topic}/`), scan it for records flagged `status: ai-drafted · UNREVIEWED`
-  (captured this session or earlier via `/record-decision`). For each, offer to review now: the human
+  (captured this session or earlier via the `record-decision` skill). For each, offer to review now: the human
   owns the **Rationale** (rewrites or confirms it), then flip
   the flag to `status: owned`. **Staleness escalation:** a record still UNREVIEWED after ~3 closes
   (or ~a month — judge from its date) gets called out by name with its age, not re-listed neutrally:
@@ -51,13 +51,13 @@ Scan *this session's* context — only what's actually relevant; ignore noise �
   (delete, or mark `status: parked` with a one-line why). Never let the backlog scroll by silently.
   Never auto-own them — an unreviewed AI draft is not an ADR. Conversely,
   if a load-bearing session decision deserves a standalone record it doesn't yet have, offer to capture
-  it via `/record-decision`.
+  it via the `record-decision` skill.
 - **Learnings / surprises / inefficiencies** — gotchas discovered; "this cost me 20 min because X";
   a tool/pattern that worked unexpectedly well or badly.
 - **Dead ends — what did NOT work** — approaches tried and abandoned, so they're not re-attempted.
   (This section is high-value; don't skip it.)
 - **Open tasks / next step** — what's unfinished and the *concrete* next action. Pull from the
-  TodoWrite list if one is active.
+  active task list if one exists.
 - **References** — external URLs, tickets, dashboards, doc links mentioned this session.
 - **Files touched** — run `git status --short` and `git diff --stat HEAD` (read-only; safe).
 
@@ -90,12 +90,12 @@ write/update a file under `~/.claude/projects/<project>/memory/` with the right 
 (`user` / `feedback` / `project` / `reference`), `**Why:**` + `**How to apply:**` lines for
 feedback/project, `[[links]]` to related memories, and add/refresh a one-line pointer in `MEMORY.md`.
 Check for an existing file that already covers it before creating a new one. Don't save what the
-repo / git history / `CLAUDE.md` already records — and don't save repo-scoped facts here; those
+repo / git history / the existing instruction layer already records — and don't save repo-scoped facts here; those
 are (c) and go to the repo's own rules layer (2c). If an *existing* auto-memory turns out to be
 repo-scoped, offer to migrate it: write it into that repo's `docs/rules/` and slim or delete the
 auto-memory copy.
 
-### 2b — Observations (the seam to the `/improve` meta-skill)
+### 2b — Observations (the seam to the `improve` meta-skill)
 
 For each (b) item, append to `~/.claude/observations/{YYYY-MM-DD}-{short-slug}.md`
 (create the file if it's the first observation this session; `{short-slug}` = 2–3 kebab words
@@ -118,7 +118,7 @@ Number observations within the file (`### Observation 1`, `### Observation 2`, �
 session means no collisions. Keep it terse but specific enough to understand weeks later without
 this conversation. Do **not** log one-off corrections that don't generalize — those are (e).
 
-Tags should align with the `/insights` taxonomy so the pile stays comparable to that retrospective.
+Tags should align with the `insights` taxonomy so the pile stays comparable to that retrospective.
 See `~/.claude/observations/README.md` for the running tag list and the observations-vs-memory rationale.
 
 ### 2c — Repo memory (the repo-scoped durable layer)
@@ -143,8 +143,9 @@ agent-instructions file. Conventions:
 - **Update-in-place discipline:** before writing, read the topic file (create if missing) and check
   whether an existing rule already covers it — refine that rule and refresh its date rather than
   appending a near-duplicate. Delete rules the session proved wrong; never leave both versions.
-- **Index, don't inline:** the root `AGENTS.md` (or `CLAUDE.md` if that's what the repo uses; create
-  `AGENTS.md` if neither exists) gets a pointer index — one line per topic file, never rule bodies:
+- **Index, don't inline:** the root `AGENTS.md` (or the repository's root instruction file if it
+  uses another name; create `AGENTS.md` if neither exists) gets a pointer index — one line per
+  topic file, never rule bodies:
 
   ```
   ## Repo memory
@@ -164,10 +165,10 @@ agent-instructions file. Conventions:
   2. **Capture as a rule** (the default when unsure, or the procedure may be one-off): write the
      rule entry and tag it `<!-- skill-candidate -->`.
   Either way, log a paired (b) observation. Ladder: tagged rule → repo-local skill (offer-gated,
-  minted here) → global ai-kit skill (`/improve` mints on recurrence in a 2nd repo — a minted
+  minted here) → global ai-kit skill (the `improve` skill mints on recurrence in a 2nd repo — a minted
   repo-local skill IS that evidence).
-- **Decision-shaped items:** a real *decision* (trade-off, rejected alternative) routes to
-  `/record-decision` / the ADR dir; the rules file carries only the resulting rule + ADR link.
+- **Decision-shaped items:** a real *decision* (trade-off, rejected alternative) routes to the
+  `record-decision` skill / the ADR dir; the rules file carries only the resulting rule + ADR link.
 - **Public-repo hygiene:** in a public repo, rule bodies are world-readable — `~/` not user paths,
   no client codenames, no internal URLs.
 
@@ -211,15 +212,15 @@ no commit hash on purpose (all counters are known pre-commit; the commit itself 
 
 1. **Show the diff** — `git status --short` and `git diff --stat HEAD` (already run in Phase 1; re-show
    if it's scrolled away). Generate an English imperative commit message (Conventional-Commits style,
-   e.g. `feat: add /close skill`, `docs: session log + memory update`).
+   e.g. `feat: add close skill`, `docs: session log + memory update`).
 2. **Ask before committing.** Present the message; on approval run `git add <files>` + `git commit`
    (never `reset` / `clean` / `checkout --` / force-push — those are blocked by the safety hook anyway).
    If the user declines, leave the working tree as-is.
 3. **Cross-machine sync routing.** If either of these git working trees exists, propose a commit +
    push per repo, routed by content kind:
-   - `~/.claude/.git/` (claude-home, private) — for edits to: `CLAUDE.md`, `observations/`,
+   - `~/.claude/.git/` (claude-home, private) — for edits to: private instruction files, `observations/`,
      `improvements/`, `hooks/`, `statusline-command.sh`, `settings.example.json`.
-   - `C:\ai-kit\.git\` (ai-kit, public) — for edits to: `skills/`, `commands/`, `agents/`,
+   - the ai-kit repository root's `.git/` (public, resolved from the current workspace) — for edits to: `skills/`, `commands/`, `agents/`,
      `templates/`, `docs/`. **Run the secret-scan before pushing ai-kit (its pre-commit hook does this
      automatically; --no-verify is the bypass and should be used sparingly).**
    One commit per repo when each has content. **Ask before each commit and before each push.** Never
@@ -237,15 +238,16 @@ no commit hash on purpose (all counters are known pre-commit; the commit itself 
 - **Observations ≠ memory** — see `~/.claude/observations/README.md`. Memory = distilled durable
   rules (few, terse, indexed); observations = raw dated per-session evidence (many, tagged). `close`
   triages: certain → memory now; ambiguous performance evidence → observations for the periodic
-  `/improve` review. A pipeline, not a duplicate.
+  `improve` review. A pipeline, not a duplicate.
 - **Routing in one line:** *scope* picks the layer — user/cross-repo → auto-memory (a); repo-scoped
   knowledge → repo rules, or a repo-local skill pair for re-runnable procedures (c); session state →
   SESSION_LOG (d); performance evidence → observations (b). One home per fact.
 - **Repo memory staleness:** rules rot as code changes. The per-rule date + provenance line lets a
   future audit find stale entries; when a session touches an area whose rule no longer holds, fixing
   the rule file is part of that session's (c) work — same discipline as spec-and-doc updates.
-- **`/close` vs `/close-tasks`.** `/close` distills *this session's* live context. For a tasks-doc
-  run that spanned multiple sessions or ran headless under cc-looper, use **`/close-tasks`** —
+- **The `close` skill vs the `close-tasks` skill.** `close` distills *this session's* live context.
+  For a tasks-doc run that spanned multiple sessions or ran headless under a loop runner, use
+  **`close-tasks`** —
   artifact-aggregation (completion notes / `_qa.md` / `.cc-loop/state.json` / `git log`, idempotent
   via a harvest marker). Don't stack both on the same window — pick one per run.
 - **This skill is read-only on git history** — reads (`status`, `diff`, `log`, `rev-parse`), at most `add` + `commit`; never rewrites history.

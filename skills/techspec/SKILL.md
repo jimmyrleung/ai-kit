@@ -1,6 +1,6 @@
 ---
 name: techspec
-description: "Design-phase technical specification — the committed blueprint (approach, implementation map, test plan with prioritized QA scenarios, risks) built on an /analyze-work reference map, a reviewed bug investigation, or a high-level implementation plan. Detects the work type and adapts: feature integration, greenfield slice, refactor / tech debt, or bug fix / hotfix / incident remediation / risky change. Produces {work_name}_techspec.md. Use when asked to write a techspec, technical spec, design doc, implementation plan, refactor plan, or impact analysis for defined work. Invoke as /techspec."
+description: "Design-phase technical specification — the committed blueprint (approach, implementation map, test plan with prioritized QA scenarios, risks) built on an `analyze-work` reference map, a reviewed bug investigation, or a high-level implementation plan. Detects the work type and adapts: feature integration, greenfield slice, refactor / tech debt, or bug fix / hotfix / incident remediation / risky change. Produces {work_name}_techspec.md. Use when asked to write a techspec, technical spec, design doc, implementation plan, refactor plan, or impact analysis for defined work."
 ---
 
 # techspec — committed design blueprint (integration · greenfield · refactor · fix)
@@ -12,15 +12,15 @@ Act as a senior software architect producing the committed technical specificati
 ## When to use
 
 - **Ad-hoc**: the work is defined (ideally with a reviewed analysis or investigation) and needs a design-for-the-record before implementation — too big to hold in plan mode, not big enough for a multi-session program.
-- **After** `/analyze-work` (integration / greenfield / refactor work) or `/bug-investigation` + `/review-artifact` (fixes).
+- **After** `analyze-work` (integration / greenfield / refactor work) or `bug-investigation` + `review-artifact` (fixes).
 
 ## When NOT to use
 
 - Investigation → suggest explore or `lay-of-the-land`
-- No map yet of where the work lands → `/analyze-work` first
-- Diagnosing a failure → `/bug-investigation`.
+- No map yet of where the work lands → `analyze-work` first
+- Diagnosing a failure → `bug-investigation`.
 - Trivial change or small well-understood fix → plan mode / the investigation's minimal-fix proposal. No techspec.
-- Breaking an approved spec into tasks → `/tasks-breakdown`, not this skill.
+- Breaking an approved spec into tasks → `tasks-breakdown`, not this skill.
 
 ## Detect mode
 
@@ -87,7 +87,7 @@ Accept whatever the invocation provides, in order of authority:
 3. **Work description / PRD / bug report** — the requirement itself. Greenfield without a user-written PRD: the analysis's `## Slice requirement` section (Done-when + Building on) is the requirement.
 4. Plan built with plan mode.
 
-**NOTE:** for lighter inputs (no analysis, work not trivial) → proceed, but name the gaps an analysis would have closed in the confidence section. Fix mode without a reviewed investigation → run `/bug-investigation` first. Derive `{work_name}` from the input filenames; else propose one from the topic and confirm.
+**NOTE:** for lighter inputs (no analysis, work not trivial) → proceed, but name the gaps an analysis would have closed in the confidence section. Fix mode without a reviewed investigation → run `bug-investigation` first. Derive `{work_name}` from the input filenames; else propose one from the topic and confirm.
 
 ## Subagents guidance (3-way depth only)
 
@@ -96,7 +96,7 @@ Single-approach → design on the main thread; no subagents.
 3-way → launch 3 **generic** subagents (there are no named techspec agents to maintain), each handed the inputs + one mandate + these constraints verbatim:
 
 1. "Design for YOUR mandate only. Return a draft techspec; do not write files or spawn further subagents."
-2. "Read the files the analysis names — don't trust summaries. Cite file:line for every pattern you reuse."
+2. "Inspect the files the analysis names — don't trust summaries. Cite file:line for every pattern you reuse."
 3. "Score confidence 0–100%; if the inputs leave you below 90%, return clarification questions instead of guessing."
 
 When they return:
@@ -109,11 +109,11 @@ When they return:
 
 ### Gather Context
 
-**Read the inputs end-to-end.** Description, analysis/investigation, review notes.
+**Inspect the inputs end-to-end.** Description, analysis/investigation, review notes.
 
 ### Map Existing Patterns
 
-Read every file the analysis names — don't rely on summaries. Then:
+Inspect every file the analysis names — don't rely on summaries. Then:
 
 - Search for similar features; record `file:line` as you go.
 - Note layering, DI, naming and validation conventions, reusable utilities/services, `AGENTS.md`/architecture-doc guidance.
@@ -159,7 +159,7 @@ With the spec written, launch a separate agent to re-read it as a QA engineer an
 - Each scenario gets a priority (High/Med/Low) and an automatable-or-manual flag.
 - Fold the result into the Test plan (§6) — the final doc carries the spec _and_ how to test it — then confirm with the user.
 - Proportionality: heavyweight matrices (browser/device, full accessibility sweep, security audit) enter only when the work demands them; for most work a tight functional scenario list is enough.
-- **Perf/regression scenarios:** when the work touches a perf-sensitive surface (hot path, DB query shape, caching, payload size), consult the repo-local perf/regression skill if the repo has one (baselines are repo-specific — never invent generic thresholds); no local skill → name the perf risk as a manual scenario and flag the gap (a candidate for `/close`'s repo-local skill mint).
+- **Perf/regression scenarios:** when the work touches a perf-sensitive surface (hot path, DB query shape, caching, payload size), consult the repo-local perf/regression skill if the repo has one (baselines are repo-specific — never invent generic thresholds); no local skill → name the perf risk as a manual scenario and flag the gap (a candidate for the `close` skill's repo-local skill mint).
 
 ## Mode lenses
 
@@ -178,7 +178,7 @@ With the spec written, launch a separate agent to re-read it as a QA engineer an
 
 ### refactor (phased plan)
 
-- **Confirm success metrics with the user before designing** — "what specific metrics prove this worked?" and the minimum acceptable improvement; if they can't be defined, the scope is too vague → back to `/analyze-work`,
+- **Confirm success metrics with the user before designing** — "what specific metrics prove this worked?" and the minimum acceptable improvement; if they can't be defined, the scope is too vague → back to `analyze-work`,
   - Each metric names **how it will be measured** (the command, query, or observation) and its current baseline — a metric with no measurement method is a wish, not a metric.
 - Then choose the transition pattern (strangler fig / branch-by-abstraction / incremental / big-bang only if unavoidable) and define **phases**: each independently deployable, delivering value or reducing risk on its own, with a **rollback point** (method / data plan / trigger), measurable success criteria, and a **deployment strategy** — how THIS phase reaches production (sequencing, feature flags, canary/gradual rollout, coordination with releases in flight).
 - Spec the testing strategy against the analysis's gap list — including **transitional-state tests**: the mid-migration states where old and new paths are both live are states the end-state suite never exercises; name the tests that cover each one.
@@ -191,7 +191,7 @@ With the spec written, launch a separate agent to re-read it as a QA engineer an
 - The impact half is required, not optional: **direct dependencies** (who imports / calls / instantiates the changed code — grep, don't assume), **indirect** (shared state, side effects, events, config), **test coverage** of the changed paths and — explicitly — the gaps, plus the risk lens below.
 - Keep it proportional: the design half may be short when the fix is small; the blast radius is why this doc exists.
 
-**Hotfix variant** (live incident remediation): the implementation map becomes an executable playbook — exact commands, expected result and a validation step per action, rollback **triggers** ("if X, roll back") with exact rollback steps, and success criteria that declare victory. Severity sets the tone: P1 accepts documented technical debt for speed — record what this fix does NOT address as a hand-off list for `/post-mortem`. Escalate (flag `ESCALATION RECOMMENDED: [reason]`, don't just proceed) if remediation needs a breaking change, a data migration, a production-DB change, or compliance review.
+**Hotfix variant** (live incident remediation): the implementation map becomes an executable playbook — exact commands, expected result and a validation step per action, rollback **triggers** ("if X, roll back") with exact rollback steps, and success criteria that declare victory. Severity sets the tone: P1 accepts documented technical debt for speed — record what this fix does NOT address as a hand-off list for `post-mortem`. Escalate (flag `ESCALATION RECOMMENDED: [reason]`, don't just proceed) if remediation needs a breaking change, a data migration, a production-DB change, or compliance review.
 
 ## Risk lens (fix mode always; any mode when the change is risky)
 
@@ -209,7 +209,7 @@ Required, in roughly this order:
 2. **Approach** — the chosen approach and why it won here; what's reused, what's net-new, what is explicitly _not_ being built. A reader sees the YAGNI decisions up front.
 3. **Scope / out-of-scope** — out-of-scope as a table (`| Item | Why out of scope | Where to revisit |`) beyond two items; the Why column stops future readers reopening settled decisions.
 4. **Patterns reused** — `| Pattern | Source | Usage here |`. Every citation **verified, not guessed — and anchored on a stable token** (symbol name / unique literal / nearest heading), with the line number a _hint that drifts_: write `AppContext.tsx → useAuth() (≈:55)`, never a bare `:NN`. Re-locate and re-verify any inherited citation against current source before relying on it — never reuse one verbatim.
-5. **Implementation map** — file-by-file: path + Create/Modify, what changes and **why** (one sentence), before/after snippets for non-trivial edits with the real names (no placeholder `[NewThing]`), and which §4 pattern each follows. Verification extends to **test-file locations** (one Glob per named test file/project — a spec that guessed the wrong test project survived two reviewers) and to **lifted code's closure** (when a step says "lift/copy X verbatim", enumerate X's imports, helpers, and config keys, and diff the whole source file per environment — verbatim lifts carried compile-breaking references twice). **Config keys** follow the repo's nesting convention, describe their value, and split secret-vs-static. _(Refactor mode: the phase plan replaces this section.)_
+5. **Implementation map** — file-by-file: path + Create/Modify, what changes and **why** (one sentence), before/after snippets for non-trivial edits with the real names (no placeholder `[NewThing]`), and which §4 pattern each follows. Verification extends to **test-file locations** (one file-enumeration pass per named test file/project — a spec that guessed the wrong test project survived two reviewers) and to **lifted code's closure** (when a step says "lift/copy X verbatim", enumerate X's imports, helpers, and config keys, and diff the whole source file per environment — verbatim lifts carried compile-breaking references twice). **Config keys** follow the repo's nesting convention, describe their value, and split secret-vs-static. _(Refactor mode: the phase plan replaces this section.)_
 6. **Test plan** — `| # | Scenario | Inputs | Expected | Priority | Automatable |`, populated by the QA-scenario pass (Process 7): happy path, error conditions, called-out edge cases, integration points — every committed behavior covered by ≥1 scenario. Concrete test outlines in the repo's framework over prose; at least one explicit "tests NOT needed here, because…" where a surface is deliberately skipped.
 7. **Files changed summary** — table + explicit count: `N production files, M test files. No new files / no DB migration / no DI changes.` (whichever apply).
 8. **Confidence score** — `Confidence score: N% — <one-line why>`, then **Why N%** (3–5 bullets of concrete evidence: files verified, patterns matched, deps confirmed) and **100−N% uncertainty** (2–4 bullets, each with an impact note: blocks implementation? operational? minor judgement call?).
@@ -226,4 +226,4 @@ Be specific (`file:line` and real names, not "somewhere in the cart layer") · p
 
 ## Output file
 
-Write to `{work_name}_techspec.md`, alongside the inputs — all modes, refactor included (the archived `_plan.md` suffix is retired). No discoverable base name → ask before writing. After writing, **offer `/review-artifact`** before tasks or implementation build on the doc.
+Write to `{work_name}_techspec.md`, alongside the inputs — all modes, refactor included (the archived `_plan.md` suffix is retired). No discoverable base name → ask before writing. After writing, **offer the `review-artifact` skill** before tasks or implementation build on the doc.

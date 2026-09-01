@@ -1,6 +1,6 @@
 ---
 name: post-mortem
-description: "Write a blameless post-mortem after a resolved incident — impact, timeline with response metrics, root cause and contributing factors, what went well / went wrong / where we got lucky, action items with owners, deadlines and success criteria, prevention measures. Produces postmortem.md. Use when asked for a post-mortem, postmortem, incident review, incident retro, RCA write-up, or lessons learned after an outage or production incident is resolved (ideally 24–48 h later). Closes the incident flow after bug-investigation, techspec fix mode, and qa-gates. Invoke as /post-mortem."
+description: "Write a blameless post-mortem after a resolved incident — impact, timeline with response metrics, root cause and contributing factors, what went well / went wrong / where we got lucky, action items with owners, deadlines and success criteria, prevention measures. Produces postmortem.md. Use when asked for a post-mortem, postmortem, incident review, incident retro, RCA write-up, or lessons learned after an outage or production incident is resolved (ideally 24–48 h later). Closes the incident flow after bug-investigation, techspec fix mode, and qa-gates."
 ---
 
 # post-mortem — blameless incident learning document
@@ -33,7 +33,7 @@ Missing artifacts are not blockers: reconstruct from git history, logs, and what
 
 ## Process
 
-1. **Gather.** Read every incident artifact that exists (report, investigation/diagnosis + review, remediation plan/techspec + execution notes, QA artifact). Echo back what you resolved and what's missing.
+1. **Gather.** Inspect every incident artifact that exists (report, investigation/diagnosis + review, remediation plan/techspec + execution notes, QA artifact). Echo back what you resolved and what's missing.
 2. **Timeline + response metrics.** Key events; detection time (incident start → first awareness), response time (awareness → people engaged), diagnosis time, resolution time. Fill only from artifacts and logs — leave a placeholder for what you can't derive; never present an estimate as fact.
 3. **Root cause.** Restate the confirmed root cause from the reviewed investigation; surface contributing factors (technical, process, organizational). No re-diagnosis.
 4. **What went well / what went wrong / where we got lucky.** Balanced: effective systems and decisions; systemic weaknesses exposed (the design that allowed the error, not the person who made it); near-misses that could have made it worse.
