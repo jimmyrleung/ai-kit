@@ -802,5 +802,26 @@ class SyncSkillsTests(unittest.TestCase):
             self.assertEqual((unrelated_target / "payload").read_text(encoding="utf-8"), "unchanged")
 
 
+class GitHubActionsTestResult(unittest.TextTestResult):
+    """Expose individual unittest tracebacks through public check annotations."""
+
+    def _emit_annotation(self, test: unittest.case.TestCase, err: tuple) -> None:
+        title = str(test).replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
+        traceback = self._exc_info_to_string(err, test)
+        message = traceback.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
+        print(f"::error file=tests/test_sync_skills.py,title={title}::{message}", flush=True)
+
+    def addError(self, test: unittest.case.TestCase, err: tuple) -> None:
+        super().addError(test, err)
+        self._emit_annotation(test, err)
+
+    def addFailure(self, test: unittest.case.TestCase, err: tuple) -> None:
+        super().addFailure(test, err)
+        self._emit_annotation(test, err)
+
+
 if __name__ == "__main__":
-    unittest.main(verbosity=2)
+    runner = None
+    if os.environ.get("GITHUB_ACTIONS") == "true":
+        runner = unittest.TextTestRunner(verbosity=2, resultclass=GitHubActionsTestResult)
+    unittest.main(verbosity=2, testRunner=runner)

@@ -73,26 +73,7 @@ jobs:
         run: npm run check:portability
 
       - name: Run isolated sync harness
-        shell: bash
-        run: |
-          set +e
-          log_path="sync-harness.log"
-          python tests/test_sync_skills.py >"$log_path" 2>&1
-          status=$?
-          cat "$log_path"
-          if [[ $status -ne 0 ]]; then
-            python - "$log_path" <<'PY'
-          from pathlib import Path
-          import sys
-
-          output = Path(sys.argv[1]).read_text(encoding="utf-8", errors="replace")
-          traceback_start = output.find("\n===")
-          diagnostic = output[traceback_start:] if traceback_start >= 0 else output[-12000:]
-          escaped = diagnostic.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
-          print(f"::error file=tests/test_sync_skills.py,title=Isolated sync harness failed::{escaped}")
-          PY
-            exit "$status"
-          fi
+        run: python tests/test_sync_skills.py
 
       - name: Exercise POSIX adapters with a dry run
         if: runner.os != 'Windows'
