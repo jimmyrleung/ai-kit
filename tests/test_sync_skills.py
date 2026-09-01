@@ -701,6 +701,19 @@ class SyncSkillsTests(unittest.TestCase):
                 text=True,
             )
 
+    def test_windows_junction_state_ignores_namespace_prefix_representation(self) -> None:
+        target = r"C:\canonical skills\analyze-work"
+        namespaced = r"\\?\C:\canonical skills\analyze-work"
+        actual = SYNC.link_state("junction", namespaced, namespaced)
+        planned = SYNC.link_state("junction", target, target)
+        self.assertEqual(SYNC.strip_windows_namespace_prefix(namespaced), target)
+        self.assertEqual(
+            SYNC.strip_windows_namespace_prefix(r"\\?\UNC\server\share\analyze-work"),
+            r"\\server\share\analyze-work",
+        )
+        self.assertEqual(SYNC.strip_windows_namespace_prefix(r"\??\C:\canonical skills\analyze-work"), target)
+        self.assertTrue(SYNC.states_equal(actual, planned))
+
     def test_python_action_hook_uses_the_active_interpreter(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             home = Path(temporary)

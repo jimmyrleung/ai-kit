@@ -842,6 +842,10 @@ clarifications without rewriting the original phased design.
   `mklink /J` operand as separate subprocess arguments. The engine does not pre-quote an entire
   command argument and does not enable `shell=True`. This preserves argument boundaries and the
   selected non-privileged junction mechanism.
+- **Windows junction identity:** Python exposes a junction's substitution path with a typical
+  `\\?\` namespace prefix. Path normalization removes equivalent `\\?\`, `\\?\UNC\`, and
+  `\??\` prefixes. Junction states compare normalized raw/resolved targets; symbolic-link states
+  retain exact raw-target comparison so relative baseline text remains immutable.
 - **Test-hook portability:** a hook path ending in `.py` is invoked through `sys.executable`.
   Other executable hook types retain direct invocation. This affects only the failure-injection
   surface and not normal sync actions.

@@ -56,8 +56,18 @@ def path_text(path: Path) -> str:
     return os.path.abspath(os.fspath(path))
 
 
+def strip_windows_namespace_prefix(value: str) -> str:
+    if value.startswith("\\\\?\\UNC\\"):
+        return "\\\\" + value[8:]
+    if value.startswith("\\\\?\\") or value.startswith("\\??\\"):
+        return value[4:]
+    return value
+
+
 def normalized_path(path: str | Path) -> str:
-    return os.path.normcase(os.path.normpath(os.path.realpath(os.fspath(path))))
+    raw = strip_windows_namespace_prefix(os.fspath(path))
+    resolved = strip_windows_namespace_prefix(os.path.realpath(raw))
+    return os.path.normcase(os.path.normpath(resolved))
 
 
 def paths_equal(left: str | Path, right: str | Path) -> bool:
@@ -145,10 +155,14 @@ def states_equal(left: dict[str, Any], right: dict[str, Any]) -> bool:
     if left.get("state") != right.get("state"):
         return False
     if left.get("state") == "link":
-        return (
-            left.get("kind") == right.get("kind")
-            and left.get("raw_target") == right.get("raw_target")
-            and left.get("resolved_target") == right.get("resolved_target")
+        if left.get("kind") != right.get("kind"):
+            return False
+        if left.get("kind") == "junction":
+            return paths_equal(left.get("raw_target"), right.get("raw_target")) and paths_equal(
+                left.get("resolved_target"), right.get("resolved_target")
+            )
+        return left.get("raw_target") == right.get("raw_target") and left.get("resolved_target") == right.get(
+            "resolved_target"
         )
     return True
 

@@ -1369,11 +1369,15 @@ pass. A fresh hosted matrix remains required before Gate 5 can be marked complet
 - `33538333563` at `b536a3e` moved both remaining failures into `Run isolated sync harness`.
 - `33539563300` at `fe4e735` exposed the two macOS tracebacks.
 - `33541996829` at `5fe6437` exposed individual Windows tracebacks through public annotations.
+- `33543082378` at `59b70ba` passed Ubuntu/macOS and proved that created Windows junctions were
+  rejected only by post-state comparison.
 
 **Verified root causes:**
 
 - Windows `mklink /J` received one nested-quoted command argument through `cmd.exe /s /c`; valid
   fixture paths therefore failed with the Windows filename/directory syntax error.
+- Windows `os.readlink()` returns a junction substitution path with a typical `\\?\` prefix;
+  exact raw-target equality rejected that representation against the planned normal drive path.
 - A `.py` failure-injection hook was executed directly on Windows and failed with WinError 193.
 - Two macOS fixtures mixed lexical `/var` temporary paths with canonical `/private/var` paths; one
   assertion compared aliases directly and one relative symlink resolved to `/private/Users/...`.
@@ -1383,6 +1387,8 @@ pass. A fresh hosted matrix remains required before Gate 5 can be marked complet
 **Approved minimal implementation:**
 
 - Pass `cmd.exe`, `mklink`, `/J`, link, and target as separate subprocess arguments.
+- Strip Windows namespace prefixes during normalization and compare junction raw/resolved targets
+  by normalized path; symbolic links retain exact raw-target comparison.
 - Invoke `.py` action hooks through the current Python interpreter; preserve direct execution for
   all other hook types.
 - Resolve macOS fixture parents before direct comparison and relative-link construction.
@@ -1390,7 +1396,8 @@ pass. A fresh hosted matrix remains required before Gate 5 can be marked complet
 
 **Acceptance criteria:**
 
-- [x] Regression tests pin the Windows `mklink` argument vector and Python-hook interpreter.
+- [x] Regression tests pin the Windows `mklink` argument vector, namespace-equivalent junction
+      state, and Python-hook interpreter.
 - [x] The macOS fixtures compare and construct links from canonical temporary paths.
 - [x] Windows retains junction lifecycle, transaction-recovery, and PowerShell adapter coverage;
       only the POSIX execution fixture is skipped there.
@@ -1410,11 +1417,12 @@ commit/push boundary.
 `linux_portability_hosted_ci_investigation.md`, and the tasks/techspec records. **Working-tree
 files:** the same five paths. **Budgets:** no hard line budget pinned (acceptable).
 
-- [x] Gate 1 — build/test: pass (`python3 -m py_compile`; isolated sync harness 35 tests with
+- [x] Gate 1 — build/test: pass (`python3 -m py_compile`; isolated sync harness 36 tests with
   one Windows-only skip; `npm test`; `npm run check:portability`; both POSIX wrapper syntax checks;
   workflow YAML parse; `git diff --check`).
 - [ ] Gate 2 — AC checklist (5 items): BLOCKED on the publication-time hosted run.
-  - [x] AC #1 — Windows junction argument-vector regression test passes locally.
+  - [x] AC #1 — Windows junction argument-vector and namespace-equivalence regression tests pass
+    locally.
   - [x] AC #2 — Python action-hook interpreter regression test passes locally.
   - [x] AC #3 — macOS fixtures now resolve their temporary base/parent before equality or relative
     link construction; hosted tracebacks identify the exact prior aliases.
