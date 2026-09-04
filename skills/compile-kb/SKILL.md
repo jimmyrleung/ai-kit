@@ -58,11 +58,27 @@ The bound that makes generic synthesis safe for every domain (rule 10):
 ### Phase 1 — Find work (incremental)
 - Find the last compile: the most recent `## [YYYY-MM-DD] compile |` entry in `wiki/log.md` (or "never").
 - Collect candidate sources: `sources/**/*.md` with `status: summarized` (not yet `integrated`), OR `updated`/`date_consumed` after the last compile, plus any raw files whose `sha256_prefix` no longer matches (drift). Harvest each candidate's `## Concepts to Update` list.
-- **Unseeded raw (full-tree, not window-scoped):** diff the full `raw/` tree against `sources/` `raw:` pointers — every raw file/directory (excluding exhaust) must be claimed by some `sources/` note; unclaimed ones surface as "needs seeding" work. A window-scoped `git log <last-compile>..HEAD` probe structurally misses anything that predates the window (two PDFs sat invisible for five consecutive compiles; 15 guides sat invisible for a full cycle when only status/date/sha signals were scanned). Keep the git-log probe only as a cheap first pass; the pointer diff is authoritative. Directory-backed sources (a `raw:` pointing at a directory) are fingerprinted by their **primary file** per the grouped-note rule — not reported MISSING by a file-only check; a hash mismatch on a git-clean raw file is a **metadata anomaly** (recorded-hash typo), not drift.
-  Bucket the unclaimed set: **new-source** (needs seeding) / **companion** (artifact of an
-  already-claimed source — record it in the owning note's `## Source Trail` or the domain
-  manifest so it stops surfacing) / **non-source** (exhaust — record, don't seed). A
-  45-file sweep held 1 real source; without buckets the other 44 re-surface every run.
+- **Unseeded raw (full-tree, not window-scoped):** enumerate non-exhaust files in the
+  full `raw/` tree and subtract resolved ownership records. Reuse the vault's existing
+  read-only ownership checker when available; record its path/version and command in
+  the digest. Inspect its supported grammar against SCHEMA and actual source notes first.
+  Ownership includes frontmatter file and directory pointers, explicit companion paths in
+  source-note Source Trails and domain manifests, and any relative paths or glob records
+  the vault documents. Normalize separators; resolve relative paths from their declared
+  base; preserve spaces; constrain all claims to the vault's raw tree. A bare mention or
+  basename match is not ownership. Unknown record forms are reported separately as
+  unresolved; never silently drop them or classify their files as new sources.
+  Before trusting a new or changed checker, exercise each pointer form actually present,
+  one exhaust case, and an intentionally unclaimed file. Record set reconciliation:
+  raw files = exhaust + claimed + unclaimed, with disjoint buckets; report unresolved
+  records separately. A window-scoped git probe is only a cheap first pass.
+  Bucket confirmed unclaimed files as **new-source** (needs seeding), **companion** (record
+  ownership in the existing note or manifest), or **non-source** (record the exclusion).
+  Re-run the same checker after those records change. If no suitable checker exists,
+  surface that gap and propose a vault-local helper; do not publish a completeness verdict
+  from a newly improvised partial parser.
+  Directory-backed sources use the grouped-note primary-file rule for hashes; a hash
+  mismatch on git-clean raw is a metadata anomaly, not automatically content drift.
 - **Idempotent:** if nothing changed since the last compile, report "nothing to compile" and exit without writing. (Honor an explicit "recompile everything" request to override.)
 
 ### Phase 2 — Synthesize
@@ -76,6 +92,16 @@ The bound that makes generic synthesis safe for every domain (rule 10):
 
 ### Phase 3 — Adversarial review (mandatory on changed synthesis pages)
 - For each created/updated page, run a second **skeptical** pass (ideally a separate reviewer subagent or a fresh critical read) that hunts: overreach, unsupported generalizations, claims not traceable to a cited source, and contradictions with existing pages.
+- **Numeric evidence gate:** a reviewer objecting to an arithmetic or count claim must
+  execute the derivation and show the inputs, units, source population, and result before
+  that objection changes a page or digest. Agreement with the source's calculation is not
+  an inconsistency; missing explanation is a different finding. Dispatch briefs supply
+  derivation commands for counts instead of unverified numeric hints.
+  After navigation and digest writes, the orchestrator compares every changed source/page
+  total with a fresh enumeration under the same inclusion rules, including per-domain
+  index and MOC totals. Persist the command/results and matching assertions in the digest's
+  verification record. An unresolved mismatch remains an open item, never a corrected fact.
+
 - Apply outcomes: demote `confidence`, set `contested: true` + `contradictions: [page]`, or mark a non-surviving claim's page `status: draft`. This is the concrete guard against hallucinations hardening into wiki fact — runs on every domain's synthesis pages (meter it to those, not the `index`/`_meta` nav).
 - **Retroactive reach:** when a new source establishes a convention or constraint, grep the *existing* wiki pages for violations (the incremental flow never looks backward — one source invalidated ~16 spots in prior pages). Escalate hits in the digest; never auto-rewrite pages outside the run's cluster without approval (rule 8).
 - **Full-file reread on dated refreshes:** the reviewer rereads each changed page
@@ -119,15 +145,22 @@ The digest, `wiki/index.md`, and `wiki/log.md` are wiki files: **the vault's cha
   (where the vault convention is ASCII-only), broken `[[wikilinks]]`, trailing whitespace.
   Incremental-only verification accumulates blind spots; the full sweep is cheap and is the backstop
   that catches drift a prior run let through.
-- **Secret scan (pinned contract v2):** scan **added content only** (the run's diff, not
-  whole files) for secret *values*: key/token-shaped literals
-  (`(api[_-]?key|secret|token|password)\s*[:=]\s*['"][A-Za-z0-9+/_-]{16,}`), PEM headers,
-  and base64/hex runs ≥ 32 chars that ALSO pass all three filters: (1) token-boundary —
-  not embedded in a path, wikilink slug, or URL (require non-word delimiters both sides);
-  (2) mixed character classes (≥ 2 of upper/lower/digit); (3) not a declared hash —
-  `sha256_prefix` values and `## Source Trail` digest entries are provenance, exempt.
-  (A raw base64/hex grep produced 1,036 path-shaped false positives; a keyword grep 110.)
-  Record pattern + filters in the digest so the next run reproduces, never re-derives.
+- **Secret scan (reproducible two-pass contract):** scan added content from the run's
+  tracked diff AND new curated files. Reuse the vault's recorded scanner command and
+  configuration; record their path/version and the result in the digest.
+  First scan the complete added text for credential assignments and private-key headers,
+  including inside code spans, links, and provenance. Formatting is never an exemption
+  from these detectors. Then triage opaque base64/hex candidates of at least 32 characters:
+  apply the existing boundary, mixed-class, and declared-hash filters; exempt a code
+  identifier or link target only after resolving it to a non-secret source symbol or path.
+  Persist narrow, explained exemptions with the scanner, not as an in-run blanket strip.
+  Before accepting a new or changed scanner configuration, run synthetic positive controls
+  for a credential inside backticks and a private-key header, plus negative controls for
+  a verified long code identifier, a digit-bearing wikilink target, and a declared hash.
+  Record detector hits separately from heuristic candidates and their dispositions.
+  Failed controls or undispositioned candidates leave this check BLOCKED; redact values
+  in diagnostics. If no reusable scanner exists, record that gap and a reviewable command
+  with these controls before relying on its result; do not claim complete secret detection.
 - **All-hashes verification:** verify every explicit hash in new/refreshed grouped notes —
   the primary `sha256_prefix` AND each `## Source Trail` secondary, including
   directory-relative entries. A wrong 12-char secondary shipped past a primary-only check.

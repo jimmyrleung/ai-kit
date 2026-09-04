@@ -84,7 +84,21 @@ For small, well-understood work backed by a verified exploration (plan mode, a r
    dependency in a lived run.
 8. **Apply the mode lens** (below).
 9. **Confidence gate.** Score 0–100% per the loaded confidence factor breakdown. **< 90% → STOP and ask clarifying questions.** ≥ 90% proceed; target ≥ 95% ship-ready.
-10. **Write the doc** per the section contract; confirm the base name; then **offer the `review-artifact` skill** before implementation builds on it.
+10. **Write the doc** per the section contract; confirm the base name.
+11. **Completion-dependency gate, after drafting.** Trace every AC and each numbered
+    scenario's full expected outcome to its primary owning task, executable check, required
+    environment, and evidence-producing task. Record these links beside the existing
+    testing/AC entries; a scenario range alone is not proof of ownership.
+    Re-derive Depends-On from those links as well as implementation inputs, then recompute
+    parallel lists. If completion consumes a later or supposedly parallel task's output,
+    move the AC, merge the tasks, or add and reorder the dependency. Reject cycles,
+    including a task that requires a review/QA milestone which itself waits for that task.
+    Distinguish a test file's implementation owner from a later task's verification scope.
+    A changed runtime contract includes opt-in executable consumers in its owning task;
+    cite repository test prerequisites for integration commands. Assign rollback triggers
+    to the earliest task able to observe them, and ensure any restore artifact is produced
+    before the edit it protects. Record a passed closure check or named unresolved rows
+    before offering the `review-artifact` skill.
 
 ## Mode lenses
 

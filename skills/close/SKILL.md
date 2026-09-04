@@ -121,6 +121,14 @@ this conversation. Do **not** log one-off corrections that don't generalize — 
 Tags should align with the `insights` taxonomy so the pile stays comparable to that retrospective.
 See `~/.claude/observations/README.md` for the running tag list and the observations-vs-memory rationale.
 
+**Tag gate (read-only, before the close receipt).** Run
+`node <close-skill-dir>/scripts/check-observation-tags.mjs <observations-README> <new-observation-file>...`
+on this close's observation files. The checker reads the canonical Tags section; every
+observation must carry exactly one listed tag. Resolve errors from the evidence, then rerun;
+do not create a receipt claiming completion while the check fails. This gate validates tag
+shape only: assess friction from the narrative even when the final outcome was successful.
+
+
 ### 2c — Repo memory (the repo-scoped durable layer)
 
 For each (c) item, write it into the repo's rules directory and index it from the repo's root
