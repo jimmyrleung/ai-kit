@@ -1,11 +1,23 @@
 ## [2026-09-01] — provider-neutral portability shipped and live-aligned
 
+### Current handoff — 2026-09-04
+
+**Summary:** Approved workflow improvements are committed as `85a7733`; the subsequent audit's approved changes are applied and structurally verified, but not committed.
+**Next:** Obtain approval for the public commit covering `skills/audit-skills/SKILL.md`, `skills/docs-tasks-creator/SKILL.md`, `skills/docs-tasks-creator/references/detectors.md`, and this log. Separately resolve the private commit's hook finding and reconfirm its exact scope before staging later audit/close records; ask before each push.
+**Blockers:** The private commit remains blocked by historical employer-name matches in whole staged files; no hook bypass is approved. Its staged diff is unchanged. Audit effectiveness predictions await real runs; output-root backlog item 43 and retention of the 2026-08-26 packet remain separate user decisions.
+**Didn't work:** Proposal 14's limited pre-apply simulation missed the portability check's rejection of "Read" and a new-file EOF blank line. Both approved amendments are applied; `npm test`, `npm run check:portability`, and whitespace checks pass. Do not treat these structural checks as a routing benchmark. Deferred improve evidence must remain in the next review even though last-review advanced.
+**Artifacts:** Private packet `~/.claude/improvements/2026-09-04/REVIEW.md` (application and verification receipts), `MARK.md`, `BOOKKEEPING.json`, and `bookkeeping.mjs`; audit proposals 41/44/14/42; `~/.claude/improvements/last-audit.txt`; observations `~/.claude/observations/2026-09-04-improve-audit-close.md`.
+**Close notes:** No new memory, repo rules, or repo-local skills. Existing ownership drafts are parked, not awaiting ownership. Older log entries stay in place: a public archive needs a separate hygiene review of historical private labels. No commit, push, hook bypass, or retention cleanup occurred during close.
+
+### Earlier handoff — 2026-09-01 (preserved)
+
 **Summary:** Shipped and independently reviewed the provider-neutral two-root skill migration: one transactional sync engine, strict portability checks, neutralized canonical skills, and a live Linux apply that exposes all 31 canonical skills through both managed roots while preserving Matt Pocock's `find-skills` and `teach` installs. Final local QA is green (38 sync tests with one Windows-only POSIX-fixture skip; strict checker: 31 skills, 0 errors, 0 warnings), and hosted run `33546826508` passed Ubuntu, macOS, and Windows at exact commit `2e7b855`.
 **Next:** No portability implementation work remains. Optional future evidence: repeat direct provider runtime/UI attribution when all provider binaries and authenticated runtimes are available; this is not a migration blocker.
 **Blockers:** none for repository portability or this machine's alignment. Direct provider runtime attribution remains unavailable locally, but qualified live checks, installer discovery, and the three-OS matrix are green.
 **Didn't work:** The first preserve rule accepted empty directories; the first transaction retry model did not durably authorize unlink-to-replacement; `npx skills check -g` did not resolve the legacy global lock; hosted CI then exposed Bash-3, Windows-CRLF, macOS `/var` alias, Windows junction quoting/namespace/dangling-target, and Python-hook assumptions. Per-test annotations made the remote tracebacks actionable, and the final implementation now has executable regressions for every failure plus one-read state snapshots.
 **Artifacts:** `linux_portability_cross_agent_coupling_tasks.md` · `linux_portability_cross_agent_coupling_analysis.md` · `linux_portability_cross_agent_coupling_techspec.md` · `linux_portability_hosted_ci_investigation.md` · `scripts/sync-skills.py` · `tests/test_sync_skills.py` · [hosted run 33546826508](https://github.com/jimmyrleung/ai-kit/actions/runs/33546826508) · `~/.claude/observations/2026-09-01-ai-kit-{preserve-policy,post-review-remediation}.md`
-<!-- close-receipt: 2026-09-01 16:04 · memory:0 · rules:1 · skills:0 · obs:16 -->
+Prior close receipt: 2026-09-01 16:04 · memory:0 · rules:1 · skills:0 · obs:16.
+<!-- close-receipt: 2026-09-04 18:50 · memory:0 · rules:0 · skills:0 · obs:5 -->
 
 ## [2026-08-31] — provider-neutral portability design + tasks reviewed
 

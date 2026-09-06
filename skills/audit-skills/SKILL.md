@@ -59,11 +59,12 @@ For each SKILL.md / command / agent file:
   *present but mismatched* with the file stem. (Skills and agents still require `name:`
   matching the dir/stem.)
 - `description:` present and non-empty.
-- No unknown fields beyond `name`, `description`, `allowed-tools`, `argument-hint`,
-  `arguments`, `disable-model-invocation` (skills — the last three per
-  code.claude.com/docs/en/skills, verified 2026-07-19; `arguments` is the documented
-  named positional-argument mapping, also the cc-looper worker-skill spawn contract),
-  `argument-hint` / `arguments` (commands), `model` / `tools` / `color` (agents).
+- **Canonical skill profile:** run `npm run check:portability` from the repository root.
+  `scripts/check-skill-portability.mjs` owns the allowed standard fields, field shapes,
+  and reviewed provider overlays; do not maintain a second allowlist here. Treat
+  unsupported fields or unjustified overlays as findings, using that checker's evidence.
+  If command or agent entities return, assess their fields against their documented
+  entity contract separately; do not apply the skill profile to them.
 - Skills live as `skills/<name>/SKILL.md` (not loose `.md`); commands are flat in
   `commands/`; agents are flat in `agents/`.
 
@@ -177,15 +178,15 @@ skill (> 50 lines of non-frontmatter content in a command file).
 - No skill name ends in `-skill`; no command name starts with `/` in the name field.
 
 ### Check 11 — Output-doc filename contract
-For each workflow family (orchestrator + its standalone per-phase commands), the output-doc filenames
-must agree with `<repo-root>/docs/output-filename-contract.md`. Flag: (a) a `{token}_<suffix>.md`
-reference whose token disagrees with the family's canonical token (e.g. `{feature}_techspec.md` or
-`{prefix}_techspec.md` where the contract says `{feature_name}`); (b) an orchestrator-stated output
-filename with no matching standalone command output (or vice-versa); (c) a family/phase not yet listed
-in the contract table. Extract filenames from command/skill bodies (search `_techspec.md` / `_integration.md`
-/ `_tasks.md` / `_investigation.md` / `_impact_analysis.md` / `_regression_test_plan.md` / `_audit.md`
-/ `_plan.md` and the bare incident names). Surface mismatches; propose the token normalization, don't
-silently rewrite.
+For each live skill that emits a workflow phase document, verify its output filename
+against the skill-centric rows in `<repo-root>/docs/output-filename-contract.md`.
+Compare both producers and consumers: flag (a) placeholder tokens or suffixes that
+conflict with the matching live row; (b) a consumer's expected phase filename that
+conflicts with its producer; and (c) a new workflow phase output with no contract row.
+Derive the filename sweep from the current contract rather than a fixed suffix list.
+Archived rows are compatibility references for historical artifacts, not current
+producer requirements. Input-only legacy filenames and examples are not output drift.
+Surface mismatches and propose the exact normalization; do not silently rewrite.
 
 One proposal per finding.
 
