@@ -25,7 +25,7 @@ EXIT_OK = 0
 EXIT_FAILURE = 1
 EXIT_USAGE = 2
 SCHEMA_VERSION = 1
-SKILL_NAME_RE = re.compile(r"^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$")
+SKILL_NAME_RE = re.compile(r"^(?!.*--)[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$")
 TRANSACTION_PHASE = "prepared"
 ACTION_PROGRESS_PENDING = "pending"
 ACTION_PROGRESS_REPLACEMENT_AUTHORIZED = "replacement-authorized"
@@ -444,6 +444,7 @@ class SyncEngine:
         self.skills: dict[str, Path] = {}
         self.manifest: dict[str, Any] | None = None
         self.actions_done = 0
+        self.state_changed = False
 
     def root_key(self, root: Path) -> str:
         return path_text(root)
@@ -840,6 +841,7 @@ class SyncEngine:
     def persist_transaction_progress(self, transaction: dict[str, Any]) -> None:
         prepared = json_manifest(transaction["repo_root"], transaction["records_after"], transaction)
         atomic_write_json(self.manifest_path, prepared)
+        self.state_changed = True
         self.manifest = prepared
 
     def execute_action(self, transaction: dict[str, Any], action: dict[str, Any]) -> None:
@@ -919,12 +921,14 @@ class SyncEngine:
         self.maybe_fail("AI_KIT_SYNC_FAIL_BEFORE_FINALIZE")
         final = json_manifest(transaction["repo_root"], transaction["records_after"], None)
         atomic_write_json(self.manifest_path, final)
+        self.manifest = final
 
     def recover_transaction(self) -> None:
         if self.manifest is None or self.manifest["transaction"] is None:
             return
         transaction = self.manifest["transaction"]
         print("Recovering prepared transaction before continuing.")
+        self.state_changed = True
         self.execute_transaction(transaction)
         self.finalize_transaction(transaction)
         self.manifest = read_manifest(self.manifest_path, self.roots)
@@ -946,6 +950,8 @@ class SyncEngine:
                 return EXIT_OK
         prepared = json_manifest(transaction["repo_root"], transaction["records_after"], transaction)
         atomic_write_json(self.manifest_path, prepared)
+        self.state_changed = True
+        self.manifest = prepared
         self.maybe_fail("AI_KIT_SYNC_FAIL_AFTER_PREPARE")
         self.execute_transaction(transaction)
         self.finalize_transaction(transaction)
@@ -969,6 +975,8 @@ class SyncEngine:
             return EXIT_OK
         prepared = json_manifest(transaction["repo_root"], transaction["records_after"], transaction)
         atomic_write_json(self.manifest_path, prepared)
+        self.state_changed = True
+        self.manifest = prepared
         self.maybe_fail("AI_KIT_SYNC_FAIL_AFTER_PREPARE")
         self.execute_transaction(transaction)
         self.finalize_transaction(transaction)
@@ -995,6 +1003,8 @@ class SyncEngine:
             return EXIT_OK
         prepared = json_manifest(transaction["repo_root"], transaction["records_after"], transaction)
         atomic_write_json(self.manifest_path, prepared)
+        self.state_changed = True
+        self.manifest = prepared
         self.maybe_fail("AI_KIT_SYNC_FAIL_AFTER_PREPARE")
         self.execute_transaction(transaction)
         self.finalize_transaction(transaction)
@@ -1052,7 +1062,13 @@ def main(argv: list[str] | None = None) -> int:
             return engine.run_prune(dry_run=args.dry_run, force=args.force)
         return engine.run_apply(dry_run=args.dry_run, force=args.force)
     except PlanConflict as exc:
-        print("CONFLICT — no filesystem or manifest changes were made:", file=sys.stderr)
+        if engine.manifest is not None and engine.manifest["transaction"] is not None:
+            print(f"CONFLICT — a prepared transaction remains at {engine.manifest_path}; filesystem changes may already exist.", file=sys.stderr)
+            print("Inspect the conflicting entry and preserve third-party content; after resolving it, rerun the original operation to recover. Keep the ownership manifest.", file=sys.stderr)
+        elif engine.state_changed:
+            print("CONFLICT — recovery completed before this conflict; earlier filesystem or manifest changes were retained:", file=sys.stderr)
+        else:
+            print("CONFLICT — no filesystem or manifest changes were made:", file=sys.stderr)
         for conflict in exc.conflicts:
             print(f"  - {conflict}", file=sys.stderr)
         return EXIT_FAILURE

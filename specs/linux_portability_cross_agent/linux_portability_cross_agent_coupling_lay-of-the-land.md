@@ -1,5 +1,14 @@
 # Linux portability and cross-agent coupling — lay of the land
 
+## Superseded 2026-09-07 — affected policy and capability claims
+
+This reconnaissance remains a historical snapshot of the revision and host below. The later
+[Astra backlog execution](../../20260906_astra_review_execution.md) supersedes its mandatory
+anchored-store posture with optional recording and a supported existing-store profile, and
+maintains runtime facts in [provider capabilities](../../docs/provider-capabilities.md).
+The original findings, counts, and unavailable probes below are preserved as dated evidence;
+they do not describe or certify the current working tree. No private-store migration is implied.
+
 Date: 2026-08-31
 Repository revision inspected: `8122041eaf`
 Mode: current-state reconnaissance

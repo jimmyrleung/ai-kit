@@ -1,6 +1,6 @@
 ---
 name: breakout-session
-description: "Run a ~15-minute oral-exam learning checkpoint — the USER explains a topic they have been studying, the AI coach probes Socratically, and the session ends with an honest go/no-go verdict on moving to the next topic. Use when the user wants to test, validate, or check their understanding of study material, practice explaining a concept, or run a checkpoint, drill, or breakout session in a learning journey. Roles reverse onboard-me: here the user explains and the coach evaluates; it demonstrates existing study, it does not teach new material (that is the teach skill)."
+description: "Tests understanding of material the user has already studied through an oral checkpoint: the user explains and the coach probes. Use for “quiz me,” “check my understanding,” concept-explanation practice, a learning drill, or readiness for the next topic. New lessons belong to teach; guided explanation of unfamiliar code belongs to onboard-me."
 ---
 
 # breakout-session — a 15-minute demonstrate-don't-consume checkpoint
@@ -26,6 +26,7 @@ or introduce material the user hasn't studied yet.
 
 ## Input contract
 - **Topic** — from the invocation arguments; ask if missing.
+- **Next-topic prerequisites** — when progression is requested, resolve the next topic and its known prerequisites. If unknown, assess only demonstrated material; do not certify readiness for unspecified content.
 - **Optional context** — a teach workspace or notes the user points at; use it to calibrate,
   never to replace the user's own account of where they are.
 
@@ -45,7 +46,7 @@ or introduce material the user hasn't studied yet.
    conclude that question and move to the next.
 5. **Final assessment — self first, then coach.** Ask the user to self-assess in one or two
    sentences, then give your honest verdict: what is working well, which gaps remain, whether
-   each gap is a blocker or not, and a clear **go / no-go** for the next topic. Where your
+   each gap is a blocker against the known prerequisites, and a clear **go / no-go** scoped to the knowledge actually tested. State tested concepts, untested prerequisites, and the evidence for the verdict; if the next topic is unknown, request its prerequisite boundary or explicitly limit the verdict to current material. Where your
    verdict and their self-assessment disagree, say so explicitly — don't average them away.
 6. **Record (if in a teach workspace).** Offer to capture the checkpoint as a learning
    record, preserving the user's self-assessment and the coach verdict side by side, verbatim.

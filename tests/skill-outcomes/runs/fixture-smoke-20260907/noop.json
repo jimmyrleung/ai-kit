@@ -1,0 +1,21 @@
+{
+  "kind": "author-self-run-fixture-smoke",
+  "case": "clean-no-op",
+  "command": [
+    "python3",
+    "tools/check_ownership.py"
+  ],
+  "exit_code": 0,
+  "stdout": "{\"raw\": 1, \"claimed\": 1, \"unclaimed\": [], \"exhaust\": [], \"unresolved\": []}\n",
+  "files_unchanged": true,
+  "file_hashes": {
+    "vault/SCHEMA.md": "42ab07b21d97aa22b4381ffef9932f553d250d0db97df3dbbdb617ab94b31947",
+    "vault/tools/check_ownership.py": "172328687e1ffd45bbe6d725e9abf5d5720b9ec9b205611e05f3fb45d991be54",
+    "vault/wiki/log.md": "541accb9eb15979340ab965bb99aa9b6d1d603e7dd32408bff79ca657b2e11ef",
+    "vault/wiki/index.md": "c66a671e640c8f89e94ac78f0f0c1348a96b094eab47b683cd170bfe49ae80d5",
+    "vault/sources/note.md": "8582df0d51517ccdd4dd31975a485dd2f2ac08db6bcf9404c125daf14705be22",
+    "vault/raw/note.md": "1559fb5f5a76e6f59a6534068283731c96edce30cea0b0f3767969f058cfc58a",
+    "vault/wiki/concepts/retries.md": "5ab4debad6de8481fb657e94da358c48c5f3a5d14a781b9e63606f7a74df0332"
+  },
+  "scope_limit": "Checks fixture ownership/hash/no-write primitive only, not full compile-kb model execution."
+}

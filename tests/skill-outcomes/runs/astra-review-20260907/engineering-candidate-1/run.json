@@ -1,0 +1,1042 @@
+{
+  "schema_version": 1,
+  "run_id": "engineering-candidate-repeat1",
+  "batch_id": "engineering-candidate-shared-context-repeat1",
+  "condition": "candidate",
+  "repeat": 1,
+  "execution_kind": "supplied-body-procedure",
+  "status": "completed_with_recorded_retries_and_unavailable_host_telemetry",
+  "case_order": [
+    "dirty-review",
+    "unborn-short-history",
+    "review-invalidation",
+    "task-reverification",
+    "consumer-closure",
+    "completion-resources",
+    "existing-test-home",
+    "convention-new-test",
+    "no-suitable-test-home",
+    "unneeded-helper",
+    "authorization-cadence",
+    "review-depth-severity",
+    "check-reuse",
+    "intent-routing",
+    "incident-causality"
+  ],
+  "context_independence": "One shared-context batch; fixtures are independent, but cases are not fresh-context independent.",
+  "provider": "OpenAI Codex host; exact provider accounting unavailable",
+  "host_version": "unavailable",
+  "model": "gpt-5.6-sol requested; effective runtime selection not exposed",
+  "reasoning": "high requested; effective runtime setting not exposed",
+  "settings_origin": "parent dispatch request",
+  "tool_capabilities": [
+    "shell command execution",
+    "apply_patch",
+    "collaboration tools callable but further agents prohibited by dispatch"
+  ],
+  "source_manifest": "input-snapshots/frozen-bodies plus per-case loaded-manifest.json",
+  "full_trace": null,
+  "trace_unavailable_reason": "The host did not expose a complete exportable assistant/tool transcript; all available run-local command output and produced artifacts are preserved.",
+  "cases": [
+    {
+      "case_id": "dirty-review",
+      "status": "completed",
+      "prompt_path": "cases/dirty-review/inputs/prompt.md",
+      "source_manifest": "cases/dirty-review/inputs/loaded-manifest.json",
+      "trace_path": "cases/dirty-review/",
+      "trace_limitation": "Run-local shell transcripts are preserved; the host does not expose a complete machine-readable assistant/tool transcript.",
+      "artifacts": [
+        {
+          "path": "cases/dirty-review/artifacts/review-record.md",
+          "bytes": 798,
+          "sha256": "e6919fb72abad29c78ddda54ea4f2533c1db2407cd959af950527761b0c776bb"
+        },
+        {
+          "path": "cases/dirty-review/output.md",
+          "bytes": 1633,
+          "sha256": "d3ef4d0d8cf3cf81445b4a9ae854ad73f990f6d899b8d69a8f9eba716fa250fd"
+        }
+      ],
+      "grading": [
+        {
+          "check": "Committed, staged, unstaged and untracked intended content inspected; each layer transition covered once",
+          "status": "pass",
+          "evidence": "cases/dirty-review/output.md; trace-committed.txt; trace-staged.txt; trace-unstaged.txt; trace-untracked.txt; trace-layer-hashes.txt"
+        },
+        {
+          "check": "Rename old/new paths recorded",
+          "status": "pass",
+          "evidence": "cases/dirty-review/output.md; trace-committed.txt; trace-staged.txt; trace-unstaged.txt; trace-untracked.txt; trace-layer-hashes.txt"
+        },
+        {
+          "check": "Task B and earlier unrelated work excluded with reasons",
+          "status": "pass",
+          "evidence": "cases/dirty-review/output.md; trace-committed.txt; trace-staged.txt; trace-unstaged.txt; trace-untracked.txt; trace-layer-hashes.txt"
+        },
+        {
+          "check": "Current byte identities recorded; SHA+dirty alone rejected",
+          "status": "pass",
+          "evidence": "cases/dirty-review/output.md; trace-committed.txt; trace-staged.txt; trace-unstaged.txt; trace-untracked.txt; trace-layer-hashes.txt"
+        }
+      ],
+      "measurements": {
+        "started_at": null,
+        "finished_at": null,
+        "elapsed_seconds": null,
+        "artifact_bytes": 798,
+        "total_output_bytes": 2431,
+        "tokens": null,
+        "cost": null,
+        "unavailable_reason": "Per-case wall-clock boundaries and provider accounting were not exposed; batch timestamps are measured."
+      }
+    },
+    {
+      "case_id": "unborn-short-history",
+      "status": "completed",
+      "prompt_path": "cases/unborn-short-history/inputs/prompt.md",
+      "source_manifest": "cases/unborn-short-history/inputs/loaded-manifest.json",
+      "trace_path": "cases/unborn-short-history/",
+      "trace_limitation": "Run-local shell transcripts are preserved; the host does not expose a complete machine-readable assistant/tool transcript.",
+      "artifacts": [
+        {
+          "path": "cases/unborn-short-history/artifacts/verification.md",
+          "bytes": 513,
+          "sha256": "9ba972f903dfc2e10b52c9b5e70ecb196db667a40a73aa4f7092e24783d9e2f2"
+        },
+        {
+          "path": "cases/unborn-short-history/output.md",
+          "bytes": 1076,
+          "sha256": "74064246fb1792ad9f2fc0b5e393dfbf5406527093a74695f44bb745b8d244f6"
+        }
+      ],
+      "grading": [
+        {
+          "check": "Unborn uses explicit empty-tree base and absent HEAD",
+          "status": "pass",
+          "evidence": "cases/unborn-short-history/output.md; trace-unborn-head-probe.txt; trace-unborn-scope.txt; trace-single-scope.txt"
+        },
+        {
+          "check": "Single-commit case never calls a fixed HEAD ancestor window",
+          "status": "pass",
+          "evidence": "cases/unborn-short-history/output.md; trace-unborn-head-probe.txt; trace-unborn-scope.txt; trace-single-scope.txt"
+        },
+        {
+          "check": "Staged and unstaged contents accounted for",
+          "status": "pass",
+          "evidence": "cases/unborn-short-history/output.md; trace-unborn-head-probe.txt; trace-unborn-scope.txt; trace-single-scope.txt"
+        }
+      ],
+      "measurements": {
+        "started_at": null,
+        "finished_at": null,
+        "elapsed_seconds": null,
+        "artifact_bytes": 513,
+        "total_output_bytes": 1589,
+        "tokens": null,
+        "cost": null,
+        "unavailable_reason": "Per-case wall-clock boundaries and provider accounting were not exposed; batch timestamps are measured."
+      }
+    },
+    {
+      "case_id": "review-invalidation",
+      "status": "completed",
+      "prompt_path": "cases/review-invalidation/inputs/prompt.md",
+      "source_manifest": "cases/review-invalidation/inputs/loaded-manifest.json",
+      "trace_path": "cases/review-invalidation/",
+      "trace_limitation": "Run-local shell transcripts are preserved; the host does not expose a complete machine-readable assistant/tool transcript.",
+      "artifacts": [
+        {
+          "path": "cases/review-invalidation/artifacts/reuse-assessment.md",
+          "bytes": 389,
+          "sha256": "859a3c93e12690097c3373802b030f2ff616ab2893e50f742839c6d1490c20a3"
+        },
+        {
+          "path": "cases/review-invalidation/output.md",
+          "bytes": 1396,
+          "sha256": "b19a0eb5c23f6ac2bb7467c1522ba96cc7ebbc9d6db4cdfd510bf2753332f223"
+        }
+      ],
+      "grading": [
+        {
+          "check": "Source and AC edits invalidate affected evidence",
+          "status": "pass",
+          "evidence": "cases/review-invalidation/output.md; trace-variant-identities.txt"
+        },
+        {
+          "check": "Task-only record cannot cover Task B",
+          "status": "pass",
+          "evidence": "cases/review-invalidation/output.md; trace-variant-identities.txt"
+        },
+        {
+          "check": "Rejected review cannot advance",
+          "status": "pass",
+          "evidence": "cases/review-invalidation/output.md; trace-variant-identities.txt"
+        },
+        {
+          "check": "Exact evidence-only append avoids self-invalidation",
+          "status": "pass",
+          "evidence": "cases/review-invalidation/output.md; trace-variant-identities.txt"
+        },
+        {
+          "check": "Unrelated scoped-out file does not invalidate Task A",
+          "status": "pass",
+          "evidence": "cases/review-invalidation/output.md; trace-variant-identities.txt"
+        },
+        {
+          "check": "Missing identities remain unverified",
+          "status": "pass",
+          "evidence": "cases/review-invalidation/output.md; trace-variant-identities.txt"
+        }
+      ],
+      "measurements": {
+        "started_at": null,
+        "finished_at": null,
+        "elapsed_seconds": null,
+        "artifact_bytes": 389,
+        "total_output_bytes": 1785,
+        "tokens": null,
+        "cost": null,
+        "unavailable_reason": "Per-case wall-clock boundaries and provider accounting were not exposed; batch timestamps are measured."
+      }
+    },
+    {
+      "case_id": "task-reverification",
+      "status": "completed",
+      "prompt_path": "cases/task-reverification/inputs/prompt.md",
+      "source_manifest": "cases/task-reverification/inputs/loaded-manifest.json",
+      "trace_path": "cases/task-reverification/",
+      "trace_limitation": "Run-local shell transcripts are preserved; the host does not expose a complete machine-readable assistant/tool transcript.",
+      "artifacts": [
+        {
+          "path": "cases/task-reverification/artifacts/scope-handoffs.md",
+          "bytes": 745,
+          "sha256": "e3623eeb0b825d11971d4b4dca67710326d7c96fc2ff3bf533a0efcf72635044"
+        },
+        {
+          "path": "cases/task-reverification/output.md",
+          "bytes": 1377,
+          "sha256": "6a12afcd5ddd5c4423b9004a9fbb439e6f810a436211a4a520661946618ca277"
+        }
+      ],
+      "grading": [
+        {
+          "check": "Exact Task 1 set remains AC-1 across reruns",
+          "status": "pass",
+          "evidence": "cases/task-reverification/output.md; trace-input-resolution.txt; trace-produced-verification.txt; fixtures/task-reverification/tasks.md"
+        },
+        {
+          "check": "No old evidence/test-checkbox/neighbor AC leakage",
+          "status": "pass",
+          "evidence": "cases/task-reverification/output.md; trace-input-resolution.txt; trace-produced-verification.txt; fixtures/task-reverification/tasks.md"
+        },
+        {
+          "check": "Evidence preserved with nested or delimited structure",
+          "status": "pass",
+          "evidence": "cases/task-reverification/output.md; trace-input-resolution.txt; trace-produced-verification.txt; fixtures/task-reverification/tasks.md"
+        },
+        {
+          "check": "Numbered item boundary supported",
+          "status": "pass",
+          "evidence": "cases/task-reverification/output.md; trace-input-resolution.txt; trace-produced-verification.txt; fixtures/task-reverification/tasks.md"
+        },
+        {
+          "check": "Fix maps expected behavior and designated fix ACs with source locators",
+          "status": "pass",
+          "evidence": "cases/task-reverification/output.md; trace-input-resolution.txt; trace-produced-verification.txt; fixtures/task-reverification/tasks.md"
+        },
+        {
+          "check": "QA task scope explicit; prefix call derives broader scope separately",
+          "status": "pass",
+          "evidence": "cases/task-reverification/output.md; trace-input-resolution.txt; trace-produced-verification.txt; fixtures/task-reverification/tasks.md"
+        }
+      ],
+      "measurements": {
+        "started_at": null,
+        "finished_at": null,
+        "elapsed_seconds": null,
+        "artifact_bytes": 745,
+        "total_output_bytes": 2122,
+        "tokens": null,
+        "cost": null,
+        "unavailable_reason": "Per-case wall-clock boundaries and provider accounting were not exposed; batch timestamps are measured."
+      }
+    },
+    {
+      "case_id": "consumer-closure",
+      "status": "completed",
+      "prompt_path": "cases/consumer-closure/inputs/prompt.md",
+      "source_manifest": "cases/consumer-closure/inputs/loaded-manifest.json",
+      "trace_path": "cases/consumer-closure/",
+      "trace_limitation": "Run-local shell transcripts are preserved; the host does not expose a complete machine-readable assistant/tool transcript.",
+      "artifacts": [
+        {
+          "path": "cases/consumer-closure/artifacts/reviewed-plan.md",
+          "bytes": 566,
+          "sha256": "a41d96840356d22e76844ce57858008409572c1c98a00072efe733adf9d78a2f"
+        },
+        {
+          "path": "cases/consumer-closure/output.md",
+          "bytes": 1255,
+          "sha256": "2145e0f6ef6413238a7bd6e020eca0db5517e2cd5c904d5f7d1ec3389e26102a"
+        }
+      ],
+      "grading": [
+        {
+          "check": "Reads unchanged consumer source",
+          "status": "pass",
+          "evidence": "cases/consumer-closure/output.md; trace-inspection.txt; trace-direct-test.txt"
+        },
+        {
+          "check": "Identifies worker arithmetic contract break",
+          "status": "pass",
+          "evidence": "cases/consumer-closure/output.md; trace-inspection.txt; trace-direct-test.txt"
+        },
+        {
+          "check": "Assigns consumer and existing test update to owning task",
+          "status": "pass",
+          "evidence": "cases/consumer-closure/output.md; trace-inspection.txt; trace-direct-test.txt"
+        },
+        {
+          "check": "Does not claim coverage merely from citations in plan",
+          "status": "pass",
+          "evidence": "cases/consumer-closure/output.md; trace-inspection.txt; trace-direct-test.txt"
+        }
+      ],
+      "measurements": {
+        "started_at": null,
+        "finished_at": null,
+        "elapsed_seconds": null,
+        "artifact_bytes": 566,
+        "total_output_bytes": 1821,
+        "tokens": null,
+        "cost": null,
+        "unavailable_reason": "Per-case wall-clock boundaries and provider accounting were not exposed; batch timestamps are measured."
+      }
+    },
+    {
+      "case_id": "completion-resources",
+      "status": "completed",
+      "prompt_path": "cases/completion-resources/inputs/prompt.md",
+      "source_manifest": "cases/completion-resources/inputs/loaded-manifest.json",
+      "trace_path": "cases/completion-resources/",
+      "trace_limitation": "Run-local shell transcripts are preserved; the host does not expose a complete machine-readable assistant/tool transcript.",
+      "artifacts": [
+        {
+          "path": "cases/completion-resources/artifacts/executable-task-graph.md",
+          "bytes": 2167,
+          "sha256": "1077a591dc10d206813bd5f47293c0601d6b91fa958b4b4e28b9b129fe0e673c"
+        },
+        {
+          "path": "cases/completion-resources/output.md",
+          "bytes": 899,
+          "sha256": "cd678c3455de105229b766b10b8c2df939b58b462d44ac3855848bafe5c307a5"
+        }
+      ],
+      "grading": [
+        {
+          "check": "No cycle from QA waiting for deploy/live tasks",
+          "status": "pass",
+          "evidence": "cases/completion-resources/artifacts/executable-task-graph.md; output.md"
+        },
+        {
+          "check": "Pending operations retain own statuses and evidence",
+          "status": "pass",
+          "evidence": "cases/completion-resources/artifacts/executable-task-graph.md; output.md"
+        },
+        {
+          "check": "Shared-file and same-database work serialized or truly isolated with reconciliation",
+          "status": "pass",
+          "evidence": "cases/completion-resources/artifacts/executable-task-graph.md; output.md"
+        },
+        {
+          "check": "Independent read-only work may overlap",
+          "status": "pass",
+          "evidence": "cases/completion-resources/artifacts/executable-task-graph.md; output.md"
+        },
+        {
+          "check": "Unsatisfied dependency prevents readiness",
+          "status": "pass",
+          "evidence": "cases/completion-resources/artifacts/executable-task-graph.md; output.md"
+        },
+        {
+          "check": "Repository-only variant keeps normal completion path",
+          "status": "pass",
+          "evidence": "cases/completion-resources/artifacts/executable-task-graph.md; output.md"
+        }
+      ],
+      "measurements": {
+        "started_at": null,
+        "finished_at": null,
+        "elapsed_seconds": null,
+        "artifact_bytes": 2167,
+        "total_output_bytes": 3066,
+        "tokens": null,
+        "cost": null,
+        "unavailable_reason": "Per-case wall-clock boundaries and provider accounting were not exposed; batch timestamps are measured."
+      }
+    },
+    {
+      "case_id": "existing-test-home",
+      "status": "completed",
+      "prompt_path": "cases/existing-test-home/inputs/prompt.md",
+      "source_manifest": "cases/existing-test-home/inputs/loaded-manifest.json",
+      "trace_path": "cases/existing-test-home/",
+      "trace_limitation": "Run-local shell transcripts are preserved; the host does not expose a complete machine-readable assistant/tool transcript.",
+      "artifacts": [
+        {
+          "path": "cases/existing-test-home/artifacts/verification.md",
+          "bytes": 445,
+          "sha256": "50b45b314a340422b666398c2e1dfb681dd91595ed257b326adb81061c50f9a9"
+        },
+        {
+          "path": "cases/existing-test-home/output.md",
+          "bytes": 612,
+          "sha256": "322110736637067520c15cd82fa35eb1a4251318054534354b1e750ec89f7019"
+        }
+      ],
+      "grading": [
+        {
+          "check": "Extends tests/test_calc.py; no new test file",
+          "status": "pass",
+          "evidence": "cases/existing-test-home/trace-context-before.txt; trace-tests.txt; trace-after.txt; output.md"
+        },
+        {
+          "check": "Reads instructions, nearby code/tests/docs/CI",
+          "status": "pass",
+          "evidence": "cases/existing-test-home/trace-context-before.txt; trace-tests.txt; trace-after.txt; output.md"
+        },
+        {
+          "check": "Uses existing unittest patterns and appropriate fixtures",
+          "status": "pass",
+          "evidence": "cases/existing-test-home/trace-context-before.txt; trace-tests.txt; trace-after.txt; output.md"
+        },
+        {
+          "check": "Negative, zero and positive behavior verified by executed tests",
+          "status": "pass",
+          "evidence": "cases/existing-test-home/trace-context-before.txt; trace-tests.txt; trace-after.txt; output.md"
+        },
+        {
+          "check": "No speculative helper or unrelated cleanup",
+          "status": "pass",
+          "evidence": "cases/existing-test-home/trace-context-before.txt; trace-tests.txt; trace-after.txt; output.md"
+        },
+        {
+          "check": "No broad refactor or file-count optimization at expense of coverage",
+          "status": "pass",
+          "evidence": "cases/existing-test-home/trace-context-before.txt; trace-tests.txt; trace-after.txt; output.md"
+        }
+      ],
+      "measurements": {
+        "started_at": null,
+        "finished_at": null,
+        "elapsed_seconds": null,
+        "artifact_bytes": 445,
+        "total_output_bytes": 1057,
+        "tokens": null,
+        "cost": null,
+        "unavailable_reason": "Per-case wall-clock boundaries and provider accounting were not exposed; batch timestamps are measured."
+      }
+    },
+    {
+      "case_id": "convention-new-test",
+      "status": "completed",
+      "prompt_path": "cases/convention-new-test/inputs/prompt.md",
+      "source_manifest": "cases/convention-new-test/inputs/loaded-manifest.json",
+      "trace_path": "cases/convention-new-test/",
+      "trace_limitation": "Run-local shell transcripts are preserved; the host does not expose a complete machine-readable assistant/tool transcript.",
+      "artifacts": [
+        {
+          "path": "cases/convention-new-test/artifacts/verification.md",
+          "bytes": 394,
+          "sha256": "8db8f3293581bd7b45175ec264bc1bcdd20fd85554964248110f86cae28e4514"
+        },
+        {
+          "path": "cases/convention-new-test/output.md",
+          "bytes": 586,
+          "sha256": "bf28c4c31013ee0e9b31bbd3064bb3c04b92f1618ce8af24381d486f19e94d68"
+        }
+      ],
+      "grading": [
+        {
+          "check": "Creates convention-required tests/test_calc_validation.py and states reason",
+          "status": "pass",
+          "evidence": "cases/convention-new-test/trace-context-before.txt; trace-tests.txt; trace-after.txt; output.md"
+        },
+        {
+          "check": "Reads instructions, nearby code/tests/docs/CI",
+          "status": "pass",
+          "evidence": "cases/convention-new-test/trace-context-before.txt; trace-tests.txt; trace-after.txt; output.md"
+        },
+        {
+          "check": "Uses existing unittest patterns and appropriate fixtures",
+          "status": "pass",
+          "evidence": "cases/convention-new-test/trace-context-before.txt; trace-tests.txt; trace-after.txt; output.md"
+        },
+        {
+          "check": "Negative, zero and positive behavior verified by executed tests",
+          "status": "pass",
+          "evidence": "cases/convention-new-test/trace-context-before.txt; trace-tests.txt; trace-after.txt; output.md"
+        },
+        {
+          "check": "No speculative helper or unrelated cleanup",
+          "status": "pass",
+          "evidence": "cases/convention-new-test/trace-context-before.txt; trace-tests.txt; trace-after.txt; output.md"
+        },
+        {
+          "check": "No broad refactor or file-count optimization at expense of coverage",
+          "status": "pass",
+          "evidence": "cases/convention-new-test/trace-context-before.txt; trace-tests.txt; trace-after.txt; output.md"
+        }
+      ],
+      "measurements": {
+        "started_at": null,
+        "finished_at": null,
+        "elapsed_seconds": null,
+        "artifact_bytes": 394,
+        "total_output_bytes": 980,
+        "tokens": null,
+        "cost": null,
+        "unavailable_reason": "Per-case wall-clock boundaries and provider accounting were not exposed; batch timestamps are measured."
+      }
+    },
+    {
+      "case_id": "no-suitable-test-home",
+      "status": "completed",
+      "prompt_path": "cases/no-suitable-test-home/inputs/prompt.md",
+      "source_manifest": "cases/no-suitable-test-home/inputs/loaded-manifest.json",
+      "trace_path": "cases/no-suitable-test-home/",
+      "trace_limitation": "Run-local shell transcripts are preserved; the host does not expose a complete machine-readable assistant/tool transcript.",
+      "artifacts": [
+        {
+          "path": "cases/no-suitable-test-home/artifacts/verification.md",
+          "bytes": 350,
+          "sha256": "8a5933cc2a3cc19198fa62c86eb236616ea7c56058bda0f923b3c2a4c41e0802"
+        },
+        {
+          "path": "cases/no-suitable-test-home/output.md",
+          "bytes": 625,
+          "sha256": "e7ce77f2f9eb5ff7f4cf071a8f04d1e0cd11bf1f2e8d22ec234c79e1cbd7f9c5"
+        }
+      ],
+      "grading": [
+        {
+          "check": "Creates suitable test module and explains absent existing home",
+          "status": "pass",
+          "evidence": "cases/no-suitable-test-home/trace-context-before.txt; trace-tests.txt; trace-after.txt; output.md"
+        },
+        {
+          "check": "Reads instructions, nearby code/tests/docs/CI",
+          "status": "pass",
+          "evidence": "cases/no-suitable-test-home/trace-context-before.txt; trace-tests.txt; trace-after.txt; output.md"
+        },
+        {
+          "check": "Uses existing unittest patterns and appropriate fixtures",
+          "status": "pass",
+          "evidence": "cases/no-suitable-test-home/trace-context-before.txt; trace-tests.txt; trace-after.txt; output.md"
+        },
+        {
+          "check": "Negative, zero and positive behavior verified by executed tests",
+          "status": "pass",
+          "evidence": "cases/no-suitable-test-home/trace-context-before.txt; trace-tests.txt; trace-after.txt; output.md"
+        },
+        {
+          "check": "No speculative helper or unrelated cleanup",
+          "status": "pass",
+          "evidence": "cases/no-suitable-test-home/trace-context-before.txt; trace-tests.txt; trace-after.txt; output.md"
+        },
+        {
+          "check": "No broad refactor or file-count optimization at expense of coverage",
+          "status": "pass",
+          "evidence": "cases/no-suitable-test-home/trace-context-before.txt; trace-tests.txt; trace-after.txt; output.md"
+        }
+      ],
+      "measurements": {
+        "started_at": null,
+        "finished_at": null,
+        "elapsed_seconds": null,
+        "artifact_bytes": 350,
+        "total_output_bytes": 975,
+        "tokens": null,
+        "cost": null,
+        "unavailable_reason": "Per-case wall-clock boundaries and provider accounting were not exposed; batch timestamps are measured."
+      }
+    },
+    {
+      "case_id": "unneeded-helper",
+      "status": "completed",
+      "prompt_path": "cases/unneeded-helper/inputs/prompt.md",
+      "source_manifest": "cases/unneeded-helper/inputs/loaded-manifest.json",
+      "trace_path": "cases/unneeded-helper/",
+      "trace_limitation": "Run-local shell transcripts are preserved; the host does not expose a complete machine-readable assistant/tool transcript.",
+      "artifacts": [
+        {
+          "path": "cases/unneeded-helper/artifacts/review.md",
+          "bytes": 749,
+          "sha256": "8f2ef4b63b10a2485da8e29676218b58070f794c05514fc6a3b959a1135a84a4"
+        },
+        {
+          "path": "cases/unneeded-helper/output.md",
+          "bytes": 1244,
+          "sha256": "ba3eca296d71e09ca973157460f5613229c24617b659521c85d29020bf80dc38"
+        }
+      ],
+      "grading": [
+        {
+          "check": "Accepts focused guard and meaningful existing tests",
+          "status": "pass",
+          "evidence": "cases/unneeded-helper/trace-inspection.txt; artifacts/review.md; output.md"
+        },
+        {
+          "check": "Flags unneeded abstraction, duplicated tests and unrelated cleanup with source evidence",
+          "status": "pass",
+          "evidence": "cases/unneeded-helper/trace-inspection.txt; artifacts/review.md; output.md"
+        },
+        {
+          "check": "Does not penalize a justified new file in comparison cases",
+          "status": "pass",
+          "evidence": "cases/unneeded-helper/trace-inspection.txt; artifacts/review.md; output.md"
+        }
+      ],
+      "measurements": {
+        "started_at": null,
+        "finished_at": null,
+        "elapsed_seconds": null,
+        "artifact_bytes": 749,
+        "total_output_bytes": 1993,
+        "tokens": null,
+        "cost": null,
+        "unavailable_reason": "Per-case wall-clock boundaries and provider accounting were not exposed; batch timestamps are measured."
+      }
+    },
+    {
+      "case_id": "authorization-cadence",
+      "status": "completed",
+      "prompt_path": "cases/authorization-cadence/inputs/prompt.md",
+      "source_manifest": "cases/authorization-cadence/inputs/loaded-manifest.json",
+      "trace_path": "cases/authorization-cadence/",
+      "trace_limitation": "Run-local shell transcripts are preserved; the host does not expose a complete machine-readable assistant/tool transcript.",
+      "artifacts": [
+        {
+          "path": "cases/authorization-cadence/artifacts/variant-status.md",
+          "bytes": 680,
+          "sha256": "868d16dcc69d013e65480c3dd402bf9b139a2de629224fa517216d5a74c82209"
+        },
+        {
+          "path": "cases/authorization-cadence/output.md",
+          "bytes": 1454,
+          "sha256": "f125e5e3178f09183a6536a7074f4abf8a0805e926248a431ea634be5ceaf39a"
+        }
+      ],
+      "grading": [
+        {
+          "check": "Equivalent inline/file requests have equivalent draft path",
+          "status": "pass",
+          "evidence": "cases/authorization-cadence/trace-a-b-diff.txt; trace-poststate.txt; output.md; fixtures/authorization-cadence/variants/*"
+        },
+        {
+          "check": "Authorized draft has no redundant permission request",
+          "status": "pass",
+          "evidence": "cases/authorization-cadence/trace-a-b-diff.txt; trace-poststate.txt; output.md; fixtures/authorization-cadence/variants/*"
+        },
+        {
+          "check": "Missing load-bearing retention rule produces precise clarification",
+          "status": "pass",
+          "evidence": "cases/authorization-cadence/trace-a-b-diff.txt; trace-poststate.txt; output.md; fixtures/authorization-cadence/variants/*"
+        },
+        {
+          "check": "Requested one-item cadence remains one item per turn",
+          "status": "pass",
+          "evidence": "cases/authorization-cadence/trace-a-b-diff.txt; trace-poststate.txt; output.md; fixtures/authorization-cadence/variants/*"
+        }
+      ],
+      "measurements": {
+        "started_at": null,
+        "finished_at": null,
+        "elapsed_seconds": null,
+        "artifact_bytes": 680,
+        "total_output_bytes": 2134,
+        "tokens": null,
+        "cost": null,
+        "unavailable_reason": "Per-case wall-clock boundaries and provider accounting were not exposed; batch timestamps are measured."
+      }
+    },
+    {
+      "case_id": "review-depth-severity",
+      "status": "completed",
+      "prompt_path": "cases/review-depth-severity/inputs/prompt.md",
+      "source_manifest": "cases/review-depth-severity/inputs/loaded-manifest.json",
+      "trace_path": "cases/review-depth-severity/",
+      "trace_limitation": "Run-local shell transcripts are preserved; the host does not expose a complete machine-readable assistant/tool transcript.",
+      "artifacts": [
+        {
+          "path": "cases/review-depth-severity/artifacts/review-coverage.md",
+          "bytes": 1206,
+          "sha256": "c62c21a3b7876a0029b4c05484289e5beea79d59aac6110ec0af5293105a7601"
+        },
+        {
+          "path": "cases/review-depth-severity/output.md",
+          "bytes": 1944,
+          "sha256": "3ff4501f65c713be46aabc743ea4980fdd9af17621ca8aa8c65184da82016270"
+        }
+      ],
+      "grading": [
+        {
+          "check": "Review depth explained by scope/risk",
+          "status": "pass",
+          "evidence": "cases/review-depth-severity/trace-inspection-and-probes.txt; artifacts/review-coverage.md; output.md"
+        },
+        {
+          "check": "Cross-boundary independent coverage retained",
+          "status": "pass",
+          "evidence": "cases/review-depth-severity/trace-inspection-and-probes.txt; artifacts/review-coverage.md; output.md"
+        },
+        {
+          "check": "Severe uncertain issue remains visible with next probe",
+          "status": "pass",
+          "evidence": "cases/review-depth-severity/trace-inspection-and-probes.txt; artifacts/review-coverage.md; output.md"
+        },
+        {
+          "check": "Parent re-grounding retained",
+          "status": "pass",
+          "evidence": "cases/review-depth-severity/trace-inspection-and-probes.txt; artifacts/review-coverage.md; output.md"
+        },
+        {
+          "check": "No automatic unrelated refactor work",
+          "status": "pass",
+          "evidence": "cases/review-depth-severity/trace-inspection-and-probes.txt; artifacts/review-coverage.md; output.md"
+        },
+        {
+          "check": "Native worker/sequential availability reported honestly",
+          "status": "pass",
+          "evidence": "cases/review-depth-severity/trace-inspection-and-probes.txt; artifacts/review-coverage.md; output.md"
+        }
+      ],
+      "measurements": {
+        "started_at": null,
+        "finished_at": null,
+        "elapsed_seconds": null,
+        "artifact_bytes": 1206,
+        "total_output_bytes": 3150,
+        "tokens": null,
+        "cost": null,
+        "unavailable_reason": "Per-case wall-clock boundaries and provider accounting were not exposed; batch timestamps are measured."
+      }
+    },
+    {
+      "case_id": "check-reuse",
+      "status": "completed",
+      "prompt_path": "cases/check-reuse/inputs/prompt.md",
+      "source_manifest": "cases/check-reuse/inputs/loaded-manifest.json",
+      "trace_path": "cases/check-reuse/",
+      "trace_limitation": "Run-local shell transcripts are preserved; the host does not expose a complete machine-readable assistant/tool transcript.",
+      "artifacts": [
+        {
+          "path": "cases/check-reuse/artifacts/initial-check-record.json",
+          "bytes": 1291,
+          "sha256": "b7477b3b93e786738a5ec596785924d5ea54a145bd1285f592f2706c9e233243"
+        },
+        {
+          "path": "cases/check-reuse/artifacts/reuse-matrix.md",
+          "bytes": 446,
+          "sha256": "b5ae2a5c89268c38515c1bce73478c7e1492b41db7a7aae9deb52ffe8adfed9e"
+        },
+        {
+          "path": "cases/check-reuse/output.md",
+          "bytes": 2101,
+          "sha256": "9cfd01a1229e6ef19ee8d8544c7971f79029ce5a032645cff6997c9a3d780ae2"
+        }
+      ],
+      "grading": [
+        {
+          "check": "Only matching executed complete evidence reused",
+          "status": "pass",
+          "evidence": "cases/check-reuse/artifacts/initial-check-record.json; trace-initial-*.txt; trace-variant-identities.txt; trace-subset-run.txt; trace-missing-prod-key-exit-aware.txt; output.md"
+        },
+        {
+          "check": "Source/config/env/scope change invalidates affected reuse",
+          "status": "pass",
+          "evidence": "cases/check-reuse/artifacts/initial-check-record.json; trace-initial-*.txt; trace-variant-identities.txt; trace-subset-run.txt; trace-missing-prod-key-exit-aware.txt; output.md"
+        },
+        {
+          "check": "Blocked/incomplete/subset cannot become full pass",
+          "status": "pass",
+          "evidence": "cases/check-reuse/artifacts/initial-check-record.json; trace-initial-*.txt; trace-variant-identities.txt; trace-subset-run.txt; trace-missing-prod-key-exit-aware.txt; output.md"
+        },
+        {
+          "check": "Deliberate irrelevant environment difference not failed by syntax rule",
+          "status": "pass",
+          "evidence": "cases/check-reuse/artifacts/initial-check-record.json; trace-initial-*.txt; trace-variant-identities.txt; trace-subset-run.txt; trace-missing-prod-key-exit-aware.txt; output.md"
+        },
+        {
+          "check": "Required missing key fails",
+          "status": "pass",
+          "evidence": "cases/check-reuse/artifacts/initial-check-record.json; trace-initial-*.txt; trace-variant-identities.txt; trace-subset-run.txt; trace-missing-prod-key-exit-aware.txt; output.md"
+        },
+        {
+          "check": "Available browser observation may prove observable AC; subjective approval not fabricated",
+          "status": "pass",
+          "evidence": "cases/check-reuse/artifacts/initial-check-record.json; trace-initial-*.txt; trace-variant-identities.txt; trace-subset-run.txt; trace-missing-prod-key-exit-aware.txt; output.md"
+        }
+      ],
+      "measurements": {
+        "started_at": null,
+        "finished_at": null,
+        "elapsed_seconds": null,
+        "artifact_bytes": 1737,
+        "total_output_bytes": 3838,
+        "tokens": null,
+        "cost": null,
+        "unavailable_reason": "Per-case wall-clock boundaries and provider accounting were not exposed; batch timestamps are measured."
+      }
+    },
+    {
+      "case_id": "intent-routing",
+      "status": "completed",
+      "prompt_path": "cases/intent-routing/inputs/prompt.md",
+      "source_manifest": "cases/intent-routing/inputs/loaded-manifest.json",
+      "trace_path": "cases/intent-routing/",
+      "trace_limitation": "Run-local shell transcripts are preserved; the host does not expose a complete machine-readable assistant/tool transcript.",
+      "artifacts": [
+        {
+          "path": "cases/intent-routing/artifacts/routes.md",
+          "bytes": 576,
+          "sha256": "e875efa11c2e61eacdbd60a9c0a060c6de39651aea5297cff90e0bc3ade61a33"
+        },
+        {
+          "path": "cases/intent-routing/output.md",
+          "bytes": 1638,
+          "sha256": "936620c11445ec7cef31e91c97ed8df962686ecafa1965e195972403da5a61f7"
+        }
+      ],
+      "grading": [
+        {
+          "check": "Current intent outranks unrelated old artifacts",
+          "status": "pass",
+          "evidence": "cases/intent-routing/trace-inspection.txt; artifacts/routes.md; output.md"
+        },
+        {
+          "check": "Recommend-only does not execute",
+          "status": "pass",
+          "evidence": "cases/intent-routing/trace-inspection.txt; artifacts/routes.md; output.md"
+        },
+        {
+          "check": "Explicit authorized implementation can continue when prerequisites valid",
+          "status": "pass",
+          "evidence": "cases/intent-routing/trace-inspection.txt; artifacts/routes.md; output.md"
+        },
+        {
+          "check": "Failed/stale approval cannot advance",
+          "status": "pass",
+          "evidence": "cases/intent-routing/trace-inspection.txt; artifacts/routes.md; output.md"
+        },
+        {
+          "check": "Requested walkthrough follows tour; unrequested tour only offered",
+          "status": "pass",
+          "evidence": "cases/intent-routing/trace-inspection.txt; artifacts/routes.md; output.md"
+        },
+        {
+          "check": "Repository completion never auto-deploys",
+          "status": "pass",
+          "evidence": "cases/intent-routing/trace-inspection.txt; artifacts/routes.md; output.md"
+        }
+      ],
+      "measurements": {
+        "started_at": null,
+        "finished_at": null,
+        "elapsed_seconds": null,
+        "artifact_bytes": 576,
+        "total_output_bytes": 2214,
+        "tokens": null,
+        "cost": null,
+        "unavailable_reason": "Per-case wall-clock boundaries and provider accounting were not exposed; batch timestamps are measured."
+      }
+    },
+    {
+      "case_id": "incident-causality",
+      "status": "completed",
+      "prompt_path": "cases/incident-causality/inputs/prompt.md",
+      "source_manifest": "cases/incident-causality/inputs/loaded-manifest.json",
+      "trace_path": "cases/incident-causality/",
+      "trace_limitation": "Run-local shell transcripts are preserved; the host does not expose a complete machine-readable assistant/tool transcript.",
+      "artifacts": [
+        {
+          "path": "cases/incident-causality/artifacts/A_investigation.md",
+          "bytes": 1279,
+          "sha256": "1b388aa37bd3806320c1c2a94c8028dfbb1e71a30b28ed4032165524ffbda28f"
+        },
+        {
+          "path": "cases/incident-causality/artifacts/B_investigation.md",
+          "bytes": 969,
+          "sha256": "59a09d0264e10c45783376e517a5a36f3e98ab5721dc2de1e1156ca4d7c98049"
+        },
+        {
+          "path": "cases/incident-causality/artifacts/C_investigation.md",
+          "bytes": 2441,
+          "sha256": "021c69be6c86e00ccb54b29b4911e59ddfd9e800928fa2dcc1f31435d79b895c"
+        },
+        {
+          "path": "cases/incident-causality/output.md",
+          "bytes": 2292,
+          "sha256": "f727da4b449ea7b4fee0cf64302dfb10b72b2b12158f7bcbbf909db134180e63"
+        }
+      ],
+      "grading": [
+        {
+          "check": "Source-read race/config branch remains candidate, not confirmed cause",
+          "status": "pass",
+          "evidence": "cases/incident-causality/trace-variant-a.txt; trace-variant-b.txt; trace-variant-c.txt; artifacts/*_investigation.md; output.md"
+        },
+        {
+          "check": "Missing causal evidence yields precise confirming/refuting probe",
+          "status": "pass",
+          "evidence": "cases/incident-causality/trace-variant-a.txt; trace-variant-b.txt; trace-variant-c.txt; artifacts/*_investigation.md; output.md"
+        },
+        {
+          "check": "Executed deterministic reproduction supports minimal local fix without false production linkage",
+          "status": "pass",
+          "evidence": "cases/incident-causality/trace-variant-a.txt; trace-variant-b.txt; trace-variant-c.txt; artifacts/*_investigation.md; output.md"
+        },
+        {
+          "check": "P1 threshold is carried through review without silently switching to 90",
+          "status": "pass",
+          "evidence": "cases/incident-causality/trace-variant-a.txt; trace-variant-b.txt; trace-variant-c.txt; artifacts/*_investigation.md; output.md"
+        },
+        {
+          "check": "Mitigation has rollback/monitoring and does not claim confirmed remediation",
+          "status": "pass",
+          "evidence": "cases/incident-causality/trace-variant-a.txt; trace-variant-b.txt; trace-variant-c.txt; artifacts/*_investigation.md; output.md"
+        },
+        {
+          "check": "No deployment authorization inferred from confidence",
+          "status": "pass",
+          "evidence": "cases/incident-causality/trace-variant-a.txt; trace-variant-b.txt; trace-variant-c.txt; artifacts/*_investigation.md; output.md"
+        }
+      ],
+      "measurements": {
+        "started_at": null,
+        "finished_at": null,
+        "elapsed_seconds": null,
+        "artifact_bytes": 4689,
+        "total_output_bytes": 6981,
+        "tokens": null,
+        "cost": null,
+        "unavailable_reason": "Per-case wall-clock boundaries and provider accounting were not exposed; batch timestamps are measured."
+      }
+    }
+  ],
+  "additional_analysis": [
+    {
+      "name": "consumer-closure-complex",
+      "status": "completed",
+      "prompt_path": "additional-analysis/consumer-closure-complex/inputs/prompt.md",
+      "source_manifest": "additional-analysis/consumer-closure-complex/inputs/loaded-manifest.json",
+      "artifact": {
+        "path": "additional-analysis/consumer-closure-complex/artifacts/fetch_result_analysis.md",
+        "bytes": 3750,
+        "sha256": "e9ef8c79ecb60e33165f2276cdedf40d843c58e3684753f5fd10c74cab0d2572"
+      },
+      "grading": [
+        {
+          "check": "Suitable test home, reuse, and repository context inspected",
+          "status": "pass",
+          "evidence": "additional-analysis/consumer-closure-complex/artifacts/fetch_result_analysis.md; trace-inspection.txt; inputs/loaded-manifest.json"
+        },
+        {
+          "check": "Unchanged worker consumer included in consumer closure",
+          "status": "pass",
+          "evidence": "additional-analysis/consumer-closure-complex/artifacts/fetch_result_analysis.md; trace-inspection.txt; inputs/loaded-manifest.json"
+        },
+        {
+          "check": "Uncertainty retained",
+          "status": "pass",
+          "evidence": "additional-analysis/consumer-closure-complex/artifacts/fetch_result_analysis.md; trace-inspection.txt; inputs/loaded-manifest.json"
+        },
+        {
+          "check": "Relevant rollback and test constraints retained",
+          "status": "pass",
+          "evidence": "additional-analysis/consumer-closure-complex/artifacts/fetch_result_analysis.md; trace-inspection.txt; inputs/loaded-manifest.json"
+        },
+        {
+          "check": "Exact analyze-work body and references loaded",
+          "status": "pass",
+          "evidence": "additional-analysis/consumer-closure-complex/artifacts/fetch_result_analysis.md; trace-inspection.txt; inputs/loaded-manifest.json"
+        }
+      ]
+    },
+    {
+      "name": "existing-test-home-small",
+      "status": "completed",
+      "prompt_path": "additional-analysis/existing-test-home-small/inputs/prompt.md",
+      "source_manifest": "additional-analysis/existing-test-home-small/inputs/loaded-manifest.json",
+      "artifact": {
+        "path": "additional-analysis/existing-test-home-small/artifacts/negative_fee_validation_analysis.md",
+        "bytes": 2228,
+        "sha256": "dd1e2abb61f855e3a12170af5495cc95952c74856bc67cd6c96093496ad2c5f9"
+      },
+      "grading": [
+        {
+          "check": "Suitable existing test home and unittest reuse inspected",
+          "status": "pass",
+          "evidence": "additional-analysis/existing-test-home-small/artifacts/negative_fee_validation_analysis.md; trace-inspection.txt; inputs/loaded-manifest.json"
+        },
+        {
+          "check": "Repository instructions, production code, tests, docs, and CI inspected",
+          "status": "pass",
+          "evidence": "additional-analysis/existing-test-home-small/artifacts/negative_fee_validation_analysis.md; trace-inspection.txt; inputs/loaded-manifest.json"
+        },
+        {
+          "check": "Uncertainty retained",
+          "status": "pass",
+          "evidence": "additional-analysis/existing-test-home-small/artifacts/negative_fee_validation_analysis.md; trace-inspection.txt; inputs/loaded-manifest.json"
+        },
+        {
+          "check": "Relevant rollback and test constraints retained",
+          "status": "pass",
+          "evidence": "additional-analysis/existing-test-home-small/artifacts/negative_fee_validation_analysis.md; trace-inspection.txt; inputs/loaded-manifest.json"
+        },
+        {
+          "check": "Exact analyze-work body and references loaded",
+          "status": "pass",
+          "evidence": "additional-analysis/existing-test-home-small/artifacts/negative_fee_validation_analysis.md; trace-inspection.txt; inputs/loaded-manifest.json"
+        }
+      ]
+    }
+  ],
+  "grading_summary": {
+    "mandatory_pass": 78,
+    "mandatory_fail": 0,
+    "mandatory_unavailable": 0,
+    "human_owner_review": "pending"
+  },
+  "failures_and_retries": [
+    "consumer-closure: pytest unavailable; failed command preserved, then direct project test function executed successfully as a distinct fallback",
+    "check-reuse: transcript path error before checks ran; preserved and corrected once",
+    "check-reuse: first missing-key transcript wrapper did not propagate child exit; preserved and repeated once with exit-aware wrapper",
+    "incident-causality: transcript path error before probes ran; preserved and corrected once",
+    "batch measurement: first artifact-byte command had an awk escaping error; preserved, then replaced by a read-only Python measurement"
+  ],
+  "measurements": {
+    "started_at": "2026-09-07T07:01:04-03:00",
+    "finished_at": "2026-09-07T07:24:53-03:00",
+    "elapsed_seconds": 1429,
+    "unnecessary_interruptions": 0,
+    "required_clarifications": 2,
+    "requested_discussion_turns": 1,
+    "retries_or_fallbacks": 5,
+    "artifact_bytes": 21982,
+    "total_output_bytes": 42114,
+    "tokens": null,
+    "cost": null,
+    "unavailable_reason": "Token and monetary accounting were not exposed. Total output bytes include output.md and artifact files, not shell traces or copied inputs."
+  },
+  "review": {
+    "agent_reviewer": "self-evaluated fresh trial worker with no author history",
+    "parent_grounding": "pending",
+    "human_owner": "pending"
+  },
+  "confidence": {
+    "score": 97,
+    "reason": "All selected fixtures were executed in order and every mandatory check has direct artifact/trace evidence.",
+    "uncertainty": "3%: full host transcript and provider telemetry are unavailable; judgment-heavy grades remain owner-review pending."
+  }
+}

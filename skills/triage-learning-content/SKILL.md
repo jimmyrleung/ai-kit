@@ -1,6 +1,6 @@
 ---
 name: triage-learning-content
-description: "Recommend how to consume a piece of learning content — listen (TTS), listen with targeted visual review (TTS_PLUS_REVIEW), or focused reading (READ) — so scarce reading time goes only where it materially helps. Use when given a URL or article and asked how to consume it, whether it works as audio, listen vs read, to triage saved articles or a reading backlog, or when another workflow needs a consumption recommendation (scores, briefing, review sections) as JSON. Covers web articles, blog posts, newsletters, essays first; other types get the same rubric."
+description: "Recommends listen (TTS), listen plus visual review (TTS_PLUS_REVIEW), or focused reading (READ) for learning content. Use for “listen or read?”, audio suitability, or triaging a reading backlog. Accepts URLs, local files, or pasted articles, newsletters, essays, papers, and docs; supports JSON recommendations. Does not summarize content or generate audio."
 ---
 
 # triage-learning-content — route content to its cheapest effective consumption mode
@@ -48,6 +48,9 @@ genuinely fits none (e.g. a video), say so and propose extending this skill — 
    and comment sections. Capture: title, author, date, headings, word count, code blocks (with
    language), tables, images with captions/alt text. Fetch failed or paywalled → say so and ask
    for pasted text; never recommend from the URL or title alone.
+   Inspect any visual that determines the recommendation with an available image/PDF/browser
+   viewer. If inaccessible, identify the exact missing visual and lower confidence; captions
+   can locate a visual but cannot establish what its arrows, values, or layout mean.
 2. **Score 0–100 on three dimensions** (rubric below):
    - *Audio suitability* — does the argument survive linear narration?
    - *Visual dependency* — how much meaning lives in code, SQL, equations, diagrams, charts,
@@ -86,8 +89,7 @@ genuinely fits none (e.g. a video), say so and propose extending this skill — 
   - tutorial whose instructions reference a dozen code blocks and whose commands must be copied
     or compared → `READ`
 - Tables: expressible verbally → audio-friendly; large or multidimensional → flag for review.
-- Images: infer decorative vs meaningful (chart, diagram, screenshot) from alt text, captions,
-  and surrounding prose — rendering them is not required.
+- Images: use alt text/captions to identify likely review targets. Inspect decisive visuals; if unavailable, make the recommendation explicitly provisional and name the missing evidence. Decorative images need no render.
 
 ## Output structure
 Interactive default — one compact block per item, nothing more. First line by mode:
@@ -102,8 +104,10 @@ Audio NN · Visual NN · Density NN · Visual review ~NN%
 Listening @1×: NN min
 ```
 
-Then append the machine-readable result as a fenced `json` block with this stable shape — values
-below are shape illustration only (when invoked by another workflow, return only this):
+Interactive output ends with that compact block. When another workflow or the user requests
+structured output, return the same stable JSON schema below (JSON only for a structured caller).
+An explicit request for both formats gets both. Do not change fields or mode values; only the
+human presentation default changes. Values below illustrate the shape:
 
 ```json
 { "contentType": "article", "mode": "TTS_PLUS_REVIEW", "confidence": 92,

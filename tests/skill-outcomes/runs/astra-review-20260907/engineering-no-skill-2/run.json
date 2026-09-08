@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "condition": "no-skill",
+  "repetition": 2,
+  "execution_mode": "direct-coding-assistance",
+  "batch_context": "shared",
+  "fresh_worker_for_repetition": true,
+  "collected_at": "2026-09-07T08:08:46-03:00",
+  "corpus_source": "<user-home>/ai-kit/tests/skill-outcomes/cases.json",
+  "case_order": [
+    "existing-test-home",
+    "convention-new-test",
+    "no-suitable-test-home"
+  ],
+  "skill_body_read": false,
+  "skill_body_supplied": false,
+  "unavoidable_host_catalog_metadata_visible": true,
+  "comparative_trial_results_read": false,
+  "model": {
+    "requested": "gpt-5.6-sol",
+    "requested_reasoning_effort": "high",
+    "effective": null,
+    "effective_reasoning_effort": null,
+    "telemetry_note": "Distinct effective-model telemetry unavailable."
+  },
+  "tokens": null,
+  "cost": null,
+  "full_transcript": null,
+  "cases": [
+    {
+      "id": "existing-test-home",
+      "prompt_executions": 1,
+      "mandatory_expected": 6,
+      "mandatory_passed": 6,
+      "mandatory_failed": 0,
+      "human_review_required": true,
+      "suite": {
+        "command": "python3 -m unittest discover -s tests",
+        "exit_code": 0,
+        "tests_run": 3,
+        "result": "pass",
+        "trace": "cases/existing-test-home/shell-trace.txt"
+      },
+      "unnecessary_interruptions": 0,
+      "retries": 1,
+      "retry_note": "One pre-edit bookkeeping hash command used the case root; repeated once from the fixture root. No implementation or test retry.",
+      "artifact_bytes": {
+        "original": 427,
+        "final": 658,
+        "prompt": 237
+      },
+      "prompt_sha256": "0851f04370df4b4e1af4f40740efc10a7d6f070248e82e7c8cbad9fb5cbd19fa"
+    },
+    {
+      "id": "convention-new-test",
+      "prompt_executions": 1,
+      "mandatory_expected": 6,
+      "mandatory_passed": 6,
+      "mandatory_failed": 0,
+      "human_review_required": true,
+      "suite": {
+        "command": "python3 -m unittest discover -s tests",
+        "exit_code": 0,
+        "tests_run": 3,
+        "result": "pass",
+        "trace": "cases/convention-new-test/shell-trace.txt"
+      },
+      "unnecessary_interruptions": 0,
+      "retries": 0,
+      "artifact_bytes": {
+        "original": 523,
+        "final": 838,
+        "prompt": 237
+      },
+      "prompt_sha256": "0851f04370df4b4e1af4f40740efc10a7d6f070248e82e7c8cbad9fb5cbd19fa"
+    },
+    {
+      "id": "no-suitable-test-home",
+      "prompt_executions": 1,
+      "mandatory_expected": 6,
+      "mandatory_passed": 6,
+      "mandatory_failed": 0,
+      "human_review_required": true,
+      "suite": {
+        "command": "python3 -m unittest discover -s tests",
+        "exit_code": 0,
+        "tests_run": 4,
+        "result": "pass",
+        "trace": "cases/no-suitable-test-home/shell-trace.txt"
+      },
+      "unnecessary_interruptions": 0,
+      "retries": 0,
+      "artifact_bytes": {
+        "original": 464,
+        "final": 837,
+        "prompt": 237
+      },
+      "prompt_sha256": "0851f04370df4b4e1af4f40740efc10a7d6f070248e82e7c8cbad9fb5cbd19fa"
+    }
+  ],
+  "totals": {
+    "cases": 3,
+    "mandatory_expected": 18,
+    "mandatory_passed": 18,
+    "unnecessary_interruptions": 0,
+    "retries": 1
+  }
+}

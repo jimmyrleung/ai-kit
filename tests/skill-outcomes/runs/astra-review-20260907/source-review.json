@@ -1,0 +1,718 @@
+{
+  "record_id": "astra-consolidated-source-review-20260907",
+  "captured_at": "2026-09-07T13:35:21.388919+00:00",
+  "repository": "ai-kit",
+  "base": "aeec06bfa0a6b97402b17824d957f29635f40ba7",
+  "verdict": "source review complete with limitations; owner acceptance and outcome QA pending",
+  "scope": "B01-B35 implementation source and reviewed dependencies; corpus/evidence and historical notes separately parent-checked",
+  "files": [
+    {
+      "path": ".github/workflows/portability.yml",
+      "sha256": "e92d566f87a405d809f45add1d302fb20a44711a4475b87281ff42d9639da329",
+      "bytes": 2919,
+      "mode": "0o644",
+      "review_lanes": [
+        "tooling"
+      ]
+    },
+    {
+      "path": "20260906_astra_review_backlog.md",
+      "sha256": "33b07e83604488f91e4ef9ac2f008ee7f7173274552a186892301b559a364034",
+      "bytes": 47628,
+      "mode": "0o644",
+      "review_lanes": [
+        "domain"
+      ]
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "1e730a8b1e3defb1488bb4a6b73b37fc9db6e5cd2ec46688cef4d2c64718cece",
+      "bytes": 690,
+      "mode": "0o644",
+      "review_lanes": [
+        "tooling",
+        "engineering",
+        "domain"
+      ]
+    },
+    {
+      "path": "INVENTORY.md",
+      "sha256": "02400da9aae0208326092258243864edc7452cbb303a2692da8bca70bff4b996",
+      "bytes": 8855,
+      "mode": "0o644",
+      "review_lanes": [
+        "tooling"
+      ]
+    },
+    {
+      "path": "LICENSE",
+      "sha256": "e36c518d7e1955055f3c9a356d4cee102f9d18b9d3936b41ec495ec0783e2f2c",
+      "bytes": 1068,
+      "mode": "0o644",
+      "review_lanes": [
+        "parent-attribution-amendment"
+      ]
+    },
+    {
+      "path": "README.md",
+      "sha256": "677badc33cea6053d7ddfed07616290431a2b25517eb6fe855bb5c524423af05",
+      "bytes": 8282,
+      "mode": "0o644",
+      "review_lanes": [
+        "parent-attribution-amendment"
+      ]
+    },
+    {
+      "path": "adapters/codex/AGENTS.md",
+      "sha256": "64b578ac58e3d553254a2d20477de663f657ebce0479903b5da7f7800af059b5",
+      "bytes": 4187,
+      "mode": "0o644",
+      "review_lanes": [
+        "tooling"
+      ]
+    },
+    {
+      "path": "adapters/codex/README.md",
+      "sha256": "df9b6aee31da6a37daac73e3bb6c8ae79e791326ece84e7a31d66d90c2c7c9cf",
+      "bytes": 6082,
+      "mode": "0o644",
+      "review_lanes": [
+        "tooling"
+      ]
+    },
+    {
+      "path": "adapters/codex/sync.ps1",
+      "sha256": "16958455f9a1276c4a8ce8cd0aa9336055b32994fccbdfc740d1d73d8fb28634",
+      "bytes": 1759,
+      "mode": "0o644",
+      "review_lanes": [
+        "tooling"
+      ]
+    },
+    {
+      "path": "adapters/codex/sync.sh",
+      "sha256": "41ecb12030ee09b51d769719c990165a6aa98e879fad00d4956e163c07becec1",
+      "bytes": 386,
+      "mode": "0o755",
+      "review_lanes": [
+        "tooling"
+      ]
+    },
+    {
+      "path": "adapters/cursor/AGENTS.md",
+      "sha256": "0cd316901621d9cf674c6d51f0c4dfe54ef191dd2d6f6118cc66ed57245b2af0",
+      "bytes": 4353,
+      "mode": "0o644",
+      "review_lanes": [
+        "tooling"
+      ]
+    },
+    {
+      "path": "adapters/cursor/README.md",
+      "sha256": "f6c85658706525879450940f61f91bfae581b1fa718976f1a8a22a27703f1c85",
+      "bytes": 5998,
+      "mode": "0o644",
+      "review_lanes": [
+        "tooling"
+      ]
+    },
+    {
+      "path": "adapters/cursor/sync.ps1",
+      "sha256": "d6b387240278738449df43f38180594922ef703c6291a12eeec2ac2d5685ae1c",
+      "bytes": 1764,
+      "mode": "0o644",
+      "review_lanes": [
+        "tooling"
+      ]
+    },
+    {
+      "path": "adapters/cursor/sync.sh",
+      "sha256": "1fb3fcb009a51fd4745d95d5fcbecc07ed5952e733ad7df8b9568bdf82502aaa",
+      "bytes": 388,
+      "mode": "0o755",
+      "review_lanes": [
+        "tooling"
+      ]
+    },
+    {
+      "path": "docs/contracts/authorized-work.md",
+      "sha256": "ef970584b487fb71c6030f035368119efc18cfdd2e074ec0c285cb37759108ff",
+      "bytes": 1252,
+      "mode": "0o644",
+      "review_lanes": [
+        "tooling",
+        "engineering",
+        "domain"
+      ]
+    },
+    {
+      "path": "docs/contracts/change-evidence.md",
+      "sha256": "ec41ce9bb9860377d8bd29714cc4e839728d62b8a543536911f477f722ea62da",
+      "bytes": 9046,
+      "mode": "0o644",
+      "review_lanes": [
+        "engineering",
+        "domain"
+      ]
+    },
+    {
+      "path": "docs/contracts/documentation-evidence.md",
+      "sha256": "dc2fd5159c6c4377768ab7dda32401e0b87dc97c22c1cc8f09fecf2503ce1567",
+      "bytes": 4255,
+      "mode": "0o644",
+      "review_lanes": [
+        "domain"
+      ]
+    },
+    {
+      "path": "docs/contracts/engineering-change.md",
+      "sha256": "89c87f1d2c89d5ba45020d4bc28757f4462f29e7a4e1fadc88c9689214512904",
+      "bytes": 1050,
+      "mode": "0o644",
+      "review_lanes": [
+        "tooling",
+        "engineering",
+        "domain"
+      ]
+    },
+    {
+      "path": "docs/contracts/feedback.md",
+      "sha256": "f18a20d9005ba12bb33bf77c429eae9cb60bb18b6ab5e5b547b5d5bfb8487ec4",
+      "bytes": 9438,
+      "mode": "0o644",
+      "review_lanes": [
+        "tooling",
+        "engineering",
+        "domain"
+      ]
+    },
+    {
+      "path": "docs/contracts/skill-policy.md",
+      "sha256": "dc85f3a7bc089b939f148c9e28f15bd396c26a8d6e115a1cdd93042ff1efdd8c",
+      "bytes": 3649,
+      "mode": "0o644",
+      "review_lanes": [
+        "tooling",
+        "domain"
+      ]
+    },
+    {
+      "path": "docs/provider-capabilities.md",
+      "sha256": "48abd87c2b1a3ba89cd4724ac9a664b1e4df59c7bf4a7c2a062b495f310f19eb",
+      "bytes": 4849,
+      "mode": "0o644",
+      "review_lanes": [
+        "tooling",
+        "domain"
+      ]
+    },
+    {
+      "path": "docs/rules/skill-authoring.md",
+      "sha256": "2f0c4ee54fea3a6fe3f06c0dd1d88af2d6b13343af1674e54ae18ddfb7b65fc9",
+      "bytes": 11838,
+      "mode": "0o644",
+      "review_lanes": [
+        "tooling",
+        "engineering",
+        "domain"
+      ]
+    },
+    {
+      "path": "package-lock.json",
+      "sha256": "cadc6d858a7f9e403bc2ef5c43c97c696251e9f562e85bd91ca1b5f92a7b32aa",
+      "bytes": 1253,
+      "mode": "0o644",
+      "review_lanes": [
+        "tooling"
+      ]
+    },
+    {
+      "path": "package.json",
+      "sha256": "a1ae21e4f0794804ff94561cc0987871f9640af139ae245e9753b3e730f04dda",
+      "bytes": 428,
+      "mode": "0o644",
+      "review_lanes": [
+        "tooling"
+      ]
+    },
+    {
+      "path": "scripts/check-mechanics-mirror.py",
+      "sha256": "8d706c2f3045c14af8db45b9a12d6205bbdad3b7ff2d0a16f48ce50f91618c6c",
+      "bytes": 1702,
+      "mode": "0o644",
+      "review_lanes": [
+        "tooling"
+      ]
+    },
+    {
+      "path": "scripts/check-skill-portability.mjs",
+      "sha256": "e6e21bef3b6d08ad13106bd7095d544059c3ee3fedec7e64506db1d5995b793d",
+      "bytes": 20203,
+      "mode": "0o644",
+      "review_lanes": [
+        "tooling"
+      ]
+    },
+    {
+      "path": "scripts/sync-skills.py",
+      "sha256": "8ddb0c07826a9f823cdbdaaba4dad770145aa6b8c1ffab82db33fb97d4949afe",
+      "bytes": 50696,
+      "mode": "0o755",
+      "review_lanes": [
+        "tooling"
+      ]
+    },
+    {
+      "path": "skills/analyze-work/SKILL.md",
+      "sha256": "eacdfaa53dd077834b7c0a139477817f40633e67397ca4fd4f570a97bc2fd1bb",
+      "bytes": 13868,
+      "mode": "0o644",
+      "review_lanes": [
+        "engineering"
+      ]
+    },
+    {
+      "path": "skills/audit-skills/SKILL.md",
+      "sha256": "1a86a3c8e0ab13ba4cf61e8a2b0ddf6d870e8b63ad8dbfd8cbc9261be0859bd1",
+      "bytes": 18562,
+      "mode": "0o644",
+      "review_lanes": [
+        "domain"
+      ]
+    },
+    {
+      "path": "skills/breakout-session/SKILL.md",
+      "sha256": "fb1375ba6a66700ff541c8d519727b363b389d0aec600361186061d4f0b4ee7f",
+      "bytes": 5322,
+      "mode": "0o644",
+      "review_lanes": [
+        "domain"
+      ]
+    },
+    {
+      "path": "skills/bug-investigation/SKILL.md",
+      "sha256": "d84a91c9c14af978c4d023f4304bec82d22d5f8c18d04db43521dd7e89b6dd5e",
+      "bytes": 13769,
+      "mode": "0o644",
+      "review_lanes": [
+        "engineering"
+      ]
+    },
+    {
+      "path": "skills/close-tasks/SKILL.md",
+      "sha256": "f4d605f4b35e0be7956d593f7882a580ff7d1925809ef9eb2a4df00cca7d5962",
+      "bytes": 17118,
+      "mode": "0o644",
+      "review_lanes": [
+        "domain"
+      ]
+    },
+    {
+      "path": "skills/close/SKILL.md",
+      "sha256": "287a00dd5ba4cd74704fa49c81c2621cb885917f9dc12cf6791dd463f7bc8518",
+      "bytes": 19892,
+      "mode": "0o644",
+      "review_lanes": [
+        "domain"
+      ]
+    },
+    {
+      "path": "skills/close/scripts/check-observation-tags.mjs",
+      "sha256": "c948e2450c6296f98d4dee5359fa816fde7532203ee694ad8be1d05fcb96e05f",
+      "bytes": 2198,
+      "mode": "0o644",
+      "review_lanes": [
+        "domain"
+      ]
+    },
+    {
+      "path": "skills/compile-kb/SKILL.md",
+      "sha256": "ccd4a7f161b91097b517003dfe2e46f7ad9f76cb8bdef87be15e4203e7dc542a",
+      "bytes": 42609,
+      "mode": "0o644",
+      "review_lanes": [
+        "domain"
+      ]
+    },
+    {
+      "path": "skills/docs-tasks-creator/SKILL.md",
+      "sha256": "a5747796c3ab6341dad78feef2ef24f3abceb252512f6227f3c35ecce89800ad",
+      "bytes": 23097,
+      "mode": "0o644",
+      "review_lanes": [
+        "domain"
+      ]
+    },
+    {
+      "path": "skills/docs-tasks-creator/references/detectors.md",
+      "sha256": "def4022d6caa2cc324217372dcaa6abc8f443d67dd62310b4b93c1a51c6e3712",
+      "bytes": 7209,
+      "mode": "0o644",
+      "review_lanes": [
+        "domain"
+      ]
+    },
+    {
+      "path": "skills/document-terraform/SKILL.md",
+      "sha256": "2df6576b7f20b3ffb60221d6541f35fd74d7126a86b40326443332bd5c8a944c",
+      "bytes": 31250,
+      "mode": "0o644",
+      "review_lanes": [
+        "domain"
+      ]
+    },
+    {
+      "path": "skills/document-terraform/reference/heuristics.md",
+      "sha256": "7bb8e8e1906b8df4cbf6eea607faf66b1c40b9cf9c53fd23616b071b791680f4",
+      "bytes": 26114,
+      "mode": "0o644",
+      "review_lanes": [
+        "domain"
+      ]
+    },
+    {
+      "path": "skills/document-workflow/SKILL.md",
+      "sha256": "72fec73a3ccc4de9a785ea04cde176e5833191c2bb108fb9e7f475de2d12e833",
+      "bytes": 11206,
+      "mode": "0o644",
+      "review_lanes": [
+        "domain"
+      ]
+    },
+    {
+      "path": "skills/document-workflow/references/output-template.md",
+      "sha256": "a84ac31390faf0dfb793caf99580efefab7a79cd766b19d5e02cb61e4fe2bda4",
+      "bytes": 9269,
+      "mode": "0o644",
+      "review_lanes": [
+        "domain"
+      ]
+    },
+    {
+      "path": "skills/find-skills/SKILL.md",
+      "sha256": "3ee292cb91829547beb2ab8834f5f6bba7002beebc28c44d633edaf297034591",
+      "bytes": 5460,
+      "mode": "0o644",
+      "review_lanes": [
+        "domain"
+      ]
+    },
+    {
+      "path": "skills/implement-task/SKILL.md",
+      "sha256": "476672001e82daf585a9d2a28ae41b9e5ded90788aaa62bb59fdd47c16c63726",
+      "bytes": 9262,
+      "mode": "0o644",
+      "review_lanes": [
+        "engineering"
+      ]
+    },
+    {
+      "path": "skills/improve/SKILL.md",
+      "sha256": "9f8b1ed6e4db75555aab55d7d74541d60eae95c40886f9e7819c2e50eccf3e17",
+      "bytes": 18865,
+      "mode": "0o644",
+      "review_lanes": [
+        "domain"
+      ]
+    },
+    {
+      "path": "skills/lay-of-the-land/SKILL.md",
+      "sha256": "321bc48881717f347515de7df04e210cffeefdd591ea3d65be963a84b0483834",
+      "bytes": 9785,
+      "mode": "0o644",
+      "review_lanes": [
+        "engineering"
+      ]
+    },
+    {
+      "path": "skills/onboard-me/SKILL.md",
+      "sha256": "489387dc06cb7ea67e1d77cc79726a0678be093f21aa8885ec64a31fa53b9fc7",
+      "bytes": 5208,
+      "mode": "0o644",
+      "review_lanes": [
+        "domain"
+      ]
+    },
+    {
+      "path": "skills/orchestrate/SKILL.md",
+      "sha256": "4a8bfdfb5f37e9a7a7357f965831a06f30349019b047df5e9c8b0b5c9804f947",
+      "bytes": 9130,
+      "mode": "0o644",
+      "review_lanes": [
+        "domain"
+      ]
+    },
+    {
+      "path": "skills/post-mortem/SKILL.md",
+      "sha256": "37d178428878368b1abba9bf459370c225e1cdfc5de691428b8434f86796df99",
+      "bytes": 6917,
+      "mode": "0o644",
+      "review_lanes": [
+        "domain"
+      ]
+    },
+    {
+      "path": "skills/qa-gates/SKILL.md",
+      "sha256": "5f528d227be41a45cd2a3247f681d3ee3e80be0e57a0acaaa9a7f6dc98fe4aac",
+      "bytes": 18848,
+      "mode": "0o644",
+      "review_lanes": [
+        "engineering"
+      ]
+    },
+    {
+      "path": "skills/record-decision/SKILL.md",
+      "sha256": "f1af95e7699f7bc1571a7d2583e77536e30001223c641e91adce2fd74efad9fe",
+      "bytes": 8313,
+      "mode": "0o644",
+      "review_lanes": [
+        "domain"
+      ]
+    },
+    {
+      "path": "skills/review-artifact/SKILL.md",
+      "sha256": "a1622657e621951d456cd98cec606b4e0dcca4b2f5b99185157ed8acf3e9c272",
+      "bytes": 14315,
+      "mode": "0o644",
+      "review_lanes": [
+        "engineering"
+      ]
+    },
+    {
+      "path": "skills/review-implementation/SKILL.md",
+      "sha256": "7a8d99dc7efcec59268f43369ff9265f5384f8af7ecd3d1cebaddbdaceab27cf",
+      "bytes": 10614,
+      "mode": "0o644",
+      "review_lanes": [
+        "engineering",
+        "domain"
+      ]
+    },
+    {
+      "path": "skills/tasks-breakdown/SKILL.md",
+      "sha256": "8bbde7c8a848abc8bd1a9ce1f014888195069c1bbf4498d2c9730fb9a2a4d567",
+      "bytes": 17689,
+      "mode": "0o644",
+      "review_lanes": [
+        "engineering"
+      ]
+    },
+    {
+      "path": "skills/teach/GLOSSARY-FORMAT.md",
+      "sha256": "d177def491519d97873291f2e860d8f1d60ead78feecb82eee022177958069c6",
+      "bytes": 2131,
+      "mode": "0o644",
+      "review_lanes": [
+        "domain"
+      ]
+    },
+    {
+      "path": "skills/teach/LEARNING-RECORD-FORMAT.md",
+      "sha256": "855f81017625256584bbf62bd5edb9b0c86605c4cc1139c56acc36b802595d17",
+      "bytes": 2777,
+      "mode": "0o644",
+      "review_lanes": [
+        "domain"
+      ]
+    },
+    {
+      "path": "skills/teach/MISSION-FORMAT.md",
+      "sha256": "8da6d3ac84eb2eb19f17c260b6acf01c560d3ac7a4501c415eea0e985602f4d7",
+      "bytes": 1553,
+      "mode": "0o644",
+      "review_lanes": [
+        "domain"
+      ]
+    },
+    {
+      "path": "skills/teach/RESOURCES-FORMAT.md",
+      "sha256": "2bc634a64b0d0daa10904f9222e7aa0d361420dfacabbf092fbe3a72222edc08",
+      "bytes": 1926,
+      "mode": "0o644",
+      "review_lanes": [
+        "domain"
+      ]
+    },
+    {
+      "path": "skills/teach/SKILL.md",
+      "sha256": "1a13dbf0d018915271cdc3b1823680255e97557521a6b82a01f63774e4d5e1d4",
+      "bytes": 10788,
+      "mode": "0o644",
+      "review_lanes": [
+        "domain"
+      ]
+    },
+    {
+      "path": "skills/teach/agents/openai.yaml",
+      "sha256": "82a547ced5aa2377ce06a819b909b76c46cc0ecab40f01c35809572475d0fbcc",
+      "bytes": 102,
+      "mode": "0o644",
+      "review_lanes": [
+        "domain"
+      ]
+    },
+    {
+      "path": "skills/techspec/SKILL.md",
+      "sha256": "3b6275bad17a3f94b4d228e305daa3bd38c06c198f94021f50bd996cc102613d",
+      "bytes": 20553,
+      "mode": "0o644",
+      "review_lanes": [
+        "engineering"
+      ]
+    },
+    {
+      "path": "skills/triage-learning-content/SKILL.md",
+      "sha256": "a8bc67e1acf9e17169637663817a2b02962984ed04cf9f62b7ccd3f089a3af67",
+      "bytes": 8840,
+      "mode": "0o644",
+      "review_lanes": [
+        "domain"
+      ]
+    },
+    {
+      "path": "skills/triage/SKILL.md",
+      "sha256": "fba6e57bc7ae49a6c928d0ba7f47ddb5bac802b073daf3248313a9526dea45e7",
+      "bytes": 11955,
+      "mode": "0o644",
+      "review_lanes": [
+        "engineering",
+        "domain"
+      ]
+    },
+    {
+      "path": "skills/update-workflow-docs/SKILL.md",
+      "sha256": "f213ab6ad61d52134b75e36f8ede7be209ce1bf2a5522e8504f60213e4a725f8",
+      "bytes": 7130,
+      "mode": "0o644",
+      "review_lanes": [
+        "domain"
+      ]
+    },
+    {
+      "path": "skills/verify-task/SKILL.md",
+      "sha256": "f36f4ad8a33f965ee8983bfdef021daf61066bdbc88f2055723b2396ba012f72",
+      "bytes": 12023,
+      "mode": "0o644",
+      "review_lanes": [
+        "engineering"
+      ]
+    },
+    {
+      "path": "skills/walkthrough-implementation/SKILL.md",
+      "sha256": "0a7a75d102512da82fa8b0621d9b172dc85e4b65456198a12cad93ac4403c020",
+      "bytes": 6208,
+      "mode": "0o644",
+      "review_lanes": [
+        "engineering"
+      ]
+    },
+    {
+      "path": "skills/walkthrough/SKILL.md",
+      "sha256": "f5b8cae4cfcacde5e2ceb35e28cf6f4eebe25b4cf8825b1cef2366b01c65d68f",
+      "bytes": 4364,
+      "mode": "0o644",
+      "review_lanes": [
+        "engineering"
+      ]
+    },
+    {
+      "path": "skills/write-skills/SKILL.md",
+      "sha256": "995692ffd696321312bf40c30b8fb7b4a62ac384c10de2be75ab4652ea8b6b3d",
+      "bytes": 10535,
+      "mode": "0o644",
+      "review_lanes": [
+        "domain"
+      ]
+    },
+    {
+      "path": "tests/test_skill_portability.mjs",
+      "sha256": "3e8250dff772417a4d170d7804f2c30d17c121c45f4c6abf08f1c6f115d2c684",
+      "bytes": 12017,
+      "mode": "0o644",
+      "review_lanes": [
+        "tooling"
+      ]
+    },
+    {
+      "path": "tests/test_sync_skills.py",
+      "sha256": "40aa7f8c6c1427f456159b188e9c2e54c881b1d0b7077aad9c0eed379287bfdf",
+      "bytes": 49276,
+      "mode": "0o755",
+      "review_lanes": [
+        "tooling"
+      ]
+    }
+  ],
+  "superseded_dependency_records": [
+    {
+      "lane": "tooling",
+      "path": "docs/contracts/change-evidence.md",
+      "old": "5b99481f8e0992ce137c3f86911f29b8337f070e6f14de14b54673d2725ce256",
+      "current": "ec41ce9bb9860377d8bd29714cc4e839728d62b8a543536911f477f722ea62da"
+    }
+  ],
+  "disposition": "The tooling lane old change-evidence hash is superseded by matching engineering and domain full-file reviews of that dependency. No tooling implementation changed. Engineering section identities verified separately in parent-engineering-identity-check-v2.json.",
+  "exclusions": [
+    {
+      "path": "SESSION_LOG.md",
+      "reason": "preexisting owner work, untouched"
+    },
+    {
+      "paths": "20260906_astra_review.md; _independent_review.md; _report.md",
+      "reason": "historical input reports, preserved; requirements taken from backlog"
+    },
+    {
+      "paths": "tests/skill-outcomes/runs/** and execution report",
+      "reason": "output evidence, independently packaged/hash-checked; not implied source review approval"
+    },
+    {
+      "paths": "specs/linux_portability_cross_agent/*.md",
+      "reason": "only dated limitation notes; parent verified original HEAD title/body preservation"
+    }
+  ],
+  "layers": {
+    "committed": [],
+    "staged": [],
+    "unstaged": "review lane diffs in parent-verification archive",
+    "untracked": "review manifests and archived evidence record actual bytes"
+  },
+  "accepted_reasons": [],
+  "owner_go": null,
+  "confidence": {
+    "score": 95,
+    "uncertainty": "Bounded source review cannot certify model behavior, unavailable hosts or owner approval; copyright attribution is supplied by the owner."
+  },
+  "attribution_amendment": {
+    "captured_at": "2026-09-07T13:35:21.388919+00:00",
+    "files": [
+      {
+        "prior": {
+          "path": "LICENSE",
+          "sha256": "f2eb46b60685fe9bcb4a0075c865404d1f67a77363d3905025c46fcc335fb915",
+          "bytes": 1077,
+          "mode": "0o644",
+          "review_lanes": [
+            "tooling"
+          ]
+        },
+        "current_sha256": "e36c518d7e1955055f3c9a356d4cee102f9d18b9d3936b41ec495ec0783e2f2c",
+        "change": "Owner-supplied copyright attribution only; parent full-file read and reverse-substitution identity check."
+      },
+      {
+        "prior": {
+          "path": "README.md",
+          "sha256": "5657a3eaf7d4437c6b0eac70a72ff98ba522130afd5edc40e45f9e63812ca663",
+          "bytes": 8346,
+          "mode": "0o644",
+          "review_lanes": [
+            "tooling"
+          ]
+        },
+        "current_sha256": "677badc33cea6053d7ddfed07616290431a2b25517eb6fe855bb5c524423af05",
+        "change": "Owner-supplied copyright attribution only; parent full-file read and reverse-substitution identity check."
+      }
+    ],
+    "original_review_preserved": "owner-dispositions/evidence.zip: before/source-review.json",
+    "scope": "Original independent lanes retain their original byte scope; parent separately checked the two attribution lines."
+  }
+}

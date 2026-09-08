@@ -1,5 +1,15 @@
 # Linux portability and cross-agent coupling — analysis
 
+## Superseded 2026-09-07 — later skill-contract work
+
+The [Astra backlog execution](../../20260906_astra_review_execution.md) is the current handoff
+for the later changes to evidence, authorization, feedback, teaching, discovery, and authoring
+policy. Its approved scope supersedes this refactor's restrictions on changing those workflow
+bodies and gates; `find-skills` now has an intentional reviewed content-pin revision. Existing
+feedback stores remain supported, with optional recording defined by the public contract.
+This historical analysis, its counts, and its migration decisions remain preserved below.
+The common two-root deployment and external-entry ownership boundaries are unchanged.
+
 Date: 2026-08-31
 Mode: refactor
 Input: `linux_portability_cross_agent_coupling_lay-of-the-land.md`

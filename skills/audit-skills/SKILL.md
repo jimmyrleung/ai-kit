@@ -1,6 +1,6 @@
 ---
 name: audit-skills
-description: On-demand structural audit of the canonical skill population — frontmatter validity, description size + aggregate description budget, trigger-keyword coverage, body length, cross-skill redundancy, dead references, frontmatter-vs-directory mismatch, naming consistency, and volatile-content rot. Stages proposals under the active improvements store with one per finding; never auto-edits. Use after authoring a new skill, before a publish-quality run, or when the staleness prompt appears. Complements the improve skill's friction-driven inline audit.
+description: "Audits the canonical skill population for metadata, trigger coverage, size, redundancy, stale content, and broken references. Use to audit, lint, or check skill quality after authoring, before publishing, or when an audit is overdue. Stages findings for review; observation-driven friction review belongs to improve."
 ---
 
 <!-- intentionally-long: 12 checks documented inline; splitting to references/ would hurt usability because each check is short, the procedure flows linearly, and progressive disclosure adds latency for no readability win at this size. -->
@@ -12,8 +12,15 @@ You do NOT edit any live file; you stage proposals under the active improvements
 exactly like the improve skill does. Same approval discipline: the user reviews and approves
 one at a time.
 
-This is the deep, on-demand sibling of the improve skill's inline thin audit
-(vague-description + >150-line flags). It runs wider (12 checks) and only when invoked.
+Resolve `active-improvements-root`, recorder, and schema through
+[the feedback contract](references/shared/feedback.md), relative to this skill folder. A compatible configured store supplies the staging/queue paths;
+the established `~/.claude` profile remains supported. Without one, run the read-only audit
+and return the findings in chat with `persistence: disabled`; ask for a destination only if
+persisting the packet is required. Never invent a private root or claim that an enabled but
+unavailable recorder passed. Store bootstrap remains an explicitly authorized action.
+
+This is the on-demand structural sibling of improve's evidence-driven fitness review.
+Both use the maintained skill policy; this skill runs its 12 checks only when invoked.
 
 ## Inputs you read
 
@@ -23,7 +30,7 @@ This is the deep, on-demand sibling of the improve skill's inline thin audit
   and skip when absent. Specs for their checks (8, 9, and the command/agent legs of 1/10)
   stay below, dormant, in case those entity types return.
 - The most recent dated `REVIEW.md` in the active improvements store if present — for the
-  invocation-count column in the fitness table. Optional input; skip if not present.
+  observation-coverage column in the fitness table (not invocation telemetry). Optional input; skip if not present.
 - `last-audit.txt` in the active improvements store — timestamp of last audit; missing = never run.
 
 Resolution through provider deployment links is fine — same files.
@@ -51,43 +58,19 @@ If `REVIEW.md` already exists for today (because the improve skill ran earlier),
 ## Checks (12 total)
 
 ### Check 1 — Frontmatter validity
-For each SKILL.md / command / agent file:
-- `---` fences front and back; the frontmatter block parses under a **STRICT YAML parser (js-yaml)** — not just a regex check. Specifically flag an **unquoted `description:` (or any plain scalar) containing `: ` (colon-space)** or other YAML-special constructs (leading `[`/`{`/`&`/`*`/`|`/`>`, an unescaped `#` mid-scalar) that strict parsers reject while lenient tools tolerate. Validate with **Node + js-yaml** (the local PyYAML segfaults on this machine — see memory `skill-frontmatter-strict-yaml`; don't reach for it). Each failure → a proposal that quotes the value.
-- `name:` matches the directory (skills) or filename stem (commands/agents). **Commands
-  (`commands/*.md`) carry no `name:` field by kit convention — the filename is the name.**
-  Absence of `name:` on a command is an expected non-finding; flag only a `name:` that is
-  *present but mismatched* with the file stem. (Skills and agents still require `name:`
-  matching the dir/stem.)
-- `description:` present and non-empty.
-- **Canonical skill profile:** run `npm run check:portability` from the repository root.
-  `scripts/check-skill-portability.mjs` owns the allowed standard fields, field shapes,
-  and reviewed provider overlays; do not maintain a second allowlist here. Treat
-  unsupported fields or unjustified overlays as findings, using that checker's evidence.
-  If command or agent entities return, assess their fields against their documented
-  entity contract separately; do not apply the skill profile to them.
-- Skills live as `skills/<name>/SKILL.md` (not loose `.md`); commands are flat in
-  `commands/`; agents are flat in `agents/`.
+Run the final-tree commands in [the shared skill policy](references/shared/skill-policy.md).
+Resolve bundled references relative to this skill folder.
+The shipping checker owns strict YAML, standard fields, reviewed overlays, name bounds,
+and inventory membership. Stage exact fixes from its errors; do not copy its schema or
+require a private parser workaround. If archived entity types return, use their own
+contracts rather than applying the skill profile to them.
 
-→ Each failure: one proposal with the exact diff to fix.
-
-### Check 2 — Description size (tiered by role — house decision 2026-08-05; canonical spec, write-skills points here)
-- ≤ 600: target for new single-job skills (write-skills enforces at authoring) — nothing to flag.
-- 600–800: accepted band for evolved skills and mode-detecting heads — fitness-table note only, never a proposal.
-- 800–1,024: multi-sibling consolidation heads only (a skill that absorbed several retired
-  entry points legitimately carries their trigger surfaces). Flag ONLY if the excess is
-  process detail discoverable in the body — then propose a trim of exactly that; trigger
-  keywords are the head doing its job, never trim those. A non-consolidation skill in this
-  band gets a trim proposal.
-- > 1,024: hard fail — **exceeds the portable/open-standard cap**. Always a proposal with a
-  concrete rewrite. (A hosting tool's own higher cap is
-  academic once 1,024 is enforced.)
-- **Aggregate budget:** every description is always in startup context, so the population's
-  total matters, not just each file's. Sum description chars across all skills; report
-  skill count + total in REVIEW.md and store both in `last-audit.txt`. Soft-flag when the
-  total grew > 20% since the last audit — wrong-skill selection rises as the population
-  and its descriptions grow (Databricks / PostHog field data).
-
-Show current description, proposed shorter one, char-count delta.
+### Check 2 — Description size and effective catalog
+Use the shared policy's semantic guidance. Measure description characters and the
+population by directory enumeration, including supported links. Record aggregate
+size and change since the prior run separately from the host's observed catalog.
+A growth or length flag prompts inspection and routing trials; it is not evidence of
+wrong selection. Propose trimming procedure detail while preserving trigger boundaries.
 
 ### Check 3 — Description trigger-keyword coverage
 List plausible synonyms a user might invoke this skill with that are NOT in the
@@ -96,31 +79,21 @@ description. Bias toward common verbs: `verify` / `check` / `validate` / `audit`
 domain. Skills missing ≥2 likely synonyms → one proposal showing the description with
 synonyms folded inline (preserve the char budget — don't tack on a new sentence).
 
-### Check 4 — Body length
-- Soft-flag: > 150 lines. Note in fitness table; ask "intentional or candidate for split?".
-- Hard-flag: > 250 lines. Propose splitting reference content into `references/`
-  per Anthropic's progressive-disclosure pattern.
-
-Honor an `<!-- intentionally-long: <reason> -->` HTML comment at the top of a SKILL.md
-body. It downgrades the soft-flag unconditionally. It also covers the HARD flag —
-house decision 2026-08-13 (backlog 23) — but only when the reason names why a
-`references/` split specifically fails (read-latency, linear procedure, load-once
-contract), not just "it's long"; a marked >250 body becomes a noted-and-accepted
-line in the table, tracking its line count run-over-run. A >250 body with NO marker
-(or a marker whose reason doesn't address length) still gets a split proposal.
-
-Canonical line metric: `(Get-Content <file>).Count` — `Measure-Object -Line` undercounts
-(~40% observed) and produced a false-clean cap check.
+### Check 4 — Body size and reference boundaries
+Measure full-file logical lines (including blanks), whitespace words, and conditional
+reference sizes with a cross-platform file API. Use the shared policy: length is an
+inspection lead, not an automatic split. Honor documented reasons for keeping a
+linear procedure inline, then test whether the proposed organization preserves outcomes.
 
 ### Check 5 — Cross-skill redundancy (description-based)
 Pairwise compare descriptions. For any two with ≥5 shared trigger phrases in the
-first 50 words, surface the overlap: "Skills X and Y overlap on triggers A, B, C —
+first 50 words, inspect whether actual routing boundaries conflict before surfacing: "Skills X and Y overlap on triggers A, B, C —
 consider differentiating descriptions, or merging if bodies overlap too." Do NOT
 propose a merge diff; surface and let the user decide.
 
 ### Check 6 — Cross-skill redundancy (body-based, lightweight)
 For each pair in the same family (heuristic: same first segment before `-`), compare
-top-level section headers (`##` lines). ≥60% header match → soft finding. Same
+top-level section headers (`##` lines). ≥60% header match → inspection lead; confirm duplicated obligations before a finding. Same
 disposition as Check 5: surface, don't propose a merge.
 
 ### Check 7 — Dead references in skill, command, and agent bodies
@@ -142,7 +115,7 @@ references resolve against cc-looper's source tree at runtime (its slice-09 tech
 `~/projects/cc-looper/templates/` before flagging. audit-skills' own Check 7 text
 mentions the dead-path classes verbatim — self-matches are not findings. Skill-local
 `templates/<name>.md` references resolve against the skill's own dir (its
-`skills/<name>/templates/`), not the kit root — Test-Path there before flagging.
+`skills/<name>/templates/`), not the kit root — inspect that directory before flagging.
 Path-like strings inside fenced example blocks that illustrate a convention the skill
 creates at runtime in *target* repos (e.g. close 2c's `docs/rules/testing.md` index
 example) are illustrative, not references — check the enclosing fence and whether the
@@ -154,15 +127,10 @@ one name and its dead refs survived the audit. When a CONVENTION (not an entity)
 retired, add its descriptive phrases to the sweep list — live-names-only sweeps missed
 retired doctrine taught as current in 3 separate runs.
 
-### Check 8 — Frontmatter-vs-directory mismatch
-- A `SKILL.md` whose frontmatter looks like a command (has `argument-hint`, no long
-  description) → propose "might belong at `<repo-root>/commands/`".
-- A command file whose frontmatter looks like a skill (long description with trigger
-  phrases, no `argument-hint`) → propose the inverse.
-- An agent file whose frontmatter looks like a command/skill → propose moving.
-
-Anti-pattern context: `discovery-agent.md` was misfiled in a provider command directory
-pre-3.1. This check is what would have caught that class of mistake.
+### Check 8 — Entity placement
+Check the entity's declared purpose and current schema before proposing a move.
+Reviewed skill overlays such as `argument-hint` are valid metadata, not evidence that
+an entity belongs in the retired command tree. A move needs a real contract mismatch.
 
 ### Check 9 — Coverage: commands without skill bodies
 For each `<repo-root>/commands/<X>.md`, check whether it has a corresponding skill OR
@@ -179,7 +147,7 @@ skill (> 50 lines of non-frontmatter content in a command file).
 
 ### Check 11 — Output-doc filename contract
 For each live skill that emits a workflow phase document, verify its output filename
-against the skill-centric rows in `<repo-root>/docs/output-filename-contract.md`.
+against the skill-centric rows in [the bundled filename contract](references/shared/output-filename-contract.md).
 Compare both producers and consumers: flag (a) placeholder tokens or suffixes that
 conflict with the matching live row; (b) a consumer's expected phase filename that
 conflicts with its producer; and (c) a new workflow phase output with no contract row.
@@ -227,11 +195,13 @@ run — even in a FOCUSED run (a new angle-bracket detector found a long-standin
 FULL audits had missed).
 
 ### Phase 3 — Stage the packet
-Apply the keep-two rule (same as the improve skill): if there are already two or more dated
-dirs under the active improvements root, delete all but the most recent one (so after
-creating today's there are exactly two). The user is the only deleter — surface the
-candidate dirs and ask before removing. The `backlog/` dir is NOT a dated dir and is
-NEVER pruned by the keep-two rule.
+Apply the retention rules in [the feedback contract](references/shared/feedback.md).
+Before moving any dated packet, reconcile it against the unresolved queue. Keep every
+packet containing an open/deferred item or an open/no-evidence prediction reachable at
+its recorded locator. Resolved packets may remain in place or move to a configured
+archive only after queue locators are updated; never discard a packet merely to enforce
+a dated-directory count. The persistent backlog is never date-pruned. Any destructive
+cleanup remains an explicit owner action.
 
 **Disposition rule (confidence gate):** for each finding, score confidence per the
 project's loaded "Score Confidence" guidance. If **> 90%** (strictly greater —
@@ -293,7 +263,7 @@ Create or append-to today's REVIEW.md:
 | … | | |
 
 ## Skill fitness table
-| skill | body lines | desc chars | last invoked | flags |
+| skill | body lines | desc chars | last observed outcome / coverage | flags |
 |---|---|---|---|---|
 | … | | | | |
 
@@ -329,16 +299,16 @@ Same offer-don't-run discipline as the improve skill. Never run unprompted.
 
 ## Composition with the improve skill
 
-- The improve skill keeps its inline Phase 2 thin audit (vague-description + >150-line flags).
-  It still runs every week as part of friction review and is fine for the small
-  population subset that has invocations.
+- The improve skill's Phase 2 fitness review uses the maintained skill policy.
+  It runs as part of a requested friction review and is suitable for the small
+  population subset with relevant observations; unobserved usage remains unknown.
 - This skill runs on-demand and on a 90-day floor.
 - When both surface the same finding: the improve skill checks for an `[audit]`-tagged
-  proposal on the same target in the current staging dir; if present, it marks its
+  proposal on the same target in the unresolved queue and all reachable packet locators; if present, it marks its
   own finding "already staged by audit-skills NN-…" and does not restage.
 
 ## What this skill does NOT do
-- **Effectiveness scoring** (which skills work well) — the improve skill's fitness table owns this.
+- **Task-outcome benchmarking** — the shared evaluation protocol owns this; selective observations in improve do not establish success rates.
 - **Private instruction / memory / orchestrator lint** — the improve skill's Phase 3 owns this.
 - **New-skill synthesis** (capability gaps) — the improve skill owns this via observation patterns.
 - **Auto-fix** — every finding is a proposal the user approves one at a time.

@@ -32,6 +32,11 @@ The adapter does not generate provider-specific skill copies, command/agent twin
 subagent files. Historical v1 generation details remain in the superseded assessment;
 the common engine's explicit `--prune` behavior applies only to its managed roots.
 
+Each complete skill folder includes generated shared references. Detached copies need no
+manual `docs/` copy and update by replacing the complete folder. Linked installs expose
+checkout edits; shared-rule edits require the maintainer's `npm run build:skill-references`
+step first. Sync itself does not generate references or fetch repository updates.
+
 ## Duplicate discovery: source equivalence, no precedence
 
 Cursor can discover the same ai-kit skill from more than one root. The source-equivalence
@@ -90,35 +95,20 @@ Refresh the copied block manually after adapter edits; no repository script or s
 may overwrite a private conventions file.
 
 
-## Your personal conventions do not transfer (read this)
+## Optional personal conventions
 
-`adapters/cursor/AGENTS.md` is the kit's **Cursor-mechanics** layer only (the
-v2 surface, fan-out reading rules, the structured-question plain-text
-degradation, model notes, the anchored `~/.claude` paths). It is **not** a
-replica of your `~/.claude/CLAUDE.md`.
+The kit's public contracts are sufficient for a fresh-user workflow. Private conventions
+can add user preferences, but are not a setup prerequisite. Keep them private and place
+them only where the active host reads instructions. The sync engine never writes them.
+See [provider capabilities](../../docs/provider-capabilities.md) for runtime checks and
+read-only copied-mechanics drift detection, and [feedback](../../docs/contracts/feedback.md)
+for optional stores and recorder ownership.
 
-The Cursor CLI does not read `~/.claude/CLAUDE.md`. So your personal working
-agreement — confidence scoring, ask-before-assuming, scope discipline,
-read-before-edit, verification-before-completion, risky-command confirmation,
-session open/close offers — **does not reach Cursor**, and several kit skills
-implicitly assume it. The fix mirrors how Claude already layers it:
+## Runtime verification
 
-- **Kit layer** (public, in-repo, this dir): `AGENTS.md`.
-- **User layer** (private, **you own this**): mirror `~/.claude/CLAUDE.md` into
-  a private AGENTS.md placed where your Cursor build reads rules, with an
-  include point where the kit block is pasted. **Keep it out of this public
-  repo.** `sync` never writes it; it prints a reminder instead.
-
-## Open `[verify on installed binary]` items (re-check on Cursor update)
-
-- `AGENTS.md` **global** read-location (project-root cascade is standard; a
-  `~/.cursor/AGENTS.md` global analog is build-dependent).
-- Precedence ordering among the native skills dirs (`~/.cursor/skills`,
-  `~/.agents/skills`, project `.cursor/skills`, `.agents/skills`) — docs
-  silent.
-- Absence of an `AskUserQuestion`-analog in the CLI tool surface.
-- Whether your build exposes native ad-hoc subagent spawns to the CLI (affects
-  the fan-out degradation in `AGENTS.md`).
+Use the shared provider reference for current capability checks. Record unavailable
+native discovery, authentication, or execution separately from installation checks.
+Duplicate catalog entries need source-equivalence verification, not a guessed precedence.
 
 ## Two-/three-consumer test debt
 

@@ -1,6 +1,6 @@
 ---
 name: write-skills
-description: Author a new portable skill — or fix one that won't fire — so it triggers reliably, reads like the ai-kit corpus, and passes the audit-skills checker by construction. Covers pinning the one job, a trigger-rich third-person description (the part that decides whether a skill fires), degrees of freedom (prose vs script), the house single-file body skeleton, and a fresh-context trigger test. Use when creating, writing, building, or authoring a skill or SKILL.md, or when an existing skill isn't triggering. The build sibling of audit-skills' lint.
+description: "Authors a focused, portable skill or fixes one that does not trigger reliably. Use when creating, writing, building, or authoring a skill / SKILL.md, or when an existing skill will not fire. Whole-population structural lint belongs to audit-skills; finding installable skills belongs to find-skills."
 ---
 
 # write-skills — author a skill that triggers and passes the lint
@@ -14,46 +14,38 @@ You are a skill author. You produce ONE focused `SKILL.md` that does a single jo
 - The **build** sibling of the audit-skills checker (which lints the whole population). Author here; lint there.
 
 ## When NOT to use
-- **Pervasive, always-relevant guidance** (a convention that applies to most tasks) → put it in the loaded instruction layer, not a skill. Always-loaded context beats an optional skill for ubiquitous rules (Vercel evals: 100% vs 53%).
+- **Pervasive, always-relevant guidance** (a convention that applies to most tasks) → put it in the loaded instruction layer, not a skill. The shared policy explains the task-specific limits of the Vercel evaluation; use a local comparison before choosing the packaging.
 - **A mechanical constraint** enforceable by a regex, formatter, or hook → make it a hook, not a skill.
 - **A one-line tweak** to an existing skill → just edit it; no ceremony.
 - **Work the agent already does well unaided** → no skill; every skill has a standing context + maintenance cost. Baseline-test first: dry-run the task in a clean session *without* the skill — skill only what agents do badly by default, what needs context they can't derive, or what must run on autopilot. Recurrence bar: done ~3× and likely 3× more.
 
-## The limits that actually bind (portable skill profile)
-| Field | House target | Hard cap | Portable cap |
-|---|---|---|---|
-| `description` | ≤ 600 chars new · to 800 evolved/mode-head · to 1024 consolidation-head (tier spec: audit-skills Check 2) | 1536 (host listing cap) | 1024 (portable profile cap) |
-| body | ≤ 150 lines | 250 → split or mark intentionally-long | 500 (portable profile ceiling) |
-| `name` | kebab-case · == directory · ≤ 64 · **not** ending `-skill` | | |
+## Policy and portable profile
 
-The description is the only thing the model sees when choosing a skill, and all descriptions share a small startup budget — short is not cosmetic, it's what makes the skill *fire*. There is no "500-character" rule anywhere; that's a myth conflating the 500-*line* body cap with the 1024-*char* description cap.
+Use [the shared skill policy](references/shared/skill-policy.md) for schema ownership,
+semantic guidance, and the distinct routing, outcome, and final-tree checks. Resolve
+bundled references relative to this skill folder.
+The repository checker owns allowed fields and reviewed overlays; do not infer that
+optional standard fields or reviewed provider metadata are forbidden.
 
-## Portable profile (cross-tool / repo-local skills)
-For a skill that must load across hosts and the open standard — e.g. a repo-local skill minted by
-the close skill's maintenance phase — additionally constrain:
-- Frontmatter keys `name`/`description`/`license`/`allowed-tools`/`metadata` only; description
-  ≤ 1024 chars, double-quoted when it contains `: `, and no `<`/`>` anywhere in it.
-- Body capability-oriented — no host-specific question, search, planning, or worker tool names.
-- Repo-local skills: dual-write the identical `SKILL.md` to each supported project skill root,
-  such as `.claude/skills/<name>/` and `.agents/skills/<name>/`. The pair is one unit — every
-  later edit updates both. The global sync adapters and the audit-skills checker do not cover
-  repo-local skills.
+Keep bodies capability-oriented. For repo-local skills, maintain identical bodies in
+both configured project skill roots; the global sync/checker does not validate those
+copies. Validate them explicitly against the same profile and test their behavior.
 
 ## Input contract
 Before drafting, pin down:
 - **The one job** — one sentence. If you need an "and", it's two skills.
 - **Trigger phrases** — the exact words a user would say when they want this. These become the description's "Use when …".
-- **Artifact?** — if it writes a doc, name the `{token}.md` (and check `docs/output-filename-contract.md` if it joins a workflow family).
+- **Artifact?** — if it writes a doc, name the `{token}.md` (and check [the bundled filename contract](references/shared/output-filename-contract.md) if it joins a workflow family).
 - **Scripts?** — only if some step is deterministic, fragile, or regenerated every run (see Process 3).
 
 ## Process
 1. **Pin the one job.** Name what it does and, explicitly, what it does *not* — the latter becomes a `## What this does NOT do` handoff to sibling skills.
-2. **Write the description FIRST — it decides whether the skill ever fires.** Third person. Sentence 1 = what it does; sentence 2 = `Use when <symptoms / keywords / file types>`. Lead with *symptoms*, not a workflow summary (a summary makes the model follow the description instead of reading the skill). Fold trigger synonyms inline. Keep ≤ 600 chars. Add an explicit-invocation note only if the skill is deliberately invoked.
+2. **Write the description FIRST — it decides whether the skill ever fires.** Third person. Sentence 1 = what it does; sentence 2 = `Use when <symptoms / keywords / file types>`. Lead with *symptoms*, not a workflow summary (a summary makes the model follow the description instead of reading the skill). Fold trigger synonyms inline. Follow the shared policy's 600-character review target; preserve useful longer triggers within the checker's binding bounds. Add an explicit-invocation note only if the skill is deliberately invoked.
 3. **Choose degrees of freedom.** Prose for judgement calls; an exact bundled script only when an operation is deterministic, fragile, or regenerated each run. Scripts: label each `read-only` / `bootstrap` / `mutating`, forward-slash paths only, *solve don't punt* (handle errors inside the script), no unexplained magic numbers. Most skills here need **zero** scripts.
    **Precise vs ambiguous:** be precise about the *goal* (what done looks like + a self-verify step), the *constraints*, and *context the agent can't derive* (schemas, tool choice, where data lives); stay ambiguous about the *steps*, *failure handling*, and *runtime specifics* (line numbers, file lists, counts, versions — they drift). Over-specifying steps turns the skill into a brittle workflow that breaks the moment reality doesn't match it, and wastes the intelligence running it.
-4. **Draft the body to the house skeleton (single file, ≤ 150 lines)** — see below. Second person ("You are a …"); end the Process with a **confidence gate** if the skill makes judgement calls. If it genuinely needs > 250 lines, either move the *largest* block to `references/` (one level deep; add a table of contents if that file exceeds 100 lines) or add a top-of-file `<!-- intentionally-long: <reason> -->` marker — the same escape the corpus already uses.
-5. **Test on a fresh context (the step that matters most).** In a clean session: **(a) trigger check** — two cheap in-session tiers approximate the clean session: **tier 1 (roster simulation)** — one generic subagent given ONLY the competing descriptions (this skill + its near-neighbors) routes 4–6 realistic requests, including ≥1 boundary case per near-neighbor and ≥1 distractor that should NOT route here (~10s; caught real defects in four lived runs); **tier 2 (weak-model floor)** — repeat at weak-model strength — a session-model pass masked a description defect the weaker model exposed. If the model misroutes, the description is wrong — fix it. Reserve the true fresh-session test for tier failures. Can't run either tier now → append the skill name + date to `pending-trigger-tests.txt` in the active improvements store; never ship silently untested. **(b) dry-run** — have it follow the body on one real task and watch where it stalls, re-reads, or ignores a section; tighten those. **(c) ask the agent** — after the dry-run, ask it what tools or context it was missing and how the skill could improve; it holds information you don't (its capabilities, what broke). Skills auto-trigger far less reliably than the docs imply — never ship one untested.
-6. **Confidence gate, then finish.** Score per the loaded confidence format (Why-N% bullets / 100−N% uncertainty bullets); at ≥ 90% write the file, then run the audit-skills checker and the common sync dry-run per the standing rule.
+4. **Draft a focused body using the applicable skeleton sections below.** Keep required evidence and handoffs explicit. Use the shared policy to decide reference boundaries; length alone does not require a split. State evidence gaps for judgment calls.
+5. **Test on a fresh context (the step that matters most).** In a clean session: **(a) trigger check** — two cheap in-session tiers approximate the clean session: **tier 1 (roster simulation)** — one generic subagent given ONLY the competing descriptions (this skill + its near-neighbors) routes 4–6 realistic requests, including ≥1 boundary case per near-neighbor and ≥1 distractor that should NOT route here (~10s; caught real defects in four lived runs); **tier 2 (supported deployment configuration)** — repeat with another model only when supported and relevant to intended users; record the effective model and settings. If the model misroutes, the description is wrong — fix it. Reserve the true fresh-session test for tier failures. Can't run either tier now → append the skill name + date to `pending-trigger-tests.txt` in the active improvements store; never ship silently untested. **(b) dry-run** — have it follow the body on one real task and watch where it stalls, re-reads, or ignores a section; tighten those. **(c) ask the agent** — after the dry-run, ask it what tools or context it was missing and how the skill could improve; it holds information you don't (its capabilities, what broke). Record which discovery mechanism actually ran; a roster simulation is not native discovery evidence.
+6. **Confidence gate, then finish.** Score per the loaded confidence format (Why-N% bullets / 100−N% uncertainty bullets); at ≥ 90% write the file, then run the repository portability checker and the common sync dry-run per the standing rule.
 
 ## House body skeleton (copy; delete what doesn't apply)
 ```
@@ -74,11 +66,11 @@ Omit a section rather than leave a placeholder.
 
 ## Important rules
 1. **One skill, one job.** Two jobs → two skills.
-2. **The description is the whole ballgame.** Third person, ≤ 600 chars, symptoms-first, trigger-rich. The *body* may be second person ("You are a …") — never confuse the two voices. **Quote any `description:` value containing `: ` (colon-space)** — lenient parsers may tolerate it, but strict YAML consumers can silently skip the skill (`mapping values are not allowed in this context`); when in doubt wrap the whole description in double quotes (the audit-skills checker enforces this).
-3. **Single-file by default.** `references/` is the escape past ~250 lines (one level deep, TOC if long), not the starting point.
+2. **The description is the whole ballgame.** Third person, symptoms-first, trigger-rich; apply the shared policy's review target and the repository checker's binding limits. The *body* may be second person ("You are a …") — never confuse the two voices. **Quote any `description:` value containing `: ` (colon-space)** — lenient parsers may tolerate it, but strict YAML consumers can silently skip the skill (`mapping values are not allowed in this context`); when in doubt wrap the whole description in double quotes (the repository portability checker enforces this).
+3. **Focused core by default.** Follow the shared policy for conditional references; no automatic line-count split.
 4. **Rot-resistance.** No time-sensitive content ("as of August…"), no baked-in runtime specifics (counts, versions, other files' line numbers); point at a single source of truth (a path or URL) rather than duplicating content that drifts. **Consistent terminology** — one term per concept, kept throughout.
 5. **Scripts are the exception**, not the rule; when used, label and harden them (Process 3).
-6. **Pass the audit-skills checker by construction** — kebab dir == `name`, 2-key frontmatter, differentiated from siblings, no dead paths.
+6. **Pass the audit-skills checker by construction** — directory matches `name`, standard fields and justified overlays accepted by the repository checker, differentiated from siblings, no dead paths.
 7. **Never ship untested** — a skill that doesn't trigger is worse than no skill; it adds noise.
 8. **Regenerate, don't patch.** When a skill has accumulated several ad-hoc exception clauses or fix-on-fix edits, rewrite the body from its one-job spec instead of patching again — layered fixes blur a skill's focus until it stops firing cleanly.
 
@@ -90,5 +82,5 @@ Omit a section rather than leave a placeholder.
 ## Output file
 `skills/<name>/SKILL.md` in ai-kit, dir name == `name`. It is directly invocable using the host's
 skill syntax — no `commands/` wrapper needed. After writing: add the skill's `INVENTORY.md` row
-(population-sync rule — `docs/rules/skill-authoring.md`), run the audit-skills checker, then dry-run
+(population-sync rule — `docs/rules/skill-authoring.md`), run the repository portability checker, then dry-run
 the common sync adapter to propagate the new skill to supported hosts.

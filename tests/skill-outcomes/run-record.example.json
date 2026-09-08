@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "run_id": "example-only-not-a-run",
+  "batch_id": "fill-from-actual-run",
+  "case_id": "existing-test-home",
+  "condition": "candidate",
+  "repeat": 1,
+  "execution_kind": "supplied-body-procedure",
+  "status": "pending",
+  "provider": "unavailable",
+  "host_version": "unavailable",
+  "model": "unavailable",
+  "reasoning": "unavailable",
+  "settings_origin": "unavailable",
+  "tool_capabilities": [],
+  "source_manifest": "inputs/source-manifest.json",
+  "prompt_path": "inputs/prompt.md",
+  "trace_path": null,
+  "trace_unavailable_reason": "not run",
+  "artifacts": [],
+  "grading": [],
+  "failures": [],
+  "unavailable": ["not run"],
+  "measurements": {
+    "started_at": null,
+    "finished_at": null,
+    "elapsed_seconds": null,
+    "unnecessary_interruptions": null,
+    "required_clarifications": null,
+    "requested_discussion_turns": null,
+    "retries": null,
+    "artifact_bytes": null,
+    "total_output_bytes": null,
+    "tokens": null,
+    "cost": null,
+    "unavailable_reason": "Template only; no execution or provider accounting yet."
+  },
+  "review": {
+    "agent_reviewer": null,
+    "parent_grounding": "pending",
+    "human_owner": "pending"
+  }
+}

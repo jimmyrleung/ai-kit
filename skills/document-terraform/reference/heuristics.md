@@ -8,20 +8,30 @@ Progressive-disclosure reference for `SKILL.md`. The SKILL body owns the methodo
 
 Goal: for each resource, emit **both** the raw name template and a best-effort resolved value, each with a confidence score. Never present a guess as a fact; never invent a value you couldn't derive.
 
-### Evaluation order (per environment)
+### Evaluation scopes and order (per environment)
 
-Resolve `var.*` and `local.*` referenced in a `name =` expression by walking, in priority:
+Terraform has two different input boundaries. Never merge them into one precedence list.
 
-1. **Literal arguments at the environment entrypoint.** Thin env wrappers usually pass naming inputs as literals — e.g. `environment = "dev"`, `regions = ["centralus"]` in `environments/dev/main.tf`. These are the highest-confidence source.
-2. **`*.tfvars` / `*.auto.tfvars`** for that environment.
-3. **Variable `default`s** in the consuming module's `variables.tf`.
-4. **`locals`** — evaluate maps and interpolations using the values resolved above. Lookup maps (`local.environment_map[var.environment]`) resolve fully once their key resolves.
+1. **Root-module variables.** Identify the actual execution root. Resolve values in
+   Terraform's documented precedence, highest first: observed CLI `-var`/`-var-file` or HCP
+   Terraform values; lexically ordered `*.auto.tfvars(.json)`; `terraform.tfvars.json`;
+   `terraform.tfvars`; `TF_VAR_*`; then the root variable default. Include an upper tier only
+   when its invocation/orchestration evidence was inspected. An arbitrary environment-named
+   `.tfvars` file is not active unless execution configuration or a `-var-file` reference
+   selects it.
+2. **Child-module variables.** Evaluate the `module` block's argument in the **parent's**
+   resolved scope, then bind that result to the child's input variable. Use the child's default
+   only when the call omits the argument. Root tfvars never assign child inputs directly.
+3. **Locals and outputs.** Evaluate them in the module where declared, using that module's
+   resolved variables, and pass outputs back to the parent before evaluating dependent calls.
+   Repeat at each wrapper/module hop.
 
 A segment you cannot resolve at any tier (orchestrator-injected at runtime, sensitive, computed from an unavailable module) is rendered verbatim as `<var.NAME>` / `<unresolved>` in the resolved value, and the confidence drops accordingly. **Do not** substitute a plausible-looking value.
 
 ### Confidence bands for a resolved name
 
-- **90–100%** — every segment resolved from literals / tfvars / defaults + provider-doc-confirmed naming rules. (Typical for structural resources in a thin-env-wrapper repo: env + region are literals.)
+- **90–100%** — every segment resolved from an evidenced root input or explicit parent→child
+  argument/default plus provider-doc-confirmed naming rules.
 - **70–89%** — resolved, but ≥ 1 segment came from a `default` that an env _could_ override, or a provider name-mangling rule (truncation, lowercasing, no-hyphens) you applied from docs but couldn't observe applied.
 - **< 70%** — ≥ 1 segment is `<unresolved>`; show the template and the partial value, list exactly which segment is unknown and why.
 
@@ -31,7 +41,7 @@ Many provider resources mutate the requested name (lowercase, strip hyphens, len
 
 ### `count` / `for_each` expansion
 
-One logical block → N rows. Record the expansion factor and index basis:
+When multiplicity resolves, one logical block produces N rows. Otherwise retain the block with unknown multiplicity and list the missing input. Record the expansion factor and index basis:
 
 - `count = length(var.regions)` with `regions = ["centralus","eastus2"]` → emit `[0] centralus`, `[1] eastus2` as separate resolved rows.
 - `for_each = var.kv_entries` → one row per key; the **key** is in scope for naming (`each.key`), the **value** is a secret (see _Secrets_).
@@ -56,21 +66,27 @@ Worked: `kv_entries = merge(var.kv_entries, { "AzureServiceBus--FullyQualifiedDo
 
 ---
 
-## External vs cross-stack (producer index + 3-state)
+## Producer relationships
 
 Replaces the naive "every `data` source = external". A `data` source frequently points at a resource **another root in the same repo creates**, or at one inside a **private module not yet loaded** — neither is "external".
 
 ### Build the producer index
 
-Across **all roots** + **every resolvable private/remote module**, index every `resource` block by `(provider type, resolved-or-templated name)`. Templated keys (where a segment is `<var.x>`) match other templates structurally; resolved keys match exactly. Keep the producing root + module + `file:line` on each index entry.
+Across all roots and every source-resolved module, index each resource by provider source/type,
+resolved provider configuration, account/subscription/project, region, and
+resolved-or-templated name. Retain producing root + module + `file:line` as provenance. A
+structural template or type+name match with unknown/different provider context is a candidate
+only; do not merge it or classify it cross-stack until the context also matches. Once context
+matches, compare producing and consuming roots to distinguish same-root from cross-root.
 
-### Classify each consumer (3-state)
+### Classify each consumer
 
 For every `data` source / hardcoded external ID / cross-resource reference, resolve its lookup key and pick exactly one:
 
-1. **Internal cross-stack** — producer found in _another root_ (or a shared module another root owns). Output a dependency edge `consuming-root ← producing-root/module`. This is the most commonly _mis_-classified case — check the index before ever writing "external".
-2. **Out-of-band / external** — no producer anywhere, even after following the chain across roots. Raise confidence with corroborating signals (below).
-3. **Indeterminate** — a producer plausibly lives inside an unresolved private/remote module. **Not external.** Flag, and trigger Phase 3 (ask the user to add the module). Re-classify once available.
+1. **Internal same-root** — matching producer in the consuming root or its child modules. Record the local edge.
+2. **Internal cross-stack** — producer found in _another root_ (or a shared module another root owns). Output a dependency edge `consuming-root ← producing-root/module`. This is the most commonly _mis_-classified case — check the index before ever writing "external".
+3. **Out-of-band / external** — no producer anywhere, even after following the chain across roots. Raise confidence with corroborating signals (below).
+4. **Indeterminate** — a producer plausibly lives inside an unresolved private/remote module. **Not external.** Flag, and trigger Phase 3 (ask the user to add the module). Re-classify once available.
 
 ### Corroborating signals (raise/lower confidence on "external")
 
@@ -95,43 +111,61 @@ For every `data` source / hardcoded external ID / cross-resource reference, reso
 
 Classify by the `source` string's shape; resolution differs per class. **Never** hardcode a client's `registry-name → local-path` convention — ask.
 
-| Shape            | Example                                                  | Resolution                                                                                                                                        |
-| ---------------- | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Local            | `../key_vault`, `./modules/x`                            | Trace directly in-repo.                                                                                                                           |
-| Public registry  | `terraform-aws-modules/vpc/aws`                          | Semantics from registry/provider docs (context7 → websearch).                                                                                     |
-| Private registry | `<host>/<ns>/<name>/<provider>` (e.g. a `*.io` host)     | May hold real resources + Phase-2 producers. Ask the user to add the source; _propose_ a likely sibling location but never assume the naming map. |
-| Git              | `git::https://…//mod?ref=v1`, `github.com/org/repo//mod` | As private registry: request access; respect the `ref` pin.                                                                                       |
-| Archive / other  | `https://…/mod.zip`                                      | Request the unpacked source; otherwise mark `unresolved-pending-user`.                                                                            |
+| Shape            | Example                                                  | Resolution |
+| ---------------- | -------------------------------------------------------- | ---------- |
+| Local            | `../key_vault`, `./modules/x`                            | Trace directly. Record it as a local provenance leaf with content identity, even though it has no remote version. |
+| Public registry  | `terraform-aws-modules/vpc/aws`                          | Registry/provider docs establish semantics only. Inspect the pinned body before inventorying its resources. |
+| Private registry | `<host>/<ns>/<name>/<provider>`                          | Request readable pinned source; propose a location but never assume the naming map. |
+| Git              | `git::https://…//modules/vpc?ref=v1`                    | Separate repository/package, `//modules/vpc` subdirectory, and `ref`; inspect that subdirectory's body at the resolved revision. |
+| Archive / other  | `https://…/mod.zip`                                      | Request readable unpacked pinned source; otherwise unresolved. |
 
-Record per distinct source: the string, the version/`ref` pin, and a status — `resolved-local` / `resolved-registry-docs` / `unresolved-pending-user`. Unresolved private modules make their would-be resources `indeterminate` in Phase 2 — surface that linkage explicitly so the user understands _why_ adding the module matters.
+Record two identities rather than calling every module a repository:
+
+- **Package/repository identity:** normalized remote package or local source repository,
+  plus resolved revision/content digest. Several module subdirectories may share it.
+- **Module identity:** package identity + package subdirectory + version/ref. Multiple
+  wrappers and modules can live in one repository; report distinct repositories, module
+  sources, and source@version pairs as separate counts.
+
+Statuses are `source-resolved` (pinned body bytes inspected), `semantics-only` (official
+registry/provider prose inspected, body still unavailable), or `unresolved-pending-user`.
+Only `source-resolved` supports resource inventory/producers. `semantics-only` supports a
+generic provider/module role and leaves resources indeterminate. A local leaf is
+`source-resolved` with no invented remote/version.
 
 ---
 
 ## Module provenance & architectural-role rendering
 
-Schema-`v3` ships **three** newcomer-legibility deliverables. A and B (below) are _renderings of evidence already gathered_ (the module call graph + the Phase-2 producer index) — neither introduces a new claim, so neither costs confidence. The third, **C — the _Integration & permissioning (incident-triage)_ matrix** — is mandated by SKILL Rule 9 and specified in its own section below (_Identity & permissioning (declared ≠ effective)_); it re-presents role-assignment / membership / access-policy facts with an **effectiveness verdict**, so it costs no confidence beyond the auth-mode checks Rule 9 requires. All three exist because the `v1` inventory reads well only to someone who already holds the estate's shape in their head.
+Schema-v4 ships the provenance tree, evidence-grounded role rendering, and the
+Integration & permissioning matrix. The matrix separates declared, deployed, and effective
+evidence; it does not turn an HCL observation into a live verdict.
 
 ### A. The module-provenance chain + tree
 
 **Per resource — the chain.** Walking the tree (Phase 1) you already cross every hop `caller → module "x" → source`. Tag each hop by the source-shape table above:
 
-| Tag       | Hop is                                                                                                                | Means for a resource/`data` emitted here                                                                                                                                                                                                                           |
-| --------- | --------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `[entry]` | the environment entrypoint **or the single top-level orchestrator module it calls** (`module.main`/`module.scaffold`) | declared at the entrypoint or in the orchestrator body — **including every `data.*` lookup** the orchestrator performs (cross-stack/external/provider-internal reads are `[entry]`, never `[wrap]`) and the orchestrator's own `resource`/`role_assignment` blocks |
-| `[wrap]`  | a **local** module that wraps **one specific** private/registry module                                                | glue _that_ wrapper adds on top of _its_ private module (an admin group, an extra role assignment, a `random_*`) — **not** in the upstream body, and **not** the top-level orchestrator (that is `[entry]`)                                                        |
-| `[priv]`  | a private-registry / git / public-registry module                                                                     | emitted by the upstream module body itself, at its pinned version                                                                                                                                                                                                  |
+| Tag | Actual declaring body |
+| --- | --- |
+| `[entry]` | The Terraform execution root itself. |
+| `[wrap]` | A local module that calls one or more child modules; it may compose several remote or local modules. |
+| `[local]` | A local leaf with no child modules. |
+| `[priv]` | A pinned remote/registry/Git/archive module body that was inspected. |
 
-The originating-hop tag is the **last** hop that actually declares the `resource`/`data` block. **Pinned cases (deterministic — do not shape-guess):** (1) the single top-level module the entrypoint calls (the orchestrator — `module.main`/`module.scaffold`) is **`[entry]`, not `[wrap]`**, even though it is a local module; `[wrap]` is reserved for a local module that wraps _one specific_ private module. (2) **every `data.*` source is `[entry]`** when declared in the entrypoint/orchestrator — a `data` lookup is never `[wrap]` (it is not wrapper-added glue on a private module). A resource a _specific_ local wrapper adds is `[wrap]` even though its parent chain passes through `[priv]`; a resource inside the upstream body is `[priv]`. This is the "what did the wrapper add vs what came from the module" distinction.
+The origin tag identifies the body that actually declares the resource or data block. It does
+not depend on the block being a lookup. Keep the exact module address/call path; `orchestrator`
+is a descriptive role, not an override that turns a child body's origin into `[entry]`.
+A root directly calling a remote module therefore has root `[entry]` → remote `[priv]`.
 
 **Render rule (protects the resolved-name tables — do not bloat them):**
 
-- **Full chain once**, in the provenance tree (and, _if_ the layout uses per-module sub-sections, also on the section heading: `### module.key_vault[0] — [entry]→[wrap] local ../key_vault → [priv] key-vault/azurerm@4.2.0`). The single-table layout — common — carries the full chain in the tree **only**.
-- **Per resource row:** only the one-token tag (`[priv]`/`[wrap]`/`[entry]`) in an `Origin` column. Never repeat the whole chain per row.
+- **Full chain once**, in the provenance tree (and, _if_ the layout uses per-module sub-sections, also on the section heading: `### module.key_vault[0] — [wrap]→[wrap] local ../key_vault → [priv] key-vault/azurerm@4.2.0`). The single-table layout — common — carries the full chain in the tree **only**.
+- **Per resource row:** only the one-token tag (`[priv]`/`[wrap]`/`[local]`/`[entry]`) in an `Origin` column. Never repeat the whole chain per row.
 - **Once per (root,env) doc:** the **provenance tree** near the top — the call skeleton, the wrapper→private hop on its **own indented line**, `count`/`for_each` multiplicity annotated as `(×N)` or `(count=expr=N)` — **never** `module.x[N]`-as-count: square brackets in the tree mean a Terraform **index** only (matching the resource table), so a multi-instance module is `module.networking.cae_subnet (×2)`, not `…[2]` — and inert (`count=0`) modules marked:
 
 ```
 environments/dev/main.tf
-└─ module.main → local ../../modules/scaffold              [entry] orchestrator: RBAC + wiring
+└─ module.main → local ../../modules/scaffold              [wrap] orchestrator: RBAC + wiring
    ├─ module.ad_app_access      → [priv] met-application-security-groups/azuread@2.0.0
    ├─ module.key_vault (×1)     → [wrap] local ../key_vault         (count=len(regions)=1; ×2 in a 2-region root)
    │                              └→ [priv] key-vault/azurerm@4.2.0
@@ -161,7 +195,7 @@ If a component has no consumer edge in the producer index, say so explicitly ("_
 
 ### Worked example (illustrative — do not couple)
 
-`module.key_vault[0]` in `terraform/dev`. Chain: `environments/dev/main.tf` → `module.main` `[entry]` (`../../modules/scaffold`) → `module.key_vault` `[wrap]` (`../key_vault`) → `[priv] key-vault/azurerm@4.2.0` → `azurerm_key_vault.vault`. `azuread_group.admin_group` in the same module is tagged `[wrap]` (the local `../key_vault` body creates it; it is _not_ in the upstream `key-vault/azurerm`), making "what did the wrapper add" answerable at a glance. Role block: `terraform/dev` is a single-orchestrator root (`module.main`), so KV does **not** get its own block — its role folds into the **consolidated `module.main`** block as evidence lines: _Provides_ …KV `acme-d-cus-secrets-1-kv`…; _Consumed by_ Terraform-written `AzureAd--*` secrets (`container_app/main.tf:NN`) — the web app's runtime **read** grant is **not asserted here**, it is a row in the Integration & permissioning matrix with its own effectiveness verdict; _Blast radius_ web app cannot start without KV/CAE/ACR; _Posture_ `Deny`+RBAC+purge-protection, Tier-1 PII (`scaffold/main.tf:147-149`). Every token traces to HCL or a Phase-2 edge — zero generic commentary, and no permission claimed without the Rule-9 effectiveness check.
+`module.key_vault[0]` in `terraform/dev`. Chain: `environments/dev/main.tf` → `module.main` `[wrap]` (`../../modules/scaffold`) → `module.key_vault` `[wrap]` (`../key_vault`) → `[priv] key-vault/azurerm@4.2.0` → `azurerm_key_vault.vault`. `azuread_group.admin_group` in the same module is tagged `[wrap]` (the local `../key_vault` body creates it; it is _not_ in the upstream `key-vault/azurerm`), making "what did the wrapper add" answerable at a glance. Role block: `terraform/dev` is a single-orchestrator root (`module.main`), so KV does **not** get its own block — its role folds into the **consolidated `module.main`** block as evidence lines: _Provides_ …KV `acme-d-cus-secrets-1-kv`…; _Consumed by_ Terraform-written `AzureAd--*` secrets (`container_app/main.tf:NN`) — the web app's runtime **read** grant is **not asserted here**, it is a row in the Integration & permissioning matrix with its own effectiveness verdict; _Blast radius_ web app cannot start without KV/CAE/ACR; _Posture_ `Deny`+RBAC+purge-protection, Tier-1 PII (`scaffold/main.tf:147-149`). Every token traces to HCL or a Phase-2 edge — zero generic commentary, and no permission claimed without the Rule-9 effectiveness check.
 
 ---
 
@@ -171,21 +205,32 @@ SKILL **Rule 9**. The deliverable is a mandated per-(root,env) **Integration & p
 
 ### Matrix columns
 
-`Link / grant · Mechanism · Identity · Target · Exact role/perm · Status · Evidence (file:line)`
+`Link / grant · Mechanism · Identity · Target · Exact role/perm · Declared · Deployment · Effective · Evidence`
 
-- **Status is trichotomous and load-bearing:** `✅ wired` (traced to the binding resource **and** effective for the target's auth mode) · `⚠️` (effective but note the mechanism — e.g. account-key connection string instead of a managed identity; works, but it's a posture finding) · `🔴` (declared-but-ineffective, or missing entirely).
+- **Declared:** `present` (binding exists and matches the target's declared auth mode),
+  `ineffective` (a binding exists but inspected configuration proves its mechanism cannot
+  apply), `missing` (bounded source inspection found no applicable binding), or
+  `indeterminate` (unresolved source/context could contain it).
+- **Deployment:** `applied` (state/live evidence), `planned` (a user-supplied saved plan or
+  orchestration run proves intent but not apply), or `unknown`.
+- **Effective:** `verified` (live evidence confirms the intended identity can use the target),
+  `proven failure` (an observed runtime/live denial or failed use), or `unknown`.
 - **Deploy-time identity and runtime identity are separate rows.** The principal Terraform authenticates as (writes secrets, creates RGs) is not the app's runtime MI. A green deploy row says nothing about runtime access.
-- The headline `🔴` (and incident-relevant `⚠️`) is **also** surfaced in the overview Q3 + on-ramp.
+- Surface proven failures first in overview/on-ramp, then incident-relevant unknowns with the
+  exact probe/evidence needed. Missing credentials or an unrun probe is `unknown`, not red.
 
 ### The effectiveness check (why "declared" is not "effective")
 
-A binding resource existing in HCL does **not** mean the grant works. Before a row is `✅`, confirm **all three**:
+A binding resource in HCL establishes only declared state. Before `Declared: present`, check:
 
 1. **Auth-mode match.** The binding's mechanism must be the one the target honours. Canonical trap: `azurerm_key_vault_access_policy` is **silently inert** on a vault created with `enable_rbac_authorization = true` — Azure ignores access policies in RBAC mode; the operative grant must be an `azurerm_role_assignment` (e.g. `Key Vault Secrets User`). The reverse holds for a non-RBAC vault. (Storage/SQL/etc. have analogous mode splits — verify from provider docs, don't assume.)
 2. **Principal actually plumbed.** A module that *can* grant access only does so for principals it is *given*. Trace the producing module's variable: a key-vault module whose RBAC readonly assignment is `for_each = toset(concat(var.read_only, var.default_read_only))` grants **nothing to the app** unless the calling wrapper passes the app principal into `read_only` (and `default_read_only` defaults are often an unrelated platform SP, not the app). Read the wrapper's argument list — absence of the argument is the finding.
 3. **Right principal.** System-assigned vs user-assigned MI, the app SP vs the deploy SP. The access policy/role must target the identity the workload actually runs as.
 
-If any of the three is unconfirmed → `🔴` or `indeterminate` (the latter only if a producer plausibly lives in an unresolved private module). **Never** upgrade to `✅` from the presence of a `key_vault_ids`-style input, an access-policy block, or a worker's "looks wired" — this is the one place the skill most easily ships a false green, and it is exactly the row an incident responder trusts most.
+If a declared binding is statically incompatible with the target's configured auth mode, use
+`ineffective`; if bounded inspection proves no applicable binding, use `missing`; if the check
+is unresolved, use `indeterminate`. Deployment/Effective stay unknown until state/live evidence
+says more. Never upgrade from a wiring-shaped input, access-policy block, or worker summary.
 
 ### Worked example (illustrative — do not couple)
 
@@ -193,8 +238,13 @@ A web Container App must read secrets from `acme-d-cus-secrets-1-kv` at runtime.
 
 - The container-app private module emits `azurerm_key_vault_access_policy.readonly` (Get/List secrets) for the app's system-assigned MI, gated `var.key_vault.grant_read_permissions` (which the wrapper sets true). **Declared.**
 - The vault wrapper sets `enable_rbac_authorization = true` (`modules/key_vault/main.tf:NN`). → the access policy is **inert** (check 1 fails). The vault module *does* have an RBAC path (`azurerm_role_assignment … "Key Vault Secrets User"`, `for_each = toset(concat(var.read_only, var.default_read_only))`), but the wrapper passes **no** `read_only`, and `default_read_only` defaults to an unrelated ADO SP (check 2 fails). No role assignment targets the app MI in any root.
-- Matrix row: `Web app → KV read | (intended) access policy | web CA system-assigned MI | acme-d-cus-secrets-1-kv | (Get/List) | 🔴 INEFFECTIVE — access policy inert on RBAC vault; no Key Vault Secrets User for the app MI; wrapper passes no read_only | container-app/main.tf:NN; key_vault/main.tf:NN`. Contrast the Service Bus rows in the same matrix, which *are* `✅` (MI → data-sender/receiver AD group → namespace RBAC, all three checks pass) — that contrast is itself the triage signal: same estate, one link proven, one proven broken.
-- Resolution: either a `Key Vault Secrets User` role assignment for the app MI is **missing from Terraform** (a real defect), or it is granted **out-of-band by a platform RBAC/DINE-style policy** (classify as external/cross-stack *with evidence* — analogous to platform-managed private-DNS; **do not** assume it exists to make the row green). Ask the user/team which; keep the row `🔴`-pending until evidenced.
+- Matrix row from HCL alone: `Web app → KV read | intended access policy | web CA MI |
+  ... | Get/List | ineffective (policy is inert in RBAC mode; no role assignment found) | unknown |
+  unknown | hcl: container-app/main.tf:NN; key_vault/main.tf:NN`. If a live access check then
+  returns denial, update Effective to `proven failure`; if an out-of-band role is observed and
+  access succeeds, set Deployment `applied` and Effective `verified` with live evidence.
+- Resolution: missing Terraform may be a real defect or an out-of-band grant may exist. Ask
+  which evidence source can close it; do not make unknown green or failed by assumption.
 
 ---
 
@@ -202,25 +252,34 @@ A web Container App must read secrets from `acme-d-cus-secrets-1-kv` at runtime.
 
 Some facts are **estate-wide** — they hold across roots/envs and flip _real_ behaviour, so the overview and every per-(root,env) doc must state them **identically**. SKILL rule 8 mandates the ledger; this is the how + the canonical failure.
 
-**What goes in the ledger** (resolve each **once, from HCL, at the `Generated From` SHA**):
+**What goes in the ledger** (resolve each once from bytes identified in Source Evidence):
 
 - A behavioural `variable` default that gates a whole subtree — an `enable_*`/`create_*` toggle whose default decides whether N resources exist at all.
 - The backend / state model, per root.
 - Each root's environment axis + per-env region count (the topology rule already forbids _assuming_ parity; the ledger additionally forbids _stating it differently in two docs_).
 - Each private/remote module's resolution status (`resolved@tag` / `unresolved-pending` / `tag-absent`) — **and** any "is this materially moot?" claim that _depends_ on a toggle: those two ledger facts must agree (a module is only "moot because `count=0`" if the gating toggle actually resolves off).
 
-**Canonical failure (illustrative — do not couple).** Between two runs the repo's `enable_container_pollers` default flips `false → true` (a `git pull`). The per-env `terraform/dev` worker re-reads `variables.tf` at the new SHA and correctly documents the poller subtree as **active**; the `overview` worker reuses the prior run's "inert / `count=0`" line. Same `Generated From` SHA, two contradictory truths — and it **cascades**: the overview then calls an unresolved `storage@x` pin "materially moot (`count=0`)", while the per-env doc correctly flags it ~55%-unresolved _and now load-bearing_. Root cause: the overview asserted an estate fact **independently, from memory**, instead of deriving it from the per-env source reads.
+**Canonical failure (illustrative — do not couple).** Between two runs a root's dirty
+`variables.tf` flips a feature default while HEAD stays unchanged, or a resolved sibling module
+changes at its own revision. A per-env pass reads new bytes while overview reuses the old value.
+The same displayed root SHA then carries contradictory truths. Root cause: one root SHA was used
+as identity instead of the per-source byte manifests.
 
-**The rule.** The overview is a **roll-up**, never an independent source of truth for a ledger fact. Build the ledger from the per-(root,env) source reads, diff every value across workers/docs, and on any divergence **re-read the HCL at the SHA** (never resolve by recency or majority), overwrite all docs, and regenerate the overview _from_ the reconciled facts. An unresolved ledger contradiction is a **correctness STOP**, independent of the numeric confidence score.
+**The rule.** The overview is a roll-up. Build the ledger from per-(root,env) source reads,
+bind every fact to Source ID/path/hash, and compare all rendered values. On divergence re-read
+those exact bytes; never resolve by recency or majority. An unresolved contradiction is a STOP.
 
 ---
 
 ## Backend / state model
 
-No `backend` block ≠ "no state". Classify per root:
+Classify per root:
 
 - Explicit `backend "s3|azurerm|gcs|…"` → document the backend resource (bucket/container/key), and whether _it_ is created in-repo or is itself external/cross-stack.
-- No `backend` block + an orchestration root / `terragrunt.hcl` / TFC or Spacelift stack definitions → **state is orchestrator-managed**. Document it as such with the orchestrator name and where stacks are defined. This is a first-class answer, not a `[TODO]`.
+- No backend block → **default local backend**. Override this only when inspected execution
+  configuration for that exact root proves Terragrunt/HCP Terraform/Spacelift/another system
+  supplies the state model. Cite the stack/workspace/root mapping; an orchestrator elsewhere in
+  the repository is not enough.
 
 ---
 

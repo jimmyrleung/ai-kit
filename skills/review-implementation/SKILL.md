@@ -1,44 +1,64 @@
 ---
 name: review-implementation
-description: "Batched post-implementation code review for a prefix — run once after the prefix's tasks are implemented (or at a mid-run boundary for long task lists) instead of the retired per-task reviewer fan-out. Fans out 3 parallel generic reviewer subagents, verifies findings against current source, dispositions them with the user, and records a sha-stamped `## Review — {date}` block in the prefix's review/QA doc for the `qa-gates` skill to reference. Run with prefix=… after the last task, before `qa-gates`. Reviews code, not docs (docs: `review-artifact`) and not outcomes (outcomes: `qa-gates`); headless loop sibling: review-checkpoint (cc-loop only)."
+description: "Reviews implemented code for a work prefix after its repository tasks are complete, or at a named mid-run boundary. Use for a batched code review before qa-gates; accepts prefix and optional scope. Pre-implementation document review belongs to review-artifact, outcome verification to qa-gates, and cc-loop checkpoint review to review-checkpoint."
 ---
 
 # Review Implementation — batched post-implementation code review
+
+Apply the [confidence contract](references/shared/confidence.md) using the delivery rubric.
+Record the effective policy and explicit score, evidence, uncertainty consequences, next
+checks and advancement verdict; pass the policy to workers and downstream gates.
 
 You review the code a prefix's tasks produced — once, as a batch — instead of paying for a
 reviewer fan-out inside every `implement-task` run. Findings are verified against current
 source, dispositioned with the user, and recorded in the prefix's artifact so `qa-gates`
 can point at this run instead of re-reviewing.
 
+Apply the [engineering change contract](references/shared/engineering-change.md):
+inspect repository context, reuse suitable code/tests, and justify new files within scope.
+Resolve bundled references relative to this skill folder.
+
+Follow [authorized work](references/shared/authorized-work.md) for existing permission,
+blocking questions, and requested discussion cadence; resolve from this skill folder.
+
 ## Inputs the caller must provide (in the invoking message)
 
 | Input | Required | Example | Notes |
 |---|---|---|---|
 | `prefix` | yes | `auth_oauth_feature` | Source docs at `{prefix}_*.md`. |
-| `base` | no (default = derive) | `main` / `<sha>` | Diff base. Derive: merge-base with the default branch; ask if ambiguous. |
+| `base` | no (default = derive) | `main` / `<sha>` | Resolve the work boundary per change evidence; merge-base is only a candidate. Use empty-tree base for unborn history; ask if ambiguous. |
 | `scope` | no (default `all`) | `tasks 1-4` | Mid-run boundary review for long task lists — names the tasks covered. |
 | `artifact_path` | no (default = derive) | `auth_oauth_feature_techspec.md` | Doc to append the `## Review` section to — the same doc `qa-gates` appends `## QA` to. |
 
 ## Artifact convention
 
 Append a `## Review — {date}` section to `artifact_path` (in place — no new file; same
-convention as `review-artifact` / `qa-gates`). Stamp the header with the tree reviewed:
-`(reviewed at: <short-sha>[ +dirty])` — `qa-gates` compares this stamp to decide whether the
-review covered the final tree. One block per run; a mid-run scoped review and the final
-review are separate blocks.
+convention as `review-artifact` / `qa-gates`). Use the versioned record and inline evidence
+markers in the [change evidence contract](references/shared/change-evidence.md). SHA/dirty
+status is informational; scoped content and dependency identities bind the verdict. One block
+per run; mid-run and final reviews are separate records.
 
 ## Procedure
 
 ### 1 — Context + diff
 
 Inspect the `{prefix}_*.md` docs (techspec, tasks — for ACs, pinned conventions, budgets).
-Run `git status --short` and `git diff <base>..HEAD` (plus untracked files) to establish the
-review scope. If `scope` was given, restrict to those tasks' files (from the tasks doc).
+Resolve the explicit base/task boundary and inspect committed, staged, unstaged, and
+untracked content per the change evidence contract. Record exclusions and renames; status
+alone is not content inspection. Give every reviewer the same scope and content manifest.
 
-### 2 — Fan out 3 reviewers (parallel)
+### 2 — Choose independent coverage
 
-Launch 3 generic subagents (general-purpose — there are no named reviewer agents to
-maintain) IN PARALLEL — same diff context, different focuses:
+For a small isolated change, use one independent review pass covering correctness, repository
+fit and simplicity together. Cross-component/service boundaries, auth/payments, migrations,
+concurrency, or weak coverage require independent lanes: one traces the highest-risk boundary
+end to end; others cover remaining distinct risks. State the scope/risk reason and required
+coverage in the record; file count alone does not choose depth. No mandatory three-agent run.
+
+Use native workers when available and authorized. If unavailable, perform separate scoped
+passes without shared scratch conclusions and record the weaker independence; do not pretend
+these are separate agents. Track each lane's required coverage; another lane's agreement cannot
+replace a missing domain. Review focuses, combined or separated according to risk:
 
 - **correctness** — bugs, missed acceptance criteria, broken invariants; **marker/alert
   ownership** — an event name an alert or scheduled query matches must be unique to the
@@ -50,10 +70,10 @@ maintain) IN PARALLEL — same diff context, different focuses:
 - **conventions** — adherence to the codebase's documented and observed patterns:
   `docs/rules/`, AGENTS.md and loaded instruction-layer conventions, lint/format configs, and the idioms of
   the neighboring code the diff touches.
-- **simplicity + ship-ready refactors** — over-abstraction, dead code, unnecessary
-  complexity; ADDITIONALLY emit a **"Ship-ready refactors"** list: small, low-risk
-  improvements that can be applied and shipped in this branch (each with `file:line`,
-  effort S/M, and one line on why it's safe now).
+- **simplicity + repository fit** — unnecessary complexity, duplicated helpers, unjustified
+  new test files, and unrelated cleanup, checked against the engineering change contract.
+  Accept justified new files and preserve behavioral coverage. Unrelated refactor
+  suggestions are opt-in; do not manufacture a mandatory refactor list.
 
 Every reviewer prompt must also carry (blocks 2–3 absorbed from the retired
 code-reviewer-agent — its confidence-filtered, actionable-output discipline):
@@ -61,15 +81,19 @@ code-reviewer-agent — its confidence-filtered, actionable-output discipline):
 1. "After writing your findings, take exactly ONE more deliberate pass over the parts of the
    diff you have not yet examined (files, hunks, or ACs you skimmed or skipped) before
    concluding — reviewers systematically stop early. One extra pass, then conclude; do not loop."
-2. "Score each potential issue 0–100 (0 false positive or pre-existing / 50 real but nitpick /
-   75 verified, will be hit in practice / 100 confirmed and frequent) and report ONLY issues
-   scoring ≥ 80 — quality over quantity; minimize false positives. Issues untouched by this
-   diff are pre-existing: score 0."
-3. "Per finding: `file:line`, what's wrong (cite the convention/guideline or explain the bug),
-   a concrete fix suggestion, and the confidence score. Group Critical vs Important. If nothing
-   clears the bar, say so briefly — do not manufacture findings."
+2. "State severity (Critical/High/Medium/Low) separately from certainty and evidence type
+   (SOURCE/OBSERVED/INFERRED). Report supported actionable defects; keep a plausible high-impact
+   uncertain issue visible with its next confirming/refuting probe. Do not discard it because
+   a blended score is low. Mark pre-existing issues separately rather than attributing them to
+   this change; avoid unsupported low-impact nits."
+3. "Per finding: file:line, expected versus actual, impact/severity, evidence/uncertainty, and
+   a concrete fix or next probe. If no issues remain after coverage checks, say so; do not
+   manufacture findings or unrelated refactor suggestions."
 
-Record the tree fingerprint (short sha + dirty) in each reviewer's brief. If an edit
+Record the complete effective confidence policy, scoped content/dependency manifest and
+record ID in each reviewer's brief. Require the delivery rubric calculation for the lane's
+assigned scope, evidence and uncertainty consequences with next checks. Do not average
+worker scores or let an uncertain severe finding disappear behind the overall score. If an edit
 lands mid-review, dispositions require a current-tree probe and a fresh pass — two
 reviewers read pre-fix and post-fix states of the same marker and "disagreed".
 
@@ -82,8 +106,9 @@ stale/refuted findings with a one-line note. Distill — every recorded finding 
 
 ### 4 — Disposition with the user
 
-Present consolidated findings by severity, plus the ship-ready refactors list. Ask per
-group: **fix now / fix later / proceed as-is**. Apply fix-now items (then re-run the repo's
+Present consolidated findings by severity, plus requested refactor suggestions. Apply fixes
+already authorized within scope; otherwise ask **fix now / fix later / proceed as-is** for
+the owner decision. Apply fix-now items (then re-run the repo's
 build/test to confirm nothing broke); record fix-later items as named follow-ups.
 
 After applying fix-now items, **recompute the evidence** (test counts, vectors, DI
@@ -96,16 +121,30 @@ survived QA in one run), and reset or date-pin any live PASS rows the change inv
 ### 5 — Record
 
 Write the `## Review — {date}` block: reviewers run, each finding with its disposition
-(`fixed-now` / `follow-up` / `rejected-stale`), ship-ready refactors applied vs deferred,
-and the `reviewed at` stamp. Hand back: next step is `qa-gates prefix=…` once every task
-is Done.
+(`fixed-now` / `follow-up` / `rejected-stale`), requested refactors applied vs deferred,
+and the content-bound evidence record, including the confidence contract assessment and
+advancement verdict. A below-threshold result or missing load-bearing evidence cannot earn an
+approved review; name the blocker and next probe while preserving independent authorized work.
+Pass the effective policy to `qa-gates prefix=…` once every
+`pre-merge` task is Done. List pending `deploy`/`live` tasks separately with required evidence;
+they do not block repository review/QA or become completed operations by implication.
 
-## Observation write
+## Observation handoff
 
-Append 1 observation per run to the session-scoped buffer (canonical schema from
-`~/.claude/observations/README.md`, `skill_or_workflow: review-implementation`) — outcome,
-finding counts by disposition, friction if any — so `close` → `improve` sees
-batched-review runs the way it already sees gate runs.
+Use the [feedback contract](references/shared/feedback.md) to resolve the configured
+recorder/store; recording is optional and never requires a private home layout. With no
+configured recorder, report `disabled` and continue the main workflow without a feedback write.
+If recording is an enabled acceptance gate, unavailable storage or failed validation stays
+`unavailable`/`failed`, never PASS.
+
+Return supported observation candidates to the one recorder for this `execution_id`; nested
+calls do not write duplicates. A standalone run may be its own recorder. Use the common envelope
+and observation schema: `skill_or_workflow: review-implementation`, `phase_area`, the schema's outcome values,
+`evidence_kind`, subject/task identity, and actual evidence/locators. Gate verdicts remain in the
+verification artifact; they are not silently substituted for observation outcome enum values.
+Emit only supported findings, with one approved tag each; no fixed number of entries per run.
+The recorder validates and deduplicates by execution plus evidence/subject before any receipt.
+Do not treat observation counts as invocation telemetry.
 
 ## When NOT to use
 
@@ -122,7 +161,7 @@ batched-review runs the way it already sees gate runs.
 
 - **Pipeline:** `implement-task` per task (Workflows 1+3, no embedded review) →
   `review-implementation` → `qa-gates`.
-- **`qa-gates` pre-work:** a `## Review` block whose stamp covers the final tree → qa-gates
+- **`qa-gates` pre-work:** a valid content-bound `## Review` record covering the final repository scope → qa-gates
   records the pointer and skips its own reviewer fan-out; open `follow-up` items surface at
   Gate 5.
 - **Long task lists (>~6 tasks):** run once mid-run at a natural boundary (`scope=…`) plus

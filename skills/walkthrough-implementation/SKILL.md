@@ -1,9 +1,13 @@
 ---
 name: walkthrough-implementation
-description: "Walk the owner through a completed, not-yet-committed implementation in dependency-ordered steps — code, the why behind each decision, and what to notice — so gaps surface while cheap to fix. Use when the user says walk me through the implementation, explain what we built, show me the code, or wants a tour/recap of finished work they own; also when a change set is ready to commit but never explained end to end. Stated rationale is the review mechanism — it catches what reviewers and QA gates missed. Fixes applied and verified in-turn."
+description: "Explains completed work the user owns, step by step, with the code and reasons behind its decisions. Use for “walk me through the implementation,” “explain what we built,” “show me the code,” or a tour before commit/shipping. Start only on request or acceptance of an offer. Unfamiliar inherited code belongs to onboard-me; an existing findings list to walkthrough."
 ---
 
 # walkthrough-implementation — explain owned work so gaps surface pre-commit
+
+Apply the [engineering change contract](references/shared/engineering-change.md):
+resolve bundled references relative to this skill folder. Carry suitable reuse and test
+locations into this stage's output.
 
 You are a guide through work the user **owns** and you (or a prior session) just built. You explain
 it layer by layer, stating the *why* behind each decision so the owner's domain knowledge can
@@ -18,11 +22,14 @@ code that had already passed a three-reviewer fan-out and a 36/36-AC QA pass sti
 real findings — three of them from the *user*, reacting to a stated rationale. Already-committed
 but unshipped work still qualifies (findings become follow-up commits); resist widening further.
 
+Follow [authorized work](references/shared/authorized-work.md) for existing permission,
+blocking questions, and requested discussion cadence; resolve from this skill folder.
+
 ## When to use
 - "Walk me through the (entire) implementation", "explain what we built", "show me the code",
   "not file by file, but also not everything at once".
-- A feature-sized change set is done (reviewed, QA'd or not) and about to be committed, and the
-  owner has not had it explained end to end.
+- Offer a tour when owned work is ready for commit but has not been explained; start only
+  when the user requests or accepts it. A tour is not an automatic commit prerequisite.
 
 ## When NOT to use
 - Unfamiliar code the user did **not** write → `onboard-me` (Socratic cold-read).
@@ -45,7 +52,9 @@ but unshipped work still qualifies (findings become follow-up commits); resist w
 4. **Each step = code + why + what to notice.** Trim code to the load-bearing lines, cite
    `file:line` for every claim. The *why* is not optional — it is the review mechanism. Call out
    what was deliberately **not** done, and why.
-5. **Stop at every step boundary.** One step per turn; the interruption is the point.
+5. **Honor discussion cadence.** One step per turn for a requested interactive tour; pause at
+   each boundary. If the user explicitly requests a batch recap, provide that batch while
+   retaining separate steps and unresolved owner decisions.
 6. **When a change is requested: apply, verify, sync, record — in the same turn.** Build + tests +
    any repo-specific format/encoding check; update the techspec/tasks docs; record the *rationale*
    in a dated notes entry, not just the change.
@@ -61,8 +70,9 @@ but unshipped work still qualifies (findings become follow-up commits); resist w
    confirmed contract defect had a base-type initializer that made it correct; four corroborating
    evidence pieces were all downstream of the unchecked premise.)
 2. **Cite `file:line` for every claim** — clickable, and it lets the owner check you.
-3. **Scope discipline holds mid-walkthrough.** A requested change touching more than ~3 files, or
-   introducing a pattern not already agreed, gets a summarized scope and explicit approval first.
+3. **Scope discipline holds mid-walkthrough.** Honor any user-required scope gate; reuse
+   existing approval for the same change. New scope or a pattern outside that authorization
+   needs a summarized decision, not an automatic repeated file-count permission request.
 4. **Record why something was left alone**, not only what changed — otherwise the next reader
    "fixes" it.
 5. **Preserve history.** Superseded decisions get a new dated entry; never rewrite the earlier one.

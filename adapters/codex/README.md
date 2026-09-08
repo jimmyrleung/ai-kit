@@ -76,23 +76,14 @@ The common engine is **idempotent** and safety-gated: it never changes a non-kit
 link target, and it records ownership/baselines before mutation. The wrappers do not write
 private instruction files. Use `--check` for a read-only completeness and ownership check.
 
-## Your personal conventions do not transfer (read this)
+## Optional personal conventions
 
-`adapters/codex/AGENTS.md` is the kit's **Codex-mechanics** layer only (the v2 surface,
-fan-out reading rules, the structured-question plain-text degradation, model notes, the
-Anchored `~/.claude` paths). It is **not** a replica of your `~/.claude/CLAUDE.md`.
-
-Codex never reads `~/.claude`. So your personal working agreement — confidence scoring,
-ask-before-assuming, scope discipline, read-before-edit, verification-before-completion,
-risky-command confirmation, session open/close offers — **does not reach Codex**, and
-several kit skills implicitly assume it. The fix mirrors how Claude already layers it:
-
-- **Kit layer** (public, in-repo, this dir): `AGENTS.md`.
-- **User layer** (private, **you own this**): mirror `~/.claude/CLAUDE.md` into
-  `~/.codex/AGENTS.md` (or the loaded project instruction file), with an include
-  point where the kit block is pasted. **Keep it out of this public repo.** Sync never writes
-  private instructions (it would either publish personal preferences or mutate `$HOME` silently);
-  it prints a reminder instead.
+The kit's public contracts are sufficient for a fresh-user workflow. Private conventions
+can add user preferences, but are not a setup prerequisite. Keep them private and place
+them only where the active host reads instructions. The sync engine never writes them.
+See [provider capabilities](../../docs/provider-capabilities.md) for runtime checks and
+read-only copied-mechanics drift detection, and [feedback](../../docs/contracts/feedback.md)
+for optional stores and recorder ownership.
 
 ## Validation
 
@@ -107,6 +98,11 @@ Codex ships `skill-installer` (`install-skill-from-github.py --repo <owner>/ai-k
 skills/<name>`). It **copies** (download / sparse-checkout), breaking the single-source
 "edit once" property — hence junction is the chosen mechanism. Use the installer only if you
 deliberately want a frozen, detached snapshot.
+
+Each complete skill folder includes its generated shared references. A detached snapshot
+needs no manual `docs/` copy; update it by replacing the complete folder. For linked installs,
+shared-rule edits become visible after maintainers run `npm run build:skill-references`.
+See the root guide's update procedure; sync itself does not generate references or fetch updates.
 
 ## Two-consumer test debt
 

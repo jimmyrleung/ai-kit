@@ -1,5 +1,17 @@
 # Linux portability and cross-agent coupling — implementation tasks
 
+## Superseded 2026-09-07 — follow-on work and verification
+
+This completed tasks run remains historical. The later
+[Astra backlog execution](../../20260906_astra_review_execution.md) owns the current
+uncommitted changes and acceptance evidence. Its scope supersedes the unchanged `find-skills`
+and `teach` body constraints, fixed reviewer/observation counts, prior approval mechanics, and
+mandatory feedback-store assumptions in these tasks. It also records the added metadata and
+inventory fixtures and transaction-state diagnostics. See the sibling techspec's dated note
+for the bounded contract changes. Original task bodies, statuses, test counts, reviews, and
+hosted results below are preserved; none is a pass for the later working tree. No new live-home
+action, private instruction write, or commit is authorized by this historical run.
+
 Date: 2026-08-31
 Mode: refactor
 

@@ -1,0 +1,121 @@
+{
+  "captured_at": "2026-09-07T13:28:56.010428+00:00",
+  "acceptance_id": "B17.AC3",
+  "verdict": "unavailable: pre-model trust boundary",
+  "scope": "one authorized retry after user-reported trust change; two allowed startup roots; no model trial",
+  "user_update": "parent relayed owner-directed Claude deferral (pending, no retries) and updated Cursor workspace trust",
+  "attempts": [
+    {
+      "startup": 1,
+      "workspace": "/tmp/astra-backlog-5VdqNm/existing-provider-stores-20260907/cursor/workspace",
+      "started_at": "2026-09-07T13:26:58.822536+00:00",
+      "completed_at": "2026-09-07T13:26:59.533681+00:00",
+      "elapsed_seconds": 0.711,
+      "exit_code": 1,
+      "timed_out": false,
+      "pre_model_trust_failure": true,
+      "model_output_detected": false,
+      "new_observation_exists": false,
+      "result_file_exists": false
+    },
+    {
+      "startup": 2,
+      "workspace": "<user-home>/ai-kit",
+      "started_at": "2026-09-07T13:26:59.533852+00:00",
+      "completed_at": "2026-09-07T13:27:00.266000+00:00",
+      "elapsed_seconds": 0.732,
+      "exit_code": 1,
+      "timed_out": false,
+      "pre_model_trust_failure": true,
+      "model_output_detected": false,
+      "new_observation_exists": false,
+      "result_file_exists": false
+    }
+  ],
+  "native_startups": 2,
+  "actual_model_trials": 0,
+  "selected_or_actual_model": "unavailable; no model initialization/output",
+  "measured_usage_or_cost": "unavailable; no usage/cost receipt, no zero-cost estimate",
+  "source_checks": [
+    {
+      "source": "<user-home>/ai-kit/docs/contracts/feedback.md",
+      "copy": "/tmp/astra-backlog-5VdqNm/cursor-trust-retry-20260907/workspace/procedure/docs/contracts/feedback.md",
+      "expected_sha256": "f18a20d9005ba12bb33bf77c429eae9cb60bb18b6ab5e5b547b5d5bfb8487ec4",
+      "actual_source_sha256": "f18a20d9005ba12bb33bf77c429eae9cb60bb18b6ab5e5b547b5d5bfb8487ec4",
+      "actual_copy_sha256": "f18a20d9005ba12bb33bf77c429eae9cb60bb18b6ab5e5b547b5d5bfb8487ec4",
+      "unchanged": true
+    },
+    {
+      "source": "<user-home>/ai-kit/docs/contracts/change-evidence.md",
+      "copy": "/tmp/astra-backlog-5VdqNm/cursor-trust-retry-20260907/workspace/procedure/docs/contracts/change-evidence.md",
+      "expected_sha256": "ec41ce9bb9860377d8bd29714cc4e839728d62b8a543536911f477f722ea62da",
+      "actual_source_sha256": "ec41ce9bb9860377d8bd29714cc4e839728d62b8a543536911f477f722ea62da",
+      "actual_copy_sha256": "ec41ce9bb9860377d8bd29714cc4e839728d62b8a543536911f477f722ea62da",
+      "unchanged": true
+    },
+    {
+      "source": "<user-home>/ai-kit/docs/contracts/authorized-work.md",
+      "copy": "/tmp/astra-backlog-5VdqNm/cursor-trust-retry-20260907/workspace/procedure/docs/contracts/authorized-work.md",
+      "expected_sha256": "ef970584b487fb71c6030f035368119efc18cfdd2e074ec0c285cb37759108ff",
+      "actual_source_sha256": "ef970584b487fb71c6030f035368119efc18cfdd2e074ec0c285cb37759108ff",
+      "actual_copy_sha256": "ef970584b487fb71c6030f035368119efc18cfdd2e074ec0c285cb37759108ff",
+      "unchanged": true
+    },
+    {
+      "source": "<user-home>/ai-kit/skills/close/SKILL.md",
+      "copy": "/tmp/astra-backlog-5VdqNm/cursor-trust-retry-20260907/workspace/procedure/skills/close/SKILL.md",
+      "expected_sha256": "287a00dd5ba4cd74704fa49c81c2621cb885917f9dc12cf6791dd463f7bc8518",
+      "actual_source_sha256": "287a00dd5ba4cd74704fa49c81c2621cb885917f9dc12cf6791dd463f7bc8518",
+      "actual_copy_sha256": "287a00dd5ba4cd74704fa49c81c2621cb885917f9dc12cf6791dd463f7bc8518",
+      "unchanged": true
+    },
+    {
+      "source": "<user-home>/ai-kit/skills/close/scripts/check-observation-tags.mjs",
+      "copy": "/tmp/astra-backlog-5VdqNm/cursor-trust-retry-20260907/workspace/procedure/skills/close/scripts/check-observation-tags.mjs",
+      "expected_sha256": "c948e2450c6296f98d4dee5359fa816fde7532203ee694ad8be1d05fcb96e05f",
+      "actual_source_sha256": "c948e2450c6296f98d4dee5359fa816fde7532203ee694ad8be1d05fcb96e05f",
+      "actual_copy_sha256": "c948e2450c6296f98d4dee5359fa816fde7532203ee694ad8be1d05fcb96e05f",
+      "unchanged": true
+    }
+  ],
+  "seed_preserved": true,
+  "seed_sha256": "e2053a1f55554aa52a6b6675d85b30471c0b80f58275901259447bf6489373cd",
+  "prior_permissions_preserved": true,
+  "prior_permissions_sha256": "bee8a6e75fd423d15cbb1e8d62522b1fe869da47e65571caeb50f8c71ee0678b",
+  "positive_observation_exists": false,
+  "positive_validation": "unavailable: no native-generated observation to validate",
+  "negative_record_absent": true,
+  "negative_preflight": {
+    "record_id": "b17-cursor-trust-retry-20260907-preflight",
+    "record_kind": "verification",
+    "captured_at": "2026-09-07T13:26:58.822152+00:00",
+    "argv": [
+      "node",
+      "/tmp/astra-backlog-5VdqNm/cursor-trust-retry-20260907/workspace/procedure/skills/close/scripts/check-observation-tags.mjs",
+      "/tmp/astra-backlog-5VdqNm/cursor-trust-retry-20260907/workspace/procedure/docs/contracts/feedback.md",
+      "/tmp/astra-backlog-5VdqNm/cursor-trust-retry-20260907/workspace/store/.claude/observations/intentionally-absent.md"
+    ],
+    "exit_code": 2,
+    "stdout": "",
+    "stderr": "Observation tag check failed: ENOENT: no such file or directory, open '/tmp/astra-backlog-5VdqNm/cursor-trust-retry-20260907/workspace/store/.claude/observations/intentionally-absent.md'\n",
+    "synthetic_fixture": true,
+    "scope": "enabled required observation is actually absent"
+  },
+  "negative_scope": "actual outer-recorder preflight exit 2 on absent enabled-record input; no Cursor workflow result inferred",
+  "completion_receipt_exists": false,
+  "store_inventory": [
+    {
+      "path": "/tmp/astra-backlog-5VdqNm/cursor-trust-retry-20260907/workspace/store/.claude/observations/2026-09-06-existing.md",
+      "sha256": "e2053a1f55554aa52a6b6675d85b30471c0b80f58275901259447bf6489373cd"
+    }
+  ],
+  "result_json_exists": false,
+  "write_boundary": "Entire host read-only through bwrap; only this fresh retry output root writable. Original scratch permission file overlaid read-only for startup 1, unchanged on disk. No --trust, --force, --yolo, auth copying, source writes or policy writes.",
+  "trust_prompt_targets": [
+    "/tmp/astra-backlog-5VdqNm/existing-provider-stores-20260907/cursor/workspace",
+    "/tmp/astra-backlog-5VdqNm/cursor-trust-retry-20260907/workspace"
+  ],
+  "inference_limits": "Second prompt names the added scratch root, so it does not establish that the primary ai-kit workspace remains untrusted. No broader trust/auth diagnosis attempted.",
+  "confidence": 95,
+  "remaining_uncertainty": "Which exact workspace roots the external trust action covered and whether Cursor model execution will succeed after this added root is trusted remain unverified."
+}

@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "run_id": "engineering-current-r1",
+  "batch_id": "current-r1",
+  "condition": "current",
+  "repeat": 1,
+  "execution_kind": "supplied-body-procedure-shared-context-batch",
+  "status": "complete_with_unavailable_evidence",
+  "reviewed_revision": "aeec06bfa0a6b97402b17824d957f29635f40ba7",
+  "source_manifest": {
+    "path": "inputs/source-manifest.json",
+    "sha256": "835c4256a42c7ac6608bd62972f767f8f2a13e73fa47c9b27465b3a953dc2b60"
+  },
+  "requested_settings": {
+    "model": "gpt-5.6-sol",
+    "reasoning": "high"
+  },
+  "effective_settings": {
+    "provider": "unavailable",
+    "host_version": "unavailable",
+    "model": "unavailable",
+    "reasoning": "unavailable",
+    "note": "The trial requested these settings, but this worker cannot inspect the effective provider/model/reasoning."
+  },
+  "context_independence": {
+    "case_level": false,
+    "disclosure": "All cases ran in one shared worker context in the required order. This batch may contain cross-case learning and is not evidence of per-case context independence."
+  },
+  "agent_use": {
+    "native_agents_callable": true,
+    "used": false,
+    "reason": "Trial instruction prohibited agents and orchestration scripts."
+  },
+  "case_order": [
+    "dirty-review",
+    "unborn-short-history",
+    "review-invalidation",
+    "task-reverification",
+    "consumer-closure",
+    "completion-resources",
+    "existing-test-home",
+    "convention-new-test",
+    "no-suitable-test-home",
+    "unneeded-helper",
+    "authorization-cadence",
+    "review-depth-severity",
+    "check-reuse",
+    "intent-routing",
+    "incident-causality",
+    "analyze-existing-test-home",
+    "analyze-consumer-closure"
+  ],
+  "cases": [
+    "runs/current-r1/current/dirty-review/1/run.json",
+    "runs/current-r1/current/unborn-short-history/1/run.json",
+    "runs/current-r1/current/review-invalidation/1/run.json",
+    "runs/current-r1/current/task-reverification/1/run.json",
+    "runs/current-r1/current/consumer-closure/1/run.json",
+    "runs/current-r1/current/completion-resources/1/run.json",
+    "runs/current-r1/current/existing-test-home/1/run.json",
+    "runs/current-r1/current/convention-new-test/1/run.json",
+    "runs/current-r1/current/no-suitable-test-home/1/run.json",
+    "runs/current-r1/current/unneeded-helper/1/run.json",
+    "runs/current-r1/current/authorization-cadence/1/run.json",
+    "runs/current-r1/current/review-depth-severity/1/run.json",
+    "runs/current-r1/current/check-reuse/1/run.json",
+    "runs/current-r1/current/intent-routing/1/run.json",
+    "runs/current-r1/current/incident-causality/1/run.json",
+    "runs/current-r1/current/analyze-existing-test-home/1/run.json",
+    "runs/current-r1/current/analyze-consumer-closure/1/run.json"
+  ],
+  "aggregate": {
+    "runs": 17,
+    "mandatory_grades": {
+      "pass": 85,
+      "fail": 0,
+      "unavailable": 1
+    },
+    "failed_command_attempts": 1,
+    "retries": 1,
+    "unnecessary_interruptions": 0,
+    "required_clarifications": 3,
+    "requested_discussion_turns": 1,
+    "artifact_bytes": 29923,
+    "total_output_bytes": 57377,
+    "tokens": null,
+    "cost": null
+  },
+  "measurements": {
+    "started_at": "2026-09-07T07:02:00-03:00",
+    "finished_at": "2026-09-07T07:28:30-03:00",
+    "elapsed_seconds": 1590,
+    "tokens": null,
+    "cost": null,
+    "unavailable_reason": "Token and monetary accounting were not exposed."
+  },
+  "unavailable": [
+    "No browser screenshot/output was supplied for check-reuse; observable-button evidence is unavailable and subjective wording approval was not fabricated.",
+    "The private observation schema referenced by review-implementation/qa-gates was absent from the supplied snapshot and reviewed Git tree; no private write was made.",
+    "The host does not expose an automatic complete tool trace; each case preserves the available commands and outputs in trace.md.",
+    "Final parent re-grounding and human owner review are pending."
+  ],
+  "failures": [
+    {
+      "case_id": "consumer-closure",
+      "attempt": "python3 -m pytest -q test_worker.py",
+      "result": "exit 1: No module named pytest",
+      "recovery": "Executed test_worker.test_run directly; pass. Both attempts preserved."
+    }
+  ],
+  "review": {
+    "parent_grounding": "pending",
+    "human_owner": "pending"
+  },
+  "confidence": {
+    "score": 98,
+    "reason": "All selected fixtures, supplied bodies, prompts, artifacts, hashes, and executable probes are preserved; JSON validates.",
+    "uncertainty": "Browser evidence and automatic full trace are unavailable, effective model settings are unexposed, and judgment-heavy grades await owner review."
+  }
+}

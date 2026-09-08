@@ -1,13 +1,13 @@
 ---
 name: triage
-description: "Route a free-text engineering request to the right entry point in the skill-centric kit — the analyze-work → techspec → tasks-breakdown → implement-task chain for feature / refactor / greenfield work, bug-investigation for bugs and incidents, lay-of-the-land for unfamiliar territory, a single one-shot skill, or a loop frame for recurring or iterate-until-a-condition work. Detects mid-flight work first and recommends the next step in the chain instead of re-triaging. Asks ≤2 clarifying questions if signals are ambiguous; output is a one-line recommendation — suggestion-mode only, never auto-executes. Use when starting non-trivial work and it's unclear which skill to use, where to start, or what to run."
+description: "Recommends where to start a non-trivial engineering request when the right skill or workflow is unclear. Use for “which skill?”, “where do I start?”, or “what should I run?”, including recurring or iterate-until-done work. Routes by current intent and valid related artifacts; recommendation-only unless execution is explicitly authorized. Skip when the next step is already clear or the task is trivial."
 ---
 
 # Triage — pick the right entry skill (or skip the ceremony)
 
 Route a free-text request to one of: the entry skill of a chain, a one-shot skill, a loop
-primitive (recurring / iterate-until-done work), or "just do it directly". Output is a single
-one-line recommendation. **You do NOT auto-execute.**
+primitive (recurring / iterate-until-done work), or "just do it directly". Default output is one recommendation. An explicit request to execute/continue may authorize
+the selected next step after validating its prerequisites; recommendation-only always stops.
 
 There are no workflow orchestrators to route to — each chain's entry skill detects the work type
 itself (`analyze-work` detects integration / greenfield / refactor; `techspec` adds fix / hotfix;
@@ -19,28 +19,34 @@ residual uncertainty.
 
 ---
 
-## Phase 0 — Mid-flight detection (do this first, it's free)
+Follow [authorized work](references/shared/authorized-work.md) for existing permission,
+blocking questions, and requested discussion cadence; resolve from this skill folder.
 
-Before triaging, check whether the user is already mid-chain in this cwd. Run `git status --short`
-+ `ls`, and look for recently modified kit artifacts at the repo root or in a feature folder:
-`{work_name}_analysis.md`, `{work_name}_techspec.md`, `{work_name}_tasks.md`,
-`{bug_id}_investigation.md`, `postmortem.md`.
+## Phase 0 — Current intent and related state
 
-**If mid-flight, STOP. State where in the chain the work sits and the next step**, read off the
-artifacts, not guessed:
+Resolve the current request first: new work, continue named work, recommendation-only, or
+explicit execution. Inspect Git status and related artifacts only to support that intent.
+Recent unrelated files or an old chain cannot hijack a new request. If related identity is
+ambiguous, ask which work item; do not routinely ask whether to abandon unrelated work.
 
-| Artifact state | Next step |
+For related in-flight work, inspect actual contents and validate review scope, verdict and
+content/dependency identity under [change evidence](references/shared/change-evidence.md).
+A heading, filename or timestamp alone never proves approval. Route by valid current state:
+
+| Related artifact state | Next step |
 |---|---|
-| Analysis / investigation / techspec / tasks doc without a `## Review` block | the `review-artifact` skill |
-| Reviewed analysis, no techspec | the `techspec` skill |
-| Reviewed techspec, no tasks doc | the `tasks-breakdown` skill (or straight to `implement-task` for a reviewed fix) |
-| Tasks doc with tasks not yet Done | the `implement-task` skill (next open task) |
-| All tasks Done, no `## Review — {date}` block for the prefix | the `review-implementation` skill |
-| Reviewed implementation, no QA artifact | the `qa-gates` skill |
-| Resolved incident (fix shipped, gates run), no post-mortem | the `post-mortem` skill |
+| Analysis/investigation/techspec/tasks missing, stale or rejected review | `review-artifact` or its named corrective producer; never advance as approved |
+| Valid approved analysis, no techspec | `techspec` |
+| Valid approved techspec, no tasks | `tasks-breakdown` (or `implement-task` for a reviewed small fix) |
+| Repository task open with dependencies met | `implement-task`; retain resource/readiness checks |
+| Repository tasks Done, implementation review missing/stale | `review-implementation` |
+| Valid reviewed implementation, repository QA incomplete | `qa-gates` |
+| Repository GO, deploy/live tasks pending | Report repository completion and pending operations; execute operations only if specifically authorized |
+| Resolved incident, no post-mortem | `post-mortem` |
 
-Ask "continue this work, or triage a different task?" and let the user pick. Do not silently
-re-triage on top of in-progress work.
+Recommend that next step by default. If the current request explicitly authorizes continuing
+it, follow it within scope after prerequisites are satisfied. A review failure needs correction,
+not a generic fresh-chain restart; do not invent a waiver or completion from the request alone.
 
 ---
 
@@ -119,7 +125,7 @@ re-route after one bad guess.
 
 ---
 
-## Phase 3 — Recommend (one line, then stop)
+## Phase 3 — Recommend, or continue when explicitly authorized
 
 Output exactly:
 
@@ -128,36 +134,40 @@ Output exactly:
 
 For the "none fits" branch:
 
-> No existing skill fits cleanly. Recorded the gap (Phase 4). Consider whether this is recurring
+> No existing skill fits cleanly. Noted the gap in this session (Phase 4). Consider whether this is recurring
 > — the `improve` skill will surface a "propose new skill" suggestion if you see it again.
 
 For the "just do it" branch:
 
 > This is a one-shot task — just do it directly, no skill needed.
 
-**Do NOT auto-invoke the recommended skill.** Recommend and stop. The user invokes.
+Recommendation-only/default triage stops here. If the user explicitly requested execution or
+continuation, state the selected route and invoke it within existing authorization after
+checking prerequisites. Do not add a second generic permission question.
 
 ---
 
 ## Phase 4 — Observation note (one short line for the `close` skill to pick up)
 
-Leave a single line in the current session context so the `close` skill writes it through to
-`~/.claude/observations/{date}-{slug}.md` at session end:
+Leave a single candidate line in the current session context. The optional recorder resolves
+through [the feedback contract](references/shared/feedback.md), from this skill's canonical
+directory; no configured recorder means `disabled`, with no private store write:
 
 > Triage note — `route_picked: {skill}` · `confidence: X%` · `questions_asked: N` · `signals: {keywords}`
 
-If the session ends up using a *different* route than recommended (you mid-flight switched
-because the user redirected), the `close` skill will pair `route_actually_used` against
-`route_picked` and log `outcome: switched`. That's the friction signal the `improve` skill reads to
-propose tightening this
-skill's Phase-1 signals table.
+If the route later changes, include `route_actually_used` and the observed reason. A new user
+intent is not automatically a routing defect. Emit a supported observation only through the
+one execution recorder, using the contract's envelope, approved outcome enum and exact tag;
+keep the route transition in its evidence, never `outcome: switched`. The recorder validates
+and deduplicates before persistence. A session note is not a persisted receipt or invocation
+telemetry. Supported routing friction can inform `improve` without manufacturing a finding.
 
 ---
 
 ## When NOT to use triage
 
 - The user named the skill explicitly ("run `analyze-work`") — just go.
-- You're mid-chain (Phase 0 caught this — exit early).
+- The related next step is already explicit and valid; continue it within the request's authorization.
 - The task is trivial (typo, one-line edit, one grep). Triage adds friction in front of trivial work.
 - The user is asking a *question*, not requesting *work* ("how does X work?", "what does Y do?"). Don't triage Q&A.
 
@@ -165,6 +175,6 @@ skill's Phase-1 signals table.
 
 - Not a planner — it picks the entry skill; that skill's own mode detection and process plan the work.
 - Not a size/severity classifier — each skill's own detection does that (e.g. `bug-investigation`'s severity-aware gate).
-- Not auto-executing — recommendation only; the user invokes.
+- No inferred execution permission: recommendation-only by default; explicit continuation is bounded by valid prerequisites and scope.
 - Not a memory write — Phase 4 leaves *one line for the `close` skill*, it does not edit
   `MEMORY.md` or any other live file.

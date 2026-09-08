@@ -1,6 +1,6 @@
 ---
 name: docs-tasks-creator
-description: "Create or refresh a documentation backlog by scanning a codebase to inventory endpoints, message handlers, and background jobs. Emits one document-workflow task per detected workflow in _docs-tasks.md plus project-overview.md, with workspace selection for monorepos. Covers Next.js (App Router, Pages API, Server Actions), Express, Fastify, NestJS, ASP.NET Core (attribute and minimal API), GRPC .NET, .NET BackgroundService, and Azure Functions. Use to inventory routes or jobs and generate documentation tasks; the output is consumer-agnostic."
+description: "Creates or refreshes a documentation backlog by inventorying endpoints, message handlers, and background jobs. Use to scan routes or jobs and generate _docs-tasks.md plus project-overview.md, including monorepos. Covers Next.js App Router / Pages API / Server Actions, Express, Fastify, NestJS, ASP.NET Core attribute / minimal APIs, GRPC .NET, BackgroundService, and Azure Functions. Documenting one operation belongs to document-workflow."
 arguments: codebase_path output_dir
 ---
 
@@ -8,7 +8,7 @@ arguments: codebase_path output_dir
 
 Produce these artifacts. For a single-repo codebase they live directly under `$output_dir`; for a monorepo they live under per-workspace subdirs (`$output_dir/<workspace>/`):
 
-1. `_docs-tasks.md` — a tasks doc with one `## Task N — Document <name>` section per detected handler.
+1. `_docs-tasks.md` — a tasks doc with one `## Task N — Document <name>` section per detected execution boundary.
 2. `project-overview.md` — a synthesized project orientation: name, detected stack(s), top-level layout, build/run commands, entry-point counts per trigger type.
 3. `workflows/` — empty scaffold directory where the per-workflow docs will land once each task is worked.
 
@@ -18,6 +18,14 @@ Each emitted task is independent — the `Reference:` line points at the handler
 
 - `$codebase_path` — absolute path to the codebase to scan (read-only).
 - `$output_dir` — absolute path where artifacts land. Typically `raw/{client}/{project}/`.
+
+Resolve the per-workspace handoff using
+[the documentation evidence contract](references/shared/documentation-evidence.md):
+`source_root`, `docs_root`, `workspace_root`, `entry_reference`, and `resolved_output`.
+For single-repo mode, `source_root = workspace_root = $codebase_path` and
+`docs_root = $output_dir`. For monorepo mode, `source_root = $codebase_path`,
+`workspace_root = <selected workspace directory>`, and
+`docs_root = $output_dir/<workspace-slug>`.
 
 ## Pre-flight
 
@@ -45,7 +53,8 @@ Check for monorepo signals in **this precedence order** (use the first match):
 
 **If 0 or 1 workspaces detected** → single-repo mode. Skip the selection step; treat `$codebase_path` as the single workspace; emit artifacts directly under `$output_dir` (no subdir). Proceed to Phase 2.
 
-**If 2+ workspaces detected** → monorepo mode. Ask the user which to scan:
+**If 2+ workspaces detected** → monorepo mode. Use the user's explicit workspace selection,
+including an already authorized request for all workspaces. Otherwise ask which to scan:
 
 - **2–4 workspaces** — prefer the structured question interface with one option per workspace plus an "All workspaces" option; set `multiSelect: true`.
 - **5+ workspaces** — emit a plain-text list of workspaces (one per line with the workspace path) and ask the user to reply with comma-separated workspace names, `"all"`, or `"none"`.
@@ -63,17 +72,17 @@ Walk the workspace's top two directory levels. Multiple detectors may apply with
 
 | Detector | Triggered by |
 |---|---|
-| Next.js App Router | `next.config.{js,ts,mjs}` present AND `app/**/route.{ts,tsx,js,jsx}` exists |
-| Next.js Pages API | `next.config.{js,ts,mjs}` present AND `pages/api/**` exists |
-| Next.js Server Actions | `'use server'` directive found in any `.ts`/`.tsx` file under `app/` or `src/` |
+| Next.js App Router | `next` dependency or `next.config.{js,ts,mjs}` present, AND `app/**/route.{ts,js}` or `src/app/**/route.{ts,js}` exists |
+| Next.js Pages API | `next` dependency or `next.config.{js,ts,mjs}` present, AND `pages/api/**` or `src/pages/api/**` exists |
+| Next.js Server Actions | `'use server'` directive found in `.ts`/`.tsx` under `app/` or `src/app/` |
 | Express | `package.json` has `express` in `dependencies` |
 | Fastify | `package.json` has `fastify` in `dependencies` |
 | NestJS | `package.json` has `@nestjs/core` in `dependencies` |
-| ASP.NET Core (attribute) | `.csproj` references `Microsoft.AspNetCore.App` framework AND any `.cs` file contains `[ApiController]` |
-| ASP.NET minimal API | `.csproj` references `Microsoft.AspNetCore.App` AND any `.cs` file contains `WebApplication.CreateBuilder` |
+| ASP.NET Core (attribute) | `.csproj` uses `Microsoft.NET.Sdk.Web` **or** explicitly references `Microsoft.AspNetCore.App`, AND any `.cs` file contains `[ApiController]` |
+| ASP.NET minimal API | `.csproj` uses `Microsoft.NET.Sdk.Web` **or** explicitly references `Microsoft.AspNetCore.App`, AND any `.cs` file contains `WebApplication.CreateBuilder` |
 | GRPC .NET | `.csproj` references `Grpc.AspNetCore` OR `.proto` files exist in the source tree |
 | .NET background workers | Any `.cs` file declares a class inheriting `BackgroundService` or implementing `IHostedService` |
-| Azure Functions (.NET isolated / in-process) | `.csproj` references `Microsoft.Azure.Functions.Worker` (isolated) OR `Microsoft.NET.Sdk.Functions` (in-process) |
+| Azure Functions (.NET isolated / in-process) | `.csproj` uses `Azure.Functions.Sdk` or references `Microsoft.Azure.Functions.Worker` (isolated), OR references `Microsoft.NET.Sdk.Functions` (in-process) |
 
 **Never enter these directories during scan**: `node_modules`, `bin`, `obj`, `dist`, `build`, `.next`, `.git`, `vendor`, `target`, `__pycache__`, `.venv`, `.cache`, `out`.
 
@@ -83,6 +92,13 @@ For each active detector in the current workspace, find entry points using the r
 
 Consult [references/detectors.md](references/detectors.md) for the active detectors identified in Phase 2 before scanning. Run every matching detector; the capture contract below still applies.
 
+Record one coverage row per activated or plausibly present detector: `Covered` when every
+supported static form was inspected, `Partial` when a dynamic/ambiguous registration prevents
+resolution, `Unsupported` when framework signals exist without a recipe, and `Error` when a
+bounded scan failed. Include the exact roots/patterns searched and the boundary. `Covered`
+means covered by this documented static recipe; it is never a claim that runtime registration
+was exhaustively observed.
+
 #### Per-entry-point captures
 
 For each detected entry point, capture:
@@ -91,6 +107,13 @@ For each detected entry point, capture:
 - `reference` — `<relative-path-from-workspace-root>:<symbol>` form when a symbol exists. URL-style for inline route handlers (`POST /api/orders`).
 - `trigger` — human-readable trigger description (e.g. `REST GET /api/users/{id}`, `Message handler: order.created`, `Background worker: 30s interval`).
 - `files_affected` — `workflows/<service>/<name>.md` for backend tasks; **`workflows/_fullstack/<name>.md` for full-stack tasks** (path of the doc that will be produced, **relative to the workspace's output dir**). Keying full-stack docs under `_fullstack/` prevents a full-stack and a backend doc for the *same operation* from resolving to the same path.
+- `workflow_id` — stable execution-boundary identity, independent of task order and source
+  filename: `<workspace-slug>:<kind>:<canonical-trigger>`. Canonical HTTP triggers include
+  method + fully composed literal route; messages include broker/binding kind + literal
+  destination; GRPC includes service + RPC; scheduled jobs include the declared schedule +
+  handler symbol. If the trigger lacks a stable external address, include the fully-qualified
+  handler symbol. Add the service only to disambiguate a real collision. Never derive identity
+  from `Task N`, alphabetical position, or physical file alone.
 
 ### Phase 4 — Synthesize `project-overview.md`
 
@@ -135,6 +158,12 @@ Write `<workspace-output-dir>/project-overview.md` in this exact shape:
 - Entry points: <count> (<verb breakdown>)
 - Stack: <which detector matched>
 
+## Scan coverage
+
+| Detector | State | Roots/patterns searched | Boundary |
+| -------- | ----- | ----------------------- | -------- |
+| <name>   | Covered / Partial / Unsupported / Error | <enumerated roots/patterns> | <none or exact unresolved form> |
+
 ## Notes
 
 - (Anything unusual flagged during scan: dynamic mounting, custom routing, malformed proto files, etc.)
@@ -144,23 +173,40 @@ Keep the file under ~200 lines. The goal is orientation, not exhaustive document
 
 ### Phase 5 — Emit handler tasks
 
-For each entry point captured in Phase 3 (for the current workspace), emit a `## Task N — Document <name>` section. N is positional within the workspace's tasks doc, starting at 1. **Group tasks by service in document order** — all of Service A's tasks first, then Service B's, etc. Service order is alphabetical.
+For each execution boundary captured in Phase 3 (for the current workspace), emit a
+`## Task N — Document <name>` section. On first generation, assign N in service/name order.
+On refresh, retain each exact `Workflow ID`'s number and assign new tasks monotonically after
+the prior maximum; task numbers are display locators, never identity. Keep document order by
+service/name, even when retained numbers are no longer sequential.
 
-**Multi-`[Function]` workflows — one task per workflow file, not per method.** Where one logical workflow spans several decorated members — **Durable Functions** (trigger + orchestrator + N activities in one file) or an **HTTP-starter + queue-consumer pair** — emit **one task per externally-triggered workflow file** and enumerate the orchestrator + activities inside that task's acceptance criteria, *not* a separate task per `[Function]`. (A durable-heavy repo otherwise explodes: ~100 `[Function]` methods → ~46 useful workflow tasks.)
+**Group by execution boundary, not physical file.** Independent decorated functions/routes in
+one file remain separate tasks. Combine members only when a static edge proves one workflow:
+for example, a Durable starter names an orchestrator and that orchestrator calls named
+activities, or an output binding's literal destination matches a consumer trigger. Record every
+member reference in the combined task. A merely co-located or similarly named member is not
+proof of connection; keep it separate or mark the grouping `Partial` for review.
 
 ### Phase 6 — Write the tasks doc
 
-Write `<workspace-output-dir>/_docs-tasks.md` in this exact shape:
+Write or refresh `<workspace-output-dir>/_docs-tasks.md` in this exact schema-v2 shape:
 
 ````markdown
 # Documentation Tasks — <Workspace Name>
 
 > Generated by `docs-tasks-creator` on YYYY-MM-DD from `<workspace path>`.
+> Inventory Schema: v2
 > Each task below describes one workflow to document. Work them however you like —
 > manually, through the workflow skill, in a loop, or in batch. The output doc follows
 > the `document-workflow` output format.
-> Re-running this skill regenerates the full inventory — manually flip `Status: Done`
-> for handlers already documented, or delete those tasks before re-working.
+> Refresh reconciles by Workflow ID and preserves task progress, evidence, and manual notes.
+
+## Handoff
+
+| Field          | Value                    |
+| -------------- | ------------------------ |
+| Source root    | `<absolute source root>` |
+| Docs root      | `<absolute docs root>`   |
+| Workspace root | `<absolute workspace root>` |
 
 ## Tasks overview
 
@@ -173,12 +219,19 @@ Write `<workspace-output-dir>/_docs-tasks.md` in this exact shape:
 ## Task 1 — Document `users.get-by-id`
 
 **Status:** Todo
+**Workflow ID:** `users-api:http:get:/api/users/{id}`
+<!-- inventory:begin -->
+**Source root:** `<absolute source root>`
+**Docs root:** `<absolute docs root>`
+**Workspace root:** `<absolute workspace root>`
 **Reference:** `src/Users.Api/Controllers/UsersController.cs:GetById`
 **Files affected:** `workflows/users/get-by-id.md`
+**Resolved output:** `<absolute docs root>/workflows/users/get-by-id.md`
 **Trigger:** REST GET `/api/users/{id}`
+<!-- inventory:end -->
 
 **Acceptance criteria:**
-- A workflow doc exists at `workflows/users/get-by-id.md`.
+- A workflow doc exists exactly at the task's `Resolved output`.
 - The doc follows the `document-workflow` output format (Summary, Sequence of Calls, Flow Description, Data Inventory, Business Rules, Configuration, Dependencies).
 - Backend mode (no full-stack-mode signals in this task body).
 
@@ -189,29 +242,67 @@ Write `<workspace-output-dir>/_docs-tasks.md` in this exact shape:
 
 Also create the empty `<workspace-output-dir>/workflows/` directory.
 
+### Refresh reconciliation
+
+Before writing, parse an existing tasks doc and reconcile it with the new scan:
+
+1. Key schema-v2 tasks by exact `Workflow ID`. For legacy tasks without an ID, derive a
+   candidate from their Trigger/Reference once and list the proposed migration in the change
+   report; do not silently transfer evidence when the mapping is ambiguous.
+2. Exact IDs retain their task number, `Status`, acceptance/evidence history, and all manual
+   prose outside `<!-- inventory:begin/end -->`. Replace only generated inventory fields when
+   they changed.
+3. New IDs become `Todo` with a new number greater than the previous maximum. An earlier
+   alphabetical insertion never renumbers or remaps an existing task.
+4. Unmatched old IDs remain in a `## Retired workflows — review required` section with their
+   full notes/evidence and `Status: Review retirement`; never delete or mark them done.
+5. For an unmatched old/new pair with the same service/kind and similar trigger/reference,
+   report `Possible rename: <old> → <new>` for human review. Do not transfer completion or
+   evidence until accepted.
+6. If the reconciled tasks doc and overview have no semantic change, do not write either file
+   and do not update their generated date. Report `no-op`. Otherwise report added, changed,
+   possible-renamed, and retired IDs explicitly.
+
 ## Output format — Tasks doc field shapes
 
 Every task section MUST contain, in this order:
 
 - `## Task <N> — Document <name>` heading (`Document` prefix is the convention; `<name>` is the kebab-case workflow name).
-- `**Status:** Todo` — picked up by any tasks-doc consumer (manual or tooled).
+- `**Status:** Todo` (or preserved status on refresh) — picked up by any tasks-doc consumer (manual or tooled).
+- `**Workflow ID:** <stable-id>` — authoritative identity across refreshes; task number is only a locator.
+- An `inventory:begin/end` block containing the generated handoff fields below. Preserve all
+  user notes and evidence outside this block verbatim.
+- `**Source root:** <absolute-path>` and `**Docs root:** <absolute-path>` — source is read-only;
+  documentation writes stay under Docs root.
+- `**Workspace root:** <absolute-path>` — base for `Reference`.
 - `**Reference:** <path>:<symbol>` — points at the entry point to document. URL-style references (`POST /api/orders`) are allowed for inline route handlers where no symbol exists. Matches the input shape `document-workflow` expects.
 - `**Files affected:** workflows/<service>/<name>.md` — the doc that will be produced. Path is relative to the workspace's output dir.
+- `**Resolved output:** <absolute-path>` — authoritative destination, contained by Docs root.
 - `**Trigger:** <human-readable trigger>` — orientation for a human scanning the doc; not parsed.
-- `**Acceptance criteria:**` block — three bullets covering: (1) the produced doc exists at the expected path, (2) it follows the `document-workflow` output format, (3) the mode (Backend by default; Full-stack only if the task body signals it via the keywords `document-workflow` recognizes).
+- `**Acceptance criteria:**` block — three bullets covering: (1) the produced doc exists exactly
+  at `Resolved output`, (2) it follows the `document-workflow` output format, (3) the mode
+  (Backend by default; Full-stack only if the task body signals it via accepted keywords).
 
-Service grouping in v1 uses no checkpoint headings — the tasks doc is a flat list. The `Service` column in the overview table is the only grouping signal. If you later want to checkpoint per service (e.g., for batch reviewing after each service is done), add the checkpoint headings manually.
+Service grouping uses no checkpoint headings — the active tasks doc is a flat list. The
+`Service` column in the overview table is the grouping signal. Retired tasks have their own
+review section so they cannot be mistaken for active work.
 
 ## Anti-patterns
 
-- **Do not invent handlers.** If a detector recipe doesn't grep-match, the handler doesn't exist for v1's purposes. The user can manually add tasks for dynamically-mounted or otherwise-undetectable handlers by editing `_docs-tasks.md` after the run.
+- **Do not invent handlers.** If a supported static detector recipe doesn't match, do not emit
+  a task. Record dynamic or unsupported registration in Scan coverage as `Partial` or
+  `Unsupported`; never turn absence from a bounded scan into a claim that no handler exists.
+  The user can manually add tasks for runtime-only handlers.
   When a *statically-detectable* framework is present but has **no detector** (e.g. an `.csproj` with `Microsoft.Azure.Functions.Worker` and the Functions detector is somehow off), surface it in `project-overview.md` Notes as `[unsupported handler framework: N <kind> entry points detected, not emitted as tasks]` — do **not** let "don't invent handlers" absorb it into a silently-thin result.
-- **Do not skip monorepo selection.** When 2+ workspaces are detected, always ask the user which to scan — do NOT silently scan all of them. A 30-workspace nx repo would produce 30 tasks docs with hundreds of tasks each; that's overwhelming and rarely what's wanted.
+- **Do not infer monorepo scope.** When 2+ workspaces are detected, honor an explicit selection
+  already supplied by the user; otherwise ask which to scan. Workspace discovery alone does
+  not authorize scanning all workspaces.
 - **Do not emit a single combined tasks doc for monorepos.** One tasks doc per workspace, each under its own subdir. The whole point of monorepo handling is keeping per-workspace concerns separable.
-- **Do not emit artifacts for zero-handler workspaces.** If a selected workspace's Phase 3 scan
-  finds zero entry points, do not create its output folder / `project-overview.md` / `_docs-tasks.md`
-  — list it in the nearest emitted `project-overview.md` Notes as
-  `[zero-handler workspace skipped: <name>]`. Empty scaffolds are noise the user deletes by hand.
+- **Do not emit empty-completeness artifacts.** If no framework signal and no entry point is
+  found, skip the workspace and list `[zero-handler workspace skipped: <name>]` in the nearest
+  overview. If a detector is `Partial`, `Unsupported`, or `Error` and captured zero tasks, emit
+  `project-overview.md` with the explicit Scan coverage boundary but no `_docs-tasks.md` or empty
+  workflow scaffold.
 - **Do not include files outside `$codebase_path`.** Symlinks, projects outside the scan root, etc. — stay within the input root.
 - **Do not scan vendor/build directories.** `node_modules`, `bin`, `obj`, `dist`, `build`, `.next`, `vendor`, `target`, `out`, `.cache`, `__pycache__`, `.venv` are explicitly excluded — they contain compiled or third-party code that is not part of the workflow surface.
 - **Do not emit a `Task 0 — Setup`.** Setup work (scaffolding + `project-overview.md`) happens inline in Phase 4 of *this* skill. The tasks doc contains handler tasks only.
@@ -224,11 +315,14 @@ Service grouping in v1 uses no checkpoint headings — the tasks doc is a flat l
 ## When to use
 
 - At engagement start on a new codebase, to seed the documentation backlog.
-- When a project's surface has grown (new controllers, new workers) and the backlog needs a refresh. Note that v1 re-runs regenerate the full inventory; the user manually reconciles what's already documented (delete or `Status: Done` the existing tasks).
-- For a monorepo, run incrementally — scan workspace A this week, workspace B next week, etc. The skill makes that easy by asking which workspaces to scan each time.
+- When a project's surface has grown and the backlog needs a refresh. Schema-v2 refreshes
+  reconcile stable workflow IDs and preserve existing progress, evidence, and notes.
+- For a monorepo, run incrementally with the requested workspace selection, asking only when
+  that selection is missing.
 
 ## When NOT to use
 
 - For pure libraries / SDKs with no handler surface — there's nothing to detect.
 - For pure-frontend apps (Vite / CRA / static React with no API routes or server actions) — no auto-discoverable handlers. Full-stack docs need manually-authored tasks with full-stack-mode-triggering language in the body (`"full workflow"`, `"end-to-end"`, etc.).
-- For codebases that use only dynamic / runtime handler registration with no static signal — the scan would produce a misleadingly empty result. Consider manually authoring the tasks doc instead.
+- For codebases that use only dynamic/runtime registration — emit the bounded overview and
+  recommend a manual tasks doc; do not emit an empty generated backlog.

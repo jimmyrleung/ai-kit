@@ -1,0 +1,365 @@
+{
+  "schema_version": 1,
+  "captured_at": "2026-09-07T09:42:33.764705+00:00",
+  "reviewed_revision": "aeec06bfa0a6b97402b17824d957f29635f40ba7",
+  "status": "initial snapshot only; refresh exact used references at trial batch start",
+  "snapshot_preservation": "Full available bodies preserved in coordinator scratch evaluation-source-snapshots; each actual trial must retain its loaded prompt/reference bytes with its run record.",
+  "sources": [
+    {
+      "condition": "current",
+      "path": "skills/analyze-work/SKILL.md",
+      "source_revision": "aeec06bfa0a6b97402b17824d957f29635f40ba7",
+      "sha256": "8ffb8b0efcf8e22e401f0d03583d1ca7dad67919cfb4773c97c1e3dde9f16237",
+      "availability": "available"
+    },
+    {
+      "condition": "candidate",
+      "path": "skills/analyze-work/SKILL.md",
+      "source_revision": "working-tree capture",
+      "sha256": "c24a03bbedcbab6cbdca29252d175b774e2377d39a24c0c87f98a1fd9b0000b2",
+      "availability": "available"
+    },
+    {
+      "condition": "current",
+      "path": "skills/breakout-session/SKILL.md",
+      "source_revision": "aeec06bfa0a6b97402b17824d957f29635f40ba7",
+      "sha256": "6f0f7abed56c90aebfb0796d041eeb84a6ead482b64bf32fff394da521c00dcf",
+      "availability": "available"
+    },
+    {
+      "condition": "candidate",
+      "path": "skills/breakout-session/SKILL.md",
+      "source_revision": "working-tree capture",
+      "sha256": "6f0f7abed56c90aebfb0796d041eeb84a6ead482b64bf32fff394da521c00dcf",
+      "availability": "available"
+    },
+    {
+      "condition": "current",
+      "path": "skills/bug-investigation/SKILL.md",
+      "source_revision": "aeec06bfa0a6b97402b17824d957f29635f40ba7",
+      "sha256": "18a77578203eb89c9f3c6a4c5425baf09df240706e882508a08c3d29eedee7e9",
+      "availability": "available"
+    },
+    {
+      "condition": "candidate",
+      "path": "skills/bug-investigation/SKILL.md",
+      "source_revision": "working-tree capture",
+      "sha256": "b0156fef839b3315c383cb19f97f5631196754d1125685795f107e9038e9447b",
+      "availability": "available"
+    },
+    {
+      "condition": "current",
+      "path": "skills/close/SKILL.md",
+      "source_revision": "aeec06bfa0a6b97402b17824d957f29635f40ba7",
+      "sha256": "572d4c91a59822af00b7cba57b1ec565083a45fba9f10a478eabfe6daa36f52d",
+      "availability": "available"
+    },
+    {
+      "condition": "candidate",
+      "path": "skills/close/SKILL.md",
+      "source_revision": "working-tree capture",
+      "sha256": "44343607c7d26b8e42feb6bdb3f5a181eaa51d9cfa0f5298c82f8dcd77866471",
+      "availability": "available"
+    },
+    {
+      "condition": "current",
+      "path": "skills/compile-kb/SKILL.md",
+      "source_revision": "aeec06bfa0a6b97402b17824d957f29635f40ba7",
+      "sha256": "6c57345b7d5d88ee14500914ec50102e0c71cba9f1d5eeda1d87bc4d85c8aae0",
+      "availability": "available"
+    },
+    {
+      "condition": "candidate",
+      "path": "skills/compile-kb/SKILL.md",
+      "source_revision": "working-tree capture",
+      "sha256": "6c57345b7d5d88ee14500914ec50102e0c71cba9f1d5eeda1d87bc4d85c8aae0",
+      "availability": "available"
+    },
+    {
+      "condition": "current",
+      "path": "skills/docs-tasks-creator/SKILL.md",
+      "source_revision": "aeec06bfa0a6b97402b17824d957f29635f40ba7",
+      "sha256": "c50829728bdb1d53eb7a32db9ea5ded66e69f17ade54ab66ae742d0c8043bdd3",
+      "availability": "available"
+    },
+    {
+      "condition": "candidate",
+      "path": "skills/docs-tasks-creator/SKILL.md",
+      "source_revision": "working-tree capture",
+      "sha256": "7412a6adce74fc7d108e3f57cdf1360218076a0497cb4dbcd2b4351463f895ff",
+      "availability": "available"
+    },
+    {
+      "condition": "current",
+      "path": "skills/document-workflow/SKILL.md",
+      "source_revision": "aeec06bfa0a6b97402b17824d957f29635f40ba7",
+      "sha256": "025b04d63610ec3affb781e8cd1d5483bc840426b00d484f8c796af84290df64",
+      "availability": "available"
+    },
+    {
+      "condition": "candidate",
+      "path": "skills/document-workflow/SKILL.md",
+      "source_revision": "working-tree capture",
+      "sha256": "6ac184814ed44d1fd6b976b41413a11a9a87e04342432c1cc7a14f112b495226",
+      "availability": "available"
+    },
+    {
+      "condition": "current",
+      "path": "skills/implement-task/SKILL.md",
+      "source_revision": "aeec06bfa0a6b97402b17824d957f29635f40ba7",
+      "sha256": "8edcf0a8c9a628b2fd6e75290b689b14c7c3857eb6c46d2ae8d67a66181c8e16",
+      "availability": "available"
+    },
+    {
+      "condition": "candidate",
+      "path": "skills/implement-task/SKILL.md",
+      "source_revision": "working-tree capture",
+      "sha256": "fad11766a405a12733b1929a52dea399fec11fd16d4e67798d826a8228c6ca3a",
+      "availability": "available"
+    },
+    {
+      "condition": "current",
+      "path": "skills/improve/SKILL.md",
+      "source_revision": "aeec06bfa0a6b97402b17824d957f29635f40ba7",
+      "sha256": "fbbe784d3df1f125f5b415711affe581f94d43190f8ee9def9450159a5dd22e7",
+      "availability": "available"
+    },
+    {
+      "condition": "candidate",
+      "path": "skills/improve/SKILL.md",
+      "source_revision": "working-tree capture",
+      "sha256": "fbbe784d3df1f125f5b415711affe581f94d43190f8ee9def9450159a5dd22e7",
+      "availability": "available"
+    },
+    {
+      "condition": "current",
+      "path": "skills/qa-gates/SKILL.md",
+      "source_revision": "aeec06bfa0a6b97402b17824d957f29635f40ba7",
+      "sha256": "286e85607c8fcd98c97cce5819093146b84d6d30cfe7809568361aa2894646fc",
+      "availability": "available"
+    },
+    {
+      "condition": "candidate",
+      "path": "skills/qa-gates/SKILL.md",
+      "source_revision": "working-tree capture",
+      "sha256": "49e82492132e7e3f7f54d663b7b16893fc1d6bc19131c60379ada62f969cb1a4",
+      "availability": "available"
+    },
+    {
+      "condition": "current",
+      "path": "skills/review-artifact/SKILL.md",
+      "source_revision": "aeec06bfa0a6b97402b17824d957f29635f40ba7",
+      "sha256": "d27b6991e835f8cce9e2ddc33fb2cbfe2413428784b2259550a3e30666d56198",
+      "availability": "available"
+    },
+    {
+      "condition": "candidate",
+      "path": "skills/review-artifact/SKILL.md",
+      "source_revision": "working-tree capture",
+      "sha256": "5b0e439f5ee6879d903f16d05c65744801af26e3d0dfd2bfd5daaad51e5acad9",
+      "availability": "available"
+    },
+    {
+      "condition": "current",
+      "path": "skills/review-implementation/SKILL.md",
+      "source_revision": "aeec06bfa0a6b97402b17824d957f29635f40ba7",
+      "sha256": "15a670f26ec9000d23483761838e7f40975f216b4ea704038210d813a0efca95",
+      "availability": "available"
+    },
+    {
+      "condition": "candidate",
+      "path": "skills/review-implementation/SKILL.md",
+      "source_revision": "working-tree capture",
+      "sha256": "b9ac3a190c34aa033aa5789cbd621ef4a3d9b0605e32d8212f5cbe919422ba17",
+      "availability": "available"
+    },
+    {
+      "condition": "current",
+      "path": "skills/tasks-breakdown/SKILL.md",
+      "source_revision": "aeec06bfa0a6b97402b17824d957f29635f40ba7",
+      "sha256": "39e1a812b0efc46913888e3ef44905605a42ffabc2a1dcb57339f40fb529ad1e",
+      "availability": "available"
+    },
+    {
+      "condition": "candidate",
+      "path": "skills/tasks-breakdown/SKILL.md",
+      "source_revision": "working-tree capture",
+      "sha256": "112ad1d4e86dd4a50b66acd5c98c22c1fd01c9c81441b7f2dc53c235adc73fe8",
+      "availability": "available"
+    },
+    {
+      "condition": "current",
+      "path": "skills/teach/SKILL.md",
+      "source_revision": "aeec06bfa0a6b97402b17824d957f29635f40ba7",
+      "sha256": "6d2dbe5e03084cf26fef66b535127b36cd1bcbe9478e26b0626029cd51dc2259",
+      "availability": "available"
+    },
+    {
+      "condition": "candidate",
+      "path": "skills/teach/SKILL.md",
+      "source_revision": "working-tree capture",
+      "sha256": "6d2dbe5e03084cf26fef66b535127b36cd1bcbe9478e26b0626029cd51dc2259",
+      "availability": "available"
+    },
+    {
+      "condition": "current",
+      "path": "skills/triage/SKILL.md",
+      "source_revision": "aeec06bfa0a6b97402b17824d957f29635f40ba7",
+      "sha256": "d791cbb7219bc1a6e9cb4e4553815f9003459dd70ce282225a7762d34dfc051c",
+      "availability": "available"
+    },
+    {
+      "condition": "candidate",
+      "path": "skills/triage/SKILL.md",
+      "source_revision": "working-tree capture",
+      "sha256": "d791cbb7219bc1a6e9cb4e4553815f9003459dd70ce282225a7762d34dfc051c",
+      "availability": "available"
+    },
+    {
+      "condition": "current",
+      "path": "skills/triage-learning-content/SKILL.md",
+      "source_revision": "aeec06bfa0a6b97402b17824d957f29635f40ba7",
+      "sha256": "e5318e8623f1bcce6dccd88b3ea31e51b361ef2431aa7f5ae1365c844a4dbdf3",
+      "availability": "available"
+    },
+    {
+      "condition": "candidate",
+      "path": "skills/triage-learning-content/SKILL.md",
+      "source_revision": "working-tree capture",
+      "sha256": "e5318e8623f1bcce6dccd88b3ea31e51b361ef2431aa7f5ae1365c844a4dbdf3",
+      "availability": "available"
+    },
+    {
+      "condition": "current",
+      "path": "skills/update-workflow-docs/SKILL.md",
+      "source_revision": "aeec06bfa0a6b97402b17824d957f29635f40ba7",
+      "sha256": "30f8f533fa79314f075c4e9c4fefc3f0e7094b2085f11feb5349e2368d1263bf",
+      "availability": "available"
+    },
+    {
+      "condition": "candidate",
+      "path": "skills/update-workflow-docs/SKILL.md",
+      "source_revision": "working-tree capture",
+      "sha256": "5617207586924c5a9b29dd0b516a1f07fb22bbf28651338e10c66b3aa3e0b5ba",
+      "availability": "available"
+    },
+    {
+      "condition": "current",
+      "path": "skills/verify-task/SKILL.md",
+      "source_revision": "aeec06bfa0a6b97402b17824d957f29635f40ba7",
+      "sha256": "101c14a935ace2cadcc741fc95174d352460e7b0e473a8fa1cdbc97f5574e595",
+      "availability": "available"
+    },
+    {
+      "condition": "candidate",
+      "path": "skills/verify-task/SKILL.md",
+      "source_revision": "working-tree capture",
+      "sha256": "a93b3fac483cc219d4f0b752fcf13df7afc7c8519a98950cfdd322b8e104ceef",
+      "availability": "available"
+    },
+    {
+      "condition": "current",
+      "path": "skills/walkthrough/SKILL.md",
+      "source_revision": "aeec06bfa0a6b97402b17824d957f29635f40ba7",
+      "sha256": "69f7d47832aaa76a25ab36fb8dec494f4d9aac40883f6bbd1d31064e3afe9b06",
+      "availability": "available"
+    },
+    {
+      "condition": "candidate",
+      "path": "skills/walkthrough/SKILL.md",
+      "source_revision": "working-tree capture",
+      "sha256": "69f7d47832aaa76a25ab36fb8dec494f4d9aac40883f6bbd1d31064e3afe9b06",
+      "availability": "available"
+    },
+    {
+      "condition": "current",
+      "path": "skills/walkthrough-implementation/SKILL.md",
+      "source_revision": "aeec06bfa0a6b97402b17824d957f29635f40ba7",
+      "sha256": "debc39c4950394022850c9519eb32043e9cf8542eb0f7ef25d5f470409ffb2ae",
+      "availability": "available"
+    },
+    {
+      "condition": "candidate",
+      "path": "skills/walkthrough-implementation/SKILL.md",
+      "source_revision": "working-tree capture",
+      "sha256": "f4e74c276f0b5ec6ab30c07e4b651ad01a61d97d22123a423c2bd5bf57aff1c2",
+      "availability": "available"
+    },
+    {
+      "condition": "current",
+      "path": "docs/contracts/change-evidence.md",
+      "source_revision": "aeec06bfa0a6b97402b17824d957f29635f40ba7",
+      "sha256": null,
+      "availability": "unavailable",
+      "reason": "Path unavailable in this source condition; do not substitute another body."
+    },
+    {
+      "condition": "candidate",
+      "path": "docs/contracts/change-evidence.md",
+      "source_revision": "working-tree capture",
+      "sha256": "84d04ddbd7793e8af5e70ea55a3158e16c425b9f66618394c10dfa000af6f7a2",
+      "availability": "available"
+    },
+    {
+      "condition": "current",
+      "path": "docs/contracts/documentation-evidence.md",
+      "source_revision": "aeec06bfa0a6b97402b17824d957f29635f40ba7",
+      "sha256": null,
+      "availability": "unavailable",
+      "reason": "Path unavailable in this source condition; do not substitute another body."
+    },
+    {
+      "condition": "candidate",
+      "path": "docs/contracts/documentation-evidence.md",
+      "source_revision": "working-tree capture",
+      "sha256": "2c96d3670b90c13ff349025f660780067725800f8d663047ba57bc4549ca3adf",
+      "availability": "available"
+    },
+    {
+      "condition": "current",
+      "path": "docs/contracts/engineering-change.md",
+      "source_revision": "aeec06bfa0a6b97402b17824d957f29635f40ba7",
+      "sha256": null,
+      "availability": "unavailable",
+      "reason": "Path unavailable in this source condition; do not substitute another body."
+    },
+    {
+      "condition": "candidate",
+      "path": "docs/contracts/engineering-change.md",
+      "source_revision": "working-tree capture",
+      "sha256": "89c87f1d2c89d5ba45020d4bc28757f4462f29e7a4e1fadc88c9689214512904",
+      "availability": "available"
+    },
+    {
+      "condition": "current",
+      "path": "docs/contracts/feedback.md",
+      "source_revision": "aeec06bfa0a6b97402b17824d957f29635f40ba7",
+      "sha256": null,
+      "availability": "unavailable",
+      "reason": "Path unavailable in this source condition; do not substitute another body."
+    },
+    {
+      "condition": "candidate",
+      "path": "docs/contracts/feedback.md",
+      "source_revision": "working-tree capture",
+      "sha256": "8481d735ecca2480258117aa7192bbb6809f61f282c7e329680f8e610d32ff13",
+      "availability": "available"
+    },
+    {
+      "condition": "current",
+      "path": "docs/contracts/skill-policy.md",
+      "source_revision": "aeec06bfa0a6b97402b17824d957f29635f40ba7",
+      "sha256": null,
+      "availability": "unavailable",
+      "reason": "Path unavailable in this source condition; do not substitute another body."
+    },
+    {
+      "condition": "candidate",
+      "path": "docs/contracts/skill-policy.md",
+      "source_revision": "working-tree capture",
+      "sha256": "dc85f3a7bc089b939f148c9e28f15bd396c26a8d6e115a1cdd93042ff1efdd8c",
+      "availability": "available"
+    }
+  ],
+  "corpus_sha256": "8814db5eafd581d50542e396f93ddad7c2ca644430c33bb82bf9b611d8ef584f"
+}

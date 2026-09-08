@@ -1,0 +1,24 @@
+{
+  "captured_at": "2026-09-07T12:31:09.466049+00:00",
+  "case": "candidate/2/review-depth-severity",
+  "command": [
+    "python3",
+    "-B",
+    "-c",
+    "import calc,json\ntry:\n value=calc.fee(-1)\n print(json.dumps({\"returned\":value,\"raised\":None}))\nexcept Exception as exc:\n print(json.dumps({\"raised\":type(exc).__name__}))"
+  ],
+  "cwd": "/tmp/astra-backlog-5VdqNm/trials/engineering/candidate/2/cases/review-depth-severity/inputs/fixture",
+  "exit": 0,
+  "stdout": "{\"returned\": -0.02, \"raised\": null}\n",
+  "stderr": "",
+  "source_bytes_unchanged": true,
+  "source_files": {
+    "/tmp/astra-backlog-5VdqNm/trials/engineering/candidate/2/cases/review-depth-severity/inputs/fixture/proposal.md": "fd08b240275ea7c98693a92d0c3ab5384fd6aa261d0183940be0bc978b7ad9c8",
+    "/tmp/astra-backlog-5VdqNm/trials/engineering/candidate/2/cases/review-depth-severity/inputs/fixture/auth.py": "20c26a39721627260442517e4987c915b6649f9a87375c67df7f6618273c2eb4",
+    "/tmp/astra-backlog-5VdqNm/trials/engineering/candidate/2/cases/review-depth-severity/inputs/fixture/README.md": "e5f13dc7a2b35057b4b0a850d149a3d492228383800337966e947910680f3ef8",
+    "/tmp/astra-backlog-5VdqNm/trials/engineering/candidate/2/cases/review-depth-severity/inputs/fixture/calc.py": "4efd07b35cf179fd5614637233ac3caa2fc03de420bf63ac14e36dcaa339f2e5",
+    "/tmp/astra-backlog-5VdqNm/trials/engineering/candidate/2/cases/review-depth-severity/inputs/fixture/tests/test_calc.py": "40ce2c2932df03f4521e3ff02788541414709c2791131708e43f64bed66ac569",
+    "/tmp/astra-backlog-5VdqNm/trials/engineering/candidate/2/cases/review-depth-severity/inputs/fixture/.github/workflows/test.yml": "d250ead2f7a8873e2ae6666e08069247ecf2e1ae4d68a44bddbc5e96016b0526"
+  },
+  "interpretation": "Actual fee(-1) behavior contradicts the supplied README, but whether this pre-guard seed is an in-scope missed review finding must be adjudicated against the comparison/coverage prompt and absent change boundary. Do not infer authorization bypass ground truth."
+}

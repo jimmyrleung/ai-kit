@@ -1,9 +1,18 @@
 ---
 name: analyze-work
-description: "Pre-implementation analysis of upcoming work — a reference map (entry points, patterns to follow, similar features, scope boundaries, risks), not a design doc. Detects and adapts to the work type: integrating a feature into an existing codebase, starting a new project / greenfield build (vertical-slice guarded), or a refactor / tech-debt request. Produces {work_name}_analysis.md. Use when asked to analyze, audit, scope, or map a feature integration, a new project, or a refactor / tech debt before designing or implementing it."
+description: "Maps entry points, existing patterns, scope, and risks for a defined feature integration, new project, or refactor / tech debt. Use when asked to analyze, audit, scope, or map upcoming work before design or implementation. Produces {work_name}_analysis.md; current-state reconnaissance without a defined change belongs to lay-of-the-land, solution design to techspec."
 ---
 
 # analyze-work — pre-implementation reference map (integration · greenfield · refactor)
+
+Apply the [confidence contract](references/shared/confidence.md) using the analysis rubric.
+Record the effective policy and explicit score, evidence, uncertainty consequences, next
+checks and advancement verdict; pass the policy to workers and downstream gates.
+
+Apply [engineering change](references/shared/engineering-change.md) and
+[authorized work](references/shared/authorized-work.md). Resolve these references from the
+skill folder. Inspect repository instructions and nearby
+production code, tests, docs, and CI; identify suitable reuse and test homes before proposing files.
 
 Act as an expert code analyst to map where upcoming work will land and what it must respect:
 
@@ -59,7 +68,9 @@ The input can really be any of:
 - A folder containing files that provide context on what to analyze
 - A lay-of-the-land document
 
-Resolve `{work_name}` before starting: derive it from the description's filename; else propose one from the topic and confirm.
+Resolve `{work_name}` before starting: derive it from the description's filename or a clear topic.
+Echo the name and destination; ask only when either is ambiguous. Inline and file inputs follow
+the same authorized drafting path.
 
 Come back to the user if the ask is not clear:
 
@@ -73,7 +84,8 @@ Come back to the user if the ask is not clear:
 Subagents usage should be done according to the following guidance:
 
 - Small item → no subagents, analyze on the main thread.
-- Medium to large → scope the work and launch **generic** subagents for exploring distinct areas of exploration.
+- Medium to large → use authorized native workers for distinct areas when available; otherwise
+  perform scoped passes and report the weaker independence.
 - XL: if the feature is too large and you think one analyze-work run is not enough, come back to the user suggesting a phased approach, where each phase earns its own analyze-work run
 
 ### Guidance - spawning subagents
@@ -81,12 +93,14 @@ Subagents usage should be done according to the following guidance:
 When spawning subagents, they should be explore / general-purpose ones for breadth. Each should be handed the work description + these constraints verbatim:
 
 1. "Your output is a REFERENCE DOCUMENT, not a design document. Think tour guide showing someone around a codebase, not architect designing a building. Point to examples; don't create new designs. Max 2 lines of code per explanation. If it looks like a techspec, it won't be approved."
-2. "DO NOT MAKE ASSUMPTIONS — if anything is unclear, return with clarification questions. You must be able to answer: what problem is being solved? what should the work deliver? what constraints apply?"
+2. "Distinguish inspected facts from unknowns. Return missing load-bearing facts as precise questions; continue independent exploration. State the problem, intended outcome, and constraints without inventing decisions."
 3. "End your report with a `## Confidence & unverified` footer: what you could NOT verify, and any absence claim stated as an OPEN QUESTION with the scope of the probe that produced it — never as a bare negative."
 
 ### Consolidation
 
-Consolidate: consensus (high confidence) / disagreements (flag for the user) / confidence-weighted points. Critical disagreement (> 2-point confidence delta on a key point) → return to the user with specific questions. Workers never spawn further subagents and never write the file.
+Re-ground load-bearing claims against source. Resolve disagreements through evidence and record
+remaining coverage gaps; agreement or score differences are not proof. Workers never spawn further
+subagents and never write the file. Missing charter coverage remains missing.
 
 ## Process
 
@@ -94,9 +108,11 @@ Consolidate: consensus (high confidence) / disagreements (flag for the user) / c
 
 Establish definition, expected outcome, constraints, edge cases, dependencies.
 
-### Clarification questions [MANDATORY]
+### Clarification questions
 
-Before launching the analysis, ask clarification questions relentlessly until the work is fully understood. Append Q&A to the description file's "Clarifications" section (when the description is a file).
+Ask for missing load-bearing facts, scope changes, or owner decisions; do not add a routine approval
+round to a clear authorized request. Continue useful independent work. Record answers in the
+analysis and, when authorized, the description file's "Clarifications" section.
 
 ### Architecture & health (integration/refactor)
 
@@ -107,7 +123,8 @@ Identify:
 - Pattern consistency (High/Med/Low)
 - Documentation quality
 - Architectural clarity.
-- If low/poor on an integration → recommend refactoring first.
+- If weak architecture affects the requested change, name the concrete impact and relevant source;
+  do not make unrelated cleanup an automatic prerequisite.
 
 ### Exploration
 
@@ -141,20 +158,14 @@ Files modified / created, APIs called or created, DB tables / models, state mana
 
 Check [Mode lenses] section below.
 
-### Confidence gate
+### Evidence and drafting boundary
 
-1. Calculate the confidence score 0–100%:
-   - requirements clarity (40%)
-   - codebase-or-constraint understanding (40%)
-   - change-path clarity (20%).
-
-2. Once calculated, act according to the result:
-
-- ✅ 90–100% all clear - confirm the consolidated analysis with the user, then write the file
-- ⚠️ 70–89% minor ambiguities
-- ❌ < 70% significant unknowns
-
-**If < 90% → STOP, name what's missing, ask more questions.**
+Check the map against the request and inspected source. A missing load-bearing fact blocks the
+dependent recommendation; record the uncertainty and next probe. Write the useful authorized
+draft, clearly marking unverified portions. Calculate and report the analysis rubric from the confidence contract. Below the effective
+threshold, block dependent recommendations and phase advancement while continuing authorized
+independent exploration and an explicitly partial draft. A score or worker agreement is neither
+evidence nor permission.
 
 ## Mode lenses
 
@@ -186,6 +197,8 @@ Add to the doc:
 - **Anti-patterns found** — why problematic, locations, impact — alongside the good patterns to keep.
 - **Risk classification** — Breaking changes (High: impact + mitigation) / Non-breaking (Low) / Unknown (needs investigation).
 - **Executive-summary extras** — Complexity: Low/Medium/High/Critical · Risk: Low/Medium/High · Scope: Small/Medium/Large.
+- Map existing behavior/test protection and rollback constraints; transition design remains with
+  the techspec.
 
 ## Output structure
 
@@ -196,7 +209,7 @@ The expected output is a reference document — not a bloated document with impl
 
 **IMPORTANT**: the only scenario code blocks are allowed is when explaining current state would take _more_ text than the block.
 
-Core sections (all modes): **Overview** (2–3 sentences) · **Confidence score** (loaded confidence format) · **Entry points** (`file:line`; greenfield: proposed entry surface) · **Similar features / examples** (`file:line`; greenfield: ecosystem examples) · **Execution flow** · **Key components & responsibilities** · **Architecture insights** · **Dependencies** (internal / external / libraries) · **Observations** (strengths, issues, opportunities) · **Side effects / impact** · **Risks & considerations** (severity Critical/High/Mid/Low) · **Essential files** — plus the mode-lens sections above.
+Core sections (all modes): **Overview** (2–3 sentences) · **Confidence score** (confidence contract: factors, evidence, effective threshold, uncertainty consequences and next checks) · **Entry points** (`file:line`; greenfield: proposed entry surface) · **Similar features / examples** (`file:line`; greenfield: ecosystem examples) · **Execution flow** · **Key components & responsibilities** · **Architecture insights** · **Dependencies** (internal / external / libraries) · **Observations** (strengths, issues, opportunities) · **Side effects / impact** · **Risks & considerations** (severity Critical/High/Mid/Low) · **Essential files** — plus the mode-lens sections above.
 
 Four tables (omit one only if it genuinely has no rows; greenfield: "Files to Modify" is usually empty):
 

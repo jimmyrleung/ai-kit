@@ -1,0 +1,42 @@
+{
+  "record_id": "existing-host-authentication-status-20260907",
+  "captured_at": "2026-09-07T12:11:52.944173+00:00",
+  "capture_note": "Results transcribed from actual parent native CLI status commands in this turn; raw identity-bearing stdout was not retained. No credential files opened.",
+  "providers": [
+    {
+      "provider": "codex",
+      "command": [
+        "codex",
+        "login",
+        "status"
+      ],
+      "exit": 0,
+      "authenticated": true,
+      "basis": "native text matched logged in"
+    },
+    {
+      "provider": "claude",
+      "command": [
+        "claude",
+        "auth",
+        "status"
+      ],
+      "exit": 0,
+      "authenticated": true,
+      "basis": "native JSON loggedIn=true"
+    },
+    {
+      "provider": "cursor",
+      "command": [
+        "cursor-agent",
+        "status",
+        "--format",
+        "json"
+      ],
+      "exit": 0,
+      "authenticated": true,
+      "basis": "native JSON isAuthenticated=true"
+    }
+  ],
+  "limit": "Status is not successful model execution or configured-store recording; prior fresh-home no-auth results remain valid within their own scopes."
+}

@@ -105,6 +105,32 @@ def load_engine(repo: Path, home: Path) -> object:
 
 
 class SyncSkillsTests(unittest.TestCase):
+    def test_mechanics_comparison_is_scoped_and_read_only(self) -> None:
+        spec = importlib.util.spec_from_file_location("mechanics", REPO_ROOT / "scripts" / "check-mechanics-mirror.py")
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        public = "# Mechanics\n\nCurrent body\n"
+        private = "private prefix\n<!-- kit-mechanics:begin dated -->\n" + public + "<!-- kit-mechanics:end -->\nprivate suffix"
+        self.assertEqual(module.compare(public, private)[0], "current")
+        self.assertEqual(module.compare(public, private.replace("Current body", "Old body"))[0], "drift")
+        self.assertEqual(module.compare(public, private.replace("private prefix", "different private rules"))[0], "current")
+        self.assertEqual(module.compare(public, private.replace("\n", "\r\n"))[0], "current")
+        self.assertEqual(module.compare(public, "no block")[0], "unverified")
+        self.assertEqual(module.compare(public, private + private)[0], "unverified")
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            source = REPO_ROOT / "adapters" / "codex" / "AGENTS.md"
+            copied = root / "private.md"
+            copied.write_text("secret-prefix\n<!-- kit-mechanics:begin -->\nold\n<!-- kit-mechanics:end -->\nsecret-suffix")
+            before = filesystem_snapshot(root)
+            public_before = source.read_bytes()
+            result = subprocess.run([sys.executable, str(REPO_ROOT / "scripts" / "check-mechanics-mirror.py"), "--provider", "codex", "--file", str(copied)], capture_output=True, text=True)
+            self.assertEqual(result.returncode, 1)
+            self.assertIn("DRIFT", result.stdout)
+            self.assertNotIn("secret", result.stdout + result.stderr)
+            self.assertEqual(filesystem_snapshot(root), before)
+            self.assertEqual(source.read_bytes(), public_before)
+
     def test_clean_apply_and_completeness_check(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             home = Path(temporary)
@@ -326,6 +352,21 @@ class SyncSkillsTests(unittest.TestCase):
             self.assertIn("readable file", str(raised.exception))
             self.assertFalse((home / ".claude").exists())
 
+    def test_source_names_reject_consecutive_hyphens_before_mutation(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            checkout = copy_checkout(Path(temporary))
+            (checkout / "skills" / "analyze-work").rename(checkout / "skills" / "analyze--work")
+            home = Path(temporary) / "home"
+            home.mkdir()
+            before = filesystem_snapshot(home)
+            with self.assertRaisesRegex(SYNC.SyncError, "invalid canonical skill directory name"):
+                load_engine(checkout, home)
+            self.assertEqual(filesystem_snapshot(home), before)
+        for valid in ("a", "a" * 64, "analyze-work"):
+            self.assertEqual(SYNC.validate_name(valid, "fixture"), valid)
+        with self.assertRaisesRegex(SYNC.SyncError, "invalid skill name"):
+            SYNC.validate_name("analyze--work", "fixture")
+
     @unittest.skipUnless(os.name != "nt", "canonical directory-link coverage is exercised by the Windows matrix")
     def test_canonical_directory_links_are_enumerated_and_deployed(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -389,6 +430,7 @@ class SyncSkillsTests(unittest.TestCase):
             result = run_cli(home)
             self.assertEqual(result.returncode, 1)
             self.assertFalse((home / ".claude").exists())
+            self.assertIn("no filesystem or manifest changes were made", result.stderr)
             self.assertEqual(sentinel.read_text(encoding="utf-8"), "preserve")
             self.assertEqual(filesystem_snapshot(home), before)
 
@@ -543,6 +585,9 @@ class SyncSkillsTests(unittest.TestCase):
             result = run_cli(home, env={"AI_KIT_SYNC_ACTION_HOOK": str(hook)})
             self.assertEqual(result.returncode, 1)
             self.assertIn("action-time-conflict", result.stderr)
+            self.assertIn("prepared transaction remains", result.stderr)
+            self.assertIn("rerun the original operation to recover", result.stderr)
+            self.assertNotIn("no filesystem or manifest changes were made", result.stderr)
             self.assertFalse(SYNC.is_link(home / ".claude" / "skills" / "analyze-work"))
             self.assertIsNotNone(manifest_data(home)["transaction"])
 
@@ -555,6 +600,21 @@ class SyncSkillsTests(unittest.TestCase):
             self.assertTrue(SYNC.is_link(home / ".claude" / "skills" / "analyze-work"))
             recovered = run_cli(home)
             self.assertEqual(recovered.returncode, 0, recovered.stderr)
+            self.assertEqual(run_cli(home, "--check").returncode, 0)
+
+    def test_conflict_after_recovery_reports_retained_changes(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            home = Path(temporary)
+            interrupted = run_cli(home, env={"AI_KIT_SYNC_FAIL_AFTER_ACTION": "1"})
+            self.assertEqual(interrupted.returncode, 1)
+            # The preserved entry is already owned. Recovery can finish, then the
+            # next preflight must reject the newly supplied preserve policy.
+            result = run_cli(home, "--preserve", "agents/teach")
+            self.assertEqual(result.returncode, 1)
+            self.assertIn("preserved-entry-owned", result.stderr)
+            self.assertIn("recovery completed before this conflict", result.stderr)
+            self.assertNotIn("no filesystem or manifest changes were made", result.stderr)
+            self.assertIsNone(manifest_data(home)["transaction"])
             self.assertEqual(run_cli(home, "--check").returncode, 0)
 
     def test_interrupted_retarget_recovers_from_durable_replacement_transition(self) -> None:

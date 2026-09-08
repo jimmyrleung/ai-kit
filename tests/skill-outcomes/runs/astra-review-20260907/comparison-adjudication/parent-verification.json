@@ -1,0 +1,14 @@
+{
+  "captured_at": "2026-09-07T12:37:48.319324+00:00",
+  "source_identities_checked": 75,
+  "source_identity_errors": [],
+  "derived_totals": {
+    "rows": 4,
+    "named_scope_concerns": 16,
+    "missed_named_scope_concerns": 0,
+    "decision_obligations_retained": 16,
+    "explicit_baseline_mismatch": 3
+  },
+  "parent_reads": "All helper outputs, distinct helper fixture contents, review-depth outputs and actual A/B/C/D artifacts inspected. All eight A/B drafts were read, not inferred from result summaries. Fee probe preserves all fixture bytes.",
+  "scope": "Post-hoc artifact adjudication only; no new model trial or source change; no runtime defect-rate or owner-policy claim."
+}

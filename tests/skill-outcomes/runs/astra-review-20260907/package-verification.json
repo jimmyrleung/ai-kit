@@ -1,0 +1,86 @@
+{
+  "captured_at": "2026-09-07T13:35:21.388919+00:00",
+  "archives": [
+    {
+      "archive": "comparison-adjudication/evidence.zip",
+      "sha256": "c3b0b74c904d1f05b32ba62ea23e28ef93ea0a7adda2b98fd9bd4d7e42561cd4",
+      "files": 5,
+      "bytes": 88775
+    },
+    {
+      "archive": "domain-candidate-original-1/evidence.zip",
+      "sha256": "8e66db33515cc771a5e736853c9bed6a6090320a3f26fa6042e0f52abe34f48d",
+      "files": 333,
+      "bytes": 735615
+    },
+    {
+      "archive": "engineering-candidate-1/evidence.zip",
+      "sha256": "ff506c20df89e45a3535529871192b46489cad4547b97fe24daea4329d995c2a",
+      "files": 441,
+      "bytes": 1762080
+    },
+    {
+      "archive": "engineering-candidate-2/evidence.zip",
+      "sha256": "a2c54e31794497006d8b713d0c2ca45f2a17bf354eae52de5780e2eac3acb28a",
+      "files": 213,
+      "bytes": 209052
+    },
+    {
+      "archive": "engineering-current-1/evidence.zip",
+      "sha256": "fb56213171ba1a21598ac9e6052a53cccac26b98d6f3e76bc863a5485a0ec824",
+      "files": 228,
+      "bytes": 303604
+    },
+    {
+      "archive": "engineering-current-2/evidence.zip",
+      "sha256": "26c4bcbad402d446ed6081164bfcd72999fb8584120679ccc6beac4fc3fe56da",
+      "files": 333,
+      "bytes": 413358
+    },
+    {
+      "archive": "engineering-no-skill-1/evidence.zip",
+      "sha256": "63d64e4efa36d056e87e921622382c30783d94a53711efda15758a08ba3dda3e",
+      "files": 83,
+      "bytes": 29196
+    },
+    {
+      "archive": "engineering-no-skill-2/evidence.zip",
+      "sha256": "212040cd1a737b40d36126c94db561c722c068c181a50f22c5ae8dc8bc5d13c7",
+      "files": 61,
+      "bytes": 25051
+    },
+    {
+      "archive": "existing-provider-stores/evidence.zip",
+      "sha256": "58dedb7cfc534461aaaa2549e0f8fc897b364b8a476c0110cdca5e22d50f6c67",
+      "files": 77,
+      "bytes": 1223799
+    },
+    {
+      "archive": "final-focused-1/evidence.zip",
+      "sha256": "5b6aaf51c31e3025b494b3c1af9cbf6cd079bbbaa57027829dcef1a62adcacf4",
+      "files": 373,
+      "bytes": 831084
+    },
+    {
+      "archive": "owner-dispositions/evidence.zip",
+      "sha256": "643b851d4dd4b8720a251e98494a8b52d05fd6c802a990f4ae2f3e5906591997",
+      "files": 36,
+      "bytes": 1017339
+    },
+    {
+      "archive": "parent-verification/evidence.zip",
+      "sha256": "566f8599d2bed4a928ee2dc83f0158ebcad23869d359630063e83cbbd715de89",
+      "files": 135,
+      "bytes": 2072978
+    },
+    {
+      "archive": "remaining-local/evidence.zip",
+      "sha256": "09411a26bd1fa67bf0b12614666671f10458254613d921ba2e39eb10232e2492",
+      "files": 261,
+      "bytes": 1700061
+    }
+  ],
+  "content_identity_errors": [],
+  "privacy_pattern_findings": [],
+  "scope_limit": "Prior archives unchanged; new owner-disposition entries checked for private-home, API-key, Bearer and private-key patterns. Access rationale generalized explicitly; not exhaustive secret scanning."
+}

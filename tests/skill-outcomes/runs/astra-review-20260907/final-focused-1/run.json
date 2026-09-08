@@ -1,0 +1,411 @@
+{
+  "status": "complete-one-repetition",
+  "started_at": "2026-09-07T11:09:23.110848+00:00",
+  "comparative": false,
+  "requested_model": "gpt-6-astra",
+  "requested_effort": "high",
+  "effective_model": null,
+  "effective_host_proof": null,
+  "tokens": null,
+  "cost": null,
+  "full_trace": null,
+  "order": [
+    "documentation-w1-final",
+    "terraform-final",
+    "feedback-close-final",
+    "feedback-harvest-final",
+    "conversion-resume-final",
+    "taskless-fix-final",
+    "discovery-evidence",
+    "missing-charter",
+    "causal-refinement",
+    "improvement-retention-final"
+  ],
+  "cases": [
+    {
+      "id": "documentation-w1-final",
+      "seconds": 0.11157022099996539,
+      "checks": [
+        {
+          "check": "original W1 static inventory, coverage and exact outputs",
+          "status": "fail",
+          "evidence": "/tmp/astra-backlog-5VdqNm/trials/final-focused/1/artifacts/documentation-w1-final/template-completeness.json",
+          "reason": "Route/task inventory and exact outputs exist, but full workflow template conformance fails: six required Summary fields absent. Preserved after one run."
+        },
+        {
+          "check": "Pages underscore and root route emitted",
+          "status": "pass",
+          "evidence": "/tmp/astra-backlog-5VdqNm/trials/final-focused/1/artifacts/documentation-w1-final"
+        },
+        {
+          "check": "SourceID paths actually read during refresh",
+          "status": "pass",
+          "evidence": "/tmp/astra-backlog-5VdqNm/trials/final-focused/1/artifacts/documentation-w1-final/*/*-refresh.json"
+        },
+        {
+          "check": "source bytes unchanged",
+          "status": "pass",
+          "evidence": "/tmp/astra-backlog-5VdqNm/trials/final-focused/1/artifacts/documentation-w1-final/*/final-source-hashes.json"
+        },
+        {
+          "check": "standalone source root is repository root in single-workspace variants",
+          "status": "unavailable",
+          "evidence": "/tmp/astra-backlog-5VdqNm/trials/final-focused/1/traces/execute.py",
+          "reason": "Each workspace uses a source locator inside one parent fixture Git repository. Path resolution was exercised, but strict standalone repository-root identity was not independently set up."
+        }
+      ],
+      "artifact_bytes": 108163,
+      "expected_unreadable_artifacts": []
+    },
+    {
+      "id": "terraform-final",
+      "seconds": 0.11932114100000035,
+      "checks": [
+        {
+          "check": "T1 bounded v4 inventory and complete references",
+          "status": "pass",
+          "evidence": "/tmp/astra-backlog-5VdqNm/trials/final-focused/1/artifacts/terraform-final/docs/root/prod.md"
+        },
+        {
+          "check": "wrapper and both children",
+          "status": "pass",
+          "evidence": "/tmp/astra-backlog-5VdqNm/trials/final-focused/1/artifacts/terraform-final/producer-index.json"
+        },
+        {
+          "check": "dirty/sibling source freshness",
+          "status": "pass",
+          "evidence": "/tmp/astra-backlog-5VdqNm/trials/final-focused/1/artifacts/terraform-final/freshness-results.json"
+        },
+        {
+          "check": "applied only vs denied access separated",
+          "status": "pass",
+          "evidence": "/tmp/astra-backlog-5VdqNm/trials/final-focused/1/artifacts/terraform-final/evidence-axis-results.json"
+        },
+        {
+          "check": "documentation source bytes unchanged",
+          "status": "pass",
+          "evidence": "/tmp/astra-backlog-5VdqNm/trials/final-focused/1/artifacts/terraform-final/after-documentation-hashes.json"
+        }
+      ],
+      "artifact_bytes": 40388,
+      "expected_unreadable_artifacts": [
+        "/tmp/astra-backlog-5VdqNm/trials/final-focused/1/artifacts/terraform-final/freshness/inaccessible-sibling/sibling/main.tf"
+      ]
+    },
+    {
+      "id": "feedback-close-final",
+      "seconds": 0.010561320999840973,
+      "checks": [
+        {
+          "check": "same session no-op preserves bytes",
+          "status": "pass",
+          "evidence": "/tmp/astra-backlog-5VdqNm/trials/final-focused/1/artifacts/feedback-close-final/same-session-noop.json"
+        },
+        {
+          "check": "enabled zero-inventory before superseding receipt",
+          "status": "pass",
+          "evidence": "/tmp/astra-backlog-5VdqNm/trials/final-focused/1/artifacts/feedback-close-final/resume-validation.json"
+        },
+        {
+          "check": "later session distinct dated entry",
+          "status": "pass",
+          "evidence": "/tmp/astra-backlog-5VdqNm/trials/final-focused/1/artifacts/feedback-close-final/SESSION_LOG.md"
+        },
+        {
+          "check": "interrupted close resumes without duplicate/premature receipt",
+          "status": "pass",
+          "evidence": "/tmp/astra-backlog-5VdqNm/trials/final-focused/1/artifacts/feedback-close-final/interrupted-started.md"
+        }
+      ],
+      "artifact_bytes": 6189,
+      "expected_unreadable_artifacts": []
+    },
+    {
+      "id": "feedback-harvest-final",
+      "seconds": 0.5649363150005229,
+      "checks": [
+        {
+          "check": "consumed evidence retained; own receipt excluded",
+          "status": "pass",
+          "evidence": "/tmp/astra-backlog-5VdqNm/trials/final-focused/1/artifacts/feedback-harvest-final/harvest-actions.json"
+        },
+        {
+          "check": "changed finding once; identical no-ops",
+          "status": "pass",
+          "evidence": "/tmp/astra-backlog-5VdqNm/trials/final-focused/1/artifacts/feedback-harvest-final/harvest-actions.json"
+        },
+        {
+          "check": "enabled envelope and actual tag validation before receipts",
+          "status": "pass",
+          "evidence": "/tmp/astra-backlog-5VdqNm/trials/final-focused/1/artifacts/feedback-harvest-final/harvest-1-validation.json"
+        },
+        {
+          "check": "duplicate candidates one observation",
+          "status": "pass",
+          "evidence": "/tmp/astra-backlog-5VdqNm/trials/final-focused/1/artifacts/feedback-harvest-final/harvest-2-validation.json"
+        },
+        {
+          "check": "artifact runner attribution distinct from live compatibility",
+          "status": "pass",
+          "evidence": "/tmp/astra-backlog-5VdqNm/trials/final-focused/1/artifacts/feedback-harvest-final/runner-attribution.json"
+        }
+      ],
+      "artifact_bytes": 19340,
+      "expected_unreadable_artifacts": []
+    },
+    {
+      "id": "conversion-resume-final",
+      "seconds": 0.1354979399993681,
+      "checks": [
+        {
+          "check": "scaffolding cannot skip beta origin",
+          "status": "pass",
+          "evidence": "/tmp/astra-backlog-5VdqNm/trials/final-focused/1/artifacts/conversion-resume-final/vault/init-proposal.md"
+        },
+        {
+          "check": "tracking intent retained without staging",
+          "status": "pass",
+          "evidence": "/tmp/astra-backlog-5VdqNm/trials/final-focused/1/artifacts/conversion-resume-final/verification.json"
+        },
+        {
+          "check": "references retained and unique source notes",
+          "status": "pass",
+          "evidence": "/tmp/astra-backlog-5VdqNm/trials/final-focused/1/artifacts/conversion-resume-final/per-file-reference-inventory.json"
+        },
+        {
+          "check": "unchanged approved-terminal no-op",
+          "status": "pass",
+          "evidence": "/tmp/astra-backlog-5VdqNm/trials/final-focused/1/artifacts/conversion-resume-final/unchanged-rerun.json"
+        },
+        {
+          "check": "unknown blocked remains visible and unaccepted",
+          "status": "pass",
+          "evidence": "/tmp/astra-backlog-5VdqNm/trials/final-focused/1/artifacts/conversion-resume-final/vault/init-proposal.md"
+        },
+        {
+          "check": "full configured secret scanner gate",
+          "status": "unavailable",
+          "evidence": "/tmp/astra-backlog-5VdqNm/trials/final-focused/1/artifacts/conversion-resume-final/verification.json"
+        }
+      ],
+      "artifact_bytes": 12789,
+      "expected_unreadable_artifacts": []
+    },
+    {
+      "id": "taskless-fix-final",
+      "seconds": 4.221363943999677,
+      "checks": [
+        {
+          "check": "producer stable designated AC section",
+          "status": "pass",
+          "evidence": "/tmp/astra-backlog-5VdqNm/trials/final-focused/1/artifacts/taskless-fix-final/generated/BUG-1_techspec.md"
+        },
+        {
+          "check": "duplicate returns2 maps one obligation retaining both locators",
+          "status": "pass",
+          "evidence": "/tmp/astra-backlog-5VdqNm/trials/final-focused/1/artifacts/taskless-fix-final/duplicate-original-verify-1-handoff.json"
+        },
+        {
+          "check": "two verify records retain original mappings/history",
+          "status": "pass",
+          "evidence": "/tmp/astra-backlog-5VdqNm/trials/final-focused/1/artifacts/taskless-fix-final"
+        },
+        {
+          "check": "legitimate no-techspec route",
+          "status": "pass",
+          "evidence": "/tmp/astra-backlog-5VdqNm/trials/final-focused/1/artifacts/taskless-fix-final/no-techspec-verify-2-handoff.json"
+        },
+        {
+          "check": "effective P1 threshold70 explicit worker input",
+          "status": "pass",
+          "evidence": "/tmp/astra-backlog-5VdqNm/trials/final-focused/1/artifacts/taskless-fix-final/conditional-worker-input.json"
+        }
+      ],
+      "artifact_bytes": 37501,
+      "expected_unreadable_artifacts": []
+    },
+    {
+      "id": "discovery-evidence",
+      "seconds": 0.011945666001338395,
+      "checks": [
+        {
+          "check": "Inspect both bodies and referenced script before recommendation",
+          "status": "pass",
+          "evidence": "/tmp/astra-backlog-5VdqNm/trials/final-focused/1/artifacts/discovery-evidence/actual-read-trace.json"
+        },
+        {
+          "check": "Do not treat high downloads or mismatch as proven quality",
+          "status": "pass",
+          "evidence": "/tmp/astra-backlog-5VdqNm/trials/final-focused/1/artifacts/discovery-evidence/comparison.md"
+        },
+        {
+          "check": "State compatibility and absent outcome evidence; no installation",
+          "status": "pass",
+          "evidence": "/tmp/astra-backlog-5VdqNm/trials/final-focused/1/artifacts/discovery-evidence/comparison.md"
+        },
+        {
+          "check": "Ordinary unittest how-to stays direct assistance without discovery intent",
+          "status": "pass",
+          "evidence": "/tmp/astra-backlog-5VdqNm/trials/final-focused/1/artifacts/discovery-evidence/comparison.md"
+        },
+        {
+          "check": "original input bytes preserved",
+          "status": "pass",
+          "evidence": "/tmp/astra-backlog-5VdqNm/trials/final-focused/1/artifacts/discovery-evidence/input-preservation.json"
+        }
+      ],
+      "artifact_bytes": 6101,
+      "expected_unreadable_artifacts": []
+    },
+    {
+      "id": "missing-charter",
+      "seconds": 0.011356025001077796,
+      "checks": [
+        {
+          "check": "Security remains required and missing despite other returned lanes",
+          "status": "pass",
+          "evidence": "/tmp/astra-backlog-5VdqNm/trials/final-focused/1/artifacts/missing-charter/coverage.json"
+        },
+        {
+          "check": "Observation timeout is not treated as termination; recovery uses stated handle/capability",
+          "status": "pass",
+          "evidence": "/tmp/astra-backlog-5VdqNm/trials/final-focused/1/artifacts/missing-charter/coverage.json"
+        },
+        {
+          "check": "Completed outputs remain byte-identical and reusable without rerunning lanes",
+          "status": "pass",
+          "evidence": "/tmp/astra-backlog-5VdqNm/trials/final-focused/1/artifacts/missing-charter/coverage.json"
+        },
+        {
+          "check": "Source inspection stays distinct from runtime proof and no overall completion/unauthorized exclusion is claimed",
+          "status": "pass",
+          "evidence": "/tmp/astra-backlog-5VdqNm/trials/final-focused/1/artifacts/missing-charter/assessment.md"
+        },
+        {
+          "check": "original input bytes preserved",
+          "status": "pass",
+          "evidence": "/tmp/astra-backlog-5VdqNm/trials/final-focused/1/artifacts/missing-charter/input-preservation.json"
+        }
+      ],
+      "artifact_bytes": 6138,
+      "expected_unreadable_artifacts": []
+    },
+    {
+      "id": "causal-refinement",
+      "seconds": 0.0089918880003097,
+      "checks": [
+        {
+          "check": "Produce an honest draft with missing impact/timing evidence explicit",
+          "status": "pass",
+          "evidence": "/tmp/astra-backlog-5VdqNm/trials/final-focused/1/artifacts/causal-refinement/fixture/postmortem.md"
+        },
+        {
+          "check": "Record dated contradiction and focused next investigation probe without asserting a new confirmed cause",
+          "status": "pass",
+          "evidence": "/tmp/astra-backlog-5VdqNm/trials/final-focused/1/artifacts/causal-refinement/fixture/postmortem.md"
+        },
+        {
+          "check": "Selected actions specify verification and proposed/unassigned owner/date states",
+          "status": "pass",
+          "evidence": "/tmp/astra-backlog-5VdqNm/trials/final-focused/1/artifacts/causal-refinement/fixture/postmortem.md"
+        },
+        {
+          "check": "Preserve original investigation and allow helpful escalation observation without manufacturing an action",
+          "status": "pass",
+          "evidence": "/tmp/astra-backlog-5VdqNm/trials/final-focused/1/artifacts/causal-refinement/fixture/postmortem.md"
+        },
+        {
+          "check": "original input bytes preserved",
+          "status": "pass",
+          "evidence": "/tmp/astra-backlog-5VdqNm/trials/final-focused/1/artifacts/causal-refinement/input-preservation.json"
+        }
+      ],
+      "artifact_bytes": 8625,
+      "expected_unreadable_artifacts": []
+    },
+    {
+      "id": "improvement-retention-final",
+      "seconds": 0.04264600900023652,
+      "checks": [
+        {
+          "check": "deferred item and actual packet/source evidence remain reachable after laterpacket/date",
+          "status": "pass",
+          "evidence": "/tmp/astra-backlog-5VdqNm/trials/final-focused/1/artifacts/improvement-retention-final/retention-check.json"
+        },
+        {
+          "check": "actioned item not restaged; pred-2 remains reachable with no evidence verdict",
+          "status": "pass",
+          "evidence": "/tmp/astra-backlog-5VdqNm/trials/final-focused/1/artifacts/improvement-retention-final/retention-check.json"
+        },
+        {
+          "check": "unchanged repeat creates no duplicate unresolveditem",
+          "status": "pass",
+          "evidence": "/tmp/astra-backlog-5VdqNm/trials/final-focused/1/artifacts/improvement-retention-final/unchanged-repeat.json"
+        },
+        {
+          "check": "watermark advance cannot imply resolution or erase historicalbytes",
+          "status": "pass",
+          "evidence": "/tmp/astra-backlog-5VdqNm/trials/final-focused/1/artifacts/improvement-retention-final/retention-check.json"
+        }
+      ],
+      "artifact_bytes": 16433,
+      "expected_unreadable_artifacts": []
+    }
+  ],
+  "setup_corrections": [
+    {
+      "event": "README discovery",
+      "detail": "Per-fixture README paths absent; use supplied documentation-fixtures/README.md; initial read-only cat exit 1."
+    },
+    {
+      "event": "T4 relocation",
+      "detail": "matching-state tasksPath translated to isolated path; original bytes retained, exact before/after in setup-corrections.json"
+    },
+    {
+      "event": "T4 evidence markers",
+      "detail": "Synthetic Verify/QA markers wrapped before baseline harvest; original bytes retained."
+    },
+    {
+      "event": "conversion",
+      "detail": "Supplied resolved identity manifest used; original placeholder manifest and resolved bytes retained. Alpha materialized as compiled; beta approved nonterminal."
+    },
+    {
+      "event": "warning",
+      "detail": "groups6to10.py emitted Python invalid escape SyntaxWarning for regex; process exit0; no retry or repair."
+    },
+    {
+      "event": "late case",
+      "detail": "improvement-retention-final predeclared by parent before execution, appended last as group10."
+    }
+  ],
+  "input_hashes": {
+    "/tmp/astra-backlog-5VdqNm/final-regression-extensions.json": "bdd1e06ebf4b874a1a9f7623ec06809c032ca5a71b529bd5cfef073026a14009",
+    "/tmp/astra-backlog-5VdqNm/specialized-trial-cases.json": "1684f5d4d8c5e19f524e01b7e4b39182ba32c3896f51c145a566e6b8b71eaffd",
+    "/tmp/astra-backlog-5VdqNm/final-post-review-frozen/manifest.json": "00d19393a42f0831a4a189ffc371fe41827b8f557d7b02014af270002ef8c800",
+    "/tmp/astra-backlog-5VdqNm/improvement-retention-final.json": "4c1914119a84632254fbeb30997c7023e187e5bb0ae91415cdad95ba0fed75dd"
+  },
+  "finished_at": "2026-09-07T11:24:17.240056+00:00",
+  "elapsed_wall_seconds": 894.129208,
+  "check_counts": {
+    "fail": 1,
+    "pass": 46,
+    "unavailable": 2
+  },
+  "tool_command_count": 67,
+  "loaded_body_count": 25,
+  "frozen_file_count": 47,
+  "effective_effort": null,
+  "limitations": [
+    "Single noncomparative execution; no savings, cost-benefit, adoption, native discovery, or other-host runtime proof.",
+    "Native workers callable; further delegation prohibited in bounded trial. Sequential skill execution has weaker independence.",
+    "Initial cat of allowed cases.json exposed non-target case definitions; only task-reverification was materialized. No prior result reports/live skill bodies read.",
+    "Initial large body outputs truncated; relevant spans re-read. Exact full prompt/tool transcript unavailable; durable scripts and command records preserve available local actions.",
+    "Group durations measure script execution only. elapsed_wall_seconds includes reading/authoring from initial index to finalization.",
+    "Documentation W1 full template conformance failed; output preserved without repair or rerun.",
+    "Conversion secret scanner and broader improve live-target lint unavailable in configured fixture scope.",
+    "Supplied control-plane, review, receipt scenario times, deployment/access, and historical observation facts stay synthetic. Local unittest and tag validation are actual executions.",
+    "Terraform orchestration source is an unversioned locator with actual file hashes; full revision-based freshness of that extra source is Unverifiable.",
+    "Generated fix source/tests are deterministic fixture setup, not pre-existing production implementation.",
+    "Retention new watermark is stored separately in discovery-watermark.json; original queue retains its historical watermark bytes. No external consumer adoption is proven."
+  ]
+}

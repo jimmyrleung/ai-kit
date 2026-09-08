@@ -1,15 +1,26 @@
 ---
 name: qa-gates
-description: "Verify an implementation against its spec — 5 pass/fail gates (build/test, AC checklist, cross-cutting invariants, docs consistency, human go/no-go). Each gate is a tool call with a recorded pass or a specific failure; skipping a gate is visibly missing in the artifact, not hidden in chat. Use to verify, validate, or QA a finished implementation, after every task for a prefix is implemented. Accepts a loose target: a prefix, a doc path, or a short description — it resolves the rest. Per-task version: verify-task (same gates, narrower inputs)."
+description: "Verifies a finished implementation against its spec, including build/tests, acceptance criteria, invariants, docs consistency, and human go/no-go. Use to verify, validate, or QA a completed feature/refactor or all repository tasks for a prefix. Accepts a prefix, doc path, or short description. One-task verification belongs to verify-task; code-quality review to review-implementation."
 ---
 
 <!-- intentionally-long: documents all 5 gates verbatim — each gate is a procedural primitive the agent must execute exactly. Tier 2.4 spec explicitly chose inline-verbatim over reference-loaded gates because the gate bodies are short and load-once on entry. -->
 
 # QA Gates — implementation verification
 
+Apply the [confidence contract](references/shared/confidence.md) using the delivery rubric.
+Record the effective policy and explicit score, evidence, uncertainty consequences, next
+checks and advancement verdict; pass the policy to workers and downstream gates.
+
 You verify an implementation against its spec by running 5 gates in order, each producing a
 pass or a specific failure; the artifact is a `## QA` section in the review/QA doc the prefix
 owns. You do NOT review code (the `review-implementation` skill runs *before* you); you verify *outcome*.
+
+Apply the [engineering change contract](references/shared/engineering-change.md):
+inspect repository context, reuse suitable code/tests, and justify new files within scope.
+Resolve bundled references relative to this skill folder.
+
+Follow [authorized work](references/shared/authorized-work.md) for existing permission,
+blocking questions, and requested discussion cadence; resolve from this skill folder.
 
 ## Inputs
 
@@ -18,33 +29,47 @@ Accepts a loose target: a prefix (`auth_oauth_feature`), a doc path, or a short 
 owns — derive from the `{prefix}_*.md` siblings), echo the resolution back, and proceed; ask
 only when the target is genuinely ambiguous (two prefixes match, or none does).
 
-Composed callers (e.g. `verify-task`) pass explicit `prefix` / `artifact_path` and override these defaults:
+Follow the [change evidence contract](references/shared/change-evidence.md). Composed
+callers pass `scope_kind: task`, `task_id`, `task_locator`, `ac_source`, exact
+`acceptance_criteria`, `base`, `declared_files`, `observed_changes`, `budgets`, `test_commands`,
+`dependencies`, `record_id`, `prefix`, and `artifact_path`. These are authoritative: do not
+re-extract prefix ACs or widen task scope. Direct prefix calls use `scope_kind: prefix` and
+derive an explicit prefix bundle. Missing relevant coverage is a gap to resolve explicitly.
+Prior `check_evidence` is optional and follows the change evidence reuse contract.
+Other defaults:
 
 | Input | Default | Notes |
 |---|---|---|
 | `gates_to_run` | `all` | Subset for partial checks (`verify-task`: `build,ac,cross-cutting`). |
-| `mode` | `full` | `streamlined` skips the docs gate (P1-incident fast path). |
-| `confidence_gate` | `90` | Per-gate min confidence to count as pass without review. |
-| `gate_plan_pre_written` | `false` | `true` = caller already wrote the gate-plan block with its own header (e.g. `verify-task`'s `## Verify — {date}` + 3-line plan). Gate 0 then skips the header / plan write but still appends gate-result lines under the existing plan. |
+| `mode` | effective policy depth; normally `full` | Inherited active-P1 `streamlined` depth skips the docs gate. Preserve any explicit requirement for fuller coverage. |
+| `confidence_policy` | confidence contract defaults | Full effective rubric, threshold, source, required evidence and authorization boundary; preserve the caller's incident policy and stricter gates. |
+| `confidence_gate` | effective policy threshold (normal `90`) | Legacy explicit numeric minimum; combine with applicable stricter requirements. A score alone never makes a gate pass. |
+| `gate_plan_pre_written` | `false` | `true` = caller already wrote the gate-plan block with its own header (e.g. `verify-task`'s nested Verify heading + 3-line plan). Gate 0 then skips the header / plan write but still appends gate-result lines under the existing plan. |
 | `next_step` | `Declare done — merge / hand back` | Where to hand back when all gates pass. |
 
 ## Artifact convention
 
-Append a `## QA` section to `artifact_path` (in place — no new file; same `review-artifact`
-`## Review` convention). One date-stamped block per run; each gate is one line. Stamp the
-`## QA — {date}` header with the tree it verified: `(verified at: <short-sha>[ +dirty])` — an
-unhashed gate result can silently outlive the tree it tested (a later stash/rework broke the
-build while the QA block still asserted green). **Commit lifecycle (prefix-close):** gates run
-on the tree as-is — a commit is NOT required first (the user reviews before committing; the
-`+dirty` stamp protects the block). Gate 1 records committed-state informationally; a dirty
-tree at Gate 5 yields `GO, conditional on commit`, with the QA-artifact commit batched
-alongside the implementation commit after the user's final review.
+Append a dated, delimited `## QA` section to `artifact_path` using the change evidence
+record. A composed task call writes into its caller's existing nested record instead.
+Stamp scoped content and relevant dependency identities; SHA/dirty is informational only.
+Run on the tree as-is: no commit is required before review. User GO on an uncommitted tree
+is conditional on the reviewed content being committed; it does not authorize deployment.
 
 ## Procedure
 
 ### Gate 0 — Setup (free)
 
-Inspect the source doc(s) at `{prefix}_*.md` (techspec, tasks, analysis, audit, investigation —
+Resolve and record the effective confidence policy before evaluating gates. Calculate the
+QA mode from its inherited pass depth: normal work uses `full`; an active P1 with declared
+streamlined depth uses `streamlined`, unless applicable instructions or an explicit caller
+require fuller coverage. Record the resolved mode; passing the policy alone must preserve
+its depth without requiring a duplicate `mode` input. Calculate the
+delivery rubric for the scoped evidence and record each selected gate's score/reason when
+its evidence differs. Apply the contract's threshold and evidence checks separately:
+a green command remains observed green, but below-threshold confidence blocks advancement;
+an unrun required check remains BLOCKED at any score. Preserve actual human GO at Gate 5.
+
+For direct prefix calls, inspect the source doc(s) at `{prefix}_*.md` (techspec, tasks, analysis, audit, investigation —
 whichever exist). Extract:
 
 - the acceptance criteria list (from tasks/techspec)
@@ -53,31 +78,29 @@ whichever exist). Extract:
 - the files the implementation was supposed to touch (from analysis / tasks)
 - the test commands the techspec specifies
 
-**Then derive gate scope from the working tree, not only the spec:** run `git status --short` +
-`git diff --stat <base>..HEAD` (and `git status` for untracked files) and diff the file list against
-the docs' claims. Anything in the tree the tasks doc never named (an untracked secret, a stray
-config) becomes a Gate 3 line-item; any **migration / seed / fixture / stored-proc file in the
-diff** forces Gate 1's executed-run branch **even if the techspec's test commands don't mention
-it** — the 2026-07-16 seed failure shipped prod-wrong values precisely because gate scope came
-from the techspec alone.
+**Resolve actual scope:** use the change evidence contract's explicit base and complete
+committed/staged/unstaged/untracked inspection, including renames and exclusions. Reconcile
+unexpected relevant changes with the declared scope; do not mistake another task's work for
+this task. Any migration / seed / fixture / stored-proc change in scope forces Gate 1's
+executed-run branch even if the techspec omitted its command.
 
-**Prefix-close only — prior-review check.** Look for a `## Review — {date}` block (from
-the `review-implementation` skill) whose `(reviewed at: <sha>[ +dirty])` stamp covers the current tree
-(same sha; a dirty delta consisting only of doc/QA bookkeeping still counts). Covered → record
-the pointer (`Pre-work — code review: covered by ## Review — {date} (reviewed at <sha>)`) and
-let its open `follow-up` findings surface at Gate 5. Not covered → suggest running
-the `review-implementation` skill first; if the user proceeds anyway, Gate 5 records `go-with-caveat:
-unreviewed`. Never run a reviewer fan-out here — review is the `review-implementation` skill's job.
+**Prefix-close only — prior-review check.** Recompute the prior code review's scoped content,
+base, task coverage, and dependency identities before reuse. Only a current approved record
+covering all repository work counts; SHA plus dirty state, a task-only review, or a heading
+alone does not. Record its ID and follow-ups. Missing/stale/rejected/Needs revision evidence
+cannot advance the chain: run `review-implementation` or obtain an explicit owner waiver
+recorded as `accepted: unreviewed <scope and reason>`; never relabel the record as approved.
+QA itself does not run a reviewer fan-out.
 
 **Prefix-close only — lifecycle classification.** For manual / rehearsal / cutover /
 deployment tasks that cannot be code-complete, classify each by lifecycle boundary
 (`pre-merge` / `deploy` / `live`) from the tasks doc's labels (tasks-breakdown emits
 them); ask the owner only when unstated. Repository gates judge repository scope;
-`live`-boundary items surface at Gate 5 as named pending items — never as failed
+`deploy`/`live`-boundary items surface at Gate 5 as named pending items — never as failed
 ancestor ACs (a prefix run stalled reading a release-owner rehearsal as a failed AC).
 
 **If `gate_plan_pre_written: true`**: the caller (e.g. `verify-task`) has already written the
-gate-plan block (with its own header — `## Verify — {date}` for per-task callers) at
+gate-plan block (with its own header — nested Verify heading for per-task callers) at
 `artifact_path`. **Skip the header / plan write below and jump to Gate 1**; gate-result
 lines still append under the existing plan as normal.
 
@@ -94,12 +117,15 @@ Otherwise, append the gate plan as the first lines of the `## QA — {date}` sec
 
 ### Gate 1 — Build & test (shell command runner)
 
-Run the build + test commands the techspec specifies (default: `npm run build && npm test`
-or the repo equivalent — `pytest`, `terraform fmt && terraform validate`, …). **Halt on
-non-zero exit.** Record one of THREE outcomes — never substitute one for another:
+First validate any supplied executed check evidence under the change evidence contract.
+Matching complete evidence is reusable: cite its run ID, command, output, scope and identity
+comparison without claiming another execution. Otherwise run the required build/test commands
+from the scope bundle and repository conventions/CI. Record truly inapplicable checks with a
+reason; a missing required tool/environment is BLOCKED. **Halt on non-zero exit.** Record one
+of THREE execution outcomes — never substitute one for another:
 
 ```
-- [x] Gate 1 — build/test: pass (commands: `…`)   ← only when the command ACTUALLY RAN with exit 0
+- [x] Gate 1 — build/test: pass (commands: `…`; run: <ID>; executed here | reused with matching identities)   ← command actually ran with exit 0
 ```
 
 or FAIL (executed, non-zero):
@@ -127,8 +153,8 @@ are `BLOCKED`, and a BLOCKED build/test gate keeps the task/prefix OFF "Done" un
 
 **Compiled ≠ executed; a green subset ≠ a green suite.** When the diff touches **test code, seed /
 fixture scripts, DB migrations, or DB constraints / stored procs**, a build that *compiles* is NOT a
-Gate-1 pass on its own — the new/affected tests (or the migration/seed) must have **actually run
-against a real target** (a scratch/Testcontainers DB, a live integration), because teardown order,
+Gate-1 pass on its own — the new/affected tests must have **actually run in their required tier**; migrations/seeds and
+DB constraints/procedures require a real suitable target (for example a scratch/Testcontainers DB), because teardown order,
 FK / CHECK constraints, and seed row-counts are exercised only at run time, never at compile. And
 when you record green, **name the test projects / tiers that executed** — `171/171` on one tier is
 not "all green" if integration / E2E tiers weren't run; a schema-touching change (seed / migration)
@@ -150,8 +176,9 @@ If FAIL with `accepted`, require a `Why:` line; do not advance until the user st
 
 **Prefix-close only — record committed-state (informational, never a FAIL).** When running at
 prefix close (not per-task `verify-task`), check whether the prefix's claimed files appear in a
-commit *ahead of the base branch* (`git diff --stat <base>..HEAD` / `git log -S`) or only in the
-working tree. Record one of:
+commit ahead of the resolved base (inspect the committed layer; absent HEAD means no
+committed content) or only in the working tree. A mixture is recorded explicitly per path.
+This is informational and cannot replace the complete scope inspection. Record one of:
 
 ```
 - [x] Gate 1 — committed: yes (N files ahead of <base>)
@@ -160,16 +187,18 @@ working tree. Record one of:
 
 Uncommitted work is the user's normal review-then-commit flow, **not a no-go** — never fail a
 gate on it; the "authored but never shipped" safeguard lives in Gate 5's conditional GO + the
-`+dirty` stamp.
+content identity record.
 
 ### Gate 2 — AC checklist (per-AC sub-gates)
 
-For each AC line extracted in Gate 0:
+For each AC in the authoritative scope bundle (caller-supplied for task runs):
 
 - **Testable AC** — point at the test that proves it; pass = test exists and passed in Gate 1.
 - **Code-level AC** ("uses the existing auth middleware", "no new database index") — run a
   targeted text search / file inspection; record file:line evidence.
-- **Manual AC** (UI behaviour, copy, animation) — ask the user; record their confirm.
+- **Observable UI AC** — use available browser evidence against the current build and record
+  the route/action/result; unavailable required observation is BLOCKED.
+- **Subjective/manual owner AC** — ask the user and record their actual confirmation.
 
 Record one line per AC:
 
@@ -180,11 +209,13 @@ Record one line per AC:
 
 ### Gate 3 — Cross-cutting invariants
 
-The three loaded instruction-layer "Verification before completion" checks; each is one structured tool call.
+Apply relevant repository/spec invariants below; each executed check records its tool evidence.
 
-**3a — env asymmetry.** For repos with multiple environments (Terraform `dev/test/staging/prod`,
-`.env.{env}` files), inspect all env files in parallel; diff structurally. Any key present in
-one without a `# deliberate-asymmetry: <reason>` comment in the others → FAIL.
+**3a — environment expectations.** Inspect the environments relevant to the changed contract
+(and every environment explicitly required by repository policy/spec). Trace consumed keys and
+required settings. A missing required key or unintended incompatible value → FAIL. Document
+intentional differences in the established artifact, citing their requirement/reason; unrelated
+differences are not failures and no special comment syntax is required.
 
 **3b — line budgets.** For each file the techspec pinned a budget on ("techspec ≤ 150 lines",
 "orchestrator stays ≤ 60 lines"), use the shell command runner for `wc -l` and compare.
@@ -217,10 +248,12 @@ For each sibling doc in the prefix folder (`{prefix}_analysis.md`, `{prefix}_tec
 
 - did the implementation reveal a gap the doc should record?
 - are file paths / function names / API signatures in the doc consistent with what shipped?
-- if the prefix has a `tasks.md`, are all tasks marked Done?
+- if the prefix has a tasks doc, are all `pre-merge` tasks Done, with `deploy`/`live` tasks
+  separately visible as pending and carrying their evidence requirements?
 
 Failures here are usually stale docs — update them (the loaded instruction-layer "Spec & doc updates"
-rule); **propose the diff and let the user approve**, never silently rewrite. If
+rule) within existing authorization; explain corrections and preserve history. Ask only for
+new scope or an owner decision, not routine authorized doc updates. If
 `mode == streamlined` (P1 fast path; the post-mortem covers it later): skip this gate and
 record `skipped (streamlined)`.
 
@@ -247,20 +280,27 @@ Present the `## QA` artifact to the user. Confirm every prior gate is either `pa
   code-QA run is never fresh live-provider proof.
 - **No** → ask what to address; loop the failed gate.
 
-If no `## Review` block (review-implementation) covers the verified tree, record **go-with-caveat:
-unreviewed** naming the missing review — a gates-green tree later grew two HIGH-severity review findings.
+If code review is unverified, require the explicit owner waiver from Gate 0 and record
+`go-with-caveat: unreviewed` with its scope/reason; absent that waiver, Gate 5 cannot GO.
 
 The LLM doesn't decide go; the user does, with the gate report in front of them.
 
-## Observation write
+## Observation handoff
 
-Append gate observations to the session-scoped buffer so the `close` skill picks them up at session end
-(Tier 1.3 contract, `~/.claude/observations/{YYYY-MM-DD}-{slug}.md`). Use the canonical schema
-from `~/.claude/observations/README.md` — numbered `### Observation N:` headings with the
-standard fields (project, skill_or_workflow: qa-gates, phase/area: gate-{id}, outcome,
-friction_observed + tag, would_have_helped, improvement_suggestion, principle); never bare
-key-value blocks (a run that did produced a two-schema file). Batch: a clean run can be one
-observation listing the gate outcomes; each fail/accepted gate gets its own.
+Use the [feedback contract](references/shared/feedback.md) to resolve the configured
+recorder/store; recording is optional and never requires a private home layout. With no
+configured recorder, report `disabled` and continue the main workflow without a feedback write.
+If recording is an enabled acceptance gate, unavailable storage or failed validation stays
+`unavailable`/`failed`, never PASS.
+
+Return supported observation candidates to the one recorder for this `execution_id`; nested
+calls do not write duplicates. A standalone run may be its own recorder. Use the common envelope
+and observation schema: `skill_or_workflow: qa-gates`, `phase_area`, the schema's outcome values,
+`evidence_kind`, subject/task identity, and actual evidence/locators. Gate verdicts remain in the
+verification artifact; they are not silently substituted for observation outcome enum values.
+Emit only supported findings, with one approved tag each; no fixed number of entries per run.
+The recorder validates and deduplicates by execution plus evidence/subject before any receipt.
+Do not treat observation counts as invocation telemetry.
 
 ## Halt / acceptance discipline
 
@@ -275,7 +315,7 @@ observation listing the gate outcomes; each fail/accepted gate gets its own.
 - The implementation hasn't happened yet — qa-gates verifies outcomes, not plans.
 - A one-line typo / config tweak — gates are friction in front of trivial work.
 - Doc reviews — that's `review-artifact` (it reviews the *doc*). Code-quality review — that's
-  the `review-implementation` skill (batched, before gates; Gate 0 checks for its stamp).
+  the `review-implementation` skill (batched, before gates; Gate 0 validates its content-bound record).
 
 ## Composition
 

@@ -1,0 +1,41 @@
+{
+  "captured_at": "2026-09-07T12:12:20.418996+00:00",
+  "source_review_files": 69,
+  "source_review_drift": [],
+  "validation_inputs": 56,
+  "validation_input_drift": [],
+  "checks": {
+    "head": {
+      "command": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "exit": 0,
+      "stdout": "aeec06bfa0a6b97402b17824d957f29635f40ba7\n",
+      "stderr": ""
+    },
+    "staged": {
+      "command": [
+        "git",
+        "diff",
+        "--cached",
+        "--name-only"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "whitespace": {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  },
+  "scope": "Reuse of prior actual local tests justified by matching current subject inputs; no new behavior or hosted results claimed."
+}

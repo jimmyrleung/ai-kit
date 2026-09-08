@@ -6,8 +6,11 @@
 | ---------------- | ------------------------------------------------- |
 | Created          | YYYY-MM-DD                                        |
 | Last Updated     | YYYY-MM-DD                                        |
-| Generated From   | `<short-sha>` (commit at gen/update time)         |
-| Schema           | v1                                                |
+| Generated From   | `<short-sha>` (display only; see Source Evidence) |
+| Schema           | v2                                                |
+| Source Root      | `<absolute source repository root>`               |
+| Docs Root        | `<absolute documentation root>`                   |
+| Workspace Root   | `<absolute workspace/trace root>`                 |
 | Mode             | Backend / Full-stack                              |
 | Trigger          | GRPC / REST / Service Bus / Cron / Client action  |
 | Client           | _(full-stack only)_ web app / mobile / device / … |
@@ -165,17 +168,35 @@ Repeat for each flagged complex logic section.
 - **DependencyA** — Brief description of what it provides
 - **DependencyB** — Brief description
 
+## Source Evidence
+
+> Bounded identity for the source bytes represented by this document. Use a public-safe
+> source ID. Record each independently changing repository/module separately; one root
+> repository SHA cannot identify sibling-module content. `Relevant dirty paths` names staged,
+> unstaged, and untracked source paths, or `none`. `Manifest SHA-256` is the digest of the
+> sorted Source Files manifest below, following the documentation evidence contract.
+
+| Source ID | Repository/source identity | Full revision | Trace boundary | Relevant dirty paths | Manifest SHA-256 |
+| --------- | -------------------------- | ------------- | -------------- | -------------------- | --------------- |
+| `app`     | `<public-safe repo ID>`    | `<full-sha>`  | `<roots/patterns + registration/config inputs>` | none / `<paths + layers>` | `sha256:<digest>` |
+
 ## Source Files
 
-> Machine-readable list of every source path traced when this doc was written. Used by staleness-detection tooling: `git log <generated-from>..HEAD -- <paths>` reveals exactly what's drifted since `Last Updated`. List one row per distinct path; use the `Role` column to label what it contributes (`Entry point`, `Handler`, `Service`, `Repository`, `External client`, `Message handler`, `Client UI`, etc.).
+> Machine-readable list of every source path read when this doc was written, including
+> registration/dispatch/configuration controls. Revision history can shortlist candidates;
+> freshness requires comparing these actual byte hashes and relevant dirty state. List one
+> row per distinct path. Paths are relative to the recorded root/locator for their Source ID,
+> including the workspace prefix when that ID represents a repository. Entry-reference paths
+> in task handoffs are workspace-relative and must be translated before entering this table.
 
-| Role            | Path                                              |
-| --------------- | ------------------------------------------------- |
-| Entry point     | `src/Foo.Api/Controllers/BarController.cs`        |
-| Handler         | `src/Foo.Api/Handlers/BarHandler.cs`              |
-| Service         | `src/Foo.Domain/Services/BarService.cs`           |
-| Repository      | `src/Foo.Infra/Data/BarRepository.cs`             |
-| External client | `src/Foo.Infra/Clients/PaymentHttpClient.cs`      |
+| Source ID | Role                 | Path                                              | SHA-256          |
+| --------- | -------------------- | ------------------------------------------------- | ---------------- |
+| `app`     | Entry point          | `src/Foo.Api/Controllers/BarController.cs`        | `<actual-bytes>` |
+| `app`     | Registration/dispatch| `src/Foo.Api/Program.cs`                          | `<actual-bytes>` |
+| `app`     | Handler              | `src/Foo.Api/Handlers/BarHandler.cs`              | `<actual-bytes>` |
+| `app`     | Service              | `src/Foo.Domain/Services/BarService.cs`           | `<actual-bytes>` |
+| `app`     | Repository           | `src/Foo.Infra/Data/BarRepository.cs`             | `<actual-bytes>` |
+| `app`     | External client      | `src/Foo.Infra/Clients/PaymentHttpClient.cs`      | `<actual-bytes>` |
 
 ## Change Log
 
@@ -183,4 +204,6 @@ Repeat for each flagged complex logic section.
 | ---------- | -------------------------- | ------------- |
 | YYYY-MM-DD | Initial documentation pass | First version |
 
-> On future updates: bump `Last Updated` in the Summary table, append one row per update (group related edits into a single row), and leave `Created` alone. If the underlying workflow no longer matches the doc, that's the signal it's stale — compare `Last Updated` against the source file's most recent commit on the traced paths.
+> On future updates: preserve `Created`, bump `Last Updated` only for real drift, append one
+> grouped row, and refresh Source Evidence/Source Files. A v1 document is readable but
+> freshness is Unverifiable until a full v2 retrace; do not manufacture historical hashes.

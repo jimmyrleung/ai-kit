@@ -9,7 +9,9 @@
   "scripts": {
     "test": "node tests/test_skill_portability.mjs",
     "check:portability": "node scripts/check-skill-portability.mjs --mode final",
-    "check:portability:transition": "node scripts/check-skill-portability.mjs --mode transitional"
+    "check:portability:transition": "node scripts/check-skill-portability.mjs --mode transitional",
+    "build:skill-references": "node scripts/bundle-skill-references.mjs --write",
+    "check:skill-references": "node scripts/bundle-skill-references.mjs --check"
   },
   "devDependencies": {
     "js-yaml": "5.4.1"

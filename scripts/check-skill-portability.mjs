@@ -6,6 +6,7 @@ import path from 'node:path';
 import process from 'node:process';
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
+import { bundleSkillReferences } from './bundle-skill-references.mjs';
 
 const require = createRequire(import.meta.url);
 const yaml = require('js-yaml');
@@ -26,7 +27,8 @@ const NAMED_ARGUMENTS = new Map([
   ['docs-tasks-creator', 'codebase_path output_dir'],
   ['document-terraform', 'repo_path output_dir spec_file'],
 ]);
-const FIND_SKILLS_SHA256 = 'deddc03b4b5f50755b97fcdb737a786676992ef7e9be614d2cd2c71e0320bebf';
+// B27 intentionally revises the neutral reference; keep the content lock and CRLF normalization.
+const FIND_SKILLS_SHA256 = 'de0e3cc9f7bd63d0d6f97d0f27d0bcc6318330c8124987c680980bf2cb75ef15';
 const COUPLING_RULES = [
   { code: 'windows-repo-path', pattern: /C:\\ai-kit(?:[\\/]|$)/gi, message: 'live canonical skill contains a Windows checkout path' },
   { code: 'convention-token', pattern: /\bCLAUDE\.md\b/gi, message: 'live canonical skill names a provider-private convention file' },
@@ -120,8 +122,8 @@ function checkSkillProfile(skill, result) {
     if (fm.name !== name) {
       addFinding(result, { code: 'name-directory-mismatch', file, message: `name ${fm.name} does not equal directory ${name}`, kind: 'profile' });
     }
-    if (!/^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$/.test(fm.name)) {
-      addFinding(result, { code: 'name-bounds', file, message: 'name must be 1–64 lowercase alphanumeric/hyphen characters without edge hyphens', kind: 'profile' });
+    if (!/^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$/.test(fm.name) || fm.name.includes('--')) {
+      addFinding(result, { code: 'name-bounds', file, message: 'name must be 1–64 lowercase alphanumeric/hyphen characters without edge or consecutive hyphens', kind: 'profile' });
     }
   }
   if (typeof fm.description !== 'string' || fm.description.length === 0) {
@@ -132,8 +134,8 @@ function checkSkillProfile(skill, result) {
   checkStringField(fm, 'license', file, result);
   if (fm.compatibility !== undefined) {
     checkStringField(fm, 'compatibility', file, result);
-    if (typeof fm.compatibility === 'string' && fm.compatibility.length > 500) {
-      addFinding(result, { code: 'compatibility-bounds', file, message: `compatibility is ${fm.compatibility.length} characters; maximum is 500`, kind: 'profile' });
+    if (typeof fm.compatibility === 'string' && (fm.compatibility.length === 0 || fm.compatibility.length > 500)) {
+      addFinding(result, { code: 'compatibility-bounds', file, message: `compatibility is ${fm.compatibility.length} characters; expected 1–500 when supplied`, kind: 'profile' });
     }
   }
   if (fm.metadata !== undefined) {
@@ -293,6 +295,17 @@ function checkPopulationDocs(root, skillCount, result) {
     if (counts.some((count) => count !== skillCount)) {
       addFinding(result, { code: 'population-count-drift', file, message: `documented counts ${counts.join(', ')} do not equal derived count ${skillCount}`, kind: 'documentation' });
     }
+    if (path.basename(file) === 'INVENTORY.md') {
+      const skillsSection = text.split(/^## Skills\s*$/m)[1]?.split(/^## /m)[0] ?? '';
+      const listed = [...skillsSection.matchAll(/^\|\s*`([a-z0-9-]+)`\s*\|/gm)].map((match) => match[1]);
+      const expected = result.skills.map((skill) => skill.name);
+      const missing = expected.filter((name) => !listed.includes(name));
+      const extra = listed.filter((name) => !expected.includes(name));
+      const duplicates = [...new Set(listed.filter((name, index) => listed.indexOf(name) !== index))];
+      if (missing.length || extra.length || duplicates.length) {
+        addFinding(result, { code: 'inventory-membership-drift', file, message: `inventory membership differs: missing=[${missing}], extra=[${extra}], duplicates=[${duplicates}]`, kind: 'documentation' });
+      }
+    }
   }
 }
 
@@ -359,6 +372,11 @@ export function checkRepository(root = REPO_ROOT, mode = 'final') {
   checkTeachPolicies(result.root, result);
   checkFindSkills(result.root, result);
   checkPopulationDocs(result.root, result.skills.length, result);
+  if (mode === 'final') {
+    for (const finding of bundleSkillReferences(result.root).findings) {
+      addFinding(result, { ...finding, file: path.join(result.root, finding.file), kind: 'documentation' });
+    }
+  }
   return result;
 }
 

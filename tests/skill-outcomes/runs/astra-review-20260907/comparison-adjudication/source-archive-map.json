@@ -1,0 +1,524 @@
+[
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/remaining-local-20260907/comparison/comparison.json",
+    "original_sha256": "9976c3c2411d1704193a5b44eea8c98e4d263ce3dc7103a8a30ec6d50c4e3a7d",
+    "archive": "remaining-local/evidence.zip",
+    "entry": "comparison/comparison.json",
+    "archived_sha256": "7287de589ecb03a83d07e158b2a6b137583a29644a6b53a4913563c12fd264c4"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/remaining-local-20260907/comparison/report.md",
+    "original_sha256": "ecd77f4b52882b60c2ee03c08b67434802e620161ce32156b4f727274db1bb01",
+    "archive": "remaining-local/evidence.zip",
+    "entry": "comparison/report.md",
+    "archived_sha256": "4b379a3eec20b3139cef1fbb970ca5b129d94385c37f31003f84cb33d8fa19d7"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/remaining-comparison-negative-fee-probe-20260907.json",
+    "original_sha256": "8179e9f74bab8db1e230b440a868483f9108d7c4845cb18ee18ca1251ddd7578",
+    "archive": "comparison-adjudication/evidence.zip",
+    "entry": "remaining-comparison-negative-fee-probe-20260907.json"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/current/1/runs/current-r1/current/unneeded-helper/1/fixture/README.md",
+    "original_sha256": "e5f13dc7a2b35057b4b0a850d149a3d492228383800337966e947910680f3ef8",
+    "archive": "engineering-current-1/evidence.zip",
+    "entry": "runs/current-r1/current/unneeded-helper/1/fixture/README.md",
+    "archived_sha256": "e5f13dc7a2b35057b4b0a850d149a3d492228383800337966e947910680f3ef8"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/current/1/runs/current-r1/current/unneeded-helper/1/fixture/calc.py",
+    "original_sha256": "4efd07b35cf179fd5614637233ac3caa2fc03de420bf63ac14e36dcaa339f2e5",
+    "archive": "engineering-current-1/evidence.zip",
+    "entry": "runs/current-r1/current/unneeded-helper/1/fixture/calc.py",
+    "archived_sha256": "4efd07b35cf179fd5614637233ac3caa2fc03de420bf63ac14e36dcaa339f2e5"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/current/1/runs/current-r1/current/unneeded-helper/1/fixture/proposal.md",
+    "original_sha256": "9d3c37155f2f2098cf11e7c38674e9fd176651cef93fe6dd995607e22d80c592",
+    "archive": "engineering-current-1/evidence.zip",
+    "entry": "runs/current-r1/current/unneeded-helper/1/fixture/proposal.md",
+    "archived_sha256": "9d3c37155f2f2098cf11e7c38674e9fd176651cef93fe6dd995607e22d80c592"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/current/1/runs/current-r1/current/unneeded-helper/1/fixture/tests/test_calc.py",
+    "original_sha256": "40ce2c2932df03f4521e3ff02788541414709c2791131708e43f64bed66ac569",
+    "archive": "engineering-current-1/evidence.zip",
+    "entry": "runs/current-r1/current/unneeded-helper/1/fixture/tests/test_calc.py",
+    "archived_sha256": "40ce2c2932df03f4521e3ff02788541414709c2791131708e43f64bed66ac569"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/current/1/runs/current-r1/current/unneeded-helper/1/artifacts/review.md",
+    "original_sha256": "8f33e91985ec56a06a06854ebf04c5ec75b6ca986f9b2ef9656b645e3d812a2b",
+    "archive": "engineering-current-1/evidence.zip",
+    "entry": "runs/current-r1/current/unneeded-helper/1/artifacts/review.md",
+    "archived_sha256": "8f33e91985ec56a06a06854ebf04c5ec75b6ca986f9b2ef9656b645e3d812a2b"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/current/1/runs/current-r1/current/review-depth-severity/1/artifacts/review.md",
+    "original_sha256": "6f6cdb05eb3c614396a707e4659d7110add9c18b6946a600527cbbcf7169c95f",
+    "archive": "engineering-current-1/evidence.zip",
+    "entry": "runs/current-r1/current/review-depth-severity/1/artifacts/review.md",
+    "archived_sha256": "6f6cdb05eb3c614396a707e4659d7110add9c18b6946a600527cbbcf7169c95f"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/current/1/runs/current-r1/current/review-depth-severity/1/fixture/README.md",
+    "original_sha256": "e5f13dc7a2b35057b4b0a850d149a3d492228383800337966e947910680f3ef8",
+    "archive": "engineering-current-1/evidence.zip",
+    "entry": "runs/current-r1/current/review-depth-severity/1/fixture/README.md",
+    "archived_sha256": "e5f13dc7a2b35057b4b0a850d149a3d492228383800337966e947910680f3ef8"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/current/1/runs/current-r1/current/review-depth-severity/1/fixture/calc.py",
+    "original_sha256": "4efd07b35cf179fd5614637233ac3caa2fc03de420bf63ac14e36dcaa339f2e5",
+    "archive": "engineering-current-1/evidence.zip",
+    "entry": "runs/current-r1/current/review-depth-severity/1/fixture/calc.py",
+    "archived_sha256": "4efd07b35cf179fd5614637233ac3caa2fc03de420bf63ac14e36dcaa339f2e5"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/current/1/runs/current-r1/current/review-depth-severity/1/fixture/proposal.md",
+    "original_sha256": "fd08b240275ea7c98693a92d0c3ab5384fd6aa261d0183940be0bc978b7ad9c8",
+    "archive": "engineering-current-1/evidence.zip",
+    "entry": "runs/current-r1/current/review-depth-severity/1/fixture/proposal.md",
+    "archived_sha256": "fd08b240275ea7c98693a92d0c3ab5384fd6aa261d0183940be0bc978b7ad9c8"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/current/1/runs/current-r1/current/review-depth-severity/1/fixture/auth.py",
+    "original_sha256": "20c26a39721627260442517e4987c915b6649f9a87375c67df7f6618273c2eb4",
+    "archive": "engineering-current-1/evidence.zip",
+    "entry": "runs/current-r1/current/review-depth-severity/1/fixture/auth.py",
+    "archived_sha256": "20c26a39721627260442517e4987c915b6649f9a87375c67df7f6618273c2eb4"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/current/1/runs/current-r1/current/review-depth-severity/1/fixture/tests/test_calc.py",
+    "original_sha256": "40ce2c2932df03f4521e3ff02788541414709c2791131708e43f64bed66ac569",
+    "archive": "engineering-current-1/evidence.zip",
+    "entry": "runs/current-r1/current/review-depth-severity/1/fixture/tests/test_calc.py",
+    "archived_sha256": "40ce2c2932df03f4521e3ff02788541414709c2791131708e43f64bed66ac569"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/current/1/runs/current-r1/current/review-depth-severity/1/prompt.md",
+    "original_sha256": "b7c55475f8562f273f2b4a11d86b10e9c8d70f3a0869f0edf356653af465db72",
+    "archive": "engineering-current-1/evidence.zip",
+    "entry": "runs/current-r1/current/review-depth-severity/1/prompt.md",
+    "archived_sha256": "b7c55475f8562f273f2b4a11d86b10e9c8d70f3a0869f0edf356653af465db72"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/current/1/runs/current-r1/current/authorization-cadence/1/artifacts/D/walkthrough.md",
+    "original_sha256": "3f832d863984a51856dbe2a48a124e3e0dd3e190fe4717337bf830b59be834c7",
+    "archive": "engineering-current-1/evidence.zip",
+    "entry": "runs/current-r1/current/authorization-cadence/1/artifacts/D/walkthrough.md",
+    "archived_sha256": "3f832d863984a51856dbe2a48a124e3e0dd3e190fe4717337bf830b59be834c7"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/current/1/runs/current-r1/current/authorization-cadence/1/artifacts/result.md",
+    "original_sha256": "4afa2da7379a02d3caf7d50d95557439114dda3390e6d85031ab548f2584281b",
+    "archive": "engineering-current-1/evidence.zip",
+    "entry": "runs/current-r1/current/authorization-cadence/1/artifacts/result.md",
+    "archived_sha256": "4afa2da7379a02d3caf7d50d95557439114dda3390e6d85031ab548f2584281b"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/current/1/runs/current-r1/current/authorization-cadence/1/artifacts/C/pending.md",
+    "original_sha256": "896058922a2ceedbc73daa39dbea5a0d34d03c7c61ca11cf4c8abb4ffb636840",
+    "archive": "engineering-current-1/evidence.zip",
+    "entry": "runs/current-r1/current/authorization-cadence/1/artifacts/C/pending.md",
+    "archived_sha256": "896058922a2ceedbc73daa39dbea5a0d34d03c7c61ca11cf4c8abb4ffb636840"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/current/1/runs/current-r1/current/review-depth-severity/1/trace.md",
+    "original_sha256": "78e5347880516f4e7d766cede6c357d90c7e80b06d1214d5d16a7c43f528332a",
+    "archive": "engineering-current-1/evidence.zip",
+    "entry": "runs/current-r1/current/review-depth-severity/1/trace.md",
+    "archived_sha256": "78e5347880516f4e7d766cede6c357d90c7e80b06d1214d5d16a7c43f528332a"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/current/2/cases/10-unneeded-helper/fixture-initial/README.md",
+    "original_sha256": "e5f13dc7a2b35057b4b0a850d149a3d492228383800337966e947910680f3ef8",
+    "archive": "engineering-current-2/evidence.zip",
+    "entry": "cases/10-unneeded-helper/fixture-initial/README.md",
+    "archived_sha256": "e5f13dc7a2b35057b4b0a850d149a3d492228383800337966e947910680f3ef8"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/current/2/cases/10-unneeded-helper/fixture-initial/calc.py",
+    "original_sha256": "4efd07b35cf179fd5614637233ac3caa2fc03de420bf63ac14e36dcaa339f2e5",
+    "archive": "engineering-current-2/evidence.zip",
+    "entry": "cases/10-unneeded-helper/fixture-initial/calc.py",
+    "archived_sha256": "4efd07b35cf179fd5614637233ac3caa2fc03de420bf63ac14e36dcaa339f2e5"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/current/2/cases/10-unneeded-helper/fixture-initial/proposal.md",
+    "original_sha256": "9d3c37155f2f2098cf11e7c38674e9fd176651cef93fe6dd995607e22d80c592",
+    "archive": "engineering-current-2/evidence.zip",
+    "entry": "cases/10-unneeded-helper/fixture-initial/proposal.md",
+    "archived_sha256": "9d3c37155f2f2098cf11e7c38674e9fd176651cef93fe6dd995607e22d80c592"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/current/2/cases/10-unneeded-helper/fixture-initial/tests/test_calc.py",
+    "original_sha256": "40ce2c2932df03f4521e3ff02788541414709c2791131708e43f64bed66ac569",
+    "archive": "engineering-current-2/evidence.zip",
+    "entry": "cases/10-unneeded-helper/fixture-initial/tests/test_calc.py",
+    "archived_sha256": "40ce2c2932df03f4521e3ff02788541414709c2791131708e43f64bed66ac569"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/current/2/cases/10-unneeded-helper/output.md",
+    "original_sha256": "d226485daf79eafe18525c93b2b9f1f693d0d23a5b96ca01cc149c44a3b8598c",
+    "archive": "engineering-current-2/evidence.zip",
+    "entry": "cases/10-unneeded-helper/output.md",
+    "archived_sha256": "d226485daf79eafe18525c93b2b9f1f693d0d23a5b96ca01cc149c44a3b8598c"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/current/2/cases/12-review-depth-severity/output.md",
+    "original_sha256": "be4c485b7cbda8c3451540004893e45c3b4b6666bbdcd061f5922d107afe1765",
+    "archive": "engineering-current-2/evidence.zip",
+    "entry": "cases/12-review-depth-severity/output.md",
+    "archived_sha256": "be4c485b7cbda8c3451540004893e45c3b4b6666bbdcd061f5922d107afe1765"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/current/2/cases/12-review-depth-severity/fixture-initial/README.md",
+    "original_sha256": "e5f13dc7a2b35057b4b0a850d149a3d492228383800337966e947910680f3ef8",
+    "archive": "engineering-current-2/evidence.zip",
+    "entry": "cases/12-review-depth-severity/fixture-initial/README.md",
+    "archived_sha256": "e5f13dc7a2b35057b4b0a850d149a3d492228383800337966e947910680f3ef8"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/current/2/cases/12-review-depth-severity/fixture-initial/calc.py",
+    "original_sha256": "4efd07b35cf179fd5614637233ac3caa2fc03de420bf63ac14e36dcaa339f2e5",
+    "archive": "engineering-current-2/evidence.zip",
+    "entry": "cases/12-review-depth-severity/fixture-initial/calc.py",
+    "archived_sha256": "4efd07b35cf179fd5614637233ac3caa2fc03de420bf63ac14e36dcaa339f2e5"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/current/2/cases/12-review-depth-severity/fixture-initial/proposal.md",
+    "original_sha256": "fd08b240275ea7c98693a92d0c3ab5384fd6aa261d0183940be0bc978b7ad9c8",
+    "archive": "engineering-current-2/evidence.zip",
+    "entry": "cases/12-review-depth-severity/fixture-initial/proposal.md",
+    "archived_sha256": "fd08b240275ea7c98693a92d0c3ab5384fd6aa261d0183940be0bc978b7ad9c8"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/current/2/cases/12-review-depth-severity/fixture-initial/auth.py",
+    "original_sha256": "20c26a39721627260442517e4987c915b6649f9a87375c67df7f6618273c2eb4",
+    "archive": "engineering-current-2/evidence.zip",
+    "entry": "cases/12-review-depth-severity/fixture-initial/auth.py",
+    "archived_sha256": "20c26a39721627260442517e4987c915b6649f9a87375c67df7f6618273c2eb4"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/current/2/cases/12-review-depth-severity/fixture-initial/tests/test_calc.py",
+    "original_sha256": "40ce2c2932df03f4521e3ff02788541414709c2791131708e43f64bed66ac569",
+    "archive": "engineering-current-2/evidence.zip",
+    "entry": "cases/12-review-depth-severity/fixture-initial/tests/test_calc.py",
+    "archived_sha256": "40ce2c2932df03f4521e3ff02788541414709c2791131708e43f64bed66ac569"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/current/2/cases/12-review-depth-severity/inputs/prompt.md",
+    "original_sha256": "25a490d0d22423efca55e16841cd80d91ac30ac3a909e1ccc37f1edd900d50a2",
+    "archive": "engineering-current-2/evidence.zip",
+    "entry": "cases/12-review-depth-severity/inputs/prompt.md",
+    "archived_sha256": "25a490d0d22423efca55e16841cd80d91ac30ac3a909e1ccc37f1edd900d50a2"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/current/2/cases/11-authorization-cadence/variants/D-walkthrough/output.md",
+    "original_sha256": "9f0b2fb49a7377cd1e73ac035149b9c65061c9b758302632604db3efcee30f9a",
+    "archive": "engineering-current-2/evidence.zip",
+    "entry": "cases/11-authorization-cadence/variants/D-walkthrough/output.md",
+    "archived_sha256": "9f0b2fb49a7377cd1e73ac035149b9c65061c9b758302632604db3efcee30f9a"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/current/2/cases/11-authorization-cadence/output.md",
+    "original_sha256": "d2719338af451ee41975caeb6394da2266123d60a714e49d75bd126eab161355",
+    "archive": "engineering-current-2/evidence.zip",
+    "entry": "cases/11-authorization-cadence/output.md",
+    "archived_sha256": "d2719338af451ee41975caeb6394da2266123d60a714e49d75bd126eab161355"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/current/2/cases/11-authorization-cadence/variants/C-missing-retention/output.md",
+    "original_sha256": "7af98f8bee4540248d0d8589bcb2b808c7438544b5b295b5b908996887fbbcdb",
+    "archive": "engineering-current-2/evidence.zip",
+    "entry": "cases/11-authorization-cadence/variants/C-missing-retention/output.md",
+    "archived_sha256": "7af98f8bee4540248d0d8589bcb2b808c7438544b5b295b5b908996887fbbcdb"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/current/2/cases/12-review-depth-severity/tool-trace.md",
+    "original_sha256": "8a9863371085046bf83f67cc1a16904b47ca306bdcfe6107362e445951168e0a",
+    "archive": "engineering-current-2/evidence.zip",
+    "entry": "cases/12-review-depth-severity/tool-trace.md",
+    "archived_sha256": "8a9863371085046bf83f67cc1a16904b47ca306bdcfe6107362e445951168e0a"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/candidate/1/fixtures/unneeded-helper/README.md",
+    "original_sha256": "e5f13dc7a2b35057b4b0a850d149a3d492228383800337966e947910680f3ef8",
+    "archive": "engineering-candidate-1/evidence.zip",
+    "entry": "fixtures/unneeded-helper/README.md",
+    "archived_sha256": "e5f13dc7a2b35057b4b0a850d149a3d492228383800337966e947910680f3ef8"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/candidate/1/fixtures/unneeded-helper/calc.py",
+    "original_sha256": "4efd07b35cf179fd5614637233ac3caa2fc03de420bf63ac14e36dcaa339f2e5",
+    "archive": "engineering-candidate-1/evidence.zip",
+    "entry": "fixtures/unneeded-helper/calc.py",
+    "archived_sha256": "4efd07b35cf179fd5614637233ac3caa2fc03de420bf63ac14e36dcaa339f2e5"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/candidate/1/fixtures/unneeded-helper/proposal.md",
+    "original_sha256": "9d3c37155f2f2098cf11e7c38674e9fd176651cef93fe6dd995607e22d80c592",
+    "archive": "engineering-candidate-1/evidence.zip",
+    "entry": "fixtures/unneeded-helper/proposal.md",
+    "archived_sha256": "9d3c37155f2f2098cf11e7c38674e9fd176651cef93fe6dd995607e22d80c592"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/candidate/1/fixtures/unneeded-helper/tests/test_calc.py",
+    "original_sha256": "40ce2c2932df03f4521e3ff02788541414709c2791131708e43f64bed66ac569",
+    "archive": "engineering-candidate-1/evidence.zip",
+    "entry": "fixtures/unneeded-helper/tests/test_calc.py",
+    "archived_sha256": "40ce2c2932df03f4521e3ff02788541414709c2791131708e43f64bed66ac569"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/candidate/1/cases/unneeded-helper/output.md",
+    "original_sha256": "ba3eca296d71e09ca973157460f5613229c24617b659521c85d29020bf80dc38",
+    "archive": "engineering-candidate-1/evidence.zip",
+    "entry": "cases/unneeded-helper/output.md",
+    "archived_sha256": "ba3eca296d71e09ca973157460f5613229c24617b659521c85d29020bf80dc38"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/candidate/1/cases/review-depth-severity/output.md",
+    "original_sha256": "3ff4501f65c713be46aabc743ea4980fdd9af17621ca8aa8c65184da82016270",
+    "archive": "engineering-candidate-1/evidence.zip",
+    "entry": "cases/review-depth-severity/output.md",
+    "archived_sha256": "3ff4501f65c713be46aabc743ea4980fdd9af17621ca8aa8c65184da82016270"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/candidate/1/fixtures/review-depth-severity/README.md",
+    "original_sha256": "e5f13dc7a2b35057b4b0a850d149a3d492228383800337966e947910680f3ef8",
+    "archive": "engineering-candidate-1/evidence.zip",
+    "entry": "fixtures/review-depth-severity/README.md",
+    "archived_sha256": "e5f13dc7a2b35057b4b0a850d149a3d492228383800337966e947910680f3ef8"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/candidate/1/fixtures/review-depth-severity/calc.py",
+    "original_sha256": "4efd07b35cf179fd5614637233ac3caa2fc03de420bf63ac14e36dcaa339f2e5",
+    "archive": "engineering-candidate-1/evidence.zip",
+    "entry": "fixtures/review-depth-severity/calc.py",
+    "archived_sha256": "4efd07b35cf179fd5614637233ac3caa2fc03de420bf63ac14e36dcaa339f2e5"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/candidate/1/fixtures/review-depth-severity/proposal.md",
+    "original_sha256": "fd08b240275ea7c98693a92d0c3ab5384fd6aa261d0183940be0bc978b7ad9c8",
+    "archive": "engineering-candidate-1/evidence.zip",
+    "entry": "fixtures/review-depth-severity/proposal.md",
+    "archived_sha256": "fd08b240275ea7c98693a92d0c3ab5384fd6aa261d0183940be0bc978b7ad9c8"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/candidate/1/fixtures/review-depth-severity/auth.py",
+    "original_sha256": "20c26a39721627260442517e4987c915b6649f9a87375c67df7f6618273c2eb4",
+    "archive": "engineering-candidate-1/evidence.zip",
+    "entry": "fixtures/review-depth-severity/auth.py",
+    "archived_sha256": "20c26a39721627260442517e4987c915b6649f9a87375c67df7f6618273c2eb4"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/candidate/1/fixtures/review-depth-severity/tests/test_calc.py",
+    "original_sha256": "40ce2c2932df03f4521e3ff02788541414709c2791131708e43f64bed66ac569",
+    "archive": "engineering-candidate-1/evidence.zip",
+    "entry": "fixtures/review-depth-severity/tests/test_calc.py",
+    "archived_sha256": "40ce2c2932df03f4521e3ff02788541414709c2791131708e43f64bed66ac569"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/candidate/1/cases/review-depth-severity/inputs/prompt.md",
+    "original_sha256": "b7c55475f8562f273f2b4a11d86b10e9c8d70f3a0869f0edf356653af465db72",
+    "archive": "engineering-candidate-1/evidence.zip",
+    "entry": "cases/review-depth-severity/inputs/prompt.md",
+    "archived_sha256": "b7c55475f8562f273f2b4a11d86b10e9c8d70f3a0869f0edf356653af465db72"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/candidate/1/cases/authorization-cadence/output.md",
+    "original_sha256": "f125e5e3178f09183a6536a7074f4abf8a0805e926248a431ea634be5ceaf39a",
+    "archive": "engineering-candidate-1/evidence.zip",
+    "entry": "cases/authorization-cadence/output.md",
+    "archived_sha256": "f125e5e3178f09183a6536a7074f4abf8a0805e926248a431ea634be5ceaf39a"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/candidate/1/cases/review-depth-severity/artifacts/review-coverage.md",
+    "original_sha256": "c62c21a3b7876a0029b4c05484289e5beea79d59aac6110ec0af5293105a7601",
+    "archive": "engineering-candidate-1/evidence.zip",
+    "entry": "cases/review-depth-severity/artifacts/review-coverage.md",
+    "archived_sha256": "c62c21a3b7876a0029b4c05484289e5beea79d59aac6110ec0af5293105a7601"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/candidate/1/cases/review-depth-severity/trace-inspection-and-probes.txt",
+    "original_sha256": "1818cb5721586c5770a3230eaf4383645c95d261ac573786a7b4b62b56b5a54b",
+    "archive": "engineering-candidate-1/evidence.zip",
+    "entry": "cases/review-depth-severity/trace-inspection-and-probes.txt",
+    "archived_sha256": "1818cb5721586c5770a3230eaf4383645c95d261ac573786a7b4b62b56b5a54b"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/candidate/2/cases/unneeded-helper/inputs/fixture/README.md",
+    "original_sha256": "e5f13dc7a2b35057b4b0a850d149a3d492228383800337966e947910680f3ef8",
+    "archive": "engineering-candidate-2/evidence.zip",
+    "entry": "cases/unneeded-helper/inputs/fixture/README.md",
+    "archived_sha256": "e5f13dc7a2b35057b4b0a850d149a3d492228383800337966e947910680f3ef8"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/candidate/2/cases/unneeded-helper/inputs/fixture/calc.py",
+    "original_sha256": "4efd07b35cf179fd5614637233ac3caa2fc03de420bf63ac14e36dcaa339f2e5",
+    "archive": "engineering-candidate-2/evidence.zip",
+    "entry": "cases/unneeded-helper/inputs/fixture/calc.py",
+    "archived_sha256": "4efd07b35cf179fd5614637233ac3caa2fc03de420bf63ac14e36dcaa339f2e5"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/candidate/2/cases/unneeded-helper/inputs/fixture/proposal.md",
+    "original_sha256": "9d3c37155f2f2098cf11e7c38674e9fd176651cef93fe6dd995607e22d80c592",
+    "archive": "engineering-candidate-2/evidence.zip",
+    "entry": "cases/unneeded-helper/inputs/fixture/proposal.md",
+    "archived_sha256": "9d3c37155f2f2098cf11e7c38674e9fd176651cef93fe6dd995607e22d80c592"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/candidate/2/cases/unneeded-helper/inputs/fixture/tests/test_calc.py",
+    "original_sha256": "40ce2c2932df03f4521e3ff02788541414709c2791131708e43f64bed66ac569",
+    "archive": "engineering-candidate-2/evidence.zip",
+    "entry": "cases/unneeded-helper/inputs/fixture/tests/test_calc.py",
+    "archived_sha256": "40ce2c2932df03f4521e3ff02788541414709c2791131708e43f64bed66ac569"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/candidate/2/cases/unneeded-helper/artifacts/result.md",
+    "original_sha256": "946a685ed493a07422bbcfe5a2e96301002b21e2af4248c7d530aeedac292682",
+    "archive": "engineering-candidate-2/evidence.zip",
+    "entry": "cases/unneeded-helper/artifacts/result.md",
+    "archived_sha256": "946a685ed493a07422bbcfe5a2e96301002b21e2af4248c7d530aeedac292682"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/candidate/2/cases/review-depth-severity/artifacts/result.md",
+    "original_sha256": "701e290cdce4a4ec0ef33730f61cf74478d44cff89149b2de089636e6db17973",
+    "archive": "engineering-candidate-2/evidence.zip",
+    "entry": "cases/review-depth-severity/artifacts/result.md",
+    "archived_sha256": "701e290cdce4a4ec0ef33730f61cf74478d44cff89149b2de089636e6db17973"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/candidate/2/cases/review-depth-severity/inputs/fixture/README.md",
+    "original_sha256": "e5f13dc7a2b35057b4b0a850d149a3d492228383800337966e947910680f3ef8",
+    "archive": "engineering-candidate-2/evidence.zip",
+    "entry": "cases/review-depth-severity/inputs/fixture/README.md",
+    "archived_sha256": "e5f13dc7a2b35057b4b0a850d149a3d492228383800337966e947910680f3ef8"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/candidate/2/cases/review-depth-severity/inputs/fixture/calc.py",
+    "original_sha256": "4efd07b35cf179fd5614637233ac3caa2fc03de420bf63ac14e36dcaa339f2e5",
+    "archive": "engineering-candidate-2/evidence.zip",
+    "entry": "cases/review-depth-severity/inputs/fixture/calc.py",
+    "archived_sha256": "4efd07b35cf179fd5614637233ac3caa2fc03de420bf63ac14e36dcaa339f2e5"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/candidate/2/cases/review-depth-severity/inputs/fixture/proposal.md",
+    "original_sha256": "fd08b240275ea7c98693a92d0c3ab5384fd6aa261d0183940be0bc978b7ad9c8",
+    "archive": "engineering-candidate-2/evidence.zip",
+    "entry": "cases/review-depth-severity/inputs/fixture/proposal.md",
+    "archived_sha256": "fd08b240275ea7c98693a92d0c3ab5384fd6aa261d0183940be0bc978b7ad9c8"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/candidate/2/cases/review-depth-severity/inputs/fixture/auth.py",
+    "original_sha256": "20c26a39721627260442517e4987c915b6649f9a87375c67df7f6618273c2eb4",
+    "archive": "engineering-candidate-2/evidence.zip",
+    "entry": "cases/review-depth-severity/inputs/fixture/auth.py",
+    "archived_sha256": "20c26a39721627260442517e4987c915b6649f9a87375c67df7f6618273c2eb4"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/candidate/2/cases/review-depth-severity/inputs/fixture/tests/test_calc.py",
+    "original_sha256": "40ce2c2932df03f4521e3ff02788541414709c2791131708e43f64bed66ac569",
+    "archive": "engineering-candidate-2/evidence.zip",
+    "entry": "cases/review-depth-severity/inputs/fixture/tests/test_calc.py",
+    "archived_sha256": "40ce2c2932df03f4521e3ff02788541414709c2791131708e43f64bed66ac569"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/candidate/2/cases/review-depth-severity/inputs/prompt.md",
+    "original_sha256": "25a490d0d22423efca55e16841cd80d91ac30ac3a909e1ccc37f1edd900d50a2",
+    "archive": "engineering-candidate-2/evidence.zip",
+    "entry": "cases/review-depth-severity/inputs/prompt.md",
+    "archived_sha256": "25a490d0d22423efca55e16841cd80d91ac30ac3a909e1ccc37f1edd900d50a2"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/candidate/2/cases/authorization-cadence/artifacts/D/walkthrough.md",
+    "original_sha256": "abfe47bfafb3a5b18b6ff9185b341f4673bcdcf2cc38674c3c0eafddc164a710",
+    "archive": "engineering-candidate-2/evidence.zip",
+    "entry": "cases/authorization-cadence/artifacts/D/walkthrough.md",
+    "archived_sha256": "abfe47bfafb3a5b18b6ff9185b341f4673bcdcf2cc38674c3c0eafddc164a710"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/candidate/2/cases/authorization-cadence/artifacts/result.md",
+    "original_sha256": "89ac336dd7805c59f26363b316a42aae15350f5fed0054254e681f47ee1cd692",
+    "archive": "engineering-candidate-2/evidence.zip",
+    "entry": "cases/authorization-cadence/artifacts/result.md",
+    "archived_sha256": "89ac336dd7805c59f26363b316a42aae15350f5fed0054254e681f47ee1cd692"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/candidate/2/cases/authorization-cadence/artifacts/C/blocked-question.md",
+    "original_sha256": "5136409b578f1b63dd6ea573b2ab3c69d9c0fb60de1c00ce3f82041240a17727",
+    "archive": "engineering-candidate-2/evidence.zip",
+    "entry": "cases/authorization-cadence/artifacts/C/blocked-question.md",
+    "archived_sha256": "5136409b578f1b63dd6ea573b2ab3c69d9c0fb60de1c00ce3f82041240a17727"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/candidate/2/cases/review-depth-severity/trace/shell.log",
+    "original_sha256": "90ac6bd3d7e18cd46c0e3f539d9a648b9bcbce609b16985a38c3bd6dea3d3b69",
+    "archive": "engineering-candidate-2/evidence.zip",
+    "entry": "cases/review-depth-severity/trace/shell.log",
+    "archived_sha256": "90ac6bd3d7e18cd46c0e3f539d9a648b9bcbce609b16985a38c3bd6dea3d3b69"
+  },
+  {
+    "source": "<user-home>/ai-kit/20260906_astra_review_backlog.md",
+    "original_sha256": "33b07e83604488f91e4ef9ac2f008ee7f7173274552a186892301b559a364034",
+    "repository_path": "20260906_astra_review_backlog.md"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/current/1/runs/current-r1/current/authorization-cadence/1/artifacts/A/search_filter_analysis.md",
+    "original_sha256": "bf348e665a8595d50534a8b72f76480b889632ee49fb3101c0af92a2f3cd4dd6",
+    "archive": "engineering-current-1/evidence.zip",
+    "entry": "runs/current-r1/current/authorization-cadence/1/artifacts/A/search_filter_analysis.md",
+    "archived_sha256": "bf348e665a8595d50534a8b72f76480b889632ee49fb3101c0af92a2f3cd4dd6"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/current/1/runs/current-r1/current/authorization-cadence/1/artifacts/B/search_filter_analysis.md",
+    "original_sha256": "898ba30e20e0208693de457637cf823424db07677974dfe8146f11fa037a18d8",
+    "archive": "engineering-current-1/evidence.zip",
+    "entry": "runs/current-r1/current/authorization-cadence/1/artifacts/B/search_filter_analysis.md",
+    "archived_sha256": "898ba30e20e0208693de457637cf823424db07677974dfe8146f11fa037a18d8"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/current/2/cases/11-authorization-cadence/variants/A-file-request/search-filter_analysis.md",
+    "original_sha256": "244cff6497844554b91ac0280364988760e3c5bd6d7e01a4ae5229b1e9d62115",
+    "archive": "engineering-current-2/evidence.zip",
+    "entry": "cases/11-authorization-cadence/variants/A-file-request/search-filter_analysis.md",
+    "archived_sha256": "244cff6497844554b91ac0280364988760e3c5bd6d7e01a4ae5229b1e9d62115"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/current/2/cases/11-authorization-cadence/variants/B-inline-request/search-filter_analysis.md",
+    "original_sha256": "244cff6497844554b91ac0280364988760e3c5bd6d7e01a4ae5229b1e9d62115",
+    "archive": "engineering-current-2/evidence.zip",
+    "entry": "cases/11-authorization-cadence/variants/B-inline-request/search-filter_analysis.md",
+    "archived_sha256": "244cff6497844554b91ac0280364988760e3c5bd6d7e01a4ae5229b1e9d62115"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/candidate/1/fixtures/authorization-cadence/variants/A-file/search_box_analysis.md",
+    "original_sha256": "b4776d47f01c7fe7243d8bbd3e51c57d3a74bb65adcff74e195617dd4076e6e8",
+    "archive": "engineering-candidate-1/evidence.zip",
+    "entry": "fixtures/authorization-cadence/variants/A-file/search_box_analysis.md",
+    "archived_sha256": "b4776d47f01c7fe7243d8bbd3e51c57d3a74bb65adcff74e195617dd4076e6e8"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/candidate/1/fixtures/authorization-cadence/variants/B-inline/search_box_analysis.md",
+    "original_sha256": "9b11402719717376cc9745002eced8369683ddd36c217233a8f323fb4c043777",
+    "archive": "engineering-candidate-1/evidence.zip",
+    "entry": "fixtures/authorization-cadence/variants/B-inline/search_box_analysis.md",
+    "archived_sha256": "9b11402719717376cc9745002eced8369683ddd36c217233a8f323fb4c043777"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/candidate/2/cases/authorization-cadence/artifacts/A/search_analysis.md",
+    "original_sha256": "86deb5e575db26a01cefffa8db3243e8cd160ba85cc8a97b8261463096d198cb",
+    "archive": "engineering-candidate-2/evidence.zip",
+    "entry": "cases/authorization-cadence/artifacts/A/search_analysis.md",
+    "archived_sha256": "86deb5e575db26a01cefffa8db3243e8cd160ba85cc8a97b8261463096d198cb"
+  },
+  {
+    "source": "/tmp/astra-backlog-5VdqNm/trials/engineering/candidate/2/cases/authorization-cadence/artifacts/B/search_analysis.md",
+    "original_sha256": "192aac21e34ddb9e6f638cdd860f37f985259260d7ddf24dafa85cbd00da4428",
+    "archive": "engineering-candidate-2/evidence.zip",
+    "entry": "cases/authorization-cadence/artifacts/B/search_analysis.md",
+    "archived_sha256": "192aac21e34ddb9e6f638cdd860f37f985259260d7ddf24dafa85cbd00da4428"
+  }
+]

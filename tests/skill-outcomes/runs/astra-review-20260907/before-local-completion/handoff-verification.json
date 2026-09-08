@@ -1,0 +1,15 @@
+{
+  "record_id": "astra-handoff-content-check-20260907",
+  "captured_at": "2026-09-07T11:31:46.314204+00:00",
+  "final_validation_source_drift": [],
+  "navigation_missing_links": [],
+  "acceptance_counts": {
+    "observed-bounded": 92,
+    "partial": 19,
+    "fail": 1,
+    "not-adopted": 1
+  },
+  "scope": "Final handoff docs, source identity reuse and archive navigation; does not rerun behavioral trials or grant acceptance",
+  "committed_changes": [],
+  "staged_changes": []
+}

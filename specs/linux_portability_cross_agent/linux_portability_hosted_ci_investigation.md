@@ -1,5 +1,13 @@
 # Hosted portability CI investigation
 
+## Verification boundary — 2026-09-07
+
+The resolved hosted run below certifies its named historical commit. The later
+[Astra backlog execution](../../20260906_astra_review_execution.md) changes name validation
+and conflict diagnostics (B19/B32) and records its own tests. Historical hosted success must
+not be reused as current Windows/macOS evidence for that uncommitted tree. The original
+investigation and resolution remain intact; this note does not reopen their resolved defects.
+
 ## Executive summary
 
 The portability workflow passed on Ubuntu but failed in the isolated sync harness on macOS and Windows. Hosted tracebacks proved six platform assumptions: Windows junction commands were nested-quoted before reaching `cmd.exe`; created junctions exposed a namespaced substitution target; dangling junctions did not resolve through their live path; Python test hooks were launched as native executables on Windows; a POSIX-wrapper test ran on Windows; and two macOS fixtures used the lexical `/var` path where the filesystem resolves through `/private/var`.

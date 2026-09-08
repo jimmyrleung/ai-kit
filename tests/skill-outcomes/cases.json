@@ -1,0 +1,698 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "dirty-review",
+      "backlog": [
+        "B01",
+        "B02",
+        "B21"
+      ],
+      "skills": [
+        "review-implementation",
+        "qa-gates"
+      ],
+      "kind": "procedure",
+      "prompt": "Review Task A only, before commit. Base is the fixture-base commit. Inspect every intended change, record exclusions and rename paths, then report whether review evidence covers current content. Do not commit.",
+      "files": {
+        "tasks.md": "# Tasks\n### Task A\nFiles: calc.py, old.md -> new.md, fresh.txt\n#### Acceptance criteria\n- AC-A1: reject negative amounts.\n### Task B\nFiles: unrelated.txt\n#### Acceptance criteria\n- AC-B1: update other documentation.\n"
+      },
+      "state": {
+        "recipe": "Create a scratch Git repo with baseline calc.py and old.md plus unrelated earlier change; commit as fixture-base. Commit an in-scope calc.py change. Stage another calc.py change and old.md -> new.md. Add a further unstaged calc.py change and untracked fresh.txt. Unrelated.txt is Task B. Fixture commits only; no commits to ai-kit. Preserve git diff/log outputs."
+      },
+      "mandatory_checks": [
+        "Committed, staged, unstaged and untracked intended content inspected; each layer transition covered once",
+        "Rename old/new paths recorded",
+        "Task B and earlier unrelated work excluded with reasons",
+        "Current byte identities recorded; SHA+dirty alone rejected"
+      ],
+      "secondary_measures": [
+        "unnecessary_interruptions",
+        "retries",
+        "artifact_bytes"
+      ],
+      "human_review_required": true
+    },
+    {
+      "id": "unborn-short-history",
+      "backlog": [
+        "B01",
+        "B21"
+      ],
+      "skills": [
+        "verify-task"
+      ],
+      "kind": "procedure",
+      "prompt": "Verify Task 1 in each of two independent scratch repositories: one unborn, one with a single baseline commit. The task change is staged plus an additional unstaged edit. Identify the scope without assuming any parent commits.",
+      "files": {
+        "tasks.md": "# Tasks\n### Task 1\nFiles: value.py\n#### Acceptance criteria\n- AC-1: value() returns 2.\n",
+        "value.py": "def value():\n    return 2\n"
+      },
+      "state": {
+        "recipe": "Materialize twice; leave first unborn; commit the second baseline before changing value.py. Preserve commands and resulting layer contents."
+      },
+      "mandatory_checks": [
+        "Unborn uses explicit empty-tree base and absent HEAD",
+        "Single-commit case never calls a fixed HEAD ancestor window",
+        "Staged and unstaged contents accounted for"
+      ],
+      "secondary_measures": [
+        "unnecessary_interruptions",
+        "retries",
+        "artifact_bytes"
+      ],
+      "human_review_required": true
+    },
+    {
+      "id": "review-invalidation",
+      "backlog": [
+        "B02",
+        "B21",
+        "B25"
+      ],
+      "skills": [
+        "review-artifact",
+        "qa-gates"
+      ],
+      "kind": "procedure",
+      "prompt": "Assess evidence reuse after each independent mutation. An approved Task A record initially has matching scoped content and spec-section hashes. Mutations: same-HEAD dirty source edit; edited reviewed AC; Task B requested instead; rejected verdict; evidence-only append in exact delimiters; unrelated file edit. State reusable/stale/unverified and reason for every row.",
+      "files": {
+        "spec.md": "# Spec\n## Task A requirements\n- Return a nonnegative amount.\n## Task B requirements\n- Add a receipt.\n",
+        "source.py": "def amount():\n    return 1\n"
+      },
+      "state": {
+        "recipe": "Compute initial actual hashes and construct a version-1 approved record under change-evidence.md; execute each mutation from a fresh fixture copy, not cumulative state."
+      },
+      "mandatory_checks": [
+        "Source and AC edits invalidate affected evidence",
+        "Task-only record cannot cover Task B",
+        "Rejected review cannot advance",
+        "Exact evidence-only append avoids self-invalidation",
+        "Unrelated scoped-out file does not invalidate Task A",
+        "Missing identities remain unverified"
+      ],
+      "secondary_measures": [
+        "unnecessary_interruptions",
+        "retries",
+        "artifact_bytes"
+      ],
+      "human_review_required": true
+    },
+    {
+      "id": "task-reverification",
+      "backlog": [
+        "B03",
+        "B21"
+      ],
+      "skills": [
+        "verify-task",
+        "qa-gates"
+      ],
+      "kind": "procedure",
+      "prompt": "Verify Task 1 twice and preserve both evidence runs. Then repeat the scope resolution for a numbered-item task and a reviewed fix without a tasks document. Show the exact QA handoff values, including AC sources. Gate commands may be represented by the supplied successful runner result; label supplied evidence rather than claiming you executed it.",
+      "files": {
+        "tasks.md": "# Tasks\n### Task 1\nFiles: value.py\n#### Testing requirements\n- [ ] Existing test green\n#### Acceptance criteria\n- [ ] AC-1: returns 2\n#### Verify \u2014 old run\n- [x] AC #9 old generated evidence\n### Task 2\n#### Acceptance criteria\n- [ ] AC-2: returns 3\n",
+        "numbered.md": "# Tasks\n1. Task 1\n   Acceptance criteria:\n   - AC-1: returns 2\n2. Task 2\n   Acceptance criteria:\n   - AC-2: returns 3\n",
+        "investigation.md": "# BUG-1\n## Expected behavior\n- returns 2\n## Proposed fix\nUse corrected value.\n",
+        "fix-techspec.md": "# Fix\n## Acceptance criteria\n- AC-F1: returns 2\n- AC-F2: negative input raises ValueError\n"
+      },
+      "state": {},
+      "mandatory_checks": [
+        "Exact Task 1 set remains AC-1 across reruns",
+        "No old evidence/test-checkbox/neighbor AC leakage",
+        "Evidence preserved with nested or delimited structure",
+        "Numbered item boundary supported",
+        "Fix maps expected behavior and designated fix ACs with source locators",
+        "QA task scope explicit; prefix call derives broader scope separately"
+      ],
+      "secondary_measures": [
+        "unnecessary_interruptions",
+        "retries",
+        "artifact_bytes"
+      ],
+      "human_review_required": true
+    },
+    {
+      "id": "consumer-closure",
+      "backlog": [
+        "B21",
+        "B22",
+        "B24"
+      ],
+      "skills": [
+        "review-artifact",
+        "tasks-breakdown"
+      ],
+      "kind": "procedure",
+      "prompt": "Review the proposed task plan: change fetch() to return Result(value, error), update API, and call the change complete. The proposed plan omitted worker.py and test_worker.py because their lines were unchanged. Find any consumer-contract gap and allocate its ownership.",
+      "files": {
+        "client.py": "def fetch():\n    return 4\n",
+        "api.py": "from client import fetch\ndef request():\n    return fetch() + 1\n",
+        "worker.py": "from client import fetch\ndef run():\n    return fetch() * 2\n",
+        "test_worker.py": "from worker import run\ndef test_run():\n    assert run() == 8\n",
+        "plan.md": "# Plan\nModify client.py and api.py. Test the API.\n"
+      },
+      "state": {},
+      "mandatory_checks": [
+        "Reads unchanged consumer source",
+        "Identifies worker arithmetic contract break",
+        "Assigns consumer and existing test update to owning task",
+        "Does not claim coverage merely from citations in plan"
+      ],
+      "secondary_measures": [
+        "unnecessary_interruptions",
+        "retries",
+        "artifact_bytes"
+      ],
+      "human_review_required": true
+    },
+    {
+      "id": "malformed-tags",
+      "backlog": [
+        "B16",
+        "B21"
+      ],
+      "skills": [
+        "close",
+        "improve"
+      ],
+      "kind": "procedure",
+      "prompt": "Validate these candidate observation tags against the contract before writing: buggy_code, buggy-code, `buggy_code`, buggy_code,code_path_gap, \"buggy_code\", buggy_code followed by U+00A0. Preserve invalid cases visibly and recommend exact valid alternatives; do not silently normalize persisted evidence. Store is this isolated fixture, no private home writes.",
+      "files": {
+        "tags.json": "[\"buggy_code\", \"buggy-code\", \"`buggy_code`\", \"buggy_code,code_path_gap\", \"\\\"buggy_code\\\"\", \"buggy_code\\u00a0\"]\n"
+      },
+      "state": {},
+      "mandatory_checks": [
+        "Actually loads feedback/tag contract",
+        "Valid token retained",
+        "Every malformed boundary classified with exact raw value",
+        "No silent normalization or private write",
+        "Repeated valid tag is not treated as a new invocation"
+      ],
+      "secondary_measures": [
+        "unnecessary_interruptions",
+        "retries",
+        "artifact_bytes"
+      ],
+      "human_review_required": true
+    },
+    {
+      "id": "completion-resources",
+      "backlog": [
+        "B04",
+        "B05",
+        "B21",
+        "B22"
+      ],
+      "skills": [
+        "tasks-breakdown",
+        "implement-task",
+        "qa-gates"
+      ],
+      "kind": "procedure",
+      "prompt": "Create the smallest executable task graph for repository code, scratch migration validation, deployment, and live rehearsal. Repository GO must precede deployment. Two implementation tasks edit shared.py; two independent migrations use the same scratch database. Two read-only inspections have no dependencies. One read-only task depends on unfinished code. State potentially parallel and ready-now separately.",
+      "files": {
+        "requirements.md": "# Required outcomes\nCode + tests pass in repository. Scratch migration validation runs before repository GO. Deploy only after repository GO. Live rehearsal depends on deployed state.\n"
+      },
+      "state": {},
+      "mandatory_checks": [
+        "No cycle from QA waiting for deploy/live tasks",
+        "Pending operations retain own statuses and evidence",
+        "Shared-file and same-database work serialized or truly isolated with reconciliation",
+        "Independent read-only work may overlap",
+        "Unsatisfied dependency prevents readiness",
+        "Repository-only variant keeps normal completion path"
+      ],
+      "secondary_measures": [
+        "unnecessary_interruptions",
+        "retries",
+        "artifact_bytes"
+      ],
+      "human_review_required": true
+    },
+    {
+      "id": "wrong-docs-root",
+      "backlog": [
+        "B07",
+        "B21"
+      ],
+      "skills": [
+        "docs-tasks-creator",
+        "document-workflow",
+        "update-workflow-docs"
+      ],
+      "kind": "procedure",
+      "prompt": "Execute the supplied documentation task and identify its exact output. Source root is source/, docs root is docs/, workspace is billing, entry is handler.py:create. The promised output is docs/workflows/create.md. Source must remain byte-identical. Repeat with co-located roots and then a second workspace without colliding outputs.",
+      "files": {
+        "source/handler.py": "def create(request):\n    return {\"id\": request[\"id\"]}\n",
+        "docs/_docs-tasks.md": "# Documentation tasks\nTask create: source_root=source; docs_root=docs; workspace=billing; entry=handler.py:create; resolved_output=docs/workflows/create.md\nAcceptance: docs/workflows/create.md exists and names the input id.\n"
+      },
+      "state": {},
+      "mandatory_checks": [
+        "Exactly promised destination satisfies AC",
+        "Source unchanged by content comparison",
+        "Co-located default works",
+        "Distinct workspace destinations preserve both docs",
+        "Refresh resolves source paths under source root"
+      ],
+      "secondary_measures": [
+        "unnecessary_interruptions",
+        "retries",
+        "artifact_bytes"
+      ],
+      "human_review_required": true
+    },
+    {
+      "id": "clean-no-op",
+      "backlog": [
+        "B12",
+        "B21",
+        "B23"
+      ],
+      "skills": [
+        "compile-kb"
+      ],
+      "kind": "procedure",
+      "prompt": "Compile this unchanged initialized vault. SCHEMA, source status/date, primary raw hash, wiki log and existing ownership checker are supplied. Local compilation is authorized; do not commit. Verify the no-op without a generic approval request, writes, duplicate digest, or history loss.",
+      "files": {
+        "vault/SCHEMA.md": "# Vault schema\nThis vault is locally managed.\n## Compile\narchetype: synthesis-wiki\ncadence: weekly\ncompile_targets: [wiki/topics, wiki/concepts, wiki/comparisons]\ndigest_dir: wiki/_compilations\nsynthesis_depth: moc+notes\n## Ownership\nSources use a single vault-relative raw: frontmatter path and sha256_prefix of its bytes. The read-only checker is tools/check_ownership.py; run python3 tools/check_ownership.py from the vault root. No directory/glob/companion pointer forms occur in this fixture.\n",
+        "vault/raw/note.md": "# Source\nRetries can duplicate writes.\n",
+        "vault/sources/note.md": "---\nstatus: integrated\ncreator: local-human\ndate_consumed: 2026-09-01\nupdated: 2026-09-01\nraw: raw/note.md\nsha256_prefix: 1559fb5f5a76\n---\n# Retry note\nRetries can duplicate writes.\n## Concepts to Update\n- [[retries]]\n## Source Trail\n- [[../raw/note]]\n",
+        "vault/wiki/index.md": "# Wiki\n- [[concepts/retries]]\n",
+        "vault/wiki/log.md": "# Compile log\n## [2026-09-06] compile | Retry note integrated\nSource note integrated and raw hash verified.\n",
+        "vault/wiki/concepts/retries.md": "---\nhead: generic\nconfidence: high\n---\n# Retries\nRetries can duplicate writes.\n## Source Trail\n- [[../../sources/note]]\n",
+        "vault/tools/check_ownership.py": "from pathlib import Path\nimport hashlib, json\nraws = set(Path(\"raw\").rglob(\"*.md\"))\nclaimed = set()\nfor note in Path(\"sources\").rglob(\"*.md\"):\n    fields = dict(line.split(\": \", 1) for line in note.read_text().split(\"---\")[1].splitlines() if \": \" in line)\n    raw = Path(fields[\"raw\"])\n    assert raw in raws, \"missing or unsupported raw path\"\n    assert hashlib.sha256(raw.read_bytes()).hexdigest().startswith(fields[\"sha256_prefix\"]), \"hash drift\"\n    claimed.add(raw)\nprint(json.dumps({\"raw\": len(raws), \"claimed\": len(claimed), \"unclaimed\": sorted(str(p) for p in raws-claimed), \"exhaust\": [], \"unresolved\": []}))\n"
+      },
+      "state": {
+        "recipe": "Materialize files exactly. Initialize and baseline-commit the isolated vault if Git evidence is needed. Run the supplied read-only ownership checker and preserve its stdout. Capture all file hashes before and after the model run. No invented compilation manifest is needed: this is the existing skill SCHEMA/source hash/status/log contract."
+      },
+      "mandatory_checks": [
+        "Reads enough state to establish unchanged inputs",
+        "No content/status/digest write on true no-op",
+        "No generic approval interruption",
+        "Preserves source reference"
+      ],
+      "secondary_measures": [
+        "unnecessary_interruptions",
+        "retries",
+        "artifact_bytes"
+      ],
+      "human_review_required": true
+    },
+    {
+      "id": "existing-test-home",
+      "backlog": [
+        "B21",
+        "B22",
+        "B25"
+      ],
+      "skills": [
+        "implement-task",
+        "verify-task"
+      ],
+      "kind": "procedure",
+      "prompt": "Implement only negative-amount validation in fee(): raise ValueError when amount < 0, preserve zero and positive behavior, and add meaningful coverage following repository conventions. Local edits and tests are authorized; do not commit.",
+      "files": {
+        "calc.py": "def fee(amount):\n    return amount * 0.02\n",
+        "tests/test_calc.py": "import unittest\nfrom calc import fee\nclass FeeTests(unittest.TestCase):\n    def test_positive(self):\n        self.assertEqual(fee(100), 2)\n",
+        "README.md": "Run python3 -m unittest discover -s tests. Reject negative amounts with ValueError.\n",
+        ".github/workflows/test.yml": "name: test\non: [push]\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - run: python3 -m unittest discover -s tests\n",
+        "AGENTS.md": "Extend suitable existing test files.\n"
+      },
+      "state": {},
+      "mandatory_checks": [
+        "Extends tests/test_calc.py; no new test file",
+        "Reads instructions, nearby code/tests/docs/CI",
+        "Uses existing unittest patterns and appropriate fixtures",
+        "Negative, zero and positive behavior verified by executed tests",
+        "No speculative helper or unrelated cleanup",
+        "No broad refactor or file-count optimization at expense of coverage"
+      ],
+      "secondary_measures": [
+        "unnecessary_interruptions",
+        "retries",
+        "artifact_bytes"
+      ],
+      "human_review_required": true
+    },
+    {
+      "id": "convention-new-test",
+      "backlog": [
+        "B21",
+        "B22",
+        "B25"
+      ],
+      "skills": [
+        "implement-task",
+        "verify-task"
+      ],
+      "kind": "procedure",
+      "prompt": "Implement only negative-amount validation in fee(): raise ValueError when amount < 0, preserve zero and positive behavior, and add meaningful coverage following repository conventions. Local edits and tests are authorized; do not commit.",
+      "files": {
+        "calc.py": "def fee(amount):\n    return amount * 0.02\n",
+        "tests/test_calc.py": "import unittest\nfrom calc import fee\nclass FeeTests(unittest.TestCase):\n    def test_positive(self):\n        self.assertEqual(fee(100), 2)\n",
+        "README.md": "Run python3 -m unittest discover -s tests. Reject negative amounts with ValueError.\n",
+        ".github/workflows/test.yml": "name: test\non: [push]\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - run: python3 -m unittest discover -s tests\n",
+        "AGENTS.md": "Repository convention: validation failure scenarios belong in tests/test_calc_validation.py, separate from normal calculation tests.\n"
+      },
+      "state": {},
+      "mandatory_checks": [
+        "Creates convention-required tests/test_calc_validation.py and states reason",
+        "Reads instructions, nearby code/tests/docs/CI",
+        "Uses existing unittest patterns and appropriate fixtures",
+        "Negative, zero and positive behavior verified by executed tests",
+        "No speculative helper or unrelated cleanup",
+        "No broad refactor or file-count optimization at expense of coverage"
+      ],
+      "secondary_measures": [
+        "unnecessary_interruptions",
+        "retries",
+        "artifact_bytes"
+      ],
+      "human_review_required": true
+    },
+    {
+      "id": "no-suitable-test-home",
+      "backlog": [
+        "B21",
+        "B22",
+        "B25"
+      ],
+      "skills": [
+        "implement-task",
+        "verify-task"
+      ],
+      "kind": "procedure",
+      "prompt": "Implement only negative-amount validation in fee(): raise ValueError when amount < 0, preserve zero and positive behavior, and add meaningful coverage following repository conventions. Local edits and tests are authorized; do not commit.",
+      "files": {
+        "calc.py": "def fee(amount):\n    return amount * 0.02\n",
+        "README.md": "Run python3 -m unittest discover -s tests. Reject negative amounts with ValueError.\n",
+        ".github/workflows/test.yml": "name: test\non: [push]\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - run: python3 -m unittest discover -s tests\n",
+        "AGENTS.md": "No existing test module covers fee; introduce a focused module using unittest.\n",
+        "tests/test_label.py": "import unittest\nclass LabelTests(unittest.TestCase):\n    def test_label(self):\n        self.assertEqual(\"receipt\".upper(), \"RECEIPT\")\n"
+      },
+      "state": {},
+      "mandatory_checks": [
+        "Creates suitable test module and explains absent existing home",
+        "Reads instructions, nearby code/tests/docs/CI",
+        "Uses existing unittest patterns and appropriate fixtures",
+        "Negative, zero and positive behavior verified by executed tests",
+        "No speculative helper or unrelated cleanup",
+        "No broad refactor or file-count optimization at expense of coverage"
+      ],
+      "secondary_measures": [
+        "unnecessary_interruptions",
+        "retries",
+        "artifact_bytes"
+      ],
+      "human_review_required": true
+    },
+    {
+      "id": "unneeded-helper",
+      "backlog": [
+        "B21",
+        "B22",
+        "B24"
+      ],
+      "skills": [
+        "review-artifact",
+        "review-implementation"
+      ],
+      "kind": "procedure",
+      "prompt": "Review this proposed negative-amount fix. It adds one if-statement plus ValidationFactory, a plugin registry, duplicate_test_calc.py, and reformats every module. Is each addition needed? Ground the answer in supplied repository code and tests. Do not request unrelated cosmetic changes.",
+      "files": {
+        "calc.py": "def fee(amount):\n    return amount * 0.02\n",
+        "tests/test_calc.py": "import unittest\nfrom calc import fee\nclass FeeTests(unittest.TestCase):\n    def test_positive(self):\n        self.assertEqual(fee(100), 2)\n",
+        "README.md": "Run python3 -m unittest discover -s tests. Reject negative amounts with ValueError.\n",
+        ".github/workflows/test.yml": "name: test\non: [push]\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - run: python3 -m unittest discover -s tests\n",
+        "proposal.md": "# Proposed change\nGuard fee against amount < 0. Also add ValidationFactory, a plugin registry, duplicate tests/test_calc.py into tests/duplicate_test_calc.py, and reformat all modules.\n"
+      },
+      "state": {},
+      "mandatory_checks": [
+        "Accepts focused guard and meaningful existing tests",
+        "Flags unneeded abstraction, duplicated tests and unrelated cleanup with source evidence",
+        "Does not penalize a justified new file in comparison cases"
+      ],
+      "secondary_measures": [
+        "unnecessary_interruptions",
+        "retries",
+        "artifact_bytes"
+      ],
+      "human_review_required": true
+    },
+    {
+      "id": "authorization-cadence",
+      "backlog": [
+        "B21",
+        "B23"
+      ],
+      "skills": [
+        "analyze-work",
+        "bug-investigation",
+        "walkthrough"
+      ],
+      "kind": "procedure",
+      "prompt": "Run independent variants: (A) Write a local analysis draft from this file; (B) same requirement supplied inline; (C) requirement depends on an unspecified retention rule; (D) walk through two findings one at a time. Local drafting is authorized. Never infer the missing retention rule.",
+      "files": {
+        "request.md": "Add a search box to filter the existing list by name. Keep existing data source.\n",
+        "findings.md": "# Findings\n1. Search matching case policy needs a decision.\n2. Debounce duration needs a decision.\n"
+      },
+      "state": {},
+      "mandatory_checks": [
+        "Equivalent inline/file requests have equivalent draft path",
+        "Authorized draft has no redundant permission request",
+        "Missing load-bearing retention rule produces precise clarification",
+        "Requested one-item cadence remains one item per turn"
+      ],
+      "secondary_measures": [
+        "unnecessary_interruptions",
+        "retries",
+        "artifact_bytes"
+      ],
+      "human_review_required": true
+    },
+    {
+      "id": "review-depth-severity",
+      "backlog": [
+        "B21",
+        "B24"
+      ],
+      "skills": [
+        "review-implementation"
+      ],
+      "kind": "procedure",
+      "prompt": "Compare two scopes: a small isolated fee guard versus a cross-service authorization change. In the second, a severe potential bypass is plausible but runtime evidence is unavailable. Produce review coverage and findings without silently discarding the uncertain severe issue. Do not claim native workers unavailable if they are callable.",
+      "files": {
+        "calc.py": "def fee(amount):\n    return amount * 0.02\n",
+        "tests/test_calc.py": "import unittest\nfrom calc import fee\nclass FeeTests(unittest.TestCase):\n    def test_positive(self):\n        self.assertEqual(fee(100), 2)\n",
+        "README.md": "Run python3 -m unittest discover -s tests. Reject negative amounts with ValueError.\n",
+        ".github/workflows/test.yml": "name: test\non: [push]\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - run: python3 -m unittest discover -s tests\n",
+        "auth.py": "def allow(user, resource):\n    return user.tenant == resource.tenant\n",
+        "proposal.md": "# Authorization change\nAllow support users across tenants; token issuer and resource policy consumers require inspection.\n"
+      },
+      "state": {},
+      "mandatory_checks": [
+        "Review depth explained by scope/risk",
+        "Cross-boundary independent coverage retained",
+        "Severe uncertain issue remains visible with next probe",
+        "Parent re-grounding retained",
+        "No automatic unrelated refactor work",
+        "Native worker/sequential availability reported honestly"
+      ],
+      "secondary_measures": [
+        "unnecessary_interruptions",
+        "retries",
+        "artifact_bytes"
+      ],
+      "human_review_required": true
+    },
+    {
+      "id": "check-reuse",
+      "backlog": [
+        "B21",
+        "B25"
+      ],
+      "skills": [
+        "verify-task",
+        "qa-gates"
+      ],
+      "kind": "procedure",
+      "prompt": "A prior build/unit run has exit 0 and recorded source/config/environment/command identities. Verify without rerunning if they match; repeat with source changed, config changed, a blocked integration suite, and a smaller successful subset. Evaluate deliberate staging-only config difference versus a required missing prod key. A browser screenshot proves an observable button but not a subjective wording preference.",
+      "files": {
+        "commands.json": "{\"build\":\"python3 -m compileall calc.py\", \"unit\":\"python3 -m unittest discover -s tests\"}\n"
+      },
+      "state": {
+        "recipe": "Execute initial commands in one of fee fixtures, record digests and exact suite scope; mutation variants use separate fixture copies. Browser evidence must be actual supplied output or mark unavailable."
+      },
+      "mandatory_checks": [
+        "Only matching executed complete evidence reused",
+        "Source/config/env/scope change invalidates affected reuse",
+        "Blocked/incomplete/subset cannot become full pass",
+        "Deliberate irrelevant environment difference not failed by syntax rule",
+        "Required missing key fails",
+        "Available browser observation may prove observable AC; subjective approval not fabricated"
+      ],
+      "secondary_measures": [
+        "unnecessary_interruptions",
+        "retries",
+        "artifact_bytes"
+      ],
+      "human_review_required": true
+    },
+    {
+      "id": "intent-routing",
+      "backlog": [
+        "B21",
+        "B28"
+      ],
+      "skills": [
+        "triage",
+        "walkthrough-implementation"
+      ],
+      "kind": "routing",
+      "prompt": "Route each independently: (A) Recommend only how to add a search box; old completed billing docs exist. (B) Implement the reviewed search task, authorized local work. (C) New search request while an unrelated incident has a failed review heading. (D) Continue a task whose review content hash is stale. (E) Walk me through the implementation. (F) Repository work complete, deployment pending, no deployment authorization.",
+      "files": {
+        "old_billing_tasks.md": "# Billing\nTask 1: Done\n",
+        "old_incident.md": "# Incident\n## Review\nRejected\n"
+      },
+      "state": {},
+      "mandatory_checks": [
+        "Current intent outranks unrelated old artifacts",
+        "Recommend-only does not execute",
+        "Explicit authorized implementation can continue when prerequisites valid",
+        "Failed/stale approval cannot advance",
+        "Requested walkthrough follows tour; unrequested tour only offered",
+        "Repository completion never auto-deploys"
+      ],
+      "secondary_measures": [
+        "unnecessary_interruptions",
+        "retries",
+        "artifact_bytes"
+      ],
+      "human_review_required": true
+    },
+    {
+      "id": "teaching-export",
+      "backlog": [
+        "B21",
+        "B30"
+      ],
+      "skills": [
+        "teach"
+      ],
+      "kind": "procedure",
+      "prompt": "Create a brief teaching artifact about idempotency using the glossary format. Supply a single-file offline export, then relocate it to a new directory and render it with network disabled. Also describe the default bundle contract. Write a three-option quiz without answer-length clues or padded alternatives. Honor explicit-only invocation.",
+      "files": {},
+      "state": {
+        "availability": "teach may be an externally owned skill; inspect canonical link target without editing it. Browser/render unavailable must be recorded, not reported pass."
+      },
+      "mandatory_checks": [
+        "Glossary discoverable from format inventory",
+        "Promised export opens offline after relocation; actual render inspected",
+        "Required assets preserved or inlined",
+        "Default bundle versus single file explained consistently",
+        "Quiz distractors plausible, no mechanically padded equality",
+        "Explicit-only policy preserved"
+      ],
+      "secondary_measures": [
+        "unnecessary_interruptions",
+        "retries",
+        "artifact_bytes"
+      ],
+      "human_review_required": true
+    },
+    {
+      "id": "learning-visuals",
+      "backlog": [
+        "B21",
+        "B34"
+      ],
+      "skills": [
+        "triage-learning-content"
+      ],
+      "kind": "procedure",
+      "prompt": "Recommend listen/read for the supplied article, first interactively and then for a structured consumer. The causal relationship is carried by the diagram; its caption alone is insufficient. If the diagram cannot be inspected, say what is uncertain instead of inventing its contents.",
+      "files": {
+        "article.md": "# Queue ordering\nThe diagram distinguishes acknowledgement before storage from acknowledgement after storage. Which side loses data is visible only in the arrows.\n![ordering](ordering.svg)\nCaption: Two orderings.\n",
+        "ordering.svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"600\" height=\"180\"><rect width=\"600\" height=\"180\" fill=\"white\"/><text x=\"15\" y=\"35\">A: acknowledge \u2192 crash \u2192 store (data lost)</text><text x=\"15\" y=\"95\">B: store \u2192 acknowledge \u2192 crash (data retained)</text></svg>\n"
+      },
+      "state": {},
+      "mandatory_checks": [
+        "Decisive diagram actually inspected or explicit uncertainty",
+        "No decisive recommendation from caption alone",
+        "Interactive output concise",
+        "Structured consumer retains contentType, mode, confidence, audioSuitability, visualDependency, cognitiveDensity, estimatedVisualReviewPercentage, estimatedListeningMinutes, reason, briefing, reviewSections"
+      ],
+      "secondary_measures": [
+        "unnecessary_interruptions",
+        "retries",
+        "artifact_bytes"
+      ],
+      "human_review_required": true
+    },
+    {
+      "id": "readiness-boundary",
+      "backlog": [
+        "B21",
+        "B34"
+      ],
+      "skills": [
+        "breakout-session"
+      ],
+      "kind": "procedure",
+      "prompt": "The learner accurately explains idempotent writes and retries but has not discussed distributed consensus. They ask: Am I ready for the next topic? No next-topic prerequisite list is supplied. Give a bounded checkpoint verdict and next step without certifying unknown prerequisites.",
+      "files": {
+        "learner.txt": "Retries may repeat a request. An idempotency key lets a service return the same recorded result without applying the write twice. If the key lookup and write are not atomic, concurrent retries can both apply.\n"
+      },
+      "state": {},
+      "mandatory_checks": [
+        "States exactly demonstrated knowledge",
+        "Unknown next-topic prerequisites explicitly unknown",
+        "No blanket readiness certification",
+        "Asks for next topic/prerequisites or bounds verdict to tested material"
+      ],
+      "secondary_measures": [
+        "unnecessary_interruptions",
+        "retries",
+        "artifact_bytes"
+      ],
+      "human_review_required": true
+    },
+    {
+      "id": "incident-causality",
+      "backlog": [
+        "B06",
+        "B21",
+        "B23"
+      ],
+      "skills": [
+        "bug-investigation",
+        "review-artifact"
+      ],
+      "kind": "procedure",
+      "prompt": "Evaluate three independent diagnosis variants. A: active P1, source/config inspection only suggests a race; logs do not show that branch executing. B: deterministic local reproduction returns a negative fee; the expected contract forbids it. C: active P1 with causal runtime evidence supplied and a 75% bounded diagnosis. For this fixture the explicitly authorized effective policy is streamlined threshold 70 (normal threshold 90 otherwise); no deployment is authorized. Carry the exact policy through artifact review. Separate a reversible mitigation from confirmed remediation.",
+      "files": {
+        "source.py": "def fee(amount):\n    return amount * 0.02\n",
+        "race.py": "def apply(key, store):\n    if key not in store:\n        store[key] = \"applied\"\n",
+        "incident.log": "2026-09-06T10:00:00Z request timeout\nNo key-level trace or branch execution is captured in this fixture.\n"
+      },
+      "state": {
+        "recipe": "A has no additional runtime evidence: do not fabricate it. B execute source.fee(-1), preserve observed result, and distinguish local defect from a proven production incident cause. C supply a clearly labeled synthetic causal runtime transcript identifying exact request/input/config/build and observed duplicate application, with competing timeout-only hypothesis refuted; grade policy propagation separately from live-system truth."
+      },
+      "mandatory_checks": [
+        "Source-read race/config branch remains candidate, not confirmed cause",
+        "Missing causal evidence yields precise confirming/refuting probe",
+        "Executed deterministic reproduction supports minimal local fix without false production linkage",
+        "P1 threshold is carried through review without silently switching to 90",
+        "Mitigation has rollback/monitoring and does not claim confirmed remediation",
+        "No deployment authorization inferred from confidence"
+      ],
+      "secondary_measures": [
+        "unnecessary_interruptions",
+        "retries",
+        "artifact_bytes"
+      ],
+      "human_review_required": true
+    }
+  ]
+}

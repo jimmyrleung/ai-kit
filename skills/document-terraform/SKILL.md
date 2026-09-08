@@ -1,6 +1,6 @@
 ---
 name: document-terraform
-description: Document a Terraform codebase — a shipped-infrastructure overview, a per-environment resolved-resource inventory with full module-provenance chains (entrypoint → local wrapper → private module@version → resource), a per-component architectural-role narrative grounded only in observed wiring, and a confidence-scored map of what is likely handled outside Terraform. Topology-first (no flat/symmetric-environment assumption). Produces an overview doc (with a newcomer on-ramp) plus per-(root, environment) inventory docs carrying a staleness-tracking audit header. Use ad-hoc, or as the body of the `document-terraform` skill.
+description: "Documents or refreshes Terraform infrastructure as an overview, resource inventory per root/environment, module provenance, and external-dependency map. Use to understand an inherited Terraform / HCL codebase and how its infrastructure fits together. Separates declared, deployed, and effective state; describes existing infrastructure rather than designing changes."
 arguments: repo_path output_dir spec_file
 ---
 
@@ -8,7 +8,10 @@ arguments: repo_path output_dir spec_file
 
 You are a specialized infrastructure documenter. You take a Terraform codebase, trace the **actual declared resources** through their module tree, resolve each one to the name it carries at the provider, and produce a reference inventory plus an evidence-backed map of what is wired to things this configuration does **not** create. Every resolved name, every "this is external" call, every role description is backed by the HCL you read or the provider docs you fetched — never by memory or shape-matching.
 
-> **Litmus test:** if you are recommending a different module layout, proposing a refactor, or writing `terraform plan` output you didn't observe, you've gone too far. Your output answers _"what is shipped, what is each resource called at the provider, and what is touched but not managed here"_ — not _"how it should be built"_.
+> **Litmus test:** if you are recommending a different module layout, proposing a refactor,
+> or writing plan/live output you did not observe, you've gone too far. Your output answers
+> _"what is declared, what name can be resolved, what is evidenced as planned/applied/effective,
+> and what is touched but not managed here"_.
 
 This skill is the Terraform analogue of `document-workflow`: Terraform has no execution path to trace, so the unit of work is the **(root, environment) pair**, not a handler. There are few of these (a handful of environments, not hundreds of routes), so this is **one orchestrated pass** — there is no scanner/backlog split like `docs-tasks-creator`.
 
@@ -25,51 +28,95 @@ This skill is the Terraform analogue of `document-workflow`: Terraform has no ex
 
 ## Coordinator vs worker
 
-- **No mandate handed to you (default — you're on the main thread):** you're the _coordinator_. For a small repo (one root, ≤ 2 envs, only local modules), do the pass yourself. For anything larger, launch **1–3 generic research subagents** for breadth (each gets `$repo_path`, the topology map once Phase 0 is done, and the constraints below), then consolidate: consensus (high confidence), disagreement (flag for the user), confidence-weighted findings. Critical disagreement (> 2-point confidence delta on topology, a resolved name, or an external-vs-cross-stack call) → return to the user with specific questions. Then run the confidence gate and write the files.
+- **No mandate handed to you:** coordinate the pass. For a small local tree, inspect it directly.
+  For independent roots or trust boundaries, use authorized native workers when available;
+  otherwise state the limits of separate sequential passes. Re-ground each material claim in
+  source/runtime evidence and track missing coverage. Scores and agreement cannot resolve a
+  disagreement; ask only for facts or owner choices that remain blocking after inspection.
 - **You were spawned as a sub-agent with the constraints below:** you're a _worker_. Do one thorough pass over the slice you were given and return it. **Do not** spawn further sub-agents and **do not** write files.
 
 Sub-agent constraints (the coordinator passes these verbatim):
 
 1. "Produce a REFERENCE INVENTORY, not a redesign. Inspect the actual `.tf` — every module body, every `locals`, every `data` block — and the provider docs. Max 2 lines of HCL per explanation. Only 'this is what is declared, here is its resolved name / origin / role, here is where it's defined' — never 'the infra should be…'."
 2. "DO NOT MAKE ASSUMPTIONS — no claim justified by 'I didn't read module X' / 'I didn't check the provider docs' / 'I didn't open the tfvars'. If a private module is unavailable or a value is unresolvable, say so explicitly **with a confidence score** — do not guess a name or an ownership. You must be able to answer: what roots/envs exist, each resource's resolved name + origin, and what is wired outside this config."
-3. "PERMISSIONING: declared ≠ effective. When you report an identity→resource access (or any cross-component link) as wired, cite the **actual** `azurerm_role_assignment` / group-membership / access-policy / federated-credential resource AND confirm it is *effective for the target's auth mode* — e.g. an `azurerm_key_vault_access_policy` is **inert** on an `enable_rbac_authorization=true` vault (needs a role assignment instead); a role only applies if the principal is actually plumbed into the producing resource (a module's RBAC list gated on `var.read_only` does nothing if the caller passes nothing). Distinguish **deploy-time identity** (the principal Terraform runs as) from **runtime identity** (the app's MI). If you cannot confirm the grant is effective, mark it 🔴/indeterminate — never assert access from the mere presence of an input, an access policy, or a `key_vault_ids`-style wiring."
+3. "PERMISSIONING: declared, deployed, and effective are separate evidence axes. Cite the actual binding resource and check whether its mechanism matches the declared target auth mode. Supplied applied-state evidence establishes deployment only at its recorded time; live effectiveness is `verified` only from observed access evidence for the intended identity and operation. Missing credentials or an unrun access probe means effectiveness is `unknown`, not failure. Distinguish deploy-time from runtime identity. Never infer access from an input, state entry, policy, or wiring-shaped name."
 
 ## Input contract
 
 - **`$repo_path`** — required. Absolute path to the Terraform repo root. Inspection-only.
-- **`$output_dir`** — where docs land. Default `${repo_path}/terraform-docs/`. Ask if ambiguous.
+- **`$output_dir`** — documentation root. Default `${repo_path}/terraform-docs/`. Resolve
+  source/docs roots and every output under
+  [the documentation evidence contract](references/shared/documentation-evidence.md).
+  Terraform/module source remains read-only; documentation writes are allowed only here.
 - **`$spec_file`** — optional. A short user-written description: what this infrastructure is, known external infras it integrates with, and known locations of private/remote module sources. If absent, discover everything from the code and ask where needed.
 - **Workspace access to private modules** — often _not_ present initially. Phase 3 handles requesting it; do not treat its absence as "external".
 
 ## Process
 
+Follow [authorized work](references/shared/authorized-work.md) and the
+[provider reference](references/shared/provider-capabilities.md), resolving from this skill folder.
+
 Create a todo list for the phases, then:
+
+If a v4 doc-set already exists, classify each doc `Current`, `Stale`, or `Unverifiable`
+under the documentation evidence contract before retracing. Leave Current docs byte-for-byte
+untouched. Retrace only affected root/environment boundaries for known drift. An older schema,
+non-ancestor/inaccessible revision, unreadable source, or missing identity requires full
+regeneration of the affected doc-set; preserve the older files until replacement is reviewable.
 
 ### Phase 0 — Discover topology (never assume)
 
 - Identify every Terraform **root** (a directory Terraform actually runs from): it has a `terraform`/`provider` block or is an environment/stack entrypoint. Roots take many shapes — `environments/<env>/`, `live/<env>/`, CLI workspaces, `*.tfvars`-per-env, Terragrunt `terragrunt.hcl`, or stacks defined in an orchestrator (Spacelift / TFC). **Do not assume an `environments/` directory exists.**
 - For each root, enumerate its environment axis **independently**. **Do not assume parity** — one root may be `dev/test/staging/prod` while another is `non_prod/prod`. Record each root's real environment set and flag every asymmetry (consistent with the user's global Terraform rule: never assume environment parity).
 - Infer inter-root dependency order from cross-root `data` references and any orchestration/stack root that provisions the pipelines running the others.
-- Detect the state/backend model per root: an explicit `backend` block (s3/azurerm/gcs/…) **or** orchestrator-managed when no `backend` block exists. "Managed externally by <orchestrator>" is a valid, first-class answer — not a gap.
+- Detect the state/backend model per root. An explicit `backend` block establishes that
+  backend. Without one, Terraform defaults to the local backend; override that label only
+  when inspected Terragrunt/HCP Terraform/Spacelift/other execution configuration proves a
+  different backend/state owner for this root. Record the orchestration file/stack/workspace
+  and its source identity. An orchestrator existing somewhere in the estate is insufficient.
 - Emit the **topology map** (roots · per-root env axis · dependency order · backend model). It drives every later phase.
 
 ### Phase 1 — Per-(root, environment) resource inventory
 
 For each real (root, environment) pair from Phase 0:
 
-- Start at the environment entrypoint and trace the **full module tree** — local modules (`./`, `../`) **and** resolvable remote/private modules (Phase 3). Descend into module bodies; never stop at the `module` call. As you descend, record the **call path** of every hop (caller → `module "x"` → its `source`) and classify the hop: `[entry]` entrypoint **+ the single top-level orchestrator it calls + every `data.*` lookup** · `[wrap]` a local module wrapping **one specific** private module · `[priv]` private/remote body (registry/git). This walk _is_ the **module-provenance tree** (a mandated per-doc artifact — see _Output structure_); it costs no confidence (the `source` strings + call nesting are 100% in the HCL).
-- Expand `count` / `for_each` — one logical block → N concrete resources (e.g. per region). Record the expansion factor and its index basis.
-- For every `resource` and `data` source capture: provider type · logical address (`module.x.type.name[idx]`) · **name template** (the raw `name =` expression) · **best-effort resolved name** + **confidence** · **provenance** — the full chain `entrypoint → local:<wrapper> → priv:<source>@<version> → this resource` **and** the originating-hop tag: `[priv]` (emitted by the private/remote module body) · `[wrap]` (glue a local module that wraps **one specific** private module adds on top of it) · `[entry]` (declared at the entrypoint **or the single top-level orchestrator it calls** — incl. **every `data.*` lookup** and the orchestrator's own `resource`/`role_assignment` blocks; the top-level orchestrator is `[entry]`, **never** `[wrap]`). "Which private module/version backs this, and what did the local wrapper add" must be answerable per resource. To keep the resolved-name tables compact (do **not** regress them), render the full chain **once** — in the provenance tree (and on a per-module section heading _if_ the chosen layout uses per-module sub-sections; the single-table layout — common — carries it tree-only) — and carry only the one-token origin tag per resource row · what it is + its **provider-level role** (from provider docs via context7/websearch — not memory; the generic resource role, distinct from the architectural _Role in this architecture_ block below) · source `file:line`.
-- **Name resolution** — evaluate `locals` (including lookup maps) and variables in this priority: the environment entrypoint's literal module-call arguments → `*.tfvars` / `*.auto.tfvars` → variable `default`s. A segment you cannot resolve (orchestrator-injected, sensitive) is rendered `<var.NAME>` with lowered confidence — **never invented**. No state is required. `terraform show -json` is an _optional, explicit, never-automatic_ confidence-raiser the user may supply; never run `plan`/`apply`, never target prod.
+- Trace every local and readable pinned remote module body from the environment entrypoint.
+  Record each caller, module address, source package/subdirectory, and resolved version/content
+  identity. An unreadable body remains a named gap, never an invented resource inventory.
+- Expand `count`/`for_each` only when the expression and execution inputs resolve. Otherwise
+  preserve the block and unknown multiplicity; never invent concrete resource rows or counts.
+- For each resource/data block capture its address, name expression, best-effort value with
+  uncertainty, provider role from primary documentation, and actual declaring file/line.
+  The full call chain appears once in the provenance tree. Its compact origin tag identifies
+  the declaring body: `[entry]` actual root, `[wrap]` local module that calls one or more child
+  modules, `[local]` local leaf, or `[priv]` pinned remote body. A wrapper may compose several
+  modules; data blocks use the same declaring-body rule as resources. An orchestrator is a
+  descriptive role, never grounds for relabeling a remote or local body's origin as root.
+- **Name resolution — keep scopes separate.** First resolve **root-module inputs** from the
+  observed execution context using Terraform's root-variable precedence: CLI/HCP values,
+  lexically ordered auto tfvars, `terraform.tfvars.json`, `terraform.tfvars`, environment,
+  then root defaults (highest source wins). Do not assume an unobserved CLI/orchestrator
+  value. Then evaluate each child module's arguments in its parent scope and bind those
+  expressions to that child's variables; child defaults apply only when the module call omits
+  an argument. Recurse hop-by-hop through locals/outputs. Render unknown segments as
+  `<var.NAME>` with source + reason; never apply root tfvars directly inside a child module.
+  No state is required. A user-supplied `terraform show -json` is an optional, explicit,
+  never-automatic confidence raiser; never run plan/apply or target prod.
 - **Secrets** — for secret-bearing resources/inputs, record the **key names** and a **value-source class** (`from var` / `from resource output` / `hardcoded ⚠`). **Never** resolve, read, or print a secret value.
 - **Role in this architecture** — emit a short fenced block, _strictly from observed wiring_: **(a) provides** — what this component is in this estate · **(b) consumed by / consumes** — cite the exact Phase-2 cross-stack edge, output, or `data` source with `file:line` · **(c) blast radius** — what cannot function if it were absent · **(d) posture** — environment-specific stance (PII lockdown, prod tier, region count) with `file:line`. **Placement (Option A):** **one consolidated block per root** when the root is a single orchestrator (one top-level `module` the entrypoint calls — `module.main`/`module.scaffold`, the common case): scope it to that top-level module and fold its sub-modules' roles into the four parts. **One block per top-level module** only when the entrypoint calls _several independent_ top-level modules. **Never one-per-sub-module** — it fragments the architectural story and bloats the doc. Every clause must trace to a Phase-2 edge or an HCL line you read — a prose _rendering of evidence already collected_, **not** generic provider/security commentary or architectural opinion (that trips the skill's own litmus test). No grounding edge → omit the clause; never guess a dependency or a purpose.
 
 Detailed evaluation rules + worked examples: `reference/heuristics.md` → _Name resolution_, _Secrets_, and _Module provenance & architectural-role rendering_.
 
-### Phase 2 — External vs cross-stack map (producer index + 3-state)
+### Phase 2 — Producer relationship map
 
-- Build a **repo-wide producer index**: every `resource` block across **all roots + every resolvable private/remote module**, keyed by `(provider type, resolved-or-templated name)`.
+- Build a **repo-wide producer index** for every resource across all roots and every
+  source-resolved module. Key by `(provider source/type, resolved provider configuration,
+  account/subscription/project, region, resolved-or-templated name)` and retain producing
+  root/module as provenance. Unknown context stays explicit. A name-only or type+name match
+  is merely a candidate and cannot merge producers from different provider contexts; the
+  retained root distinguishes same-root from cross-root matches.
 - For each `data` source, hardcoded external ID, and cross-resource reference, resolve its key and classify into **exactly one** of:
+  - **Internal same-root dependency** — the evidenced producer belongs to this root, including its child modules. Record the local edge without claiming a cross-root dependency.
   - **Internal cross-stack dependency** — a producer exists in _another root_ (or a shared module another root owns). Document it as a dependency edge (consuming root ← producing root/module). **Not** "external".
   - **Out-of-band / external** — no producer anywhere, even after following the chain across roots. Confidence is raised by corroborating signals: explicit ownership comments (`# created by <team>`), naming-convention divergence from this repo's scheme, a different RG / subscription / account / project.
   - **Indeterminate** — a producer plausibly lives inside an unresolved private/remote module. **Do not call this external.** Flag it and request the module (Phase 3).
@@ -79,11 +126,14 @@ Algorithm + worked examples (incl. a real multi-root case where `data` in one ro
 
 ### Phase 2.5 — Live-state cross-check (read-only cloud CLI, opt-in)
 
-Static HCL maxes out at **"declared."** When an authenticated read-only cloud CLI is available, it is the *only* way to confirm **"deployed"** and **"effective"** — and it is cheaper and higher-yield than the `terraform show -json` path. **Probe for it and, if present, PROMPT to use it — do not wait to be asked** (in field runs the user repeatedly had to remind the agent).
+Static HCL establishes declared state. A provenance-bound supplied saved plan can establish planned state; supplied applied-state/run evidence can establish what was applied at its recorded time. Neither alone proves current live access. When a read-only cloud CLI is available, offer a scoped live check within the user’s authorization; preserve unknowns if it cannot run.
 
-- **Probe:** `az account show` / `gcloud auth list` / `aws sts get-caller-identity`. Absent or unauthenticated → skip this phase (note it as an un-exercised confidence-raiser at the gate). Present → offer to run the cross-check (read-only).
+- **Probe:** `az account show` / `gcloud auth list` / `aws sts get-caller-identity`. Absent or unauthenticated → mark unsupported axes `unknown`, noting the missing evidence; preserve any separately supplied, provenance-bound planned/applied evidence with its date. Authentication alone does not verify effectiveness. Present → offer the read-only cross-check.
 - **Resolve names:** confirm the best-effort resolved names from Phase 1 against the live estate (e.g. `az resource list -g <rg> -o json`). Inferred → verified.
-- **Close the permissioning matrix:** for each 🔴-indeterminate / ⚠️ grant from Rule 9, confirm the *effective* binding live — SP app-role grants via `az rest …/servicePrincipals/{id}/appRoleAssignedTo`, role assignments **on the producing resource**, group membership, KV auth mode + access. Flip 🔴→✅/🔴 from evidence, tag the row `[az ✓]`. (`az role assignment list --scope` fails `MissingSubscription` non-interactively — use the producer-scoped / `appRoleAssignedTo` reads.)
+- **Close unknown matrix axes:** for each row, seek read-only live evidence of deployment
+  and effectiveness — SP app-role grants, role assignments on the producer, group membership,
+  auth mode, and access. Update `Deployment` to `applied` and `Effective` to `verified` or
+  `proven failure` only from the observed result; otherwise retain `unknown` and record why.
 - **Detect deployment status (the finding class HCL cannot reach):** resources **in the cloud but not in HCL** (out-of-band drift → Q3) and resources **declared/merged but not yet applied** (an orchestrator apply lagging the PR merge — **merged ≠ applied**). Both belong in the doc, not in the agent's head.
 - **Emit a per-env `Live verification` block** summarizing what was confirmed/flipped, with `[az ✓]` tags inline in the matrix.
 
@@ -93,59 +143,120 @@ Static HCL maxes out at **"declared."** When an authenticated read-only cloud CL
 
 - Classify each module `source` by **shape only**: local · public registry · private registry (`<host>/<ns>/<name>/<provider>`) · git (`git::`, `github.com/…`) · archive/other.
 - Local → trace directly. Public registry → resolve semantics from registry/provider docs. Private / git / unresolved → it may hold real resources **and producers needed for Phase 2**. **Before treating a private source as unavailable, test readability:** file, search, and git capabilities often resolve an absolute sibling path (e.g. `<repo-parent>/terraform-<provider>-<name>`) **even when it was never added as a workspace dir** — file enumeration or `git -C <path> tag --list` on the proposed location is a 1-call check. "Not `/add-dir`'d" ≠ "unavailable". Only if that genuinely fails: **ask the user** whether they can add the source; you may _propose_ a likely location but **never assume a client-specific name→path convention** — it varies per engagement. Once readable, re-trace and backfill Phases 1–2.
-- Record every distinct remote source + version + resolution status (`resolved-local` / `resolved-registry-docs` / `unresolved-pending-user`) in the overview.
+- Record package identity separately from module identity: normalized source package/repository,
+  package subdirectory, version/ref, resolved content revision/digest, and resolution status.
+  Multiple subdirectories can be distinct modules in one repository; a local child is a real
+  provenance leaf even without a remote source/version. Registry/provider documentation can
+  establish semantics only: use `semantics-only` until the pinned module body is readable, and
+  never inventory resources from registry prose. Use `source-resolved` only for inspected body
+  bytes, or `unresolved-pending-user` when unavailable.
 
 ### Consolidation (coordinator)
 
-Merge worker outputs: consensus, disagreement (flag), confidence-weighted findings. **First build the estate-fact ledger** (rule 8): for every whole-estate fact, take the value each worker/doc resolved _from source at the `Generated From` SHA_ and diff them — all must be identical. Any divergence (e.g. overview says a toggle is `false`, a per-env doc says `true`) is resolved by **re-reading the HCL at that SHA** — never by recency or majority — then the resolved value overwrites every doc and the overview is rebuilt _from_ the reconciled per-env facts. Critical disagreement on topology, a resolved name, an external/cross-stack call, **or any estate-fact-ledger value** → back to the user with specific questions before continuing.
+Consolidate worker outputs by evidence coverage and unresolved conflicts. First
+build the estate-fact ledger: bind every whole-estate value to Source ID/path/hash from the
+Source Evidence record and compare it across workers/docs. Resolve divergence by re-reading
+those exact bytes, never by recency or majority, then rebuild overview from reconciled facts.
+Critical disagreement on topology, name, external/cross-stack classification, or ledger fact
+returns to the user before continuing.
 
 ### Confidence gate (≥ 95%)
 
-Score 0–100% using the loaded confidence format, domain-adapted ≈ provider/doc grounding 30% · similar-pattern coverage 25% · resolution & dependency understanding 20% · topology/expansion correctness 15% · external-infra inference realism 10%. **< 95% → STOP**: name what's missing (unresolved vars, unavailable private modules, ambiguous topology), ask, repeat. ✅ 95–100% specific & verifiable · ⚠️ 70–94% gaps remain · ❌ < 70% unsupported. At ≥ 95%, present consolidated findings, ask if it's OK to proceed, and only then write the files. **Independent of the numeric score**, an unresolved cross-doc contradiction on an estate-fact-ledger value (rule 8) is an automatic **STOP** — a correctness failure, not a confidence gap: reconcile from source at the SHA, then re-score before writing. **Un-used live access is a confidence ceiling:** if an authenticated read-only cloud CLI exists and Phase 2.5 was not run, the score cannot be presented as ≥95% on permissioning/deployment-status facts without saying so explicitly — name it as an un-exercised confidence-raiser.
+Report confidence using the loaded policy, grounded in provider documentation, resolved input
+coverage, topology, and dependencies. Unknown values and unreadable bodies remain explicitly
+partial; they do not prevent a useful authorized declared-topology draft. A load-bearing conflict
+blocks only the dependent conclusion until source inspection or an owner answer resolves it.
+Do not ask for generic permission to write an already authorized document. Never turn a score
+into evidence or authorization. Deployment/effectiveness remain unknown without their own evidence.
 
 ## Mandatory rules
 
 1. **Inspect it.** No assumption justified by "I didn't inspect file X / didn't check the docs / didn't open module Y". Inspect the HCL and the docs until you can answer — or state precisely why it's unresolvable, with a confidence score.
 2. **Official docs via context7 / websearch.** Resource semantics ("what is this / its role") come from provider docs (context7 first, then websearch), not recall.
-3. **Private modules → ask, don't assume.** If a shared/private/remote module source isn't in the workspace, ask the user to add it; propose a likely location but never bake in a naming convention. **Indeterminate ≠ external.**
+3. **Private modules → inspect, then ask for missing access.** Try the Phase-3 readability checks before declaring a source unavailable; a readable sibling need not be a workspace root. If the source remains unavailable, ask the user to provide access; never bake in a naming convention. **Indeterminate ≠ external.**
 4. **Secrets: names only, never values.** Hard rule.
-5. **No writes.** Never `apply`/`plan`/`destroy`/`import`/mutating `init`; never write to the infra repo or to any added module repo. Optional `terraform show -json` only against a user-supplied state file — never automatic, never prod. Inspection-only **cloud-CLI** queries (`az`/`gcloud`/`aws … list/show/rest`) are likewise allowed and **encouraged when authenticated access exists** (Phase 2.5) — same read-only / never-mutate / caution-on-prod stance; never `--query` on Windows (see Phase 2.5). Run `git rev-parse --short HEAD` once (read-only) for the audit header.
+5. **Infrastructure/source is read-only; documentation output is writable.** Never
+   `apply`/`plan`/`destroy`/`import`/mutating `init`; never edit `$repo_path` or an added
+   module source. Write only generated Markdown beneath resolved `$output_dir`, which may be
+   inside or outside the source repository. Optional `terraform show -json` is allowed only
+   against a user-supplied state file, never automatically or against prod. Inspection-only
+   cloud queries are allowed after the Phase-2.5 prompt. Record source identity and actual
+   bytes under the documentation evidence contract; a short HEAD is display-only.
 6. **Topology first, no parity assumption.** Detect each root's env axis independently; document asymmetry explicitly.
 7. **Don't couple to any example repo.** The reference file's worked examples are illustrative only; the methodology must hold for any layout (Terragrunt, TFC/Spacelift, workspaces, flat single-root).
-8. **Whole-estate facts: resolve once, from source, at the gen SHA — identical everywhere.** A fact spanning the estate that flips real behaviour — a behavioural `variable` default gating a subtree (an `enable_*` toggle), the backend/state model, each root's env axis, per-env region count, a private/remote module's resolution status — is resolved **once from the HCL at the `Generated From` SHA**, kept in a shared **estate-fact ledger**, and stated **identically** in the overview and every per-(root,env) doc. **Never** carry such a value from memory, a prior run, or a stale doc-set. The overview is a **roll-up** of the per-env resolutions, **never** an independent source of truth for these facts (canonical failure: a worker re-reads `enable_pollers=true` at the new SHA while the overview still says `false` from the old one — and it cascades into dependent "moot/critical" claims). A cross-doc disagreement on a ledger fact is a **correctness defect**, not a confidence gap → enforced at _Consolidation_ + the _Confidence gate_. Detail: `reference/heuristics.md` → _Whole-estate fact ledger_.
-9. **Permissioning & integration: declared ≠ effective; first-hand by the coordinator.** Every cross-component link and identity→resource grant is documented from the **actual** binding resource (`azurerm_role_assignment` / `azuread_app_role_assignment` / group-membership / access-policy / federated-credential), **and** verified *effective for the target's auth mode*: an `azurerm_key_vault_access_policy` is inert on an `enable_rbac_authorization=true` vault; an RBAC role only applies if the principal is genuinely plumbed into the producing resource (a module's readonly list gated on `var.read_only`/`var.default_read_only` grants nothing if the caller passes neither). **Deploy-time identity ≠ runtime identity** (the deploy SP having `Secrets Officer` does not give the app's MI read). Status is trichotomous: **✅ wired · ⚠️ works-but-note-mechanism (e.g. account-key vs MI) · 🔴 declared-but-ineffective / missing**. Security/permissioning edges are traced **first-hand by the coordinator** (read the role-assignment + the consuming wrapper's argument list), **never** accepted from a worker's consolidated "looks wired" claim or from the presence of a `key_vault_ids`-style input. This feeds the mandated *Integration & permissioning (incident-triage)* matrix (Output structure). For **orchestrator-managed state (Spacelift / TFC), merged ≠ applied** — the apply can lag the PR merge, so a per-env matrix status (✅/⚠️/🔴) must come from the **live binding check** (Phase 2.5: `appRoleAssignedTo` / role assignment on the producer), **never** copied from a handoff doc's, PR's, or SESSION_LOG's "wired" wording; treat any upstream "wired" claim as a claim to verify. Detail + worked example: `reference/heuristics.md` → _Identity & permissioning (declared ≠ effective)_.
+8. **Whole-estate facts: resolve once from identified source bytes.** Bind each ledger fact
+   to the per-source revision + manifest in Source Evidence, including dirty root HCL and
+   independently changing sibling modules. Never use the root repository SHA to identify a
+   sibling module. The overview rolls up reconciled per-environment facts. Any contradiction
+   is a correctness STOP; re-read the identified bytes rather than choosing by recency.
+9. **Permissioning & integration: keep evidence axes separate.** For every link/grant,
+   record `Declared` (`present` / `ineffective` / `missing` / `indeterminate`), `Deployment`
+   (`applied` / `planned` / `unknown`), and `Effective` (`verified` / `proven failure` /
+   `unknown`) with evidence type + file/live locator. HCL can establish declared wiring and
+   whether it matches declared auth mode; it cannot prove deployment or live effectiveness.
+   Missing credentials or an unrun probe is `unknown`, never failure. Only observed runtime/live
+   denial or failed use is `proven failure`; statically incompatible wiring is `Declared:
+   ineffective` with Effective still unknown. Separate deploy-time/runtime identities and verify
+   security edges first-hand. Merged is not applied.
 
 ## Output structure
 
-Two things ship: an **overview** and **per-(root, environment) inventory** docs. The _layout_ below is the current (`v3`) shape and may iterate freely. The **stable contract** below it must not change shape without bumping `Schema`.
+Two things ship: an **overview** and **per-(root, environment) inventory** docs. The layout
+below is the current (`v4`) shape. The stable contract must not change shape without a
+Schema bump.
 
 ### Stable contract (do not change shape without bumping `Schema`)
 
-- Every produced doc opens with an audit **Summary** table: `Created` · `Last Updated` · `Generated From` (`<short-sha>` of HEAD at gen/update time) · `Schema` (`v3`) · `Scope` (`overview`, or `<root>/<env>`).
-- Every produced doc ends with a machine-readable **Source Files** table — every `.tf` / `.tfvars` path read for that doc, one row each, with a `Role` column. This is the input to staleness detection: `git log <generated-from>..HEAD -- <paths>` reveals exactly what drifted since `Last Updated`.
+- Every produced doc opens with an audit **Summary** table: `Created` · `Last Updated` ·
+  `Generated From` (primary root's short SHA, display only) · `Schema` (`v4`) · `Scope`
+  (`overview`, or `<root>/<env>`) · `Source Root` · `Docs Root`.
+- Every doc carries **Source Evidence** under the documentation evidence contract: one row
+  per independently changing repository/module with public-safe Source ID, source/package +
+  subdirectory identity, full revision, trace boundary, relevant staged/unstaged/untracked
+  paths, and sorted-manifest SHA-256. Dirty root HCL is recorded as dirty content, never hidden
+  behind HEAD. An unreadable sibling source is explicitly Unverifiable.
+- Every produced doc ends with a machine-readable **Source Files** table — every `.tf`,
+  `.tfvars`, Terragrunt, provider, lock/version, and orchestration/configuration path actually
+  read for that doc, one row each with `Source ID · Role · Path · SHA-256`. History may
+  shortlist drift; only actual bytes + relevant dirty/boundary checks establish freshness.
 - Every produced doc ends with a **Change Log** table. First generation: `Created` = `Last Updated` = today + one initial row. Update: keep `Created`, bump `Last Updated`, advance `Generated From`, append one row.
-- `[TODO: verify]` for anything unconfirmed. If git is unavailable: `Generated From: unknown` + `[TODO: verify SHA]` — don't block the doc.
-- **Every per-(root,env) doc MUST carry an _Integration & permissioning (incident-triage)_ matrix** (Rule 9): one row per cross-component link / identity→resource grant — `mechanism · identity · target · exact role-or-perm · status · file:line` — with **status trichotomous (✅ wired / ⚠️ works-but-note-mechanism / 🔴 declared-but-ineffective or missing)**. Deploy-time and runtime identities are distinct rows. The headline 🔴 (and any ⚠️ worth incident attention) is surfaced in the **overview Q3** _and_ the **on-ramp** ("start here on an infra incident"). This is a contract artifact, not optional prose — its absence is a Schema violation.
+- `[TODO: verify]` for anything unconfirmed. If git is unavailable, use
+  `Generated From: unknown`, record available byte hashes, and mark revision-based freshness
+  Unverifiable without blocking useful declared-topology documentation.
+- Every per-(root,env) doc carries an **Integration & permissioning (incident-triage)**
+  matrix with `link/grant · mechanism · identity · target · exact role/perm · Declared ·
+  Deployment · Effective · Evidence`. Deploy-time and runtime identities are distinct rows.
+  Overview/on-ramp surface `proven failure`, then important `unknown` cells with the evidence
+  needed to close them. Unknown is never rendered as broken.
 - The doc-set MUST answer these three questions (overview answers Q1 — incl. the newcomer on-ramp — + a Q3 summary; per-env docs answer Q2 + the Q3 detail for that env):
-  - **Q1 — What infra is shipped, and how do the pieces fit?** Roots, each root's env axis (asymmetry explicit), inter-root dependency order, backend model, external infras touched, component counts, private-module inventory + resolution status — **plus a short top-down on-ramp**: a newcomer-facing narrative (the layer story — what each root is for and how the layers feed each other) placed _before_ the tables, and a one-line-per-component **role catalog**. Top-down prose only; still no redesign/recommendation — backed by the same edges as Q2/Q3. **Count integrity (doc-wide, every doc):** every count stated in prose _anywhere_ in _any_ doc — "N private modules", Source Files' "N sibling repos / N files", "N import blocks", component counts, the role-catalog size — MUST reconcile with the enumeration it refers to **and** with the same quantity stated elsewhere in the same doc. Specifically: N distinct module _sources_ resolve to N sibling _repos_ (a source pinned at 2 versions is still **one** repo) — so "11 sources" and that doc's Source Files "N sibling repos" must agree (11), while _source@version pairs_ is a **different** number (12 here) and must be labelled as such, not conflated. When two valid counts differ (sources vs source@version vs repos vs files), state the reconciliation inline. Never a round-number, and never two contradictory counts anywhere in the doc-set.
-  - **Q2 — Per environment, every provisioned resource:** resolved name (+ template + confidence), **provenance chain** (entrypoint → local wrapper(s) → private/remote source@version → resource) with the originating-hop tag (`[entry]`/`[wrap]`/`[priv]`), what it is, its provider-level role, external/cross-stack association, source `file:line`. Each per-env doc also carries (i) a **module-provenance tree** near the top — the call skeleton with per-hop source shape + version + the explicit wrapper→private hop; instance multiplicity shown as `(×N)` / `(count=expr=N)`, **never** `[N]` (square brackets are reserved for actual Terraform indices, which the resource table uses) — · (ii) a fenced **Role in this architecture** block (provides / consumes-citing-the-edge / blast radius / posture), rendered strictly from Phase-2 evidence, placed per the Option-A scoping rule in Phase 1 (consolidated per single-orchestrator root; per top-level module only when several independent ones exist) · (iii) the **Integration & permissioning (incident-triage) matrix** (Rule 9 — every link/grant with mechanism, exact role, ✅/⚠️/🔴 status, file:line).
-  - **Q3 — What is likely handled outside Terraform?** Each item classified `external` / `cross-stack` / `indeterminate`, with reasoning, confidence, and evidence.
+  - **Q1 — What infra is declared, and how do the pieces fit?** Roots, each root's real env axis, inter-root dependency order, backend evidence, external systems, component counts, module inventory/resolution, and a short top-down on-ramp + one-line component role catalog. Every count reconciles with an explicit enumeration. Keep **package repositories**, **module source addresses/subdirectories**, **source@version pairs**, and **files** as separate quantities: several module subdirectories/wrappers may share one repository, and one source may be pinned at several versions. State the reconciliation whenever counts differ; never assume a one-to-one mapping.
+  - **Q2 — Per environment, every declared resource:** resolved name (+ template + confidence), **provenance chain** (entrypoint → local wrapper(s) → source package/subdirectory@version or local leaf → resource) with the originating-hop tag (`[entry]`/`[wrap]`/`[local]`/`[priv]`), what it is, its provider-level role, external/cross-stack association, source `file:line`. Planned/applied status is added only when evidence exists. Each per-env doc also carries (i) a **module-provenance tree** near the top — the call skeleton with per-hop source shape + version/content identity + explicit wrapper→private hop; instance multiplicity shown as `(×N)` / `(count=expr=N)`, never `[N]` — (ii) a fenced **Role in this architecture** block rendered strictly from Phase-2 evidence — and (iii) the Rule-9 evidence-axis matrix.
+  - **Q3 — What is likely handled outside Terraform?** Each item classified `same-root` / `cross-stack` / `external` / `indeterminate`, with reasoning, confidence, and evidence.
 
-### v3 layout (iterate freely; the contract above stays fixed)
+### v4 layout (iterate freely; the contract above stays fixed)
 
 - `$output_dir/overview.md` — opens with the **Q1 on-ramp** (layer-story narrative + component role catalog) _before_ the Q1 tables, so a reader unfamiliar with the estate gets the shape first.
-- `$output_dir/<root>/<environment>.md` — one per **real** (root, env) pair from Phase 0. Asymmetry is expected — never synthesize an environment a root doesn't actually have. Each opens (after the Summary table + entrypoint line) with the **module-provenance tree**, then the Q2 resource table, then the fenced **Role in this architecture** block(s) — consolidated per single-orchestrator root (the common case) or one per independent top-level module — then the **Integration & permissioning (incident-triage) matrix**, then Q3 / Secrets / Source Files / Change Log. (Delta docs that reference a canonical sibling for the full matrix must still carry an explicit pointer **and** restate any 🔴/⚠️ that applies to them.)
-- **`Schema` history:** `v1` = inventory only. `v2` adds the provenance tree, the per-resource provenance chain + origin tag, the role block (consolidated per root), and the overview on-ramp. `v3` (current) adds the mandated **Integration & permissioning (incident-triage) matrix** per (root,env) + its headline 🔴/⚠️ in the overview Q3 and on-ramp. A `v1`→`v2` or `v2`→`v3` jump on an existing doc-set is a **full regeneration** (the shape changed), not an incremental Change-Log bump.
+- `$output_dir/<root>/<environment>.md` — one per real pair. Each carries Summary,
+  Source Evidence, entrypoint, provenance tree, declared-resource table, Role block(s), the
+  evidence-axis matrix, Q3, Secrets, Source Files, and Change Log.
+- **Schema history:** `v1` inventory; `v2` provenance/role/on-ramp; `v3` original
+  trichotomous permission matrix; `v4` bounded multi-source byte identity plus separate
+  declared/deployed/effective axes. Any older→v4 change is full regeneration, not an
+  incremental bump; preserve the old set until the v4 output is reviewable.
 
 ### What this documentation IS / IS NOT
 
-**IS:** a resolved-name inventory grounded in the actual HCL + provider docs · a full **module-provenance chain** per resource (entrypoint → wrapper → private module@version) + a per-(root,env) provenance tree · a per-module **role-in-architecture** narrative _rendered only from observed wiring_ + a newcomer on-ramp · honest confidence on every inferred name and classification · a topology map respecting the real (possibly asymmetric) env axes · a 3-state external map with evidence.
+**IS:** a resolved-name inventory grounded in actual HCL + provider docs · explicit
+declared/planned/applied/effective evidence states · a full module-provenance chain per
+resource (entrypoint → wrapper → source package/subdirectory@version or local leaf) · a
+role narrative rendered from observed wiring · bounded multi-source freshness · honest
+confidence and external/cross-stack/indeterminate classifications.
 
 **IS NOT:** a redesign or recommendation · a role narrative that asserts purpose/dependency **not** traceable to a captured edge or HCL line (generic "this is a standard secret store following security best practice" prose is banned — cite the consumer or omit the clause) · `terraform plan` output you didn't observe · guessed names presented as facts · the naive "every `data` source = external" · secret values · anything coupled to one example repo's module-naming convention.
 
 **Bad (shape-matched, unresolved, naive):** "Standard Azure setup across dev/test/staging/prod — the usual key vaults and container apps; the `data` sources pull in external resources."
 
-**Right (resolved, grounded, 3-state, with provenance):** "`module.key_vault[0]` (`terraform/modules/scaffold/main.tf:157`, `count = length(var.regions)` = 1 for dev → `centralus`) → `azurerm_key_vault`, resolved name `acme-d-cus-…-kv` (confidence 92% — `environment` & `regions` are literals in `environments/dev/main.tf`; instance suffix from a `var` default). Provenance: `environments/dev/main.tf` → `module.main` `[entry]` (local `../../modules/scaffold`) → `module.key_vault` `[wrap]` (local `../key_vault`) → `[priv]` `<host>/<ns>/key-vault/azurerm@4.2.0` (local clone the user added) → `azurerm_key_vault.vault`. The `[wrap]` layer adds the admin group + RBAC role assignments _on top of_ the private module's vault. Provider-level role: app secret store, RBAC-auth (azurerm docs). `data.azurerm_container_app_environment.shared` (`:101`) → **cross-stack**: produced by the `shared` root's `container_app_environment` module (confidence 95%). `data.azurerm_subnet.cae` (`:107`) → **external/out-of-band**: no producer in any root; the `shared` root itself reads the VNet via `data`; comment `# created by cloud engineering team` (`:84`) corroborates (confidence 88%)."
+**Right (resolved, grounded, with provenance):** "`module.key_vault[0]` (`terraform/modules/scaffold/main.tf:157`, `count = length(var.regions)` = 1 for dev → `centralus`) → `azurerm_key_vault`, resolved name `acme-d-cus-…-kv` (confidence 92% — `environment` & `regions` are literals in `environments/dev/main.tf`; instance suffix from a `var` default). Provenance: `environments/dev/main.tf` → `module.main` `[wrap]` (local `../../modules/scaffold`) → `module.key_vault` `[wrap]` (local `../key_vault`) → `[priv]` `<host>/<ns>/key-vault/azurerm@4.2.0` (local clone the user added) → `azurerm_key_vault.vault`. The `[wrap]` layer adds the admin group + RBAC role assignments _on top of_ the private module's vault. Provider-level role: app secret store, RBAC-auth (azurerm docs). `data.azurerm_container_app_environment.shared` (`:101`) → **cross-stack**: produced by the `shared` root's `container_app_environment` module (confidence 95%). `data.azurerm_subnet.cae` (`:107`) → **external/out-of-band**: no producer in any root; the `shared` root itself reads the VNet via `data`; comment `# created by cloud engineering team` (`:84`) corroborates (confidence 88%)."
 
 **Role-block — Bad vs Right** (the new failure mode to guard against):
 
@@ -155,4 +266,7 @@ Two things ship: an **overview** and **per-(root, environment) inventory** docs.
 
 ## Output file
 
-Write `overview.md` and the per-(root, env) docs under `$output_dir` (default `${repo_path}/terraform-docs/`). Confirm the consolidated findings with the user before writing. On re-runs: preserve `Created`, bump `Last Updated`, advance `Generated From`, append the Change Log — never regenerate from scratch silently. **Exception — `Schema` changed** (e.g. a `v1` doc-set regenerated under `v2`): the doc shape is different, so this is a fresh generation (new `Created`, `Schema: v2`, first Change-Log row noting "regenerated from v1"), not an incremental update. If `$output_dir` is ambiguous, ask before writing.
+Write `overview.md` and per-(root, env) docs under resolved `$output_dir`. Resolve blocking facts before dependent conclusions; write the authorized bounded draft. On same-schema reruns preserve Created, update only changed docs, refresh
+Source Evidence/Source Files, and append one Change Log row. A schema change is a full
+regeneration with a new Created date and a row naming the prior schema. If output is ambiguous,
+ask. Never edit Terraform/module source, even when output is elsewhere.

@@ -1,0 +1,47 @@
+{
+  "record_id": "WB-evidence-package-20260907",
+  "archive": "evidence.zip",
+  "sha256": "fadd2f638b9937012da83d694ba7e7f51e2af01a21f4d750f6933c91be0a81d7",
+  "bytes": 1395612,
+  "entries": 377,
+  "manifest": "entry-manifest.json inside archive",
+  "source_identity": "source/* bytes are exact; other text masks local user/run paths and email-shaped strings; captured and stored hashes distinguish redaction",
+  "verification": {
+    "record_id": "WB-final-consolidation-20260907",
+    "timestamp": "2026-09-07T15:28:41.511368+00:00",
+    "repository": "ai-kit",
+    "base_head": "aeec06bfa0a6b97402b17824d957f29635f40ba7",
+    "incremental_base": "source/baseline",
+    "reviewed_current_files": 135,
+    "review_identity_match": true,
+    "requirement_sections": [
+      {
+        "section": "WB01 / Intended outcome",
+        "sha256": "d505e886260b6aa031f03c47960550b9eab8ca48eddb0789084e6ea45c72457c",
+        "baseline_unchanged": true
+      },
+      {
+        "section": "WB01 / Acceptance to verify after implementation",
+        "sha256": "81903a2da83780b231064d56d1fcd0a7ddc63534a5aabea34b5ec60b19fd25c0",
+        "baseline_unchanged": true
+      },
+      {
+        "section": "WB02 / Intended outcome and acceptance",
+        "sha256": "6816bcbf2373eb75745f3235efcfcc2c1ec8abc205e4ab925b94ddb4275ba0f0",
+        "baseline_unchanged": true
+      },
+      {
+        "section": "WB03 / Intended outcome and acceptance",
+        "sha256": "e633a08692a2c6e002858b4f3aa7237d71e9999d28859b3109b7d110d31ed331",
+        "baseline_unchanged": true
+      }
+    ],
+    "check_inputs": 149,
+    "check_input_match": true,
+    "owner_session_log_preserved": true,
+    "staging_empty": true,
+    "scope": "WB01-WB03 repository readiness; owner GO/commit and prior deferred environments excluded",
+    "arithmetic_failure_retained": "reports/native-arithmetic-failure.json",
+    "native_evidence": "reports/native-verification.json"
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "record_id": "astra-owner-dispositions-20260907",
+  "captured_at": "2026-09-07T13:35:21.388919+00:00",
+  "provenance": "Owner messages in this session; acceptance and scheduling are separate from observed test results.",
+  "dispositions": {
+    "B17.AC3": {
+      "status": "provider follow-up pending",
+      "reason": "Claude deferred at owner direction. Cursor repository trust was reported completed; the bounded retry stopped at trust for the added isolated scratch root before model execution. Prior Codex recording remains observed.",
+      "owner_words": "claude code will be probably pending; cursor I just did the trust workspace",
+      "blocks_owner_review": false
+    },
+    "B23.AC3": {
+      "status": "owner review next",
+      "reason": "Owner will assess retained decision quality. This is not final approval.",
+      "owner_words": "I'll make the review",
+      "blocks_owner_review": false
+    },
+    "B24.AC3": {
+      "status": "accepted limitation",
+      "reason": "Owner accepts the documented comparison limits. Missing complete defect/false-positive and latency/cost evidence stays unknown; no efficiency benefit is claimed.",
+      "owner_words": "accept",
+      "blocks_owner_review": false
+    },
+    "B32.AC3": {
+      "status": "hosted CI deferred until committed changes are available",
+      "reason": "Local checks pass. Hosted Windows/macOS/Python 3.12 coverage remains unexecuted; follow up after the owner review and commit boundary. No hosted PASS is inferred.",
+      "owner_words": "if we are going to run the CI we probably can't keep it as a blocker",
+      "blocks_owner_review": false
+    },
+    "B33.AC3": {
+      "status": "attribution resolved",
+      "reason": "LICENSE and README agree on Copyright (c) 2026 Jimmy Leung, as supplied by the owner. Prior bounded privacy checks retain their original scope.",
+      "owner_words": "Jimmy Leung - 2026 I think",
+      "blocks_owner_review": false
+    }
+  },
+  "attribution_review": [
+    {
+      "prior": {
+        "path": "LICENSE",
+        "sha256": "f2eb46b60685fe9bcb4a0075c865404d1f67a77363d3905025c46fcc335fb915",
+        "bytes": 1077,
+        "mode": "0o644",
+        "review_lanes": [
+          "tooling"
+        ]
+      },
+      "current_sha256": "e36c518d7e1955055f3c9a356d4cee102f9d18b9d3936b41ec495ec0783e2f2c",
+      "change": "Owner-supplied copyright attribution only; parent full-file read and reverse-substitution identity check."
+    },
+    {
+      "prior": {
+        "path": "README.md",
+        "sha256": "5657a3eaf7d4437c6b0eac70a72ff98ba522130afd5edc40e45f9e63812ca663",
+        "bytes": 8346,
+        "mode": "0o644",
+        "review_lanes": [
+          "tooling"
+        ]
+      },
+      "current_sha256": "677badc33cea6053d7ddfed07616290431a2b25517eb6fe855bb5c524423af05",
+      "change": "Owner-supplied copyright attribution only; parent full-file read and reverse-substitution identity check."
+    }
+  ],
+  "source_files_verified": 69,
+  "validation_inputs_verified": 56,
+  "validation_logs_verified": 7,
+  "cursor_retry": {
+    "model_trials": 0,
+    "startup_attempts": 2,
+    "boundary": "Added scratch root trust; not evidence that ai-kit itself remains untrusted."
+  },
+  "owner_go": null,
+  "confidence": 95,
+  "uncertainty": "Unavailable provider/platform execution and pending owner judgment."
+}

@@ -1,6 +1,6 @@
 ---
 name: onboard-me
-description: "Engineering-ownership ritual for UNFAMILIAR code you must understand — someone else's module/workflow/service, an inherited area, a codebase you're new to (NOT code you just wrote). The AI plays a staff engineer giving a cold-read walkthrough as a real back-and-forth: ONE step per turn, Socratic — you predict the next hop — assumptions listed every message. Use to get up to speed on, learn, or onboard onto unfamiliar code — 'walk me through this service', 'help me understand this module'. Appends a dated session summary to ~/.claude/ownership/{topic}/onboarding.md."
+description: "Guides the user through unfamiliar or inherited code in a Socratic conversation, one step per turn. Use to get up to speed on someone else’s module, service, or workflow: “walk me through this service” or “help me understand this code.” A tour of work just built for the owner belongs to walkthrough-implementation; a studied-topic quiz belongs to breakout-session."
 ---
 
 # onboard-me — a cold-read walkthrough from a staff engineer
@@ -8,6 +8,14 @@ description: "Engineering-ownership ritual for UNFAMILIAR code you must understa
 You are an experienced engineer on this codebase, sitting next to a sharp new teammate, walking them through a part of the system you know and they don't. This is a _conversation_, not a lecture. You explain one thing, check they're with you, let them steer. And because you're reading it cold too, you are scrupulously honest about what you're _assuming_ versus what you've _confirmed_.
 
 > **Scope:** use this for code you did **not** write and need to understand — an unfamiliar module, someone else's service, a workflow you've inherited. Do **not** use it on code you just built; having your own work explained back to you feels like learning but isn't. This skill builds a model of foreign terrain.
+
+## Recording
+
+Resolve references relative to this skill folder and use
+[the feedback contract](references/shared/feedback.md). A configured ownership store
+may use `~/.claude/ownership/{topic}/onboarding.md`; no private store is required.
+If recording is disabled, return the dated summary in chat and state it was not persisted.
+If an enabled write fails, preserve the summary and report the failed write explicitly.
 
 ## How to run the conversation
 
@@ -18,11 +26,11 @@ You are an experienced engineer on this codebase, sitting next to a sharp new te
    - **Stop and hand back** — invite questions or corrections. Do not barrel into the next step.
 3. **Stay Socratic.** Before you reveal the next hop, ask the user to predict it: _"Given what you've seen — where do you think this calls into next, and what does it need to guarantee?"_ Let them answer, then confirm or correct against the code. This keeps them generating, not just nodding.
 4. **Follow their lead.** If a question opens a thread, follow it. The map adapts to what they want to understand, not a fixed script.
-5. **Write the session summary.** At the end of the walkthrough — and at any natural stopping point before that — append a dated `## Session — {date}` block to `~/.claude/ownership/{topic}/onboarding.md`: components & flows covered, the assumptions that turned out wrong (the corrections matter most), and the open questions still unresolved. **Append, never overwrite** — onboarding a large unfamiliar area happens over several sittings; the value is the map accumulating.
+5. **Write the session summary.** At the end of the walkthrough — and at any natural stopping point before that — append a dated `## Session — {date}` block to the configured `{ownership_root}/{topic}/onboarding.md` when recording is enabled: components & flows covered, the assumptions that turned out wrong (the corrections matter most), and the open questions still unresolved. **Append, never overwrite** — onboarding a large unfamiliar area happens over several sittings; the value is the map accumulating.
 
 ## Output file
 
-`~/.claude/ownership/{topic}/onboarding.md` — a dated, **append-only** log: one `## Session — {date}` block per sitting. `{topic}` is the same folder convention `record-decision`'s private records use, so everything about one area lives together. If the walkthrough ends abruptly, write what you have so far rather than nothing.
+`{ownership_root}/{topic}/onboarding.md` when configured — a dated, **append-only** log: one `## Session — {date}` block per sitting. `{topic}` is the same folder convention `record-decision`'s private records use, so everything about one area lives together. If the walkthrough ends abruptly, write what you have so far rather than nothing.
 
 ## What good looks like
 
@@ -36,4 +44,4 @@ You are an experienced engineer on this codebase, sitting next to a sharp new te
 3. **Be Socratic** — make them predict the next hop before you reveal it.
 4. **Unfamiliar code only** — having your own work explained back to you is anti-retention, not onboarding.
 5. **Inspect the real code; verify libraries via context7/web** — a confident cold-read that's wrong is worse than a flagged uncertainty.
-6. **Always leave the map** — append the dated session summary to `onboarding.md` (even a partial one); the accumulating terrain map is the durable payoff, not the chat.
+6. **Always leave the map** — append the dated summary to the configured `onboarding.md`, or return it explicitly unpersisted when recording is disabled; the accumulating terrain map is the durable payoff, not the chat.

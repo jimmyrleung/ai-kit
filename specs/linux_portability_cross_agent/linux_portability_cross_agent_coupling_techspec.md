@@ -1,5 +1,21 @@
 # Linux portability and cross-agent coupling — technical specification
 
+## Superseded 2026-09-07 — bounded follow-on contracts
+
+The [Astra backlog execution](../../20260906_astra_review_execution.md) owns the subsequent
+skill-behavior changes. It supersedes this design's unchanged-body constraints for `find-skills`
+and `teach`, fixed review/observation counts, approval mechanics, and mandatory feedback-store
+assumptions. The inspected `find-skills` content pin is revised deliberately; its CRLF
+normalization and mutation guard remain. The public feedback contract keeps existing configured
+stores usable without requiring them for fresh users.
+
+B19 completes the metadata boundaries: names also reject consecutive hyphens, and supplied
+compatibility values must contain 1–500 characters. B20 adds inventory-membership validation.
+B32 distinguishes preflight conflicts, prepared transactions, and conflicts after recovery in
+diagnostics. Ownership, transaction schema, rollback, wrappers, and managed roots stay under
+this design. Historical tests and hosted results below certify their recorded revisions only;
+the later execution record carries current-tree verification. Original design/history preserved.
+
 Date: 2026-08-31
 Mode: refactor
 Input: `linux_portability_cross_agent_coupling_analysis.md` (`## Review` approved 2026-08-31)

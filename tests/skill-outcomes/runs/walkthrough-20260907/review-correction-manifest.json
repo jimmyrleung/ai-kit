@@ -1,0 +1,28 @@
+{
+  "record_id": "WB-F1-correction-20260907",
+  "archive": "review-correction.zip",
+  "sha256": "7d08770a23bcff94e49367624975bbeb07870078c3bcb54af2b3c17b3c0f384b",
+  "bytes": 106912,
+  "entry_count": 51,
+  "previous_archive_sha256": "fadd2f638b9937012da83d694ba7e7f51e2af01a21f4d750f6933c91be0a81d7",
+  "source_subjects": [
+    {
+      "path": "scripts/bundle-skill-references.mjs",
+      "kind": "file",
+      "mode": "0o644",
+      "sha256": "2a2e629da86f006f20188e017edbec7c1deb85291745cb825abd901832e6a61c"
+    },
+    {
+      "path": "tests/test_skill_portability.mjs",
+      "kind": "file",
+      "mode": "0o644",
+      "sha256": "af5083b353c91800ddf61f7667760161a21b835ebfe63776b4884b73d0b6eec4"
+    }
+  ],
+  "scope": "Parser and regression-test correction; documents and evidence consolidated by parent. Original review and confounded probes preserved with correction attribution.",
+  "checks": "checks/records.json; checks/docs-final.log",
+  "review": "reviewer/correction-report.md",
+  "routing_provenance": "routing-dispatch-reconstruction.json is retrospective conversation reconstruction, not raw runtime receipts",
+  "entry_identities": "entry-manifest.json records captured and stored SHA-256; evidence paths may be masked; source bytes are exact",
+  "owner_go": false
+}

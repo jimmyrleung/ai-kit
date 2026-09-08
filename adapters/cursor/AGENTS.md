@@ -22,81 +22,40 @@ precedence claim and do not deduplicate provider roots here.
 Cursor explicitly invokes skills with `/name` and may select them from `description`; the
 shared `SKILL.md` body receives no provider transform.
 
-Skills auto-discover off their `description` exactly as in Claude. Work chains by invoking
+Skill selection depends on the host catalog and active metadata policy. Work chains by invoking
 the next skill, not by running an orchestrator: `/analyze-work` → `/techspec` →
 `/tasks-breakdown` → `/implement-task` (verify-task gates inline) →
 `/review-implementation` → `/qa-gates`; bugs/incidents enter via `/bug-investigation` and
 rejoin the chain. `/triage` routes a free-text request.
 
-## How to read the kit's fan-out idiom
+## Runtime capabilities and feedback
 
-Current Cursor documentation supports subagents in the CLI, including foreground and
-background/parallel work. Skills provide the work contract; they do not provide a fan-out
-implementation. In Cursor:
+Resolve repository-relative references and commands from the ai-kit checkout, even when
+this block is copied into a private instruction file. Locate that checkout through the
+canonical target of a managed ai-kit skill (for example `triage`), then verify its
+`skills/`, `docs/`, and `adapters/cursor/AGENTS.md` paths. Links below are relative to that
+canonical adapter file, not the private copy or the user's current project. If the
+checkout cannot be located, report the reference as unavailable; do not guess a home path.
 
-- **Native fan-out** → use Cursor's subagent facility for independent passes when the installed
-  CLI exposes it; use foreground work when the parent needs an immediate result and background
-  work for long-running or parallel passes. Keep the skill's consolidation step in the parent.
-- **Fallback** → if the needed facility is unavailable or blocked by the current mode, run the
-  same passes independently and sequentially (fresh perspective, no shared scratch state).
-  Never add a kit-owned orchestration script to compensate.
-- **Multi-round re-run loops** (e.g. `/review-artifact` re-review after corrections) do
-  **not** run autonomously — surface the verdict and let the human drive any re-run. This
-  collapses into the skill's existing "confirm with the user" steps.
-- **Worker constraints ride in the skill prose** (reviewer count, confidence filters,
-  re-grounding rules) — honor them as written; only the spawning mechanism degrades.
-- **`create a todo list` / phase gates** → use Cursor's plan/todo facility; honor gates as
-  written (e.g. "confidence ≥ 90%" — surface it, do not silently pass).
+Use the shared [provider capability reference](../../docs/provider-capabilities.md)
+for discovery, invocation, question tools, delegation, worker configuration, recurrence,
+and recovery. Check the active host/mode rather than assuming capabilities from its name.
+Use an exposed, permitted structured-question tool when available; otherwise ask in plain
+text. Native workers require authorization and available tools; sequential passes must
+record missing independence. Existing authorization also applies to local review/fix
+iterations; only a real decision or an explicit owner gate requires another pause.
 
-
-## Structured user questions
-
-The public Cursor docs do not establish a structured question tool for every CLI build. If
-the installed surface does not expose one, **degrade to a numbered plain-text list** and accept
-a free-text reply:
-
-```
-Pick one (reply with the number, or describe your own):
-  1. <option> — <one-line implication>
-  2. <option> — <one-line implication>
-```
-
-Keep the question batching/discipline the kit specifies; only the *rendering* changes.
-
-## Worker model and explicit overrides
-
-Use the parent/session model by default. Current Cursor subagent documentation uses
-`model: inherit` as the default; an explicit worker-model override is appropriate only when
-the active facility supports it and the task requires it. Team, plan, or mode restrictions may
-still select a compatible fallback. Record the effective choice with the verification evidence.
-Do not import historical model pins or provider branches from `docs/model-assignments.md`
-into canonical skill instructions.
-
-## Loop and goal mechanics
-
-Current Cursor documentation exposes `/loop` to run a prompt or skill repeatedly at an interval.
-Use it only after checking the installed CLI's current syntax; `/goal` and `/schedule` are not
-assumed here. Skills remain the source of verifiable completion criteria. If the native loop is
-unavailable or blocked, treat recurrence as manual and keep provider wiring in
-`docs/loop-recipes.md`. A context reset in Cursor is a new session — the SESSION_LOG handoff
-discipline still applies. See the [Cursor Agent Skills documentation](https://prod.cursor.com/docs/skills).
-
-## Anchored feedback loop
-
-`/close` / `/improve` / `/audit-skills` write to the fixed `~/.claude/…` paths
-(observations, improvements, `last-audit.txt`) **even when run from Cursor** — recorded
-decision: the self-improvement loop stays Claude-side and works unchanged when driven from
-another harness. Artifact filenames follow `docs/output-filename-contract.md` regardless of
-harness. **WSL caveat:** `~` resolves to the *WSL* home under `cursor-agent`-in-WSL — if
-your Claude feedback store lives in the Windows home, link the WSL `~/.claude` to it (e.g.
-`ln -s /mnt/c/Users/<you>/.claude ~/.claude`) so observations land in one store, not two.
+Feedback and memory are optional under [the public recorder contract](../../docs/contracts/feedback.md).
+Configured `~/.claude` stores remain supported across hosts; the adapter never migrates
+private records. Follow `docs/output-filename-contract.md` for workflow artifacts.
 
 ## Private instruction refresh
 
 This file is a public mechanics layer, not a copy of private conventions. If it is copied
 into a private project or user instruction file, manually refresh the copied
 `kit-mechanics` block after adapter edits. No repository script or sync wrapper may overwrite
-that private file.
+that private file. Check drift without writes using the shared reference’s
+`check-mechanics-mirror.py` command.
 
 ## Common sync posture
 

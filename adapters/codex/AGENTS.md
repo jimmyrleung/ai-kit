@@ -20,73 +20,39 @@ skill folders. The `SKILL.md` body is therefore shared without a provider transf
 explicitly invokes a skill with `$skill` and may also select one from its `description`; see
 the [Codex skill documentation](https://learn.chatgpt.com/docs/build-skills).
 
-Skills auto-discover exactly as in Claude. Work chains by invoking the next skill, not by
+Skill selection depends on the host catalog and active metadata policy. Work chains by invoking the next skill, not by
 running an orchestrator: `$analyze-work` → `$techspec` → `$tasks-breakdown` → `$implement-task`
 (verify-task gates inline) → `$review-implementation` → `$qa-gates`; bugs/incidents enter
 via `$bug-investigation` and rejoin the chain. `$triage` routes a free-text request.
 
-## How to read the kit's fan-out idiom
+## Runtime capabilities and feedback
 
-Current Codex releases support subagent workflows in the CLI. Skills provide the work
-contract; they do not provide a fan-out implementation. In Codex:
+Resolve repository-relative references and commands from the ai-kit checkout, even when
+this block is copied into a private instruction file. Locate that checkout through the
+canonical target of a managed ai-kit skill (for example `triage`), then verify its
+`skills/`, `docs/`, and `adapters/codex/AGENTS.md` paths. Links below are relative to that
+canonical adapter file, not the private copy or the user's current project. If the
+checkout cannot be located, report the reference as unavailable; do not guess a home path.
 
-- **Native fan-out** → ask the active Codex session to delegate independent passes when its
-  subagent facility is available; inspect/switch active threads with the build's documented
-  interface. Keep the skill's consolidation step in the parent session.
-- **Fallback** → if the installed build does not expose the needed spawn capability, run the
-  same passes as independent sequential passes (fresh perspective, no shared scratch state).
-  Never add a kit-owned orchestration script to compensate.
-- **Multi-round re-run loops** (e.g. `$review-artifact` re-review after corrections) do
-  **not** run autonomously — surface the verdict and let the human drive any re-run. This
-  collapses into the skill's existing "confirm with the user" steps.
-- **Worker constraints ride in the skill prose** (reviewer count, confidence filters,
-  re-grounding rules) — honor them as written; only the spawning mechanism degrades.
-- **`create a todo list` / phase gates** → use `update_plan`; honor gates as written
-  (e.g. "confidence ≥ 90%" — surface it, do not silently pass).
+Use the shared [provider capability reference](../../docs/provider-capabilities.md)
+for discovery, invocation, question tools, delegation, worker configuration, recurrence,
+and recovery. Check the active host/mode rather than assuming capabilities from its name.
+Use an exposed, permitted structured-question tool when available; otherwise ask in plain
+text. Native workers require authorization and available tools; sequential passes must
+record missing independence. Existing authorization also applies to local review/fix
+iterations; only a real decision or an explicit owner gate requires another pause.
 
-## Structured user questions (no Codex `AskUserQuestion` analog)
-
-The kit prefers a structured "ask the user" tool. Codex has none — when a skill calls for
-it, **degrade to a numbered plain-text list** and accept a free-text reply:
-
-```
-Pick one (reply with the number, or describe your own):
-  1. <option> — <one-line implication>
-  2. <option> — <one-line implication>
-```
-
-Keep the question batching/discipline the kit specifies; only the *rendering* changes.
-
-## Worker model and explicit overrides
-
-Use the parent/session model by default. Codex's `--model` option selects the main-session
-model; an explicit worker-model override is allowed only when the active subagent facility
-supports it and the task requires it. Record that choice with the verification evidence.
-Do not import historical model names or provider branches from `docs/model-assignments.md`
-into canonical skill instructions.
-
-## Goals and recurring work
-
-Codex has no guaranteed provider-native `/goal`, `/loop`, or `/schedule` contract here.
-Express the verifiable completion criterion in the active plan and use the available plan/todo
-facility for phase gates. Treat recurrence as manual unless the installed runner documents a
-compatible primitive; provider-native runner wiring stays in `docs/loop-recipes.md`. A context
-reset in Codex is a new session — the SESSION_LOG handoff discipline still applies.
-
-## Anchored feedback loop
-
-`$close` / `$improve` / `$audit-skills` write to the fixed `~/.claude/…` paths
-(observations, improvements, `last-audit.txt`) **even when run from Codex** — recorded
-decision (§3a of the portability assessment): the self-improvement loop stays Claude-side
-and works unchanged when driven from Codex. Artifact filenames follow
-`docs/output-filename-contract.md` regardless of harness.
+Feedback and memory are optional under [the public recorder contract](../../docs/contracts/feedback.md).
+Configured `~/.claude` stores remain supported across hosts; the adapter never migrates
+private records. Follow `docs/output-filename-contract.md` for workflow artifacts.
 
 ## Private instruction refresh
 
 This file is a public mechanics layer, not a copy of private conventions. If it is copied
 into `~/.codex/AGENTS.md` or a project instruction file, manually refresh the copied
 `kit-mechanics` block after adapter edits. No repository script or sync wrapper may overwrite
-that private file.
+that private file. Check drift without writes using the shared reference’s
+`check-mechanics-mirror.py` command.
 
 ## Common sync posture
 

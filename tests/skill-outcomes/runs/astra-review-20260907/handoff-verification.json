@@ -1,0 +1,79 @@
+{
+  "record_id": "astra-owner-dispositions-handoff-20260907",
+  "captured_at": "2026-09-07T13:35:21.388919+00:00",
+  "archives_verified": 13,
+  "archive_identity_errors": [],
+  "source_review_drift": [],
+  "source_review_files_verified": 69,
+  "validation_input_drift": [],
+  "validation_inputs_verified": 56,
+  "validation_logs_verified": 7,
+  "acceptance_counts": {
+    "observed-bounded": 108,
+    "partial": 4,
+    "not-adopted": 1
+  },
+  "source_conformance_counts": {
+    "supported": 112,
+    "not-adopted": 1
+  },
+  "partial_ids": [
+    "B17.AC3",
+    "B23.AC3",
+    "B24.AC3",
+    "B32.AC3"
+  ],
+  "owner_dispositions": {
+    "B17.AC3": {
+      "status": "provider follow-up pending",
+      "reason": "Claude deferred at owner direction. Cursor repository trust was reported completed; the bounded retry stopped at trust for the added isolated scratch root before model execution. Prior Codex recording remains observed.",
+      "owner_words": "claude code will be probably pending; cursor I just did the trust workspace",
+      "blocks_owner_review": false
+    },
+    "B23.AC3": {
+      "status": "owner review next",
+      "reason": "Owner will assess retained decision quality. This is not final approval.",
+      "owner_words": "I'll make the review",
+      "blocks_owner_review": false
+    },
+    "B24.AC3": {
+      "status": "accepted limitation",
+      "reason": "Owner accepts the documented comparison limits. Missing complete defect/false-positive and latency/cost evidence stays unknown; no efficiency benefit is claimed.",
+      "owner_words": "accept",
+      "blocks_owner_review": false
+    },
+    "B32.AC3": {
+      "status": "hosted CI deferred until committed changes are available",
+      "reason": "Local checks pass. Hosted Windows/macOS/Python 3.12 coverage remains unexecuted; follow up after the owner review and commit boundary. No hosted PASS is inferred.",
+      "owner_words": "if we are going to run the CI we probably can't keep it as a blocker",
+      "blocks_owner_review": false
+    },
+    "B33.AC3": {
+      "status": "attribution resolved",
+      "reason": "LICENSE and README agree on Copyright (c) 2026 Jimmy Leung, as supplied by the owner. Prior bounded privacy checks retain their original scope.",
+      "owner_words": "Jimmy Leung - 2026 I think",
+      "blocks_owner_review": false
+    }
+  },
+  "committed_changes": [],
+  "staged_changes": [],
+  "owner_go": null,
+  "current_git_checks": {
+    "head": {
+      "exit": 0,
+      "stdout": "aeec06bfa0a6b97402b17824d957f29635f40ba7\n",
+      "stderr": ""
+    },
+    "staged": {
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "whitespace": {
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  },
+  "scope": "Review ready; original source reviews plus parent attribution amendment, local PASS reused on matched inputs, accepted/deferred external limits separately recorded. Prior handoff preserved in owner-dispositions archive."
+}

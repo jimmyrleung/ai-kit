@@ -1,6 +1,6 @@
 ---
 name: document-workflow
-description: "Deep-dive documentation of one workflow operation: locate the entry point, trace the happy path and branching hop-by-hop through real source, and write the canonical workflow doc (sequence of calls, data inventory, business rules, configuration, source files) under workflows/ at the target repo's git root. Backend mode by default (endpoint, message consumer, scheduled job); full-stack mode only when explicitly signaled (end-to-end, from the client). Accepts a loose reference: a handler or method name, a file path, or a description. Use when asked to document a workflow, endpoint, handler, route, consumer, job, or flow, or to create or update a workflow doc."
+description: "Documents or updates one workflow, endpoint, route, handler, message consumer, job, or flow by tracing real source. Accepts a generated docs task, handler/method name, file path, or description. Backend by default; full-stack / end-to-end documentation when explicitly requested. Inventorying what to document belongs to docs-tasks-creator; checking drift across existing docs belongs to update-workflow-docs."
 ---
 
 # document-workflow — deep-dive doc for one workflow operation
@@ -35,10 +35,18 @@ Accept any of:
 - a file path — `src/Users.Api/Services/UsersServiceV1.cs`
 - a descriptive reference — `"the GRPC call that deletes credit cards"`
 - a full-stack reference — `"the full order submission workflow end-to-end"`
+- a generated `docs-tasks-creator` task carrying `Source root`, `Docs root`,
+  `Workspace root`, `Reference`, and `Resolved output`
 
 Resolve it to a concrete entry point. If it matches several candidates, list them and ask
-before proceeding. Echo the resolved (entry point, mode, output path) triple back before
-tracing.
+before proceeding. Resolve roots and paths with
+[the documentation evidence contract](references/shared/documentation-evidence.md).
+For a generated task, its five handoff values are authoritative: resolve `Reference`
+against `Workspace root` and write exactly `Resolved output` inside `Docs root`. For an
+ad-hoc reference, detect the source repository's git root, default `Docs root` to that root,
+and derive the normal workflow path. Ask if the source/docs roots or destination are
+ambiguous. Echo the resolved (source root, docs root, workspace root, entry point, mode,
+resolved output) before tracing.
 
 ## Mode
 
@@ -57,19 +65,28 @@ not assume a framework, language, or platform on either side.
 
 ## Process
 
-1. Create a todo list for all steps.
-2. Launch 1–3 specialized agents to follow the [Instructions] below.
-3. Consolidate their findings, identifying where they converge and where they diverge.
-4. Calculate a confidence score from their agreement. If divergence is too high, run
-   another round — **at least 95% confidence** is required to proceed.
-5. Once confident, write the doc per [Output] below.
+Follow [authorized work](references/shared/authorized-work.md); resolve bundled references
+from this skill folder. Existing permission covers local tracing and drafting.
+
+1. Map the entry, boundaries, and evidence needed by the Instructions below.
+2. Keep a small isolated flow on the main thread. For distinct cross-service/data/security
+   boundaries, plan independent coverage and use authorized native workers when available.
+   Otherwise use separate scoped passes and record their weaker independence; consult the
+   [provider capability reference](references/shared/provider-capabilities.md).
+3. Consolidate by source evidence and missing coverage. Re-open load-bearing sources and
+   resolve conflicting claims; worker agreement alone does not prove correctness.
+4. Write the authorized doc using the Output contract. At least 95% confidence is the reporting
+   target; unsupported sections remain explicit TODOs with precise next probes. Ask only for
+   missing load-bearing facts or a real scope/owner decision, never permission inferred from a score.
 
 ## Instructions
 
 1. **Locate the entry point.** Backend: REST controller action, GRPC service method,
    message/event handler, scheduled job/cron handler. Full-stack: the client action
    (screen, view, route, command) and the user/system action that fires it — the backend
-   handler becomes a downstream step, not the root.
+   handler becomes a downstream step, not the root. Also identify the static registration,
+   dispatch, routing, project, workspace, and configuration inputs that make this entry
+   reachable. These are freshness inputs even when they are not a happy-path call.
 2. **Trace the execution path** — the happy path through request handlers / use cases,
    domain services, external clients (HTTP, GRPC, SDK), repository/data access, message
    publishing. At an external boundary, check whether the target service exists in this
@@ -106,11 +123,12 @@ Write the doc in the exact format of [references/output-template.md](references/
 — this template is the canonical contract for workflow docs (docs-tasks-creator acceptance
 criteria and QA gates check against it); do not reshape its sections.
 
-**Path** — anchored at the **git root of the target repo** (where `.git` lives), NOT the
-current or tasks-doc directory (a doc written elsewhere is reported missing by docs QA):
+**Path** — use the resolved handoff destination. A generated task's `Resolved output` is
+authoritative and must be inside its `Docs root`. In an ad-hoc run only, default Docs root to
+the source git root:
 
-- Backend mode: `<repo>/workflows/<service-name>/<workflow-name>.md`
-- Full-stack mode: `<repo>/workflows/_fullstack/<workflow-name>.md` (no single service
+- Backend mode: `<docs-root>/workflows/<service-name>/<workflow-name>.md`
+- Full-stack mode: `<docs-root>/workflows/_fullstack/<workflow-name>.md` (no single service
   owns the flow; link back from per-service docs if they exist)
 
 `<workflow-name>` is short kebab-case (e.g. `delete-credit-card`).
@@ -121,13 +139,19 @@ current or tasks-doc directory (a doc written elsewhere is reported missing by d
   (`Initial documentation pass` / `First version`).
 - Updating an existing doc: inspect it first; keep `Created`, bump `Last Updated`, append one
   Change Log row per update (group related edits).
-- `Generated From` = short SHA of `HEAD` (`git rev-parse --short HEAD`), advanced on every
-  update — it means "the codebase state this doc was last verified against". If the call
-  fails, set `unknown` with `[TODO: verify SHA]` rather than blocking.
-- `Schema` stays `v1` until the template itself materially changes shape.
-- `## Source Files`: every distinct path traced — entry point plus each handler / service /
-  repository / external client / message handler / client UI read while building the
-  sequence tree. This feeds staleness detection; missing paths = silent drift later.
+- `Generated From` is a display value: the source root's short `HEAD`, or `unknown` with
+  `[TODO: verify SHA]`. The authoritative bounded identity is `## Source Evidence`, built
+  from actual bytes under the documentation evidence and shared change-evidence contracts.
+- `Schema` is `v2`. A pre-v2 document remains readable, but its revision-only freshness is
+  Unverifiable until a full retrace creates the v2 evidence fields.
+- `## Source Evidence`: one row per source repository or independently changing source,
+  including public-safe source ID, full revision, trace boundary (roots/patterns plus
+  registration/config controls), relevant dirty paths, and manifest digest.
+- `## Source Files`: every distinct path read — entry point, registration/dispatch/config
+  controls, and every handler/service/repository/client/UI path used by the trace. Record
+  source ID + path + role + SHA-256 of actual bytes. Missing paths cause silent drift later.
+- A dirty relevant source may still be documented, but never label it clean or represent
+  HEAD alone as the verified content. Record its byte identity and dirty layer explicitly.
 
 ## Guidelines
 
@@ -136,6 +160,8 @@ current or tasks-doc directory (a doc written elsewhere is reported missing by d
 - Keep descriptions scannable — the doc is used in refinement sessions; for complex-logic
   sections, optimize for "could I explain this in a refinement using just this doc?".
 - Flag anything unclear with `[TODO: verify]` rather than guessing.
+- Source code is read-only. Write only the resolved documentation output inside Docs root,
+  including when Docs root is a separate repository.
 - If the workflow is exceptionally complex (10+ decision points), suggest splitting the
   doc into sections or separate flows.
 

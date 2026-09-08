@@ -1,0 +1,161 @@
+{
+  "schema_version": 1,
+  "condition": "no-skill",
+  "repetition": 1,
+  "completed_at": "2026-09-07T08:02:38-03:00",
+  "shared_context_batch": true,
+  "execution_order": [
+    "existing-test-home",
+    "convention-new-test",
+    "no-suitable-test-home"
+  ],
+  "source": {
+    "corpus": "<user-home>/ai-kit/tests/skill-outcomes/cases.json",
+    "case_ids_only": [
+      "existing-test-home",
+      "convention-new-test",
+      "no-suitable-test-home"
+    ],
+    "other_trial_results_read": false,
+    "skill_bodies_read": false,
+    "unavoidable_host_catalog_metadata_visible": true,
+    "catalog_metadata_used": false
+  },
+  "telemetry": {
+    "requested_model": "gpt-5.6-sol",
+    "requested_reasoning_effort": "high",
+    "effective_model": null,
+    "effective_reasoning_effort": null,
+    "tokens": null,
+    "cost": null,
+    "full_transcript": null
+  },
+  "interfaces": {
+    "skill_specific": "unavailable_by_condition",
+    "native_editing": true,
+    "native_shell": true
+  },
+  "interruptions": 0,
+  "implementation_retries": 0,
+  "test_retries": 0,
+  "administrative_artifact_copy_corrections": 1,
+  "aggregate": {
+    "mandatory_passed": 18,
+    "mandatory_denominator": 18,
+    "original_artifact_bytes": 1414,
+    "final_artifact_bytes": 2331,
+    "human_review_required": true
+  },
+  "cases": [
+    {
+      "id": "existing-test-home",
+      "prompt_execution_count": 1,
+      "prompt": {
+        "path": "cases/existing-test-home/output/prompt.txt",
+        "utf8_bytes": 237,
+        "trailing_newline": false,
+        "sha256": "0851f04370df4b4e1af4f40740efc10a7d6f070248e82e7c8cbad9fb5cbd19fa",
+        "matches_corpus": true
+      },
+      "artifacts": {
+        "original_dir": "cases/existing-test-home/output/original",
+        "final_dir": "cases/existing-test-home/output/final/artifacts",
+        "hash_manifest": "cases/existing-test-home/output/traces/hashes.tsv",
+        "original_utf8_bytes": 427,
+        "final_utf8_bytes": 658
+      },
+      "test": {
+        "command": "python3 -m unittest discover -s tests",
+        "exit_code": 0,
+        "tests_run": 3,
+        "trace": "cases/existing-test-home/output/traces/test.txt"
+      },
+      "mandatory_passed": 6,
+      "mandatory_denominator": 6,
+      "criteria": [
+        {"index": 1, "pass": true, "evidence": "final/artifacts/tests/test_calc.py:4 and :8; no new test file"},
+        {"index": 2, "pass": true, "evidence": "output/traces/context-read.txt"},
+        {"index": 3, "pass": true, "evidence": "final/artifacts/tests/test_calc.py:3"},
+        {"index": 4, "pass": true, "evidence": "final/artifacts/tests/test_calc.py:4, :8, :11; output/traces/test.txt"},
+        {"index": 5, "pass": true, "evidence": "output/traces/hashes.tsv and final artifacts"},
+        {"index": 6, "pass": true, "evidence": "final artifact inventory; output/traces/test.txt"}
+      ],
+      "human_review_required": true
+    },
+    {
+      "id": "convention-new-test",
+      "prompt_execution_count": 1,
+      "prompt": {
+        "path": "cases/convention-new-test/output/prompt.txt",
+        "utf8_bytes": 237,
+        "trailing_newline": false,
+        "sha256": "0851f04370df4b4e1af4f40740efc10a7d6f070248e82e7c8cbad9fb5cbd19fa",
+        "matches_corpus": true
+      },
+      "artifacts": {
+        "original_dir": "cases/convention-new-test/output/original",
+        "final_dir": "cases/convention-new-test/output/final/artifacts",
+        "hash_manifest": "cases/convention-new-test/output/traces/hashes.tsv",
+        "original_utf8_bytes": 523,
+        "final_utf8_bytes": 837
+      },
+      "test": {
+        "command": "python3 -m unittest discover -s tests",
+        "exit_code": 0,
+        "tests_run": 3,
+        "trace": "cases/convention-new-test/output/traces/test.txt"
+      },
+      "mandatory_passed": 6,
+      "mandatory_denominator": 6,
+      "criteria": [
+        {"index": 1, "pass": true, "evidence": "final/artifacts/AGENTS.md:1; final/artifacts/tests/test_calc_validation.py:5; output/response.md"},
+        {"index": 2, "pass": true, "evidence": "output/traces/context-read.txt"},
+        {"index": 3, "pass": true, "evidence": "final/artifacts/tests/test_calc.py and final/artifacts/tests/test_calc_validation.py"},
+        {"index": 4, "pass": true, "evidence": "final/artifacts/tests/test_calc_validation.py:6; final/artifacts/tests/test_calc.py:4 and :7; output/traces/test.txt"},
+        {"index": 5, "pass": true, "evidence": "output/traces/hashes.tsv and final artifacts"},
+        {"index": 6, "pass": true, "evidence": "final artifact inventory; output/traces/test.txt"}
+      ],
+      "human_review_required": true
+    },
+    {
+      "id": "no-suitable-test-home",
+      "prompt_execution_count": 1,
+      "prompt": {
+        "path": "cases/no-suitable-test-home/output/prompt.txt",
+        "utf8_bytes": 237,
+        "trailing_newline": false,
+        "sha256": "0851f04370df4b4e1af4f40740efc10a7d6f070248e82e7c8cbad9fb5cbd19fa",
+        "matches_corpus": true
+      },
+      "artifacts": {
+        "original_dir": "cases/no-suitable-test-home/output/original",
+        "final_dir": "cases/no-suitable-test-home/output/final/artifacts",
+        "hash_manifest": "cases/no-suitable-test-home/output/traces/hashes.tsv",
+        "original_utf8_bytes": 464,
+        "final_utf8_bytes": 836
+      },
+      "test": {
+        "command": "python3 -m unittest discover -s tests",
+        "exit_code": 0,
+        "tests_run": 4,
+        "trace": "cases/no-suitable-test-home/output/traces/test.txt"
+      },
+      "mandatory_passed": 6,
+      "mandatory_denominator": 6,
+      "criteria": [
+        {"index": 1, "pass": true, "evidence": "final/artifacts/tests/test_label.py:1; final/artifacts/tests/test_calc.py:5; output/response.md"},
+        {"index": 2, "pass": true, "evidence": "output/traces/context-read.txt"},
+        {"index": 3, "pass": true, "evidence": "final/artifacts/tests/test_calc.py:5"},
+        {"index": 4, "pass": true, "evidence": "final/artifacts/tests/test_calc.py:6, :10, :13; output/traces/test.txt"},
+        {"index": 5, "pass": true, "evidence": "output/traces/hashes.tsv and final artifacts"},
+        {"index": 6, "pass": true, "evidence": "final artifact inventory; output/traces/test.txt"}
+      ],
+      "human_review_required": true
+    }
+  ],
+  "confidence": {
+    "score_percent": 99,
+    "uncertainty_percent": 1,
+    "reason": "Evidence includes preserved artifacts, hashes, pre-edit read traces, and actual suite output; human review and unavailable full telemetry remain."
+  }
+}

@@ -1,0 +1,119 @@
+{
+  "schema_version": 1,
+  "run_id": "fixture-smoke-20260907",
+  "execution_kind": "author-self-run-fixture-smoke",
+  "status": "passed",
+  "source_manifest": "../../source-manifest.json",
+  "corpus_sha256": "17be407cac70b47e69fc6881c5476ef4bb3d81cbd66c404872b14d7940c06381",
+  "model_execution": "none; shell probes only",
+  "started_at": "2026-09-07T09:43:31.010450+00:00",
+  "finished_at": "2026-09-07T09:43:31.858918+00:00",
+  "elapsed_seconds": 0.8487748809998266,
+  "checks": [
+    {
+      "case_id": "existing-test-home",
+      "kind": "fixture smoke, not skill outcome",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ".\n----------------------------------------------------------------------\nRan 1 test in 0.000s\n\nOK\n",
+      "negative_probe": {
+        "command": [
+          "python3",
+          "-c",
+          "from calc import fee; print(fee(-1))"
+        ],
+        "exit_code": 0,
+        "stdout": "-0.02\n",
+        "meaning": "Baseline fixture accepts negative amount; trial implementation must add validation."
+      },
+      "files": {
+        "calc.py": "4efd07b35cf179fd5614637233ac3caa2fc03de420bf63ac14e36dcaa339f2e5",
+        "tests/test_calc.py": "40ce2c2932df03f4521e3ff02788541414709c2791131708e43f64bed66ac569",
+        "README.md": "e5f13dc7a2b35057b4b0a850d149a3d492228383800337966e947910680f3ef8",
+        ".github/workflows/test.yml": "d250ead2f7a8873e2ae6666e08069247ecf2e1ae4d68a44bddbc5e96016b0526",
+        "AGENTS.md": "662bf7452e08d21d6cb2136db2f403fcab29e2496a3e409ef33ceb177329314e"
+      }
+    },
+    {
+      "case_id": "convention-new-test",
+      "kind": "fixture smoke, not skill outcome",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ".\n----------------------------------------------------------------------\nRan 1 test in 0.000s\n\nOK\n",
+      "negative_probe": {
+        "command": [
+          "python3",
+          "-c",
+          "from calc import fee; print(fee(-1))"
+        ],
+        "exit_code": 0,
+        "stdout": "-0.02\n",
+        "meaning": "Baseline fixture accepts negative amount; trial implementation must add validation."
+      },
+      "files": {
+        "calc.py": "4efd07b35cf179fd5614637233ac3caa2fc03de420bf63ac14e36dcaa339f2e5",
+        "tests/test_calc.py": "40ce2c2932df03f4521e3ff02788541414709c2791131708e43f64bed66ac569",
+        "README.md": "e5f13dc7a2b35057b4b0a850d149a3d492228383800337966e947910680f3ef8",
+        ".github/workflows/test.yml": "d250ead2f7a8873e2ae6666e08069247ecf2e1ae4d68a44bddbc5e96016b0526",
+        "AGENTS.md": "036874ad350c0bd3093d317546c17178a7721db1adf4e3aef55ca740b08232d8"
+      }
+    },
+    {
+      "case_id": "no-suitable-test-home",
+      "kind": "fixture smoke, not skill outcome",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ".\n----------------------------------------------------------------------\nRan 1 test in 0.000s\n\nOK\n",
+      "negative_probe": {
+        "command": [
+          "python3",
+          "-c",
+          "from calc import fee; print(fee(-1))"
+        ],
+        "exit_code": 0,
+        "stdout": "-0.02\n",
+        "meaning": "Baseline fixture accepts negative amount; trial implementation must add validation."
+      },
+      "files": {
+        "calc.py": "4efd07b35cf179fd5614637233ac3caa2fc03de420bf63ac14e36dcaa339f2e5",
+        "README.md": "e5f13dc7a2b35057b4b0a850d149a3d492228383800337966e947910680f3ef8",
+        ".github/workflows/test.yml": "d250ead2f7a8873e2ae6666e08069247ecf2e1ae4d68a44bddbc5e96016b0526",
+        "AGENTS.md": "b929ac09589d30375c05e63eff67e5b41799343ec0ea487c3cf1f8b352c1292e",
+        "tests/test_label.py": "5b8e6096cdbb716839c39b9694c3f0f02688b3bc9c0186bfa55476877cafe383"
+      }
+    }
+  ],
+  "tokens": null,
+  "cost": null,
+  "unavailable_reason": "No model trial or provider accounting in fixture smoke.",
+  "limits": [
+    "Not native discovery",
+    "Not supplied-body model trial",
+    "Does not prove B21 comparison outcomes",
+    "Human review pending"
+  ]
+}

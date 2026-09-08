@@ -1,0 +1,139 @@
+{
+  "schema_version": 1,
+  "status": "complete_pending_owner_review",
+  "batch_id": "domain-candidate-r1",
+  "condition": "candidate",
+  "repeat": 1,
+  "context_independence": "shared worker context; independent fixture copies; possible cross-case learning",
+  "provider": "OpenAI",
+  "host": "Codex collaboration worker",
+  "requested_model": "gpt-5.6-sol",
+  "requested_reasoning": "high",
+  "effective_model": "unavailable",
+  "effective_reasoning": "unavailable",
+  "tokens": null,
+  "cost": null,
+  "timing": {"started_at": "2026-09-07T07:05:29-03:00", "completed_at": "2026-09-07T07:41:49-03:00", "elapsed_seconds": 2180, "per_case": null, "per_case_unavailable_reason": "shared worker/tool host did not expose case-level aggregate timers"},
+  "case_order": ["documentation-W1", "documentation-W2", "documentation-W3", "documentation-T1", "feedback-T1", "feedback-T2", "feedback-T3", "feedback-T4", "feedback-T5", "feedback-T6", "B12-T1", "B12-T2", "B12-T3", "B12-T4", "B12-T5", "malformed-tags", "wrong-docs-root", "clean-no-op", "teaching-export", "learning-visuals", "readiness-boundary"],
+  "completed_cases": ["documentation-W1", "documentation-W2", "documentation-W3", "documentation-T1", "feedback-T1", "feedback-T2", "feedback-T3", "feedback-T4", "feedback-T5", "feedback-T6", "B12-T1", "B12-T2", "B12-T3", "B12-T4", "B12-T5", "malformed-tags", "wrong-docs-root", "clean-no-op", "teaching-export", "learning-visuals", "readiness-boundary"],
+  "output": {"report":"report.md","source_manifest":"source-manifest.json","artifact_manifest":"artifact-manifest.sha256","setup_commands":"setup-commands.md","tool_trace":"tool-trace.md","case_artifact_bytes":{"documentation-w1":51010,"documentation-w2":47268,"documentation-w3":3676,"documentation-t1":23115,"feedback-t1":3359,"feedback-t2":1179,"feedback-t3":3351,"feedback-t4":3925,"feedback-t5":1128,"feedback-t6":2277,"b12-resolved-base":2104,"b12-t1":2079,"b12-t2":1914,"b12-t3":1184,"b12-t4":2119,"b12-t5":1238,"malformed-tags":1328,"wrong-docs-root":4459,"clean-no-op":2528,"teaching-export":114161,"learning-visuals":10571,"readiness-boundary":894},"total_case_artifact_bytes_at_manifest_capture":284867,"total_response_bytes":null,"total_response_bytes_unavailable_reason":"host does not expose complete worker transcript bytes"},
+  "metrics": {"unnecessary_interruptions":0,"required_blocking_gaps":1,"outcome_reruns":0,"setup_or_tool_fallbacks":5},
+  "grading": [
+    {"case":"documentation-W1","checks":[
+      {"check":"Next root/src, sync/async/const, route-group removal, Web SDK, literal MapGroup, Function and FunctionName captured","status":"pass","locator":"cases/documentation-w1/result.md; cases/documentation-w1/separate/docs/{next,dotnet-web,functions}"},
+      {"check":"Every task has five-root/output handoff fields and stable ID; exact resolved output written; source unchanged","status":"pass","locator":"cases/documentation-w1/separate/docs/*/_docs-tasks.md; cases/documentation-w1/separate/docs/next/workflows/widgets-web/widgets-by-id-get.md"},
+      {"check":"Bounded detector coverage; dynamic forms Partial","status":"pass","locator":"cases/documentation-w1/separate/docs/next/project-overview.md; cases/documentation-w1/separate/docs/dotnet-web/project-overview.md"},
+      {"check":"Generated workflow doc schema v2 with Source Evidence and hashed Source Files","status":"pass","locator":"cases/documentation-w1/separate/docs/next/workflows/widgets-web/widgets-by-id-get.md"},
+      {"check":"Co-located and all three selected multi-workspace outputs preserve destinations","status":"pass","locator":"cases/documentation-w1/colocated/source/*/_docs; cases/documentation-w1/multi/docs/*"}
+    ]},
+    {"case":"documentation-W2","checks":[
+      {"check":"Unchanged and unrelated changes remain Current without doc writes","status":"pass","locator":"cases/documentation-w2/result.md rows unchanged/unrelated"},
+      {"check":"Relevant unstaged, staged, and untracked boundary changes are Stale at unchanged HEAD","status":"pass","locator":"cases/documentation-w2/result.md rows unstaged/staged/untracked"},
+      {"check":"Entry move/registration change is Stale with scoped retrace","status":"pass","locator":"cases/documentation-w2/result.md row moved"},
+      {"check":"Unknown/non-ancestor revision is Unverifiable","status":"pass","locator":"cases/documentation-w2/nonancestor/docs/workflows/widgets-web/widgets-by-id-get.md; cases/documentation-w2/result.md"},
+      {"check":"Readable sibling change Stale; unreadable sibling Unverifiable","status":"pass","locator":"cases/documentation-w2/sibling-changed; cases/documentation-w2/sibling-unreadable; cases/documentation-w2/result.md"}
+    ]},
+    {"case":"documentation-W3","checks":[
+      {"check":"Exact IDs retain number/progress/notes/evidence; new IDs monotonic; retirement/rename reviewable; same-file flows separate","status":"pass","locator":"cases/documentation-w3/reconciled.md"},
+      {"check":"Identical refresh byte-for-byte no-op","status":"pass","locator":"cases/documentation-w3/result.md; reconciled SHA 909f5ad29752aa9df60d171b5a1a0cb81c5e6e16de69c7c403f5d2a1db57c124 in tool trace"}
+    ]},
+    {"case":"documentation-T1","checks":[
+      {"check":"Terraform semantics, provider contexts, provenance counts, and unknown live axes match fixture","status":"pass","locator":"cases/documentation-t1/docs/overview.md; cases/documentation-t1/docs/root/production.md"},
+      {"check":"Schema v4 Source Evidence and Source Files hashes; dirty root invalidates unchanged HEAD","status":"pass","locator":"cases/documentation-t1/docs/root/production.md; cases/documentation-t1/freshness/source/main.tf; cases/documentation-t1/result.md"},
+      {"check":"Changed readable sibling module has separate source identity","status":"unavailable","locator":"cases/documentation-t1/result.md","reason":"fixture supplied no readable sibling module body; remote module identities remain separately Unverifiable"}
+    ]},
+    {"case":"feedback-T1","checks":[
+      {"check":"Two observations after replica dedupe","status":"pass","locator":"cases/feedback-t1/result.md"},
+      {"check":"Invocation count/coverage unavailable; no retirement or non-use inference","status":"pass","locator":"cases/feedback-t1/result.md fitness row"}
+    ]},
+    {"case":"feedback-T2","checks":[
+      {"check":"Revisits item-7 and pred-2 with zero new observations","status":"pass","locator":"cases/feedback-t2/store/REVIEW.md"},
+      {"check":"No duplicate/discard and queue preserved","status":"pass","locator":"cases/feedback-t2/store/queue.md; cases/feedback-t2/store/REVIEW.md"}
+    ]},
+    {"case":"feedback-T3","checks":[
+      {"check":"Same execution with no delta is no-op","status":"pass","locator":"cases/feedback-t3/a-noop/SESSION_LOG.md; cases/feedback-t3/result.md"},
+      {"check":"New same-execution decision appends receipt superseding close-current","status":"unavailable","locator":"cases/feedback-t3/b-new-decision/SESSION_LOG.md; cases/feedback-t3/result.md","reason":"fixture did not supply decision content; no boundary or receipt manufactured"},
+      {"check":"Different same-day execution prepends entry and does not adopt top receipt","status":"pass","locator":"cases/feedback-t3/c-later/SESSION_LOG.md"},
+      {"check":"No completion receipt before enabled recorder validation","status":"pass","locator":"cases/feedback-t3/result.md; observations disabled"}
+    ]},
+    {"case":"feedback-T4","checks":[
+      {"check":"Commit-only marker unverified and changed content detected","status":"pass","locator":"cases/feedback-t4/result.md; cases/feedback-t4/repo/tasks-after.md:3"},
+      {"check":"Only matching runner state accepted","status":"pass","locator":"cases/feedback-t4/result.md; tool-trace.md matching=true/stale=false"},
+      {"check":"At most one observation and manifest-bound receipt","status":"pass","locator":"cases/feedback-t4/repo/tasks-after.md evidence block; observations disabled (zero)"},
+      {"check":"Repository completion distinct from pending live work","status":"pass","locator":"cases/feedback-t4/repo/SESSION_LOG.md; tasks-after receipt"}
+    ]},
+    {"case":"feedback-T5","checks":[
+      {"check":"Continuation closeout with observations disabled","status":"pass","locator":"cases/feedback-t5/repo/SESSION_LOG.md"},
+      {"check":"No private bootstrap or observation gate PASS; optional bootstrap described","status":"pass","locator":"cases/feedback-t5/home (empty); cases/feedback-t5/result.md"}
+    ]},
+    {"case":"feedback-T6","checks":[
+      {"check":"Real created_at and provenance","status":"pass","locator":"cases/feedback-t6/repo/decisions/0004-use-sqlite.md metadata"},
+      {"check":"Human rationale; AI-drafted visible unreviewed consequences; no implied ownership","status":"pass","locator":"cases/feedback-t6/repo/decisions/0004-use-sqlite.md"},
+      {"check":"Legacy retained with relationship and missing-date age unknown","status":"pass","locator":"cases/feedback-t6/repo/decisions/0003-first-transport.md; cases/feedback-t6/result.md"}
+    ]},
+    {"case":"B12-T1","checks":[
+      {"check":"Alpha tracking intent retained/proposed relocation; beta untracked; no index mutation/commit","status":"pass","locator":"cases/b12-t1/repo/conversion-manifest.tsv; cases/b12-t1/result.md; tool-trace.md"}
+    ]},
+    {"case":"B12-T2","checks":[
+      {"check":"Alpha resumes raw-ready to source-ready without relocation; beta processed; no duplicate note","status":"pass","locator":"cases/b12-t2/repo/conversion-manifest.tsv; cases/b12-t2/repo/sources/course; cases/b12-t2/result.md"}
+    ]},
+    {"case":"B12-T3","checks":[
+      {"check":"Conflicting origin/destination blocked; neither overwritten","status":"pass","locator":"cases/b12-t3/repo; cases/b12-t3/result.md"}
+    ]},
+    {"case":"B12-T4","checks":[
+      {"check":"Unchanged compile reports nothing and changes no file/status/log","status":"pass","locator":"cases/b12-t4/result.md; cases/b12-t4/vault; tool-trace.md ownership output"}
+    ]},
+    {"case":"B12-T5","checks":[
+      {"check":"Interrupted relocation stays raw-ready; no source integration or completion digest","status":"pass","locator":"cases/b12-t5/repo/conversion-manifest.tsv; cases/b12-t5/result.md"}
+    ]},
+    {"case":"malformed-tags","checks":[
+      {"check":"Actually loads feedback/tag contract","status":"pass","locator":"cases/malformed-tags/result.md first line; source-manifest.json feedback contract"},
+      {"check":"Valid token retained","status":"pass","locator":"cases/malformed-tags/result.md row 1"},
+      {"check":"Every malformed boundary classified with exact raw value","status":"pass","locator":"cases/malformed-tags/result.md rows 2-6"},
+      {"check":"No silent normalization or private write","status":"pass","locator":"cases/malformed-tags/result.md; only fixture files in case"},
+      {"check":"Repeated valid tag not treated as invocation","status":"pass","locator":"cases/malformed-tags/result.md final paragraph"}
+    ]},
+    {"case":"wrong-docs-root","checks":[
+      {"check":"Exactly promised destination satisfies AC","status":"pass","locator":"cases/wrong-docs-root/separate/docs/workflows/create.md"},
+      {"check":"Source unchanged by content comparison","status":"pass","locator":"cases/wrong-docs-root/result.md; handler SHA 864072a7c0c1baa5b3f51c0354722af3c6a15168cef6d66c2eb771d5342b6a32"},
+      {"check":"Co-located default works","status":"pass","locator":"cases/wrong-docs-root/colocated/source/workflows/create.md"},
+      {"check":"Distinct workspace destinations preserve both docs","status":"pass","locator":"cases/wrong-docs-root/multi/docs/billing/workflows/create.md; cases/wrong-docs-root/multi/docs/orders/workflows/create.md"},
+      {"check":"Refresh resolves source paths under source root","status":"pass","locator":"cases/wrong-docs-root/result.md"}
+    ]},
+    {"case":"clean-no-op","evidence_class":"informed diagnostic only","checks":[
+      {"check":"Reads enough state to establish unchanged inputs","status":"pass","locator":"cases/clean-no-op/result.md; vault SCHEMA/source/wiki/checker files"},
+      {"check":"No content/status/digest write on true no-op","status":"pass","locator":"cases/clean-no-op/vault Git clean; tool-trace.md"},
+      {"check":"No generic approval interruption","status":"pass","locator":"cases/clean-no-op/result.md; metrics unnecessary_interruptions=0"},
+      {"check":"Preserves source reference","status":"pass","locator":"cases/clean-no-op/vault/sources/note.md:14"}
+    ]},
+    {"case":"teaching-export","checks":[
+      {"check":"Glossary discoverable from format inventory","status":"pass","locator":"source-manifest.json GLOSSARY-FORMAT; cases/teaching-export/workspace/GLOSSARY.md"},
+      {"check":"Offline single-file export relocates and actual render inspected","status":"pass","locator":"cases/teaching-export/relocated/idempotency-offline.html; render/desktop.png; render/trace.json"},
+      {"check":"Required assets preserved or inlined","status":"pass","locator":"workspace/assets/course.css; export/idempotency-offline.html inline style/script"},
+      {"check":"Default bundle versus single file explained consistently","status":"pass","locator":"cases/teaching-export/result.md"},
+      {"check":"Three plausible distractors without answer-length padding","status":"pass","locator":"cases/teaching-export/export/idempotency-offline.html; render/trace.json"},
+      {"check":"Explicit-only policy preserved","status":"pass","locator":"source-manifest.json teach body; cases/teaching-export/result.md"}
+    ]},
+    {"case":"learning-visuals","checks":[
+      {"check":"Decisive diagram inspected or uncertainty explicit","status":"pass","locator":"cases/learning-visuals/ordering.png; cases/learning-visuals/result.md"},
+      {"check":"No decisive recommendation from caption alone","status":"pass","locator":"cases/learning-visuals/result.md reason and visual evidence"},
+      {"check":"Interactive output concise","status":"pass","locator":"cases/learning-visuals/result.md Interactive result"},
+      {"check":"Structured consumer retains all required fields","status":"pass","locator":"cases/learning-visuals/result.md JSON block"}
+    ]},
+    {"case":"readiness-boundary","checks":[
+      {"check":"States exactly demonstrated knowledge","status":"pass","locator":"cases/readiness-boundary/result.md paragraph 1"},
+      {"check":"Unknown next-topic prerequisites explicitly unknown","status":"pass","locator":"cases/readiness-boundary/result.md paragraph 2"},
+      {"check":"No blanket readiness certification","status":"pass","locator":"cases/readiness-boundary/result.md bounded verdict"},
+      {"check":"Requests next topic/prerequisites or bounds verdict","status":"pass","locator":"cases/readiness-boundary/result.md final paragraph"}
+    ]}
+  ],
+  "limitations": [
+    "Worker context is shared across cases and is not case-level context independence.",
+    "Effective model and reasoning settings are not exposed.",
+    "Token and cost measurements are unavailable.",
+    "The supplied candidate omits referenced detector, workflow-output-template, and Terraform heuristic files; no live skill source was substituted.",
+    "Parent disclosed a suspected frozen clean-no-op defect before execution; that case can only count as informed diagnostic evidence.",
+    "Feedback T3-B is unavailable because the fixture asserted new work without supplying the decision content; no facts or receipt were invented.",
+    "Final judgment-heavy owner review remains pending for all human-review-required cases."
+  ]
+}

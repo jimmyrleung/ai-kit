@@ -1,0 +1,37 @@
+{
+  "record_id": "parent-existing-provider-evidence-20260907",
+  "captured_at": "2026-09-07T12:20:44.333352+00:00",
+  "checks": [
+    {
+      "check": "positive",
+      "command": [
+        "node",
+        "/tmp/astra-backlog-5VdqNm/existing-provider-stores-20260907/codex/workspace/procedure/skills/close/scripts/check-observation-tags.mjs",
+        "/tmp/astra-backlog-5VdqNm/existing-provider-stores-20260907/codex/workspace/procedure/docs/contracts/feedback.md",
+        "/tmp/astra-backlog-5VdqNm/existing-provider-stores-20260907/codex/workspace/store/.claude/observations/2026-09-07-gate-honesty.md"
+      ],
+      "exit": 0,
+      "stdout": "Observation tags: pass\n",
+      "stderr": ""
+    },
+    {
+      "check": "absent-required",
+      "command": [
+        "node",
+        "/tmp/astra-backlog-5VdqNm/existing-provider-stores-20260907/codex/workspace/procedure/skills/close/scripts/check-observation-tags.mjs",
+        "/tmp/astra-backlog-5VdqNm/existing-provider-stores-20260907/codex/workspace/procedure/docs/contracts/feedback.md",
+        "/tmp/astra-backlog-5VdqNm/existing-provider-stores-20260907/codex/workspace/store/.claude/observations/intentionally-absent.md"
+      ],
+      "exit": 2,
+      "stdout": "",
+      "stderr": "Observation tag check failed: ENOENT: no such file or directory, open '/tmp/astra-backlog-5VdqNm/existing-provider-stores-20260907/codex/workspace/store/.claude/observations/intentionally-absent.md'\n"
+    }
+  ],
+  "seed_identity_matches": true,
+  "procedure_drift": [],
+  "observation_evidence_identity_matches": true,
+  "negative_enabled_and_failed": true,
+  "negative_record_absent": true,
+  "completion_receipt_issued": false,
+  "scope": "Parent actual Codex artifact/check verification only. Claude/Cursor blocked attempts stay unavailable; no aggregate provider pass."
+}

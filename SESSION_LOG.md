@@ -1,6 +1,16 @@
 ## [2026-09-01] — provider-neutral portability shipped and live-aligned
 
-### Current handoff — 2026-09-04
+### Current handoff — 2026-09-06: Astra audit consolidated
+
+**Summary:** Completed the source/usage review and consolidated a 35-item backlog with the user's engineering guidance and the fresh independent review's Terraform freshness correction; no kit implementation changed.
+**Next:** Start a separate execution goal from B01 in the canonical backlog, with B21's bounded evaluation baseline alongside independent work. B08 includes Terraform root/sibling-source freshness; B22's required engineering alignment can proceed independently of its simplification experiment.
+**Blockers:** None for planning. Public/private commit approval remains pending; the private repository has unrelated staged work that must stay outside this close's commit. The original brief remains local because it contains machine-specific paths.
+**Didn't work:** Oversized source/log reads repeatedly truncated tool output; smaller bounded rereads recovered omitted sections. A passing structural suite did not cover the negative schema and sync-diagnostic probes. Do not treat copied usage records as independent outcomes or run the prohibited audit/authoring skills as methods for this review.
+**Artifacts:** [Canonical backlog](20260906_astra_review_backlog.md), [source/usage report](20260906_astra_review_report.md), [independent review and dispositions](20260906_astra_review_independent_review.md); private observations `~/.claude/observations/2026-09-06-astra-review-close.md`.
+**Checks:** Existing checker fixtures and final portability check passed; sync suite: 37 passes, one Windows-only skip. Consolidated document links, IDs, coverage, dependencies, and whitespace passed; observation tags passed. No new runtime benchmark or independent re-review of the consolidation is claimed.
+**Close notes:** No new memory, repo rules, or skills; requirements and rationale already live in the artifacts. Existing ownership drafts remain parked. Preserve earlier log history and its existing archive deferral; no commit or push performed.
+
+### Earlier handoff — 2026-09-04 (preserved)
 
 **Summary:** Approved workflow improvements are committed as `85a7733`; the subsequent audit's approved changes are applied and structurally verified, but not committed.
 **Next:** Obtain approval for the public commit covering `skills/audit-skills/SKILL.md`, `skills/docs-tasks-creator/SKILL.md`, `skills/docs-tasks-creator/references/detectors.md`, and this log. Separately resolve the private commit's hook finding and reconfirm its exact scope before staging later audit/close records; ask before each push.
@@ -17,7 +27,8 @@
 **Didn't work:** The first preserve rule accepted empty directories; the first transaction retry model did not durably authorize unlink-to-replacement; `npx skills check -g` did not resolve the legacy global lock; hosted CI then exposed Bash-3, Windows-CRLF, macOS `/var` alias, Windows junction quoting/namespace/dangling-target, and Python-hook assumptions. Per-test annotations made the remote tracebacks actionable, and the final implementation now has executable regressions for every failure plus one-read state snapshots.
 **Artifacts:** `linux_portability_cross_agent_coupling_tasks.md` · `linux_portability_cross_agent_coupling_analysis.md` · `linux_portability_cross_agent_coupling_techspec.md` · `linux_portability_hosted_ci_investigation.md` · `scripts/sync-skills.py` · `tests/test_sync_skills.py` · [hosted run 33546826508](https://github.com/jimmyrleung/ai-kit/actions/runs/33546826508) · `~/.claude/observations/2026-09-01-ai-kit-{preserve-policy,post-review-remediation}.md`
 Prior close receipt: 2026-09-01 16:04 · memory:0 · rules:1 · skills:0 · obs:16.
-<!-- close-receipt: 2026-09-04 18:50 · memory:0 · rules:0 · skills:0 · obs:5 -->
+Prior close receipt: 2026-09-04 18:50 · memory:0 · rules:0 · skills:0 · obs:5.
+<!-- close-receipt: 2026-09-06 12:42 · memory:0 · rules:0 · skills:0 · obs:3 -->
 
 ## [2026-08-31] — provider-neutral portability design + tasks reviewed
 

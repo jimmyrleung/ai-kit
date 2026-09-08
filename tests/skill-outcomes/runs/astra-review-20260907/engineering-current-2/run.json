@@ -1,0 +1,980 @@
+{
+  "schema_version": 1,
+  "run_id": "engineering-current-repeat-2",
+  "batch_id": "engineering-current-shared-context",
+  "condition": "current",
+  "repeat": 2,
+  "execution_kind": "supplied-body-procedure",
+  "status": "completed_with_unavailable",
+  "provider": "OpenAI",
+  "host_version": "unavailable",
+  "model": "gpt-5.6-sol (requested; effective value unavailable)",
+  "reasoning": "high (requested; effective value unavailable)",
+  "settings_origin": "parent dispatch request; effective host settings not exposed",
+  "tool_capabilities": [
+    "exec_command",
+    "apply_patch"
+  ],
+  "source_manifest": "inputs/source-manifest.json",
+  "trace_path": "tool-trace.md",
+  "trace_unavailable_reason": "Only manually preserved command/output summaries are available; full host transcript is unavailable.",
+  "case_order": [
+    "dirty-review",
+    "unborn-short-history",
+    "review-invalidation",
+    "task-reverification",
+    "consumer-closure",
+    "completion-resources",
+    "existing-test-home",
+    "convention-new-test",
+    "no-suitable-test-home",
+    "unneeded-helper",
+    "authorization-cadence",
+    "review-depth-severity",
+    "check-reuse",
+    "intent-routing",
+    "incident-causality"
+  ],
+  "shared_context_disclosure": "All cases ran in one declared-order batch. Fresh fixtures isolate filesystem state, but case-level context independence is weaker because the same worker context was reused.",
+  "extra_prompts": [
+    {
+      "order_after_case": "existing-test-home",
+      "prompt": "Analyze rejecting negative amounts; produce a reference map, no implementation recipe",
+      "status": "completed",
+      "output": "extras/01-existing-test-home-analyze/artifacts/rejecting-negative-amounts_analysis.md"
+    },
+    {
+      "order_after_case": "consumer-closure",
+      "prompt": "Analyze the fetch return-contract change; produce a reference map, no implementation recipe.",
+      "status": "completed",
+      "output": "extras/02-consumer-closure-analyze/artifacts/fetch-return-contract_analysis.md"
+    }
+  ],
+  "cases": [
+    {
+      "case_id": "dirty-review",
+      "order": 1,
+      "status": "completed",
+      "prompt_path": "cases/01-dirty-review/inputs/prompt.md",
+      "skills": [
+        "review-implementation",
+        "qa-gates"
+      ],
+      "mandatory_checks": [
+        {
+          "criterion": "Committed, staged, unstaged and untracked intended content inspected; each layer transition covered once",
+          "status": "pass",
+          "locator": "cases/01-dirty-review/output.md:9"
+        },
+        {
+          "criterion": "Rename old/new paths recorded",
+          "status": "pass",
+          "locator": "cases/01-dirty-review/output.md:14"
+        },
+        {
+          "criterion": "Task B and earlier unrelated work excluded with reasons",
+          "status": "pass",
+          "locator": "cases/01-dirty-review/output.md:14"
+        },
+        {
+          "criterion": "Current byte identities recorded; SHA+dirty alone rejected",
+          "status": "pass",
+          "locator": "cases/01-dirty-review/output.md:18"
+        }
+      ],
+      "output_path": "cases/01-dirty-review/output.md",
+      "trace_path": "cases/01-dirty-review/tool-trace.md",
+      "questions": [],
+      "failures": [],
+      "artifacts": [
+        {
+          "path": "cases/01-dirty-review/artifacts/current-byte-identities.json",
+          "sha256": "88154379743743cb5b829fb198381536d99e7f7539140646c7ab63b84b7e113f",
+          "bytes": 796
+        },
+        {
+          "path": "cases/01-dirty-review/output.md",
+          "sha256": "72a5ca680d39869de13b57b60e72851884a795a3b1c4ef7eaf7c54f10eb6c123",
+          "bytes": 1610
+        },
+        {
+          "path": "cases/01-dirty-review/tool-trace.md",
+          "sha256": "c3d7d26ff2234c76cf50fc91e425c7051c9bb44404b5b7df36d4e6869ff7d1e5",
+          "bytes": 5073
+        }
+      ]
+    },
+    {
+      "case_id": "unborn-short-history",
+      "order": 2,
+      "status": "completed",
+      "prompt_path": "cases/02-unborn-short-history/inputs/prompt.md",
+      "skills": [
+        "verify-task"
+      ],
+      "mandatory_checks": [
+        {
+          "criterion": "Unborn uses explicit empty-tree base and absent HEAD",
+          "status": "pass",
+          "locator": "cases/02-unborn-short-history/output.md:5"
+        },
+        {
+          "criterion": "Single-commit case never calls a fixed HEAD ancestor window",
+          "status": "pass",
+          "locator": "cases/02-unborn-short-history/output.md:9"
+        },
+        {
+          "criterion": "Staged and unstaged contents accounted for",
+          "status": "pass",
+          "locator": "cases/02-unborn-short-history/output.md:11"
+        }
+      ],
+      "output_path": "cases/02-unborn-short-history/output.md",
+      "trace_path": "cases/02-unborn-short-history/tool-trace.md",
+      "questions": [],
+      "failures": [],
+      "artifacts": [
+        {
+          "path": "cases/02-unborn-short-history/output.md",
+          "sha256": "75b574652e086681a703d4e65c6783ccd2e8658cd5d8447a015e52981f729b6d",
+          "bytes": 957
+        },
+        {
+          "path": "cases/02-unborn-short-history/tool-trace.md",
+          "sha256": "2e9fa4dafd6a51920d633fb36a6afcb08ba80fa428eaab7b4e86ba8356c01d76",
+          "bytes": 5974
+        }
+      ]
+    },
+    {
+      "case_id": "review-invalidation",
+      "order": 3,
+      "status": "completed",
+      "prompt_path": "cases/03-review-invalidation/inputs/prompt.md",
+      "skills": [
+        "review-artifact",
+        "qa-gates"
+      ],
+      "mandatory_checks": [
+        {
+          "criterion": "Source and AC edits invalidate affected evidence",
+          "status": "pass",
+          "locator": "cases/03-review-invalidation/output.md:7; artifacts/git-variant-identities.json:4"
+        },
+        {
+          "criterion": "Task-only record cannot cover Task B",
+          "status": "pass",
+          "locator": "cases/03-review-invalidation/output.md:8"
+        },
+        {
+          "criterion": "Rejected review cannot advance",
+          "status": "pass",
+          "locator": "cases/03-review-invalidation/output.md:10"
+        },
+        {
+          "criterion": "Exact evidence-only append avoids self-invalidation",
+          "status": "pass",
+          "locator": "cases/03-review-invalidation/output.md:11"
+        },
+        {
+          "criterion": "Unrelated scoped-out file does not invalidate Task A",
+          "status": "pass",
+          "locator": "cases/03-review-invalidation/output.md:12"
+        },
+        {
+          "criterion": "Missing identities remain unverified",
+          "status": "pass",
+          "locator": "cases/03-review-invalidation/output.md:13"
+        }
+      ],
+      "output_path": "cases/03-review-invalidation/output.md",
+      "trace_path": "cases/03-review-invalidation/tool-trace.md",
+      "questions": [],
+      "failures": [],
+      "artifacts": [
+        {
+          "path": "cases/03-review-invalidation/artifacts/git-variant-identities.json",
+          "sha256": "f5469785f600a284e42cff463a92abc7a443486c642a17287ef31e435a538441",
+          "bytes": 3078
+        },
+        {
+          "path": "cases/03-review-invalidation/artifacts/initial-evidence.json",
+          "sha256": "40b91304043c8a3d90758615f65d1b6551d869f4bc63f202f2161257ad538f3b",
+          "bytes": 233
+        },
+        {
+          "path": "cases/03-review-invalidation/output.md",
+          "sha256": "c56f68453bb7f2e5e958793548306624f68e44b8ddc6dc093d1d7adbee59878a",
+          "bytes": 1406
+        },
+        {
+          "path": "cases/03-review-invalidation/tool-trace.md",
+          "sha256": "38a9975d9cdf29e2d7442b8b90e6d449bbfb09120070f8d5b806bf30841779ab",
+          "bytes": 4858
+        }
+      ]
+    },
+    {
+      "case_id": "task-reverification",
+      "order": 4,
+      "status": "completed",
+      "prompt_path": "cases/04-task-reverification/inputs/prompt.md",
+      "skills": [
+        "verify-task",
+        "qa-gates"
+      ],
+      "mandatory_checks": [
+        {
+          "criterion": "Exact Task 1 set remains AC-1 across reruns",
+          "status": "pass",
+          "locator": "cases/04-task-reverification/output.md:3"
+        },
+        {
+          "criterion": "No old evidence/test-checkbox/neighbor AC leakage",
+          "status": "pass",
+          "locator": "cases/04-task-reverification/output.md:3"
+        },
+        {
+          "criterion": "Evidence preserved with nested or delimited structure",
+          "status": "pass",
+          "locator": "cases/04-task-reverification/artifacts/tasks-preserved.md:10; artifacts/tasks-preserved.md:16"
+        },
+        {
+          "criterion": "Numbered item boundary supported",
+          "status": "pass",
+          "locator": "cases/04-task-reverification/output.md:7"
+        },
+        {
+          "criterion": "Fix maps expected behavior and designated fix ACs with source locators",
+          "status": "pass",
+          "locator": "cases/04-task-reverification/output.md:8"
+        },
+        {
+          "criterion": "QA task scope explicit; prefix call derives broader scope separately",
+          "status": "pass",
+          "locator": "cases/04-task-reverification/output.md:12"
+        }
+      ],
+      "output_path": "cases/04-task-reverification/output.md",
+      "trace_path": "cases/04-task-reverification/tool-trace.md",
+      "questions": [],
+      "failures": [],
+      "artifacts": [
+        {
+          "path": "cases/04-task-reverification/artifacts/tasks-preserved.md",
+          "sha256": "84f6077d510cc4d0af1a0d913669ec19b8d101e89ca3d954b53588bd70007a49",
+          "bytes": 829
+        },
+        {
+          "path": "cases/04-task-reverification/output.md",
+          "sha256": "984e5855fc4b1153c7bce013fbc2e61dc69a95c8e96292d051cf09539a4e1857",
+          "bytes": 1766
+        },
+        {
+          "path": "cases/04-task-reverification/tool-trace.md",
+          "sha256": "0930268f8b3603a0b6f2a8eaed0c44f9d4584b982f648f221a80677bc987e133",
+          "bytes": 23
+        }
+      ]
+    },
+    {
+      "case_id": "consumer-closure",
+      "order": 5,
+      "status": "completed",
+      "prompt_path": "cases/05-consumer-closure/inputs/prompt.md",
+      "skills": [
+        "review-artifact",
+        "tasks-breakdown"
+      ],
+      "mandatory_checks": [
+        {
+          "criterion": "Reads unchanged consumer source",
+          "status": "pass",
+          "locator": "cases/05-consumer-closure/tool-trace.md:7; tool-trace.md:11"
+        },
+        {
+          "criterion": "Identifies worker arithmetic contract break",
+          "status": "pass",
+          "locator": "cases/05-consumer-closure/output.md:6"
+        },
+        {
+          "criterion": "Assigns consumer and existing test update to owning task",
+          "status": "pass",
+          "locator": "cases/05-consumer-closure/output.md:9"
+        },
+        {
+          "criterion": "Does not claim coverage merely from citations in plan",
+          "status": "pass",
+          "locator": "cases/05-consumer-closure/output.md:9"
+        }
+      ],
+      "output_path": "cases/05-consumer-closure/output.md",
+      "trace_path": "cases/05-consumer-closure/tool-trace.md",
+      "questions": [],
+      "failures": [],
+      "artifacts": [
+        {
+          "path": "cases/05-consumer-closure/output.md",
+          "sha256": "919f1df3cb83a83c36f916794bce446475e2fbea025c0e7adc17c05a53eaea93",
+          "bytes": 1283
+        },
+        {
+          "path": "cases/05-consumer-closure/tool-trace.md",
+          "sha256": "65adaf47c6b820bbad96721ef5b26c6e3e3c7c7dc4e8bb30fcbc8064f6531c73",
+          "bytes": 1077
+        }
+      ]
+    },
+    {
+      "case_id": "completion-resources",
+      "order": 6,
+      "status": "completed",
+      "prompt_path": "cases/06-completion-resources/inputs/prompt.md",
+      "skills": [
+        "tasks-breakdown",
+        "implement-task",
+        "qa-gates"
+      ],
+      "mandatory_checks": [
+        {
+          "criterion": "No cycle from QA waiting for deploy/live tasks",
+          "status": "pass",
+          "locator": "cases/06-completion-resources/artifacts/task-graph.md:20"
+        },
+        {
+          "criterion": "Pending operations retain own statuses and evidence",
+          "status": "pass",
+          "locator": "cases/06-completion-resources/artifacts/task-graph.md:8"
+        },
+        {
+          "criterion": "Shared-file and same-database work serialized or truly isolated with reconciliation",
+          "status": "pass",
+          "locator": "cases/06-completion-resources/artifacts/task-graph.md:20"
+        },
+        {
+          "criterion": "Independent read-only work may overlap",
+          "status": "pass",
+          "locator": "cases/06-completion-resources/artifacts/task-graph.md:18"
+        },
+        {
+          "criterion": "Unsatisfied dependency prevents readiness",
+          "status": "pass",
+          "locator": "cases/06-completion-resources/artifacts/task-graph.md:18"
+        },
+        {
+          "criterion": "Repository-only variant keeps normal completion path",
+          "status": "pass",
+          "locator": "cases/06-completion-resources/artifacts/task-graph.md:22"
+        }
+      ],
+      "output_path": "cases/06-completion-resources/output.md",
+      "trace_path": "cases/06-completion-resources/tool-trace.md",
+      "questions": [],
+      "failures": [],
+      "artifacts": [
+        {
+          "path": "cases/06-completion-resources/artifacts/task-graph.md",
+          "sha256": "d4508d4191ec7eaca0721e91884d01b475dc99c40850ae0cb265f232c70bffdf",
+          "bytes": 1836
+        },
+        {
+          "path": "cases/06-completion-resources/output.md",
+          "sha256": "070e2162b58569fe8c2719a83047d3d7899e649789380b69b9de1b10bfe47b7a",
+          "bytes": 528
+        },
+        {
+          "path": "cases/06-completion-resources/tool-trace.md",
+          "sha256": "0930268f8b3603a0b6f2a8eaed0c44f9d4584b982f648f221a80677bc987e133",
+          "bytes": 23
+        }
+      ]
+    },
+    {
+      "case_id": "existing-test-home",
+      "order": 7,
+      "status": "completed",
+      "prompt_path": "cases/07-existing-test-home/inputs/prompt.md",
+      "skills": [
+        "implement-task",
+        "verify-task"
+      ],
+      "mandatory_checks": [
+        {
+          "criterion": "Extends tests/test_calc.py; no new test file",
+          "status": "pass",
+          "locator": "cases/07-existing-test-home/output.md:3"
+        },
+        {
+          "criterion": "Reads instructions, nearby code/tests/docs/CI",
+          "status": "pass",
+          "locator": "cases/07-existing-test-home/tool-trace.md:7; tool-trace.md:24; tool-trace.md:35; tool-trace.md:46; tool-trace.md:58"
+        },
+        {
+          "criterion": "Uses existing unittest patterns and appropriate fixtures",
+          "status": "pass",
+          "locator": "cases/07-existing-test-home/tool-trace.md:58"
+        },
+        {
+          "criterion": "Negative, zero and positive behavior verified by executed tests",
+          "status": "pass",
+          "locator": "cases/07-existing-test-home/tool-trace.md:84; tool-trace.md:93; tool-trace.md:95"
+        },
+        {
+          "criterion": "No speculative helper or unrelated cleanup",
+          "status": "pass",
+          "locator": "cases/07-existing-test-home/output.md:5"
+        },
+        {
+          "criterion": "No broad refactor or file-count optimization at expense of coverage",
+          "status": "pass",
+          "locator": "cases/07-existing-test-home/output.md:5"
+        }
+      ],
+      "output_path": "cases/07-existing-test-home/output.md",
+      "trace_path": "cases/07-existing-test-home/tool-trace.md",
+      "questions": [],
+      "failures": [],
+      "artifacts": [
+        {
+          "path": "cases/07-existing-test-home/artifacts/final-manifest.json",
+          "sha256": "78b462484865efd3762bcb36e1629f7bff8b1a88f8d5072a53160ea69a48c22a",
+          "bytes": 690
+        },
+        {
+          "path": "cases/07-existing-test-home/output.md",
+          "sha256": "c22a6c1e846af5e6a08e8e89deaf0c3310f873f1b08f1a68b3a335395a5b67f4",
+          "bytes": 909
+        },
+        {
+          "path": "cases/07-existing-test-home/tool-trace.md",
+          "sha256": "eab2c91e43657d6b7101c864d2043f21d05d5a2d477d0505c95d68fa78951ac4",
+          "bytes": 2431
+        }
+      ]
+    },
+    {
+      "case_id": "convention-new-test",
+      "order": 8,
+      "status": "completed",
+      "prompt_path": "cases/08-convention-new-test/inputs/prompt.md",
+      "skills": [
+        "implement-task",
+        "verify-task"
+      ],
+      "mandatory_checks": [
+        {
+          "criterion": "Creates convention-required tests/test_calc_validation.py and states reason",
+          "status": "pass",
+          "locator": "cases/08-convention-new-test/output.md:3"
+        },
+        {
+          "criterion": "Reads instructions, nearby code/tests/docs/CI",
+          "status": "pass",
+          "locator": "cases/08-convention-new-test/tool-trace.md:7; tool-trace.md:24; tool-trace.md:35; tool-trace.md:46; tool-trace.md:58"
+        },
+        {
+          "criterion": "Uses existing unittest patterns and appropriate fixtures",
+          "status": "pass",
+          "locator": "cases/08-convention-new-test/tool-trace.md:58"
+        },
+        {
+          "criterion": "Negative, zero and positive behavior verified by executed tests",
+          "status": "pass",
+          "locator": "cases/08-convention-new-test/tool-trace.md:84; tool-trace.md:94; tool-trace.md:96"
+        },
+        {
+          "criterion": "No speculative helper or unrelated cleanup",
+          "status": "pass",
+          "locator": "cases/08-convention-new-test/output.md:5"
+        },
+        {
+          "criterion": "No broad refactor or file-count optimization at expense of coverage",
+          "status": "pass",
+          "locator": "cases/08-convention-new-test/output.md:5"
+        }
+      ],
+      "output_path": "cases/08-convention-new-test/output.md",
+      "trace_path": "cases/08-convention-new-test/tool-trace.md",
+      "questions": [],
+      "failures": [],
+      "artifacts": [
+        {
+          "path": "cases/08-convention-new-test/artifacts/final-manifest.json",
+          "sha256": "e84d4b16f0ab890ea7dd57314eea74ed6f7de54688c886103a632f0f55d4bc3c",
+          "bytes": 844
+        },
+        {
+          "path": "cases/08-convention-new-test/output.md",
+          "sha256": "b5810fa8a77690ad8720470cade65209420a55eabf1dcb5e3b03a8aceea1eb94",
+          "bytes": 975
+        },
+        {
+          "path": "cases/08-convention-new-test/tool-trace.md",
+          "sha256": "08f5fb3e338b85b9e3bb5dc6fc7491d2bbbeb404b1dda907653d872e4710c228",
+          "bytes": 2653
+        }
+      ]
+    },
+    {
+      "case_id": "no-suitable-test-home",
+      "order": 9,
+      "status": "completed",
+      "prompt_path": "cases/09-no-suitable-test-home/inputs/prompt.md",
+      "skills": [
+        "implement-task",
+        "verify-task"
+      ],
+      "mandatory_checks": [
+        {
+          "criterion": "Creates suitable test module and explains absent existing home",
+          "status": "pass",
+          "locator": "cases/09-no-suitable-test-home/output.md:3"
+        },
+        {
+          "criterion": "Reads instructions, nearby code/tests/docs/CI",
+          "status": "pass",
+          "locator": "cases/09-no-suitable-test-home/tool-trace.md:7; tool-trace.md:24; tool-trace.md:35; tool-trace.md:46; tool-trace.md:58"
+        },
+        {
+          "criterion": "Uses existing unittest patterns and appropriate fixtures",
+          "status": "pass",
+          "locator": "cases/09-no-suitable-test-home/tool-trace.md:58"
+        },
+        {
+          "criterion": "Negative, zero and positive behavior verified by executed tests",
+          "status": "pass",
+          "locator": "cases/09-no-suitable-test-home/tool-trace.md:83; tool-trace.md:93; tool-trace.md:95"
+        },
+        {
+          "criterion": "No speculative helper or unrelated cleanup",
+          "status": "pass",
+          "locator": "cases/09-no-suitable-test-home/output.md:5"
+        },
+        {
+          "criterion": "No broad refactor or file-count optimization at expense of coverage",
+          "status": "pass",
+          "locator": "cases/09-no-suitable-test-home/output.md:5"
+        }
+      ],
+      "output_path": "cases/09-no-suitable-test-home/output.md",
+      "trace_path": "cases/09-no-suitable-test-home/tool-trace.md",
+      "questions": [],
+      "failures": [],
+      "artifacts": [
+        {
+          "path": "cases/09-no-suitable-test-home/artifacts/final-manifest.json",
+          "sha256": "dd10c5355590fa9708c3ca6401c158e093e70aa4911826b8927025f05045c26c",
+          "bytes": 833
+        },
+        {
+          "path": "cases/09-no-suitable-test-home/output.md",
+          "sha256": "a5c3659d77fc8e96e06f5e4598387b13343fe2eda16bea324c62b427a07e6f21",
+          "bytes": 961
+        },
+        {
+          "path": "cases/09-no-suitable-test-home/tool-trace.md",
+          "sha256": "f67a91126fc44d3fccff679c62a2fae0c8f9145cf664ba465379ec3f577a09ff",
+          "bytes": 2573
+        }
+      ]
+    },
+    {
+      "case_id": "unneeded-helper",
+      "order": 10,
+      "status": "completed",
+      "prompt_path": "cases/10-unneeded-helper/inputs/prompt.md",
+      "skills": [
+        "review-artifact",
+        "review-implementation"
+      ],
+      "mandatory_checks": [
+        {
+          "criterion": "Accepts focused guard and meaningful existing tests",
+          "status": "pass",
+          "locator": "cases/10-unneeded-helper/output.md:5"
+        },
+        {
+          "criterion": "Flags unneeded abstraction, duplicated tests and unrelated cleanup with source evidence",
+          "status": "pass",
+          "locator": "cases/10-unneeded-helper/output.md:10"
+        },
+        {
+          "criterion": "Does not penalize a justified new file in comparison cases",
+          "status": "pass",
+          "locator": "cases/10-unneeded-helper/output.md:15"
+        }
+      ],
+      "output_path": "cases/10-unneeded-helper/output.md",
+      "trace_path": "cases/10-unneeded-helper/tool-trace.md",
+      "questions": [],
+      "failures": [],
+      "artifacts": [
+        {
+          "path": "cases/10-unneeded-helper/output.md",
+          "sha256": "d226485daf79eafe18525c93b2b9f1f693d0d23a5b96ca01cc149c44a3b8598c",
+          "bytes": 1189
+        },
+        {
+          "path": "cases/10-unneeded-helper/tool-trace.md",
+          "sha256": "0f65da8cda3dd5d4299e29263245d0a13c0fb3c57d8eb588ecf6e9139b548679",
+          "bytes": 1858
+        }
+      ]
+    },
+    {
+      "case_id": "authorization-cadence",
+      "order": 11,
+      "status": "completed",
+      "prompt_path": "cases/11-authorization-cadence/inputs/prompt.md",
+      "skills": [
+        "analyze-work",
+        "bug-investigation",
+        "walkthrough"
+      ],
+      "mandatory_checks": [
+        {
+          "criterion": "Equivalent inline/file requests have equivalent draft path",
+          "status": "pass",
+          "locator": "cases/11-authorization-cadence/output.md:3"
+        },
+        {
+          "criterion": "Authorized draft has no redundant permission request",
+          "status": "pass",
+          "locator": "cases/11-authorization-cadence/output.md:3"
+        },
+        {
+          "criterion": "Missing load-bearing retention rule produces precise clarification",
+          "status": "pass",
+          "locator": "cases/11-authorization-cadence/output.md:5"
+        },
+        {
+          "criterion": "Requested one-item cadence remains one item per turn",
+          "status": "pass",
+          "locator": "cases/11-authorization-cadence/output.md:6"
+        }
+      ],
+      "output_path": "cases/11-authorization-cadence/output.md",
+      "trace_path": "cases/11-authorization-cadence/tool-trace.md",
+      "questions": [
+        {
+          "variant": "C",
+          "status": "pending",
+          "locator": "cases/11-authorization-cadence/variants/C-missing-retention/output.md:3"
+        },
+        {
+          "variant": "D item 1",
+          "status": "pending",
+          "locator": "cases/11-authorization-cadence/variants/D-walkthrough/output.md:1"
+        }
+      ],
+      "failures": [],
+      "artifacts": [
+        {
+          "path": "cases/11-authorization-cadence/output.md",
+          "sha256": "d2719338af451ee41975caeb6394da2266123d60a714e49d75bd126eab161355",
+          "bytes": 810
+        },
+        {
+          "path": "cases/11-authorization-cadence/tool-trace.md",
+          "sha256": "36550671b6966ee236f8934d5a449f766e2c1374423647508354b1d7a3ae1c02",
+          "bytes": 692
+        },
+        {
+          "path": "cases/11-authorization-cadence/variants/C-missing-retention/output.md",
+          "sha256": "7af98f8bee4540248d0d8589bcb2b808c7438544b5b295b5b908996887fbbcdb",
+          "bytes": 207
+        },
+        {
+          "path": "cases/11-authorization-cadence/variants/D-walkthrough/output.md",
+          "sha256": "9f0b2fb49a7377cd1e73ac035149b9c65061c9b758302632604db3efcee30f9a",
+          "bytes": 250
+        }
+      ]
+    },
+    {
+      "case_id": "review-depth-severity",
+      "order": 12,
+      "status": "completed",
+      "prompt_path": "cases/12-review-depth-severity/inputs/prompt.md",
+      "skills": [
+        "review-implementation"
+      ],
+      "mandatory_checks": [
+        {
+          "criterion": "Review depth explained by scope/risk",
+          "status": "pass",
+          "locator": "cases/12-review-depth-severity/output.md:7"
+        },
+        {
+          "criterion": "Cross-boundary independent coverage retained",
+          "status": "pass",
+          "locator": "cases/12-review-depth-severity/output.md:11"
+        },
+        {
+          "criterion": "Severe uncertain issue remains visible with next probe",
+          "status": "pass",
+          "locator": "cases/12-review-depth-severity/output.md:17"
+        },
+        {
+          "criterion": "Parent re-grounding retained",
+          "status": "pass",
+          "locator": "cases/12-review-depth-severity/output.md:19"
+        },
+        {
+          "criterion": "No automatic unrelated refactor work",
+          "status": "pass",
+          "locator": "cases/12-review-depth-severity/output.md:19"
+        },
+        {
+          "criterion": "Native worker/sequential availability reported honestly",
+          "status": "pass",
+          "locator": "cases/12-review-depth-severity/output.md:3"
+        }
+      ],
+      "output_path": "cases/12-review-depth-severity/output.md",
+      "trace_path": "cases/12-review-depth-severity/tool-trace.md",
+      "questions": [],
+      "failures": [],
+      "artifacts": [
+        {
+          "path": "cases/12-review-depth-severity/output.md",
+          "sha256": "be4c485b7cbda8c3451540004893e45c3b4b6666bbdcd061f5922d107afe1765",
+          "bytes": 2025
+        },
+        {
+          "path": "cases/12-review-depth-severity/tool-trace.md",
+          "sha256": "8a9863371085046bf83f67cc1a16904b47ca306bdcfe6107362e445951168e0a",
+          "bytes": 2135
+        }
+      ]
+    },
+    {
+      "case_id": "check-reuse",
+      "order": 13,
+      "status": "completed_with_unavailable",
+      "prompt_path": "cases/13-check-reuse/inputs/prompt.md",
+      "skills": [
+        "verify-task",
+        "qa-gates"
+      ],
+      "mandatory_checks": [
+        {
+          "criterion": "Only matching executed complete evidence reused",
+          "status": "pass",
+          "locator": "cases/13-check-reuse/artifacts/variant-identities.json:3; tool-trace.md:41; tool-trace.md:48"
+        },
+        {
+          "criterion": "Source/config/env/scope change invalidates affected reuse",
+          "status": "pass",
+          "locator": "cases/13-check-reuse/artifacts/variant-identities.json:26; artifacts/variant-identities.json:35"
+        },
+        {
+          "criterion": "Blocked/incomplete/subset cannot become full pass",
+          "status": "pass",
+          "locator": "cases/13-check-reuse/output.md:10; output.md:11; tool-trace.md:53"
+        },
+        {
+          "criterion": "Deliberate irrelevant environment difference not failed by syntax rule",
+          "status": "pass",
+          "locator": "cases/13-check-reuse/output.md:12"
+        },
+        {
+          "criterion": "Required missing key fails",
+          "status": "pass",
+          "locator": "cases/13-check-reuse/output.md:13"
+        },
+        {
+          "criterion": "Available browser observation may prove observable AC; subjective approval not fabricated",
+          "status": "unavailable",
+          "locator": "cases/13-check-reuse/output.md:14",
+          "reason": "No screenshot/browser output was supplied; observable UI proof is unavailable, while output.md:15 correctly leaves subjective approval to a human."
+        }
+      ],
+      "output_path": "cases/13-check-reuse/output.md",
+      "trace_path": "cases/13-check-reuse/tool-trace.md",
+      "questions": [],
+      "failures": [],
+      "artifacts": [
+        {
+          "path": "cases/13-check-reuse/artifacts/prior-run-identity.json",
+          "sha256": "310e5bf2b0079b647876ed78404b57bbeab2e405516ca422da58038407f6f77d",
+          "bytes": 517
+        },
+        {
+          "path": "cases/13-check-reuse/artifacts/variant-identities.json",
+          "sha256": "2f8ee8c2293e56ba1d675c016c7ea28371961b270581735f2d7f22c1d25be866",
+          "bytes": 4009
+        },
+        {
+          "path": "cases/13-check-reuse/output.md",
+          "sha256": "47093c55011550db20a993628ac93d6b80a543f13130ae0e1835274b22bf3052",
+          "bytes": 1916
+        },
+        {
+          "path": "cases/13-check-reuse/tool-trace.md",
+          "sha256": "fbc5f3bd91bb1d2d2efa98103478c14a75f265780aa1ff126c38ac16813a458a",
+          "bytes": 1585
+        }
+      ]
+    },
+    {
+      "case_id": "intent-routing",
+      "order": 14,
+      "status": "completed",
+      "prompt_path": "cases/14-intent-routing/inputs/prompt.md",
+      "skills": [
+        "triage",
+        "walkthrough-implementation"
+      ],
+      "mandatory_checks": [
+        {
+          "criterion": "Current intent outranks unrelated old artifacts",
+          "status": "pass",
+          "locator": "cases/14-intent-routing/output.md:5"
+        },
+        {
+          "criterion": "Recommend-only does not execute",
+          "status": "pass",
+          "locator": "cases/14-intent-routing/output.md:5"
+        },
+        {
+          "criterion": "Explicit authorized implementation can continue when prerequisites valid",
+          "status": "pass",
+          "locator": "cases/14-intent-routing/output.md:6"
+        },
+        {
+          "criterion": "Failed/stale approval cannot advance",
+          "status": "pass",
+          "locator": "cases/14-intent-routing/output.md:8"
+        },
+        {
+          "criterion": "Requested walkthrough follows tour; unrequested tour only offered",
+          "status": "pass",
+          "locator": "cases/14-intent-routing/output.md:9"
+        },
+        {
+          "criterion": "Repository completion never auto-deploys",
+          "status": "pass",
+          "locator": "cases/14-intent-routing/output.md:10"
+        }
+      ],
+      "output_path": "cases/14-intent-routing/output.md",
+      "trace_path": "cases/14-intent-routing/tool-trace.md",
+      "questions": [],
+      "failures": [],
+      "artifacts": [
+        {
+          "path": "cases/14-intent-routing/output.md",
+          "sha256": "30dbf93b260af22ef84feded36e413c9e42faa7d58b2cdf967a6ba2647829b30",
+          "bytes": 1465
+        },
+        {
+          "path": "cases/14-intent-routing/tool-trace.md",
+          "sha256": "3b3b0f7a53c9562f3a618a1dbfca77664164ec11cd2279dbe34ba219f0bf6644",
+          "bytes": 572
+        }
+      ]
+    },
+    {
+      "case_id": "incident-causality",
+      "order": 15,
+      "status": "completed",
+      "prompt_path": "cases/15-incident-causality/inputs/prompt.md",
+      "skills": [
+        "bug-investigation",
+        "review-artifact"
+      ],
+      "mandatory_checks": [
+        {
+          "criterion": "Source-read race/config branch remains candidate, not confirmed cause",
+          "status": "pass",
+          "locator": "cases/15-incident-causality/output.md:7"
+        },
+        {
+          "criterion": "Missing causal evidence yields precise confirming/refuting probe",
+          "status": "pass",
+          "locator": "cases/15-incident-causality/output.md:7"
+        },
+        {
+          "criterion": "Executed deterministic reproduction supports minimal local fix without false production linkage",
+          "status": "pass",
+          "locator": "cases/15-incident-causality/output.md:13"
+        },
+        {
+          "criterion": "P1 threshold is carried through review without silently switching to 90",
+          "status": "pass",
+          "locator": "cases/15-incident-causality/output.md:17"
+        },
+        {
+          "criterion": "Mitigation has rollback/monitoring and does not claim confirmed remediation",
+          "status": "pass",
+          "locator": "cases/15-incident-causality/output.md:19"
+        },
+        {
+          "criterion": "No deployment authorization inferred from confidence",
+          "status": "pass",
+          "locator": "cases/15-incident-causality/output.md:3"
+        }
+      ],
+      "output_path": "cases/15-incident-causality/output.md",
+      "trace_path": "cases/15-incident-causality/tool-trace.md",
+      "questions": [],
+      "failures": [],
+      "artifacts": [
+        {
+          "path": "cases/15-incident-causality/artifacts/variant-c-synthetic-runtime.txt",
+          "sha256": "6ef20707e69a9b01172e159037f6f1fb8873c3cef1ea604d0bda89857d018639",
+          "bytes": 498
+        },
+        {
+          "path": "cases/15-incident-causality/output.md",
+          "sha256": "ea23ba40f8990009deef73afae68d3375539a2f25a0dd3e6e7bbc868b2880ddc",
+          "bytes": 2620
+        },
+        {
+          "path": "cases/15-incident-causality/tool-trace.md",
+          "sha256": "a0667fb4965da262ee1ca8103b699409625777a5f59db4e516fca4788cb098a5",
+          "bytes": 1248
+        }
+      ]
+    }
+  ],
+  "failures": [
+    {
+      "scope": "validation tooling",
+      "command": "xxd -g1 <extra prompt>",
+      "result": "command unavailable",
+      "fallback": "od -An -tx1 -v succeeded",
+      "trial_impact": "none"
+    }
+  ],
+  "unavailable": [
+    "native skill discovery/invocation",
+    "full host transcript",
+    "token usage",
+    "monetary cost",
+    "effective model/settings identity",
+    "browser screenshot/output for check-reuse"
+  ],
+  "measurements": {
+    "started_at": "2026-09-07T10:35:22.303772+00:00",
+    "finished_at": "2026-09-07T10:50:28.804334+00:00",
+    "elapsed_seconds": 906.501,
+    "unnecessary_interruptions": 0,
+    "required_clarifications": 1,
+    "requested_discussion_turns": 1,
+    "retries": 0,
+    "artifact_bytes": 16529,
+    "total_output_bytes": 72844,
+    "tokens": null,
+    "cost": null,
+    "unavailable_reason": "Token, cost, full transcript, and effective model/settings accounting are not exposed. Byte counts are direct file-byte measurements over UTF-8 text outputs, not a savings claim."
+  },
+  "review": {
+    "agent_reviewer": "self-graded against every mandatory criterion; human judgment retained where required",
+    "parent_grounding": "pending",
+    "human_owner": "pending"
+  },
+  "output_manifest": "output-manifest.json",
+  "input_manifest": "inputs/input-manifest.json"
+}

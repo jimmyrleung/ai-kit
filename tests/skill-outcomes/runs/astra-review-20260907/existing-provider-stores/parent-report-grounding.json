@@ -1,0 +1,16 @@
+{
+  "checks": 58,
+  "identity_errors": [],
+  "provider_count": 3,
+  "startup_attempts": 4,
+  "native_observations": 1,
+  "source_copy_rows": 15,
+  "seeded_records_preserved": 3,
+  "gate_exits": [
+    2,
+    0,
+    2,
+    2
+  ],
+  "overall": "partial"
+}

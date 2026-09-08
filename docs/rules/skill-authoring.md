@@ -21,6 +21,21 @@ drift; transitional mode remains an isolated fixture/test mode, not the shipping
 keeps validation reproducible across the supported CLIs.
 *(updated 2026-08-31 — common Python/Node portability implementation)*
 
+## Shared supporting documents are bundled before distribution
+
+Maintain common rules in `docs/contracts/` and shared provider/filename references in `docs/`.
+Skills link to their local `references/shared/<name>.md` copies. Run
+`npm run build:skill-references` after changing a maintained source or a skill's shared
+dependencies, then run the normal final portability check. The generator includes transitive
+document dependencies and labels its output with source identities. Do not hand-edit generated
+copies. Include them with their source change; detached installations copy the complete skill
+folder. The generator and repository-specific validation tools are maintainer tools, not
+required supporting files for a detached workflow invocation. Other invoked skills and external
+tools retain their declared prerequisites.
+
+The final checker detects stale/missing/unowned generated content. Generation preserves
+unchanged bytes and only retires files it recognizes as its own generated output.
+
 ## External links in skills/ — enumerate entries explicitly; mind what you commit
 
 The canonical `skills/` tree may contain symlinked or junctioned entries owned by an external

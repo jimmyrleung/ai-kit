@@ -1,6 +1,6 @@
 ---
 name: close
-description: "End-of-session ritual. Retrospect on the session (decisions + why, learnings, dead ends, open tasks, references, files touched), persist the durable parts to the right layer — repo-scoped rules/standards/how-tos to the repo's docs/rules/ (indexed from AGENTS.md) or, offer-gated, a repo-local skill pair (.claude/skills/ + .agents/skills/), user/cross-repo facts to auto-memory, skill/workflow-performance evidence to ~/.claude/observations/ — prepend a slim continuation-only SESSION_LOG.md entry at the git root, and propose a commit. Run at the end of a working session, when the user says they're wrapping up, before a context reset, or at a natural pause after a task or PR lands. NOT a context dump: it distills, it doesn't transcribe."
+description: "Distills the current session into a continuation log and optional durable records of decisions, learnings, dead ends, and open work. Use when wrapping up, stopping, preparing for a context reset, or pausing after work lands. Reconstructing a past tasks-doc run belongs to close-tasks."
 ---
 
 <!-- intentionally-long: linear end-of-session ritual — 3 phases with 5 persistence sinks documented inline; each section is short and the procedure flows top-to-bottom, so a references/ split would add read latency for no navigation win. -->
@@ -8,8 +8,10 @@ description: "End-of-session ritual. Retrospect on the session (decisions + why,
 # Close — end-of-session ritual
 
 You are closing out a working session. Goal: leave breadcrumbs so the next session (possibly
-days later, possibly after a context reset) doesn't rebuild context from vibes — AND leave
-structured evidence of how the workflow performed, so the periodic improvement review has data.
+days later, possibly after a context reset) doesn't rebuild context from vibes — AND, when a
+recorder is configured, leave structured evidence of how the workflow performed. Resolve recorder,
+store, schema, and execution identity from [the feedback contract](references/shared/feedback.md)
+before persisting anything. Recording is optional; an undeclared private store is never assumed.
 
 **This is a curated briefing, not a transcript.** Distill. Do not dump the conversation. Do not
 carry forward your own stale intermediate reasoning — only conclusions, decisions, and what's next.
@@ -20,18 +22,27 @@ Three phases. Move through them in order; ask before the git step.
 
 ## Phase 1 — Retrospective (scan, then categorize)
 
-**Step 0 — already-closed guard.** Before scanning, read the top entry of the git root's
-`SESSION_LOG.md` (if one exists):
+**Step 0 — resolve this session boundary.** Prefer the host's opaque session ID. Otherwise generate
+an opaque `execution_id` and retain it in this live session; include a host-supplied session start
+time when available. Never use “top entry” or “same date” alone as identity.
 
-- **It carries a `<!-- close-receipt: ... -->` line** → a close already completed. Say so
-  ("already closed at <time> — memory:N · rules:N · skills:N · obs:N") and harvest **only the delta**: work
-  that happened after the receipt timestamp. If there is no new work, offer the remaining commit
-  step (if the tree is dirty) and stop. Do NOT prepend a second SESSION_LOG entry — extend the
-  existing one and refresh its receipt line.
-- **Top entry is from today but has no receipt** → a prior close was interrupted mid-run. Resume
-  idempotently: before appending to today's observations file, check what it already contains;
-  2a/2c are update-in-place by design, so re-running them is safe.
-- **Neither** → normal close; proceed.
+Inspect the top `SESSION_LOG.md` entry only after resolving that identity:
+
+- A completed receipt with the **same `execution_id`** belongs to this session. Harvest only work
+  after that receipt. With no delta, report the prior counts, offer any remaining commit step, and
+  stop. With a delta, extend the same entry and later append a superseding receipt.
+- A `started` marker with the **same `execution_id`** is an interrupted current close. Resume it
+  idempotently, checking stable record IDs before every append.
+- A receipt/marker with a different or unprovable identity belongs to another boundary. Preserve it
+  and prepend a new entry for this close. A new day always gets a newly dated entry, even if the
+  prior entry is still on top.
+
+Before the first persistence write, add a `started` marker with a unique `close_id` to the selected
+entry. This marker is not a completion receipt:
+
+```
+<!-- close-state: v2 · close_id:<id> · execution_id:<id> · started_at:<ISO-8601> · state:started -->
+```
 
 Scan *this session's* context — only what's actually relevant; ignore noise — for:
 
@@ -40,16 +51,19 @@ Scan *this session's* context — only what's actually relevant; ignore noise �
   surprising to a future reader without the context ("why is it done *this* way?"), **or (c)** it
   came from a genuine trade-off with a rejected alternative. If none of those hold, it's not worth
   recording — drop it.
-- **Unreviewed decision records** — if a decision dir exists (`docs/decisions/`, `adr/`, or
-  `~/.claude/ownership/{topic}/`), scan it for records flagged `status: ai-drafted · UNREVIEWED`
-  (captured this session or earlier via the `record-decision` skill). For each, offer to review now: the human
-  owns the **Rationale** (rewrites or confirms it), then flip
-  the flag to `status: owned`. **Staleness escalation:** a record still UNREVIEWED after ~3 closes
-  (or ~a month — judge from its date) gets called out by name with its age, not re-listed neutrally:
+- **Unreviewed decision records** — if a configured decision store or repository decision dir
+  exists, scan it for lifecycle metadata whose review state is not `owned` or whose rationale or
+  consequences remain assistant-drafted. Also recognize legacy `status: ai-drafted · UNREVIEWED`
+  flags. For each, offer to review now: the human owns the **Rationale** (rewrites or confirms it),
+  then set review state to `owned` only after every drafted field is confirmed or rewritten.
+  **Staleness escalation:** a record still unreviewed after ~3 completed close receipts since
+  `created_at` (or about a month by that timestamp) gets called out by name with its age, not
+  re-listed neutrally:
   a capture→own pipeline where nothing ever gets owned is just a drafts folder. Offer the fork
   explicitly — own it now (2 minutes, the rationale is going stale), or consciously demote it
   (delete, or mark `status: parked` with a one-line why). Never let the backlog scroll by silently.
-  Never auto-own them — an unreviewed AI draft is not an ADR. Conversely,
+  If a legacy record has no valid creation date, report age `unknown`; do not infer it from file
+  metadata. Never auto-own a draft. Conversely,
   if a load-bearing session decision deserves a standalone record it doesn't yet have, offer to capture
   it via the `record-decision` skill.
 - **Learnings / surprises / inefficiencies** — gotchas discovered; "this cost me 20 min because X";
@@ -83,50 +97,73 @@ Then **categorize** each item into exactly one of:
 
 ## Phase 2 — Persist
 
-### 2a — Auto-memory (the certain stuff)
+### 2a — User/cross-repo memory (the certain stuff)
 
-For each (a) item, follow the existing auto-memory conventions exactly (you already know them):
-write/update a file under `~/.claude/projects/<project>/memory/` with the right `type:`
-(`user` / `feedback` / `project` / `reference`), `**Why:**` + `**How to apply:**` lines for
-feedback/project, `[[links]]` to related memories, and add/refresh a one-line pointer in `MEMORY.md`.
-Check for an existing file that already covers it before creating a new one. Don't save what the
-repo / git history / the existing instruction layer already records — and don't save repo-scoped facts here; those
-are (c) and go to the repo's own rules layer (2c). If an *existing* auto-memory turns out to be
-repo-scoped, offer to migrate it: write it into that repo's `docs/rules/` and slim or delete the
-auto-memory copy.
+For each (a) item, use the configured memory store and its declared profile. Apply the common
+envelope and scope rules in the feedback contract, check for an existing record before creating
+one, and update its index when the profile has one. The established `~/.claude` auto-memory layout
+remains supported when configured. If no memory recorder is configured, report the candidate in the
+close summary and continue; do not invent a path or silently enable storage.
+
+Don't save what the repo, git history, or existing instructions already record, and don't duplicate
+repo-scoped facts here; those are (c). If an existing memory record is in the wrong scope, offer a
+reviewable migration rather than moving or deleting it automatically.
 
 ### 2b — Observations (the seam to the `improve` meta-skill)
 
-For each (b) item, append to `~/.claude/observations/{YYYY-MM-DD}-{short-slug}.md`
-(create the file if it's the first observation this session; `{short-slug}` = 2–3 kebab words
-describing the session, e.g. `close-skill-spec`). Use this format per observation:
+When an observation recorder is configured, it owns this composed close execution. Nested skills'
+candidates are inputs; do not write them again if their stable IDs/evidence are already present.
+Write to the configured observation store. Under the established `~/.claude` profile, append to
+`~/.claude/observations/{YYYY-MM-DD}-{short-slug}.md` (one file per session).
+
+Use the feedback contract's common envelope and this compatible Markdown form per observation:
 
 ```
 ### Observation N: <short descriptive title>
 
+- **schema_version:** 1
+- **record_id:** <stable unique observation id>
+- **recorded_at:** <ISO-8601 timestamp with offset>
+- **record_kind:** observation
+- **execution_id:** <this session's opaque id>
+- **producer:** close
+- **recorder:** close
 - **project:** <repo name, e.g. studying / system_design_vault / <work repo>>
 - **skill_or_workflow:** <e.g. analyze-work / implement-task / compile-kb / (none — ad-hoc)>
-- **phase/area:** <which part, if applicable>
+- **phase_area:** <which part, if applicable>
 - **outcome:** success | mostly | partial | failed
+- **evidence_kind:** lived
+- **source_record_ids:** <derived source IDs, or none for lived session evidence>
+- **evidence_identity:** <source record/content identity, or `session context` for lived evidence>
+- **validation:** passed
 - **friction_observed:** <free-text> — tag: <wrong_approach | buggy_code | misunderstood_request | scope_creep | read_skipped | rm_violation | line_budget_overrun | async_context_loss | sdk_version_drift | doc_drift | ...>
 - **would_have_helped:** <what missing capability / step / rule would have prevented this>
 - **improvement_suggestion:** <optional — a concrete proposed change; name the skill section if you can>
 - **principle:** <the generalizable takeaway — why it matters beyond this one instance>
 ```
 
-Number observations within the file (`### Observation 1`, `### Observation 2`, …). One file per
-session means no collisions. Keep it terse but specific enough to understand weeks later without
-this conversation. Do **not** log one-off corrections that don't generalize — those are (e).
+Number observations within the file (`### Observation 1`, `### Observation 2`, …). Keep stable
+record IDs across copies. Keep it terse but specific enough to understand weeks later without this
+conversation. Do **not** log one-off corrections that don't generalize — those are (e).
 
-Tags should align with the `insights` taxonomy so the pile stays comparable to that retrospective.
-See `~/.claude/observations/README.md` for the running tag list and the observations-vs-memory rationale.
+Use the public baseline tags in the feedback contract plus any explicit extension in the configured
+store. This keeps fresh-user recording independent of a private taxonomy.
 
 **Tag gate (read-only, before the close receipt).** Run
-`node <close-skill-dir>/scripts/check-observation-tags.mjs <observations-README> <new-observation-file>...`
-on this close's observation files. The checker reads the canonical Tags section; every
+`node <close-skill-dir>/scripts/check-observation-tags.mjs <tag-contract> <new-observation-file>...`
+on this close's observation files, where `<tag-contract>` is the configured store's tag document or
+`references/shared/feedback.md` relative to this skill folder. The checker reads the canonical Tags section; every
 observation must carry exactly one listed tag. Resolve errors from the evidence, then rerun;
 do not create a receipt claiming completion while the check fails. This gate validates tag
 shape only: assess friction from the narrative even when the final outcome was successful.
+If this close produced zero observations, verify that the intended observation inventory is
+empty and record `observations: 0`; do not create a placeholder observation or invoke the CLI
+without an observation file. Other enabled recording checks still apply.
+
+If recording is disabled, skip the write and tag check and report `observations: disabled`. If it is
+enabled but the store or validation is unavailable, record that failure and do not issue a
+completion receipt until the check passes or the owner explicitly disables that recording
+requirement. Record any such configuration change; acceptance alone cannot turn failure into PASS.
 
 
 ### 2c — Repo memory (the repo-scoped durable layer)
@@ -183,7 +220,9 @@ agent-instructions file. Conventions:
 ### 2d — SESSION_LOG.md (the continuation handoff)
 
 Find the git root (`git rev-parse --show-toplevel`); fall back to `~/SESSION_LOG.md` if not in a
-repo. **Prepend** a new entry at the top (newest-first). This entry is deliberately thin — its only
+repo. Use the entry selected by Phase 1's execution-boundary check: extend or resume that entry
+when its identity matches, otherwise **prepend** a new entry (newest-first). Never create another
+entry merely because this persistence phase runs. This entry is deliberately thin — its only
 job is letting a fresh session resume; `git log` covers what got done, and durable knowledge has
 already gone to 2a/2c:
 
@@ -203,16 +242,17 @@ the handoff pattern archives completed items).
 
 ### 2e — Close receipt (the idempotency marker)
 
-Append one machine-readable line as the last line of the SESSION_LOG entry you just prepended:
+After all enabled records validate and persist, append one machine-readable receipt as the last
+line of the selected SESSION_LOG entry:
 
 ```
-<!-- close-receipt: YYYY-MM-DD HH:mm · memory:N · rules:N · skills:N · obs:N -->
+<!-- close-receipt: v2 · close_id:<id> · execution_id:<id> · completed_at:<ISO-8601> · supersedes:<id-or-none> · memory:N · rules:N · skills:N · observations:N|disabled -->
 ```
 
-Written here — after all persistence, *before* the Phase 3 commit — so it rides inside the commit.
-This line is what Phase 1's step-0 guard reads: receipt present = that close completed. It carries
-no commit hash on purpose (all counters are known pre-commit; the commit itself is visible in
-`git log`). Mirrors the `close-tasks` harvest-marker pattern.
+Keep the earlier receipt when extending the same session; the new receipt names it in `supersedes`.
+Remove or mark complete only the matching `started` marker. The receipt carries no commit hash: its
+boundary is the execution identity, and git history remains supporting context. Never write this
+receipt while an enabled observation/tag gate is failed or unavailable.
 
 ---
 
@@ -243,7 +283,7 @@ no commit hash on purpose (all counters are known pre-commit; the commit itself 
 
 ## Notes
 
-- **Observations ≠ memory** — see `~/.claude/observations/README.md`. Memory = distilled durable
+- **Observations ≠ memory** — see the public feedback contract and any configured store profile. Memory = distilled durable
   rules (few, terse, indexed); observations = raw dated per-session evidence (many, tagged). `close`
   triages: certain → memory now; ambiguous performance evidence → observations for the periodic
   `improve` review. A pipeline, not a duplicate.
@@ -256,8 +296,9 @@ no commit hash on purpose (all counters are known pre-commit; the commit itself 
 - **The `close` skill vs the `close-tasks` skill.** `close` distills *this session's* live context.
   For a tasks-doc run that spanned multiple sessions or ran headless under a loop runner, use
   **`close-tasks`** —
-  artifact-aggregation (completion notes / `_qa.md` / `.cc-loop/state.json` / `git log`, idempotent
-  via a harvest marker). Don't stack both on the same window — pick one per run.
+  artifact-aggregation (completion notes / `_qa.md` / verified runner state / `git log`, idempotent
+  via a content-bound harvest receipt). Don't stack both on the same execution window; the shared
+  recorder/evidence IDs are the final duplicate guard.
 - **This skill is read-only on git history** — reads (`status`, `diff`, `log`, `rev-parse`), at most `add` + `commit`; never rewrites history.
 - **Project-agnostic.** Works for the study pipeline too — at the end of a study session, log "topic X
   notes done, flashcards generated, next: topic Y" and observe the study commands' friction.

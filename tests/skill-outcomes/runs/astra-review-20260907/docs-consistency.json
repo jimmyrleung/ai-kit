@@ -1,0 +1,61 @@
+{
+  "dated_notes": [
+    {
+      "path": "specs/linux_portability_cross_agent/linux_portability_cross_agent_coupling_analysis.md",
+      "original_bytes": 41469,
+      "current_bytes": 42171,
+      "original_sha256": "ac12ac612dfeb1803a4549bc2b0b860a6566de7c5513950e5416976b524b66db",
+      "current_sha256": "561fae55fff39dd4a6c653d9b371a5d3f5d965a36b094d5bce9dc3210ae916a2",
+      "initial_contiguous_match": false,
+      "original_title_preserved": true,
+      "original_body_preserved": true,
+      "check_note": "Compare original title and following body separately; the dated note is inserted between them."
+    },
+    {
+      "path": "specs/linux_portability_cross_agent/linux_portability_cross_agent_coupling_lay-of-the-land.md",
+      "original_bytes": 22929,
+      "current_bytes": 23553,
+      "original_sha256": "4bdf4f4a0c82ae0e259fc9f4af1da94ecdff12f9a4f1339c35d1e17a155a460a",
+      "current_sha256": "88bf9af2f2510248a76dfa39aaaab98f1d4fd0c341c362afc704c999b6e0055e",
+      "initial_contiguous_match": false,
+      "original_title_preserved": true,
+      "original_body_preserved": true,
+      "check_note": "Compare original title and following body separately; the dated note is inserted between them."
+    },
+    {
+      "path": "specs/linux_portability_cross_agent/linux_portability_cross_agent_coupling_tasks.md",
+      "original_bytes": 92267,
+      "current_bytes": 93114,
+      "original_sha256": "c9135930acefbd470424dea926b7e85df0e5003bd468acce89bf15ac12f7386c",
+      "current_sha256": "58fea054171c979534c4e0bc8f331d44611205644439af9f77a0f8aab2b1c6e3",
+      "initial_contiguous_match": false,
+      "original_title_preserved": true,
+      "original_body_preserved": true,
+      "check_note": "Compare original title and following body separately; the dated note is inserted between them."
+    },
+    {
+      "path": "specs/linux_portability_cross_agent/linux_portability_cross_agent_coupling_techspec.md",
+      "original_bytes": 73847,
+      "current_bytes": 74993,
+      "original_sha256": "035c6b8125f19f2c3afa33e515272e7b862ce07dffabebee689f0bf439e2eea6",
+      "current_sha256": "4819734c6be6519c01acf970015f2a379c06b16d5f12f109554ee2742d2dc98c",
+      "initial_contiguous_match": false,
+      "original_title_preserved": true,
+      "original_body_preserved": true,
+      "check_note": "Compare original title and following body separately; the dated note is inserted between them."
+    },
+    {
+      "path": "specs/linux_portability_cross_agent/linux_portability_hosted_ci_investigation.md",
+      "original_bytes": 11135,
+      "current_bytes": 11623,
+      "original_sha256": "aec3a849ad05eebec1a8019b0666ac72384cf03d70538617044a455e2e66ca06",
+      "current_sha256": "41d23d1224220d34c3f4f479fce06ffab35cb41df65b0cf072b68e6ab8a7f48c",
+      "initial_contiguous_match": false,
+      "original_title_preserved": true,
+      "original_body_preserved": true,
+      "check_note": "Compare original title and following body separately; the dated note is inserted between them."
+    }
+  ],
+  "unchecked_prefix_boxes": [],
+  "exclusions": "Historical audit reports retained, authoritative acceptance tracked separately; SESSION_LOG owner work untouched."
+}
