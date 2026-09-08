@@ -131,7 +131,9 @@ export function bundleSkillReferences(root = ROOT, { write = false } = {}) {
       for (const [name, text] of [...expected].sort(([a], [b]) => a.localeCompare(b))) {
         const file = path.join(output, name);
         result.files.push(posix(path.relative(root, file)));
-        if (!fs.existsSync(file) || fs.readFileSync(file, 'utf8') !== text) plans.push({ file, text });
+        if (!fs.existsSync(file) || fs.readFileSync(file, 'utf8').replace(/\r\n/g, '\n') !== text) {
+          plans.push({ file, text });
+        }
       }
     }
   } catch (error) {

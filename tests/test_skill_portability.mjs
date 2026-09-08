@@ -297,6 +297,19 @@ function testSelfContainedReferences() {
     assert.deepEqual(bundleSkillReferences(root, { write: true }).written, []);
     for (const [file, time] of oldTimes) assert.equal(fs.statSync(path.join(root, file)).mtimeMs, time);
 
+    const crlfOutput = path.join(root, before[0]);
+    const originalOutput = fs.readFileSync(crlfOutput, 'utf8');
+    const crlfText = originalOutput.replace(/\r?\n/g, '\r\n');
+    fs.writeFileSync(crlfOutput, crlfText, 'utf8');
+    assert.deepEqual(bundleSkillReferences(root).findings, []);
+    fs.writeFileSync(
+      crlfOutput,
+      crlfText.replace('Edit the maintained source', 'Edit this maintained source'),
+      'utf8',
+    );
+    assertHasCode(checkRepository(root, 'final'), 'skill-reference-drift');
+    fs.writeFileSync(crlfOutput, originalOutput, 'utf8');
+
     fs.appendFileSync(source, '\nFixture rule: keep this generated instruction.\n');
     assertHasCode(checkRepository(root, 'final'), 'skill-reference-drift');
     const repaired = bundleSkillReferences(root, { write: true });
