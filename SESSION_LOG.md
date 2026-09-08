@@ -1,3 +1,16 @@
+## [2026-09-08] — Astra reviews approved and pushed; Windows CI follow-up
+
+<!-- close-state: v2 · close_id:0b3ed241-01c1-4604-ade4-0e2171c33d1a · execution_id:01a080f1-dffb-7cb1-8aaa-001d98e582da · started_at:2026-09-08T12:40:47.436974+00:00 · state:complete -->
+
+**Summary:** Owner granted GO for both Astra efforts; all pending ai-kit work was committed and pushed to main as `57c02cb`, with local checks passing and hosted Ubuntu/macOS passing, but Windows portability fixtures failing.
+**Next:** Obtain authenticated logs for Windows job `102063580461` in run `34227039821`, identify the failing assertion, then investigate and fix it with a targeted regression and rerun the full hosted matrix. No cause is established yet.
+**Blockers:** GitHub CLI is logged out; anonymous job-log download returned HTTP 403. SSH fetch/push works. Public API reports the failed step but only a generic exit-code annotation. Existing Claude/Cursor evidence limits remain accepted and unchanged.
+**Didn't work:** Large combined document reads repeatedly truncated output; recover omitted sections with bounded reads. Local Linux success did not establish Windows compatibility. Do not repeat anonymous log-download attempts as if SSH access supplies API authentication.
+**Artifacts:** [Commit](https://github.com/jimmyrleung/ai-kit/commit/57c02cb568f1e8d533da12f09558827121b29892) · [CI run](https://github.com/jimmyrleung/ai-kit/actions/runs/34227039821) · [Windows job](https://github.com/jimmyrleung/ai-kit/actions/runs/34227039821/job/102063580461) · [Astra GO and QA](20260906_astra_review_execution.md#qa--2026-09-08-owner-go-and-shipping-checks) · [Walkthrough GO](20260907_astra_review_walkthrough_execution.md#qa--2026-09-08-owner-go).
+**Close notes:** No new memory, rules, skills or ADRs. Existing decision drafts remain parked. Preserve prior log history and its recorded archive deferral. Public handoff commit/push uses the owner's existing authorization; private observation changes remain local, separate from pre-existing private staged work.
+
+<!-- close-receipt: v2 · close_id:0b3ed241-01c1-4604-ade4-0e2171c33d1a · execution_id:01a080f1-dffb-7cb1-8aaa-001d98e582da · completed_at:2026-09-08T12:41:08.577504+00:00 · supersedes:none · memory:0 · rules:0 · skills:0 · observations:1 -->
+
 ## [2026-09-01] — provider-neutral portability shipped and live-aligned
 
 ### Current handoff — 2026-09-06: Astra audit consolidated
