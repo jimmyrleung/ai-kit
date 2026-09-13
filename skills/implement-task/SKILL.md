@@ -32,7 +32,7 @@ With the target resolved, gather additional context for its execution.
 
 2. Read the AGENTS.md file(s) and any referenced documents in it (especially rules) to gather context from each project involved.
 
-3. Read any relevant sibling documents that can provide additional context (requirements, techspec, past tasks, etc.)
+3. If not done on step 1, read any relevant sibling documents that can provide additional context (requirements, techspec, past tasks, etc.)
 
 4. Do a web search (web search tool, firecrawl, etc. according to what's available) on any relevant framework, lib, docs, or any other thing that is relevant for the task and is not necessarily present in it or its files
 
@@ -129,3 +129,20 @@ Model recommendation per harness:
 - Skip condition: if running on a loop like `goal` and you know in subsequent tasks you will still need the services/processes running, you can skip this step
 
 5. Provide a concise and brief final implementation summary for this whole process.
+
+#### Finish boundary
+
+Suggest a prompt for launching an adversarial review using the `review-implementation` skill when:
+
+- This is the last task of a set of implementation tasks
+- This is the last task being implemented in a given boundary
+
+Example 1 - given we are implementing a set of 6 tasks, where 4 are backend and 2 are frontend tasks:
+
+- If that's the 4th task (last backend task), suggest `review-implementation` for the whole back-end implementation
+- If that's the 6th task (last task implemented), suggest `review-implementation` for either the whole implementation if no review was done, or just for the front-end tasks if the backend tasks were already reviewed.
+
+Example 2 - given we are implementing a set of 10 tasks, where 6 are in repo 1, and 4 in repo 2:
+
+- Suggest `review-implementation` at the right boundaries following [Example 1] for repo 1, and then do the same thing for repo 2.
+- Even though the work is cross-repo it is expected that each repo has its own review passes as they are probably going into separate PRs

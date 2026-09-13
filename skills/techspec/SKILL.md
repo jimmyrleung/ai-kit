@@ -151,3 +151,7 @@ With the spec written, make an independent QA-scenario pass (one authorized work
 - This step can be considered done when every section of the template is filled out
 
 2. Write the techspec doc: write it within `./specs/[slug]/techspec.md` where slug is a given task/user story identifier (an id, a snake_case_meaningful_name, etc.). If the input was a requirements doc, put the techspec alongside it.
+
+### Review
+
+At the end, provide a copy-paste prompt to launch a separate agent for an adversarial review for the written techspec doc according to this whole process.

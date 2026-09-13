@@ -97,3 +97,7 @@ With the proposal approved by the user:
 2. Then, read `./references/TEMPLATE_TASK.md` and write one document for each task following the template structure. Use sequence numbers for each document like `task_01.md`, `task_02.md`, [...], and persist them alongside the `tasks.md` document written in the previous step.
 
 > The [slug] mentioned in the paths are: a given task/user story identifier (an id, a snake_case_meaningful_name, etc.)
+
+### Review
+
+At the end, provide a copy-paste prompt to launch a separate agent for an adversarial review for the written tasks according to this whole process.

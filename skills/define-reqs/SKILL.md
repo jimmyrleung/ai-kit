@@ -140,3 +140,7 @@ Remaining uncertainty: {justification}
 - This step can be considered done when every section of the template is filled out
 
 2. Write the requirements doc: write it within `./specs/[slug]/requirements.md` where slug is a given task/user story identifier (an id, a snake_case_meaningful_name, etc.)
+
+### Review
+
+At the end, provide a copy-paste prompt to launch a separate agent for an adversarial review for the written requirements doc according to this whole process.
