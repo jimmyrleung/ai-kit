@@ -102,7 +102,7 @@ Before a finding is recorded or presented:
 - Distill — every recorded finding carries `file:line` + a one-line expected-vs-actual
 - never paste raw build/test/tool output.
 
-### Cofidence score
+### Confidence score
 
 Calculate the confidence score for the review: one score for each review item and one score for the entire review result, according to the following guidance:
 
