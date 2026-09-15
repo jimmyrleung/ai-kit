@@ -11,6 +11,8 @@ Implement a specific task end-to-end ans verify its implementation.
 
 ## Approach
 
+**The approach should follow each subsection below sequentially.**
+
 ### Resolve the target
 
 The first thing to do is to resolve the target task first.

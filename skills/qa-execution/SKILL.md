@@ -28,6 +28,8 @@ The idea is for that QA execution to be as close as possible to a QA engineer or
 
 ## Approach
 
+**The approach should follow each subsection below sequentially.**
+
 ### Initial context
 
 1. Read all available references for the implementation you are going to QA: specs (PRD/requirements/techspec/tasks docs/implementation plan/etc.), files, past implementation history, etc.

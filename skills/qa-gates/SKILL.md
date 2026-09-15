@@ -46,6 +46,8 @@ If there isn't a QA document, create a new `qa-gates.md` document and add the ev
 
 ## Approach
 
+**The approach should follow each subsection below sequentially.**
+
 ### Gate 0 - Initial context
 
 Inspect every artifact from the input and extract:

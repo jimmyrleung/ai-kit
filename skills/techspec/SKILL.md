@@ -11,6 +11,8 @@ Produce the committed technical specification for defined work: the blueprint a 
 
 ## Approach
 
+**The approach should follow each subsection below sequentially.**
+
 ### Initial context
 
 Ensure you have enough information to get started on designing the solution. It is expected that the user shares one of the following:

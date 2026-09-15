@@ -20,6 +20,8 @@ You must **LOCATE and REFERENCE**, and **must not** DESIGN and SPECIFY as design
 
 ## Approach
 
+**The approach should follow each subsection below sequentially.**
+
 ### Initial context
 
 Ensure you have enough information to get started on defining requirements. It is expected that the user shares one of the following:

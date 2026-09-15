@@ -16,6 +16,8 @@ Goal: Decompose an approved and reviewed spec or plan into an ordered, executabl
 
 ## Approach
 
+**The approach should follow each subsection below sequentially.**
+
 ### Initial context
 
 Ensure you have enough information to get started on the tasks breakdown. It is expected that the user provides one of the following:
