@@ -14,7 +14,8 @@ one at a time.
 
 Resolve `active-improvements-root`, recorder, and schema through
 [the feedback contract](references/shared/feedback.md), relative to this skill folder. A compatible configured store supplies the staging/queue paths;
-the established `~/.claude` profile remains supported. Without one, run the read-only audit
+the preferred `~/.agents` profile is detected through `~/.agents/feedback-store.json`; a legacy
+store remains usable when explicitly configured. Without one, run the read-only audit
 and return the findings in chat with `persistence: disabled`; ask for a destination only if
 persisting the packet is required. Never invent a private root or claim that an enabled but
 unavailable recorder passed. Store bootstrap remains an explicitly authorized action.

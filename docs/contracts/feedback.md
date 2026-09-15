@@ -21,9 +21,11 @@ user instructions, then a detected compatible store profile. If none resolves, r
 declares recording to be an enabled acceptance gate, a missing/unwritable store or failed validation
 is `unavailable`/`failed`, never PASS.
 
-The established `~/.claude` layout is a supported profile, including its observations,
-improvements, project memory, ownership, and learning locations. It is not a prerequisite for
-Claude, Codex, Cursor, or another host. Do not migrate an existing store automatically.
+The provider-neutral `~/.agents` layout is the preferred detected profile. Its
+`feedback-store.json` manifest maps observations, improvements, memory, ownership, and learning
+records to paths relative to that root. It is not a prerequisite for Claude, Codex, Cursor, or
+another host. The legacy `~/.claude` layout remains compatible only when explicitly configured;
+do not migrate an existing store automatically.
 
 An optional fresh-user bootstrap may, with authorization, create a chosen root with
 `observations/`, `improvements/`, `memory/`, `ownership/`, and `learning/` directories plus a small

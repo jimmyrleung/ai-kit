@@ -64,6 +64,9 @@ rollback state in `<home>/.claude/ownership/ai-kit-skill-sync.json`. The Codex a
 and PowerShell adapters are thin argument translators; they must not enumerate skills or mutate
 the roots independently.
 
+This sync ownership manifest is internal deployment state. It is separate from the feedback
+contract's ownership/decision records, whose preferred profile lives under `<home>/.agents/`.
+
 Use an isolated home for previews and tests. The common commands are:
 
 ```bash

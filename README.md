@@ -47,7 +47,7 @@ Two helpers at the front: **`triage`** routes the current request using relevant
 ## The self-improving loop
 
 1. **In-session:** `verify-task` runs after each implemented task, recording pass/fail per gate.
-2. **End of session:** the `close` skill records decisions, learnings, and supported friction through an optional configured recorder/store. The established `~/.claude` layout remains supported.
+2. **End of session:** the `close` skill records decisions, learnings, and supported friction through an optional configured recorder/store. The preferred provider-neutral profile is `~/.agents/feedback-store.json`; legacy stores require explicit configuration.
 3. **Periodically:** the `improve` skill reads new observations and unresolved work, clusters supported friction, and stages proposed edits in the configured improvements store — each diff tied to evidence. Observation coverage is distinct from invocation telemetry.
 4. **You review and apply.** The applied edits flow back into the skills that run the next session.
 
@@ -81,6 +81,9 @@ The canonical `skills/` tree is the single source. The common engine manages per
 `~/.claude/skills/` and `~/.agents/skills/`, records ownership under
 `~/.claude/ownership/ai-kit-skill-sync.json`, and leaves canonical targets unchanged. Preview
 normal-home changes before applying them:
+
+That manifest is internal link-manager state, not the feedback contract's ownership/decision
+store; the preferred feedback profile keeps those records under `~/.agents/ownership/`.
 
 ```bash
 # macOS / Linux

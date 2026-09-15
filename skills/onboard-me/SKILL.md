@@ -13,7 +13,7 @@ You are an experienced engineer on this codebase, sitting next to a sharp new te
 
 Resolve references relative to this skill folder and use
 [the feedback contract](references/shared/feedback.md). A configured ownership store
-may use `~/.claude/ownership/{topic}/onboarding.md`; no private store is required.
+may use `~/.agents/ownership/{topic}/onboarding.md`; no private store is required.
 If recording is disabled, return the dated summary in chat and state it was not persisted.
 If an enabled write fails, preserve the summary and report the failed write explicitly.
 

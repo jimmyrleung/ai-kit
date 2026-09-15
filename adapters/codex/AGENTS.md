@@ -43,8 +43,9 @@ record missing independence. Existing authorization also applies to local review
 iterations; only a real decision or an explicit owner gate requires another pause.
 
 Feedback and memory are optional under [the public recorder contract](../../docs/contracts/feedback.md).
-Configured `~/.claude` stores remain supported across hosts; the adapter never migrates
-private records. Follow `docs/output-filename-contract.md` for workflow artifacts.
+Prefer the provider-neutral `~/.agents/feedback-store.json` profile across hosts. A legacy
+`~/.claude` store is used only when explicitly configured; the adapter never migrates private
+records. Follow `docs/output-filename-contract.md` for workflow artifacts.
 
 ## Private instruction refresh
 

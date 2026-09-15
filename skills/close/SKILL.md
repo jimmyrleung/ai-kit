@@ -101,9 +101,10 @@ Then **categorize** each item into exactly one of:
 
 For each (a) item, use the configured memory store and its declared profile. Apply the common
 envelope and scope rules in the feedback contract, check for an existing record before creating
-one, and update its index when the profile has one. The established `~/.claude` auto-memory layout
-remains supported when configured. If no memory recorder is configured, report the candidate in the
-close summary and continue; do not invent a path or silently enable storage.
+one, and update its index when the profile has one. The preferred `~/.agents` profile maps memory
+through `~/.agents/feedback-store.json`; a legacy store remains usable when explicitly configured.
+If no memory recorder is configured, report the candidate in the close summary and continue; do not
+invent a path or silently enable storage.
 
 Don't save what the repo, git history, or existing instructions already record, and don't duplicate
 repo-scoped facts here; those are (c). If an existing memory record is in the wrong scope, offer a
@@ -113,8 +114,8 @@ reviewable migration rather than moving or deleting it automatically.
 
 When an observation recorder is configured, it owns this composed close execution. Nested skills'
 candidates are inputs; do not write them again if their stable IDs/evidence are already present.
-Write to the configured observation store. Under the established `~/.claude` profile, append to
-`~/.claude/observations/{YYYY-MM-DD}-{short-slug}.md` (one file per session).
+Write to the configured observation store. Under the preferred `~/.agents` profile, append to
+`~/.agents/observations/{YYYY-MM-DD}-{short-slug}.md` (one file per session).
 
 Use the feedback contract's common envelope and this compatible Markdown form per observation:
 
@@ -264,14 +265,17 @@ receipt while an enabled observation/tag gate is failed or unavailable.
 2. **Ask before committing.** Present the message; on approval run `git add <files>` + `git commit`
    (never `reset` / `clean` / `checkout --` / force-push — those are blocked by the safety hook anyway).
    If the user declines, leave the working tree as-is.
-3. **Cross-machine sync routing.** If either of these git working trees exists, propose a commit +
+3. **Cross-machine sync routing.** For each git working tree touched, propose a commit +
    push per repo, routed by content kind:
-   - `~/.claude/.git/` (claude-home, private) — for edits to: private instruction files, `observations/`,
-     `improvements/`, `hooks/`, `statusline-command.sh`, `settings.example.json`.
+   - `~/.agents/.git/` (provider-neutral maintenance home, private) — for feedback-store edits to
+     `observations/`, `improvements/`, `memory/`, `ownership/`, `learning/`, and their manifest or READMEs.
+   - the active provider's private configuration repository, when one exists — for that provider's
+     instruction files, hooks, statusline, or settings. Do not route those provider-specific files
+     into `~/.agents` merely because the feedback store lives there.
    - the ai-kit repository root's `.git/` (public, resolved from the current workspace) — for edits to: `skills/`, `commands/`, `agents/`,
      `templates/`, `docs/`. **Run the secret-scan before pushing ai-kit (its pre-commit hook does this
      automatically; --no-verify is the bypass and should be used sparingly).**
-   One commit per repo when each has content. **Ask before each commit and before each push.** Never
+   One commit per touched repo. **Ask before each commit and before each push.** Never
    auto-push. If either repo has unmerged paths from a prior pull, resolve them first.
 4. **Print the close summary** — a one-liner: `memory: N · repo rules: N · repo skills: N ·
    observations: N · SESSION_LOG: updated · commit: <hash or "skipped">`.

@@ -15,9 +15,10 @@ stage everything and present it. The user is the reviewer; that's deliberate (th
 the judgement on the diff, not having it automated away).
 
 Resolve recorder, store, schema, discovery watermark, and unresolved queue from
-[the feedback contract](references/shared/feedback.md). The established `~/.claude` layout is a
-supported profile when configured, not a prerequisite. If no compatible store is configured, report
-that review input is unavailable and stop without inventing or migrating data.
+[the feedback contract](references/shared/feedback.md). The preferred `~/.agents` layout is detected
+through `~/.agents/feedback-store.json`; a legacy store remains usable when explicitly configured.
+If no compatible store is configured, report that review input is unavailable and stop without
+inventing or migrating data.
 
 **You are a distiller, not a churner.** A good run might produce 3 sharp proposals, or zero ("nothing
 actionable accumulated — here's the fitness table, go enjoy your Friday"). Do NOT manufacture proposals
@@ -145,12 +146,12 @@ working packet/evidence locator. Resolved packets may remain in place or be move
 archive with locators updated. Never discard a packet merely to enforce a dated-window count.
 
 **Generic repo labels in the packet — never employer/client project names.** These meta-artifacts
-must remain safe for their configured store. Under the established claude-home profile, a secret-scan
-hook also checks them. Refer to a work repo by a generic role label —
+must remain safe for their configured store. When that store has a secret-scan hook, it also checks
+them. Refer to a work repo by a generic role label —
 `work-LZ-repo`, `payments-repo`, `services-repo` — not its real name; the raw names stay only in the
 private observation files (which already hold them). Observation *filenames* you cite in `MARK.md` are
-fine as-is (they're pointers, not prose). If a commit is still blocked by pre-existing names in annotated
-obs files, `--no-verify` is acceptable for private claude-home (names already in history) — but ask first.
+fine as-is (they're pointers, not prose). If a private-store commit is still blocked by pre-existing
+names in annotated observation files, ask before bypassing that store's verification hook.
 
 Write `REVIEW.md`:
 ```
@@ -211,8 +212,8 @@ observation consumed. For legacy records, include the computed legacy ID and ori
 
 **Codename self-grep (mandatory, before presenting):** grep the staged `REVIEW.md` + `proposals/`
 for the work codenames / employer project names appearing in this window's observation files, and
-scrub hits to generic role labels. The claude-home secret-scan hook only blocks an enumerated
-name set — codenames outside it pass; this grep is the actual gate, at the authoring moment.
+scrub hits to generic role labels. A store-local secret-scan hook may block only an enumerated
+name set — codenames outside it can pass; this grep is the actual gate, at the authoring moment.
 
 ### Phase 5 — Present & (on approval) apply
 
@@ -243,8 +244,10 @@ name set — codenames outside it pass; this grep is the actual gate, at the aut
    — the safety hook blocks those anyway). When applying changes, route each by target:
    - Edits to a skill / command / agent / template land in the current repository root (public). **Run the
      secret-scan before pushing — ai-kit's pre-commit hook does this automatically.**
-   - Edits to private instruction files / `observations/` / `improvements/` / `hooks/` land in `~/.claude/`
-     (private, claude-home).
+   - Feedback-store edits to `observations/`, `improvements/`, `memory/`, `ownership/`, or `learning/`
+     land in `~/.agents/` under the preferred profile.
+   - Provider-specific private instructions, hooks, and settings stay in that provider's configured
+     private repository; do not relocate them into the feedback store.
    After local commits, propose `git push` for each repo separately. Suggestion-mode — ask before
    each push. Never auto-push.
 7. Print a one-line close summary: `proposals: N · applied: N · declined: N · deferred/open: N · observations consumed: M · invocation coverage: <measured|unavailable> · commit: <hash or "skipped">`.

@@ -110,8 +110,8 @@ do not rewrite an established ADR body format merely to match this example.
 
 ## Output file
 If the repo has a decision convention (`docs/adr/`, `docs/decisions/`, `adr/`, …), write there as
-`NNNN-{slug}.md`. Otherwise use the configured ownership/decision store. The established
-`~/.claude/ownership/{topic}/adr-NNNN-{slug}.md` layout remains supported when configured. If no
+`NNNN-{slug}.md`. Otherwise use the configured ownership/decision store. The preferred profile uses
+`~/.agents/ownership/{topic}/adr-NNNN-{slug}.md`. If no
 home resolves, ask the user to choose a repository location or authorize the optional portable
 store bootstrap; do not assume a private path. Metadata, not the filename, carries lifecycle and
 review state.

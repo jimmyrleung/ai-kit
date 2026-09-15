@@ -38,8 +38,8 @@ what runs inside each iteration.
 
 ## Hard constraints
 
-- **`/schedule` runs in the cloud.** It cannot reach `~/.claude/observations`,
-  `~/.claude/improvements`, local KB vaults, or private local-only repos. Anything reading those
+- **`/schedule` runs in the cloud.** It cannot reach `~/.agents/observations`,
+  `~/.agents/improvements`, local KB vaults, or private local-only repos. Anything reading those
   must run locally.
 - **`/loop` runs on this machine** and dies with it. For unattended cadences on a machine that
   sleeps, use the matching OS scheduler instead:
@@ -68,11 +68,11 @@ Opt-in upgrade: schedule Phases 1–4 headless. They only *stage* a packet (neve
 this stays compatible with the skill's "never run unprompted, only offer" rule — the staged packet
 **is** the offer; Phase 5 (walk the proposals + apply) stays interactive in your next session.
 
-- Runner: **local only** (reads `~/.claude/observations`, writes `~/.claude/improvements`).
+- Runner: **local only** (reads `~/.agents/observations`, writes `~/.agents/improvements`).
 - Wiring: use the matching host scheduler — Windows Task Scheduler, macOS `launchd` LaunchAgent,
   or Linux `systemd --user` timer/cron — to run the provider's verified local headless invocation
   weekly (for example, `claude -p "/improve — phases 1-4 only: stage the packet, do not present or apply"`).
-- Guard: if `~/.claude/improvements/last-review.txt` is <7 days old, the run should no-op.
+- Guard: if `~/.agents/improvements/last-review.txt` is <7 days old, the run should no-op.
 
 ### 2. `/audit-skills` after authoring bursts
 

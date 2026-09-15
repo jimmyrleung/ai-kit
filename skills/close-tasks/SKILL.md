@@ -125,7 +125,8 @@ and the harvest receipt persists; retain failed or interrupted state visibly.
 
 If an observation recorder is configured, `close-tasks` owns this composed harvest. Write each (b)
 item to that store using the public feedback schema plus any compatible store-local additions. The
-established `~/.claude` profile remains supported when configured. Per observation:
+preferred `~/.agents` profile writes under `~/.agents/observations/`; a legacy store remains usable
+when explicitly configured. Per observation:
 
 - assign stable `record_id`, `recorded_at`, the tasks-run `execution_id`, `producer: close-tasks`,
   and `recorder: close-tasks`;
@@ -228,9 +229,9 @@ matching manifest and no new evidence is a no-op. Keep any legacy commit marker 
    (e.g. `chore: close-tasks roll-up for <doc> — N observations, receipt appended`). On approval
    `git add <files>` + `git commit`. Never `reset`/`clean`/`checkout --`/force-push. If the user
    declines, leave the tree as-is.
-3. **Cross-machine sync routing** — identical to the close skill's Phase 3.3: edits to
-   `~/.claude/observations/` (the new file) / `MEMORY.md` / memory files route to the
-   `~/.claude/` (private) tree; tasks-doc / `_qa.md` / source route to the target repo. One commit
+3. **Cross-machine sync routing** — identical to the close skill's Phase 3.3: feedback-store edits
+   route to the configured maintenance tree (`~/.agents/` under the preferred profile); tasks-doc /
+   `_qa.md` / source route to the target repo. One commit
    per repo, **ask before each commit and each push**, never auto-push, run the ai-kit secret-scan
    before pushing ai-kit.
 4. **Print the close summary** — `observations: N|disabled · skill_or_workflow: <verified/inferred> ·
@@ -259,11 +260,11 @@ cc-looper headless run (which has no interactive close at all).
 - **Relationship to the pipeline.** The close skill is the live-context recorder. `verify-task`
   returns structured candidates to its calling recorder. close-tasks is the artifact-aggregation
   recorder for runs where close did not cover the same execution. All feed the configured
-  observation store; the established `~/.claude/observations/` profile remains supported.
+  observation store; the preferred profile uses `~/.agents/observations/`.
 - **The in-repo digest contract (the cc-looper hook).** The headless
   `close-tasks-loop` sibling (cc-looper-side; see `specs/close-tasks-loop/close-tasks-loop_integration.md`
   in cc-looper) writes a **neutral in-repo digest** at
-  `<dirname(tasks_doc_path)>/<base>_close.md` — *not* to `~/.claude/observations/` (a public,
+  `<dirname(tasks_doc_path)>/<base>_close.md` — *not* directly to a private observation store (a public,
   reusable, machine-portable skill must never hardcode a private path; and the cc-looper spawn runs
   in the target repo where that write is the documented anti-pattern + permission-fragile). This
   interactive close-tasks run is the on-your-machine **promoter**: it reads that in-repo digest

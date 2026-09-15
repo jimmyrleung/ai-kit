@@ -62,7 +62,7 @@ Diagnosis rides inside `bug-investigation` (incident lens); hotfix planning insi
 
 ### Engineering ownership (retention)
 
-Hand-invoked rituals writing durable artifacts to `~/.claude/ownership/{topic}/`. Slimmed to the two low-friction members in the refactor; the friction-heavy rituals (`predict-first`, `debug-first`, `adr-first`, `challenge-me`) stay archived, individually restorable.
+Hand-invoked rituals writing durable artifacts to the configured ownership store (`~/.agents/ownership/{topic}/` in the preferred profile). Slimmed to the two low-friction members in the refactor; the friction-heavy rituals (`predict-first`, `debug-first`, `adr-first`, `challenge-me`) stay archived, individually restorable.
 
 | Skill | Role |
 | --- | --- |
@@ -75,7 +75,7 @@ Hand-invoked rituals writing durable artifacts to `~/.claude/ownership/{topic}/`
 | --- | --- |
 | `close` | End-of-session retrospect → persist to the right layer (repo `docs/rules/`, auto-memory, observations) + slim SESSION_LOG entry + propose a commit. |
 | `close-tasks` | End-of-tasks-doc closeout when per-session `close` did not run — reconstructs the run from durable artifacts, emits observations + a roll-up SESSION_LOG entry, idempotently. |
-| `improve` | Periodic self-improvement review of accumulated observations → STAGED review packet under `~/.claude/improvements/{date}/`; never edits a live file without per-item approval. |
+| `improve` | Periodic self-improvement review of accumulated observations → STAGED review packet under `~/.agents/improvements/{date}/` in the preferred profile; never edits a live file without per-item approval. |
 | `audit-skills` | On-demand structural audit of the skill population (strict-YAML, description budget, triggers, redundancy, dead refs); stages proposals, never auto-edits. |
 | `write-skills` | Author a new skill — or fix one that won't fire — so it triggers reliably and passes `audit-skills` by construction. |
 
