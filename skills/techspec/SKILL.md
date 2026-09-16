@@ -66,7 +66,7 @@ Read the `AGENTS.md` / `CLAUDE.md` and any associated rules and architectural gu
 
 #### Subagents guidance
 
-1. When available, use subagents for doing the exploration for distinct areas.
+1. When available and applicable, use subagents for doing the exploration for distinct areas.
 
 2. Each subagent should be doing one focused exploration for reduced degradation.
 
