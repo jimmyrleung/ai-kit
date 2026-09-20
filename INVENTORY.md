@@ -1,108 +1,83 @@
 # ai-kit Inventory (v2)
 
-One row per live skill (31 total), grouped by family, plus the reference docs. Keep open during day-to-day use.
+Live skills (30 total), with one row per `skills/<name>/SKILL.md` file. The directory tree is the source of truth. The archived v1 inventory remains under [`archive/v1/INVENTORY/`](archive/v1/INVENTORY/).
 
-Not in this repo: the **loop variants** (`tasks-loop`, `qa-loop`, `review-checkpoint`, …) live in the cc-looper repo's `claude-config/` tree; provider-specific loop wiring is documented only in [`docs/loop-recipes.md`](docs/loop-recipes.md). The v1 inventory (commands, agents, templates) is archived under [`archive/v1/INVENTORY/`](archive/v1/INVENTORY/).
+`Explicit only` means the skill sets `disable-model-invocation: true`; invoke it by name rather than expecting automatic selection.
 
 ## Skills
 
-### Discovery & routing (pre-workflow)
+### Discovery, requirements, and design
 
-| Skill | Role |
-| --- | --- |
-| `triage` | Route a free-text request to the right entry skill / chain / loop primitive, or "just do it directly". Mid-flight detection first; ≤2 questions; one-line recommendation, never auto-executes. |
-| `lay-of-the-land` | Pre-workflow recon: sourced current-state map of an unfamiliar area; every finding cited + confidence-scored, assumptions escalated as open questions. Produces `{topic}_lay-of-the-land.md`. |
+| Skill | Invocation | Current role |
+| --- | --- | --- |
+| `triage` | Normal | Recommends the best starting skill or direct action for a non-trivial engineering request; recommendation-only unless execution is explicitly authorized. |
+| `lay-of-the-land` | Normal | Maps the sourced current state of an unfamiliar code area before requirements or change design. Produces `{topic}_lay-of-the-land.md`. |
+| `define-reqs` | Normal | Maps scope, entry points, existing patterns, risks, and acceptance context for feature, greenfield, or refactor work. Produces `specs/<slug>/requirements.md`. |
+| `bug-investigation` | Normal | Diagnoses a bug or incident from source and runtime evidence, then records the chosen minimal fix or next probe in `investigations/<slug>/investigation.md`. |
+| `techspec` | Normal | Designs the implementation blueprint for feature, greenfield, refactor, bug-fix, hotfix, or incident-remediation work. Produces `specs/<slug>/techspec.md`. |
+| `tasks-breakdown` | Normal | Converts an approved spec or plan into ordered `tasks.md` and `task_NN.md` files with dependencies, tests, and acceptance criteria. |
 
-### Analysis & design
+### Implementation, review, and QA
 
-| Skill | Role |
-| --- | --- |
-| `analyze-work` | Unified reference map of upcoming work; detects mode (integration / greenfield / refactor) and applies its lens. Produces `{work_name}_analysis.md`. |
-| `bug-investigation` | Trace the path from entry point to failure; evidence-based root cause (VERIFIED/ASSUMED hops), minimal-fix proposal. Incident lens for production failures (log/trace/metric evidence, severity-aware gate). Produces `{bug_id}_investigation.md`. |
-| `techspec` | Unified committed design blueprint; detects mode (integration / greenfield / refactor / fix + hotfix variant) with an orthogonal risk lens; single-approach pragmatic by default, 3-way escalation; post-write QA-scenario pass. Produces `{work_name}_techspec.md`. |
-| `tasks-breakdown` | Unified implementation-tasks decomposition; detects mode; balanced sizing by default with 3-way escalation; spec-carrying mode when the techspec is deliberately skipped. Produces `{work_name}_tasks.md`. |
-| `review-artifact` | Adversarial review of an analysis / investigation / techspec / tasks doc before the next stage builds on it — generic reviewer fan-out, re-grounding, doc-type lens, in-place `## Review` block. |
+| Skill | Invocation | Current role |
+| --- | --- | --- |
+| `implement-task` | Normal | Resolves and implements one ad-hoc or documented task end to end, runs relevant verification, and records completion evidence. |
+| `review-implementation` | Normal | Reviews a completed task or task set for correctness, repository fit, simplicity, and regressions before QA execution. |
+| `qa-execution` | Normal | Executes acceptance checks, automated tests, and live validation; records evidence in `specs/<slug>/qa.md` and fixes verified defects within the approved design. |
+| `qa-gates` | Normal | Runs the final readiness gates over a reviewed and QA-tested implementation, records evidence, and produces the GO/NO-GO decision path. |
 
-### Implementation
+### Repository and workflow documentation
 
-| Skill | Role |
-| --- | --- |
-| `implement-task` | Implement one task (or a reviewed bug fix — fix lens) end-to-end from a loose target; runs the `verify-task` gates before Done; review is batched per prefix via `review-implementation`. |
+| Skill | Invocation | Current role |
+| --- | --- | --- |
+| `guides-and-sensors` | Normal | Scans a repository and proposes project guides, feedback sensors, rules, and local skills for later user review and authoring. |
+| `docs-tasks-creator` | Normal | Inventories supported HTTP, message, GRPC, function, and background-job entry points; creates or refreshes `_docs-tasks.md`, `project-overview.md`, and a `workflows/` scaffold. |
+| `document-workflow` | Normal | Traces one backend or explicitly full-stack operation through real source and writes its canonical workflow document. |
+| `update-workflow-docs` | Normal | Classifies existing workflow docs as Current, Stale, or Unverifiable and updates only stale sections in place. |
+| `document-terraform` | Normal | Documents Terraform roots and environments, resolved resources, module provenance, permission evidence, and external or cross-stack dependencies. |
 
-### Quality assurance
+### Knowledge and learning
 
-| Skill | Role |
-| --- | --- |
-| `verify-task` | Per-task closeout: composes `qa-gates` with per-task inputs — gates 1+2+3 only. Runs inside `implement-task`. |
-| `review-implementation` | Batched post-implementation code review for a prefix: 3 parallel generic reviewers, findings verified against source, sha-stamped `## Review` block for `qa-gates`. |
-| `qa-gates` | Prefix-level verification: 5 pass/fail gates (build/test, AC checklist, cross-cutting invariants, docs consistency, human go/no-go). Each gate passes with evidence or fails with a recorded reason. |
+| Skill | Invocation | Current role |
+| --- | --- | --- |
+| `compile-kb` | Normal | Incrementally synthesizes a non-Hermes Markdown vault's source notes into a rebuildable `wiki/` tree and dated compilation digest; conversion requires an approved plan. |
+| `triage-learning-content` | Normal | Recommends `TTS`, `TTS_PLUS_REVIEW`, or `READ` for supplied learning content, with scores, review targets, and a 1× listening estimate. |
+| `teach` | Explicit only | Maintains a multi-session teaching workspace with a mission, resources, HTML lessons, reusable assets, glossary, and learning records. |
+| `breakout-session` | Normal | Runs a short Socratic checkpoint in which the user demonstrates previously studied material and receives a scoped go/no-go assessment. |
 
-### Incident response
+### Guided understanding, decisions, and architecture
 
-Diagnosis rides inside `bug-investigation` (incident lens); hotfix planning inside `techspec` fix mode. Only the closeout is a dedicated skill.
+| Skill | Invocation | Current role |
+| --- | --- | --- |
+| `onboard-me` | Normal | Walks through unfamiliar or inherited code one step per turn, separating confirmed facts from assumptions and optionally recording a dated onboarding map. |
+| `walkthrough` | Normal | Takes an existing list of questions or findings, presents one item per turn by default, and records each disposition in the owning artifact. |
+| `walkthrough-implementation` | Normal | Explains recently completed owned work in dependency order, including code, rationale, and verification, before commit or shipping. |
+| `grill-me` | Explicit only | Thin wrapper that forwards to a companion `grilling` skill for a rigorous plan/design interview. |
+| `grill-with-docs` | Explicit only | Thin wrapper that combines companion `grilling` and `domain-modeling` skills so the interview also maintains ADR/domain artifacts. |
+| `improve-codebase-architecture` | Explicit only | Scans architecture for module-deepening opportunities, renders a visual HTML report, then uses companion design/grilling skills to explore the selected candidate. |
 
-| Skill | Role |
-| --- | --- |
-| `post-mortem` | Blameless post-mortem after a resolved incident — impact, timeline + response metrics, root cause, owned/dated action items. Produces `{incident_id}_postmortem.md`. |
+### Orchestration, lifecycle, and skill ecosystem
 
-### Documentation
+| Skill | Invocation | Current role |
+| --- | --- | --- |
+| `orchestrate` | Normal | Coordinates ad-hoc multi-agent work with disjoint charters, persisted outputs, coverage tracking, tiered verification, and evidence-backed synthesis. |
+| `close` | Normal | Distills a session into continuation state plus optional durable decisions, learnings, observations, and skill candidates; asks before commits or pushes. |
+| `improve` | Normal | Reviews recorded workflow friction and the improvement backlog, then stages supported proposals for owner disposition instead of directly editing live skills. |
+| `write-skills` | Normal | Authors a focused global or repository-local skill, or refactors a skill that does not trigger reliably. |
+| `find-skills` | Normal | Searches for installable third-party skills, inspects candidates before recommending them, and installs only with authorized scope and destination. |
 
-| Skill | Role |
-| --- | --- |
-| `document-workflow` | Deep-dive doc of one workflow operation (endpoint / consumer / job): trace hop-by-hop through real source → canonical doc under `workflows/`. Backend mode default, full-stack opt-in. |
-| `update-workflow-docs` | Refresh existing workflow docs after the code moved on — per-doc commit-diff staleness detection, drift buckets, targeted in-place updates. |
-| `docs-tasks-creator` | Scan a codebase, emit a tasks doc with one `document-workflow` task per detected route / handler / job + a `project-overview.md`. Monorepo-aware. |
-| `document-terraform` | Document a Terraform codebase: per-environment resolved-resource inventory with module-provenance chains, architectural-role narratives, confidence-scored gaps. |
+## Bundled support files
 
-### Knowledge base
+The live tree also includes the support material consumed by individual skills:
 
-| Skill | Role |
-| --- | --- |
-| `compile-kb` | Compile a non-Hermes markdown vault: synthesize source notes into a regeneratable `wiki/` tree, adversarially review changed pages, emit a dated compilation digest. Incremental + idempotent. |
+- Output templates for investigations, requirements, workflow docs, QA reports, technical specs, and task sets.
+- Detector rules for `docs-tasks-creator` and Terraform resolution heuristics for `document-terraform`.
+- Generated shared contracts for authorized work, change evidence, documentation evidence, feedback, engineering changes, and provider capabilities where required.
+- Teaching workspace formats plus provider metadata under `skills/teach/`.
 
-### Engineering ownership (retention)
+## Current dependency notes
 
-Hand-invoked rituals writing durable artifacts to the configured ownership store (`~/.agents/ownership/{topic}/` in the preferred profile). Slimmed to the two low-friction members in the refactor; the friction-heavy rituals (`predict-first`, `debug-first`, `adr-first`, `challenge-me`) stay archived, individually restorable.
-
-| Skill | Role |
-| --- | --- |
-| `record-decision` | Cheap mid-work decision capture: full ADR-template record, AI-drafted rationale hard-flagged `UNREVIEWED`; you own the Rationale at review — in-session, or swept later by the `close` skill. |
-| `onboard-me` | Cold-read walkthrough of UNFAMILIAR code by a "staff engineer" — one step per turn, Socratic, assumptions listed every message. |
-
-### Session lifecycle & self-improvement
-
-| Skill | Role |
-| --- | --- |
-| `close` | End-of-session retrospect → persist to the right layer (repo `docs/rules/`, auto-memory, observations) + slim SESSION_LOG entry + propose a commit. |
-| `close-tasks` | End-of-tasks-doc closeout when per-session `close` did not run — reconstructs the run from durable artifacts, emits observations + a roll-up SESSION_LOG entry, idempotently. |
-| `improve` | Periodic self-improvement review of accumulated observations → STAGED review packet under `~/.agents/improvements/{date}/` in the preferred profile; never edits a live file without per-item approval. |
-| `audit-skills` | On-demand structural audit of the skill population (strict-YAML, description budget, triggers, redundancy, dead refs); stages proposals, never auto-edits. |
-| `write-skills` | Author a new skill — or fix one that won't fire — so it triggers reliably and passes `audit-skills` by construction. |
-
-### Orchestration & walkthroughs
-
-| Skill | Role |
-| --- | --- |
-| `orchestrate` | Run an ad-hoc multi-agent fan-out well: dispatch contract, persist-on-arrival, verification tiering, cross-agent synthesis, capability-based worker selection. |
-| `walkthrough` | Disposition a list of open items one per turn — findings, open questions, decision backlogs — with per-item confidence and dated rounds persisted to the artifact. |
-| `walkthrough-implementation` | Dependency-ordered tour of a completed, not-yet-committed implementation — stated rationale as the review mechanism; fixes applied in-turn. |
-
-### Learning & skill discovery
-
-| Skill | Role |
-| --- | --- |
-| `triage-learning-content` | Content-consumption router: recommend TTS / TTS_PLUS_REVIEW / READ for an article or URL — scores, pre-consumption briefing, addressable review targets, 1× listening estimate, stable JSON for downstream workflows. Chat-only output. |
-| `teach` | Stateful teaching workspace: learn a topic over multiple sessions (glossary, learning record, missions). Explicit-only invocation. |
-| `breakout-session` | ~15-minute oral-exam learning checkpoint: the user explains studied material, the coach probes Socratically → honest go/no-go verdict for moving on. Chat-only; optional learning record inside a `teach` workspace. |
-| `find-skills` | Discover and install agent skills when looking for functionality that might exist as an installable skill. |
-
-## Docs
-
-| File | What's in it |
-| --- | --- |
-| [`docs/output-filename-contract.md`](docs/output-filename-contract.md) | The one artifact-filename contract (`{work_name}_analysis.md`, `{bug_id}_investigation.md`, …) every producing skill follows. |
-| [`docs/rules/skill-authoring.md`](docs/rules/skill-authoring.md) | Repo rules — read before editing, validating, enumerating, or converting skills (strict-YAML check, sweep rules, deployment topology, population-sync rule). |
-| [`docs/loop-recipes.md`](docs/loop-recipes.md) | Native loop primitives (`/goal`, `/loop`, `/schedule`): frames, rubric, hard constraints, recipes. The only place the primitive names live. |
-| [`docs/codex-portability-assessment.md`](docs/codex-portability-assessment.md) | Design + decision record for the Codex adapter. |
-| [`docs/cursor-portability-assessment.md`](docs/cursor-portability-assessment.md) | Design + decision record for the Cursor adapter — written for v1; the symlink mechanism survived the 2026-08 v2 reconciliation, the generated surfaces did not (see `adapters/cursor/README.md`). |
-| [`docs/model-assignments.md`](docs/model-assignments.md) | **Historical** — per-agent model pins from the v1 kit (banner in the doc). |
+- `grill-me` expects a companion `grilling` skill that is not bundled in this repository.
+- `grill-with-docs` expects companion `grilling` and `domain-modeling` skills that are not bundled here.
+- `improve-codebase-architecture` expects `codebase-design`, `grilling`, and `domain-modeling`; its referenced `HTML-REPORT.md` scaffold is also not present in the live folder.
+- Some live skill text still names retired or absent handoffs, including `analyze-work`, `review-artifact`, `post-mortem`, `record-decision`, `audit-skills`, and `implement-fix`. These names are not live skills and are not included in the count above.

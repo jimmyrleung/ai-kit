@@ -1,3 +1,22 @@
+## [2026-09-20] — live skill catalog documentation refresh
+
+<!-- close-state: v2 · close_id:b7d99870-f2d6-4924-b17d-fd3e2201b5d7 · execution_id:1d1cdc48-c821-4e54-9e88-602a40dc1aa7 · started_at:2026-09-20T15:29:00.2397315-03:00 · state:complete -->
+
+**Summary:** Refreshed `README.md` and `INVENTORY.md` from all 30 live skill definitions, replacing retired workflow claims with the current engineering chain, explicit-only modes, and companion dependency notes.
+
+**Next:** Reconcile the current skill tree with `tests/test_skill_portability.mjs`, `docs/rules/skill-authoring.md`, the portability policy, and live skill bodies that still reference absent handoffs; then rerun the full repository gates.
+
+**Blockers:** The documentation update is complete, with exact 30/30 catalog parity and valid local links. Repository-wide gates remain red because the test and shared rule still expect 31 skills and several current skill bodies violate the existing portability policy.
+
+**Didn't work:** The first local-link probe used an empty base path; the corrected repository-root probe passed. The full repository checks cannot pass until the wider post-update drift is resolved.
+
+**Artifacts:** `README.md`; `INVENTORY.md`; private observation `~/.agents/observations/2026-09-20-ai-kit-skill-catalog-drift.md`.
+
+<!-- close-receipt: v2 · close_id:b7d99870-f2d6-4924-b17d-fd3e2201b5d7 · execution_id:1d1cdc48-c821-4e54-9e88-602a40dc1aa7 · completed_at:2026-09-20T15:31:08.6813940-03:00 · supersedes:none · memory:0 · rules:0 · skills:0 · observations:1 -->
+
+---
+
+
 ## [2026-09-15] — provider-neutral feedback store migration
 
 <!-- close-state: v2 · close_id:27057d3a-6c62-459e-bd2d-84c89ea5e295 · execution_id:f26de711-3418-49ff-bc69-f625564474c1 · started_at:2026-09-15T05:59:04-03:00 · state:complete -->

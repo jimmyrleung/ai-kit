@@ -1,14 +1,14 @@
 # ai-kit
 
-A skill-centric kit for AI-assisted engineering workflows across Claude Code, OpenAI Codex CLI, and Cursor CLI. It codifies a disciplined, evidence-based approach to analysis, design, implementation, verification, incident response, and documentation, plus a self-improving meta-layer that turns session friction into refined skills over time.
+A skill-centric kit for AI-assisted engineering across Claude Code, OpenAI Codex CLI, and Cursor CLI. The live catalog covers discovery, requirements, design, implementation, review, QA, documentation, knowledge work, learning, walkthroughs, orchestration, and session improvement.
 
-This is **v2** of the kit (2026-08 refactor). The v1 kit — five workflow-family orchestrator commands, 17 named agents, document templates — is **deprecated** and preserved under [`archive/v1/`](archive/v1/). What changed, in one line: **all the methodology moved into 31 flexible, mode-detecting skills; the command / agent / template scaffolding around it was retired.**
+This is the current **v2** kit. Its source of truth is the 30 skills under [`skills/`](skills/); each skill owns its process and any bundled templates or references. The v1 command/agent/template kit is deprecated and preserved under [`archive/v1/`](archive/v1/).
 
 ## What's in here
 
 ```
 ai-kit/
-├── skills/     31 skills — self-contained folders (SKILL.md + supporting files)
+├── skills/     30 live skills — SKILL.md plus any bundled references or assets
 ├── docs/       Maintained shared-rule sources + repo rules (docs/rules/)
 ├── adapters/   Per-tool adapters (codex/, cursor/) — same canonical source on other CLIs
 └── archive/    v1 kit (deprecated) + retired skills, kept restorable one by one
@@ -16,42 +16,61 @@ ai-kit/
 
 Skill-by-skill listing: [`INVENTORY.md`](INVENTORY.md).
 
-## The core chain
+## Main engineering workflow
 
-Feature, refactor, and greenfield work all run the **same** chain — each skill detects the work type (integration / greenfield / refactor) and applies that lens, instead of forking into per-family variants:
+For a defined feature, greenfield project, or refactor, the live end-to-end path is:
 
+```text
+lay-of-the-land (optional reconnaissance)
+  → define-reqs
+  → techspec
+  → tasks-breakdown
+  → implement-task (one task at a time)
+  → review-implementation
+  → qa-execution
+  → qa-gates
 ```
-analyze-work → techspec → tasks-breakdown → implement-task (× N tasks, verify-task gates inline)
-        → review-implementation → qa-gates
+
+`triage` can recommend the right entry point when it is unclear. Small, already-defined work can start later in the chain; the individual skill checks its own prerequisites.
+
+Bugs and incidents start with evidence-based diagnosis, then join the same delivery path:
+
+```text
+bug-investigation
+  → techspec (fix or hotfix mode)
+  → implement-task
+  → review-implementation
+  → qa-execution
+  → qa-gates
 ```
 
-Bugs and incidents enter through their own head and rejoin the chain (diagnosis is an incident lens inside `bug-investigation`; hotfix planning is `techspec` fix mode):
+Documentation has its own related set: `docs-tasks-creator` inventories handlers, `document-workflow` traces one operation, and `update-workflow-docs` refreshes stale workflow docs. `document-terraform` documents Terraform estates, while `guides-and-sensors` proposes repository guidance and feedback mechanisms.
 
-```
-bug-investigation → review-artifact → techspec (fix mode) → implement-task (fix lens)
-                  → qa-gates → post-mortem (incidents only)
-```
+## Other live capabilities
 
-Two helpers at the front: **`triage`** routes the current request using relevant, valid artifact state; **`lay-of-the-land`** is the optional Phase-0 recon of unfamiliar territory. Every pre-implementation artifact (`_analysis`, `_investigation`, `_techspec`, `_tasks`) can be adversarially reviewed in place by **`review-artifact`** before the next stage builds on it. Artifact filenames follow one contract: [`docs/output-filename-contract.md`](docs/output-filename-contract.md).
+- **Knowledge and learning:** `compile-kb`, `teach`, `breakout-session`, and `triage-learning-content`.
+- **Guided understanding and decisions:** `onboard-me`, `walkthrough`, and `walkthrough-implementation`.
+- **Orchestration and maintenance:** `orchestrate`, `close`, `improve`, `write-skills`, and `find-skills`.
+- **Explicit architecture/grilling wrappers:** `grill-me`, `grill-with-docs`, and `improve-codebase-architecture`.
 
-## Design principles (what v2 changed)
+Four skills set `disable-model-invocation: true` and are intended for explicit invocation: `grill-me`, `grill-with-docs`, `improve-codebase-architecture`, and `teach`. See [`INVENTORY.md`](INVENTORY.md) for exact roles and dependency notes.
 
-- **Skills only.** No named agents — skills fan out to *generic* subagents, so an archived persona can never silently break a live fan-out again. No command wrappers — a `commands/` shim adds a name, not methodology. No templates — output shapes live inline in the skills that produce them.
-- **Mode detection over per-family forks.** One `analyze-work`, one `techspec`, one `tasks-breakdown` — each detects the work type and adapts, replacing ~5 near-duplicate per-family variants each.
-- **Loose inputs.** Every skill accepts a loose target — a description, a path, a prefix, a number, a file with a draft — resolves it, and echoes back what it resolved. Never a rigid argument shape.
-- **Respect existing authorization.** `improve` stages proposals; `triage` recommends by default and can continue when execution is explicitly authorized. Commits and publishing retain their own authorization boundaries.
-- **Review-then-commit.** No gate hard-requires a commit; committed-state is informational (`GO, conditional on commit`). The flow stays implement → verify → review → commit.
-- **Evidence-based decisions.** Every gate failure records the specific check that failed; every observation has a date and a concrete trigger; `improve` consumes evidence, not impressions.
-- **Archive-first evolution.** Nothing is deleted on retirement — it moves to `archive/`, and comes back individually only on felt need (that is how `triage`, `onboard-me`, `record-decision`, and `update-workflow-docs` returned).
+## Design principles
+
+- **One skill, one job.** Each live folder has one `SKILL.md`; supporting templates and rules stay beside the skill that consumes them.
+- **Loose inputs, explicit resolution.** Most workflows accept a description, path, task number, or existing artifact and resolve the concrete target before acting.
+- **Evidence before confidence.** Source reads, executed checks, runtime observations, and external documentation support conclusions; a score never replaces evidence.
+- **Separate stages.** Reconnaissance, requirements, design, implementation, review, live QA, and final release gates have different owners.
+- **Bounded writes.** Documentation skills separate source roots from documentation roots; review and improvement workflows stage or request approval before broader changes.
+- **Proportional orchestration.** Skills use focused subagents where independent coverage is valuable, while small scopes stay inline.
+- **Archive-first evolution.** Retired material remains under `archive/` rather than being presented as live.
 
 ## The self-improving loop
 
-1. **In-session:** `verify-task` runs after each implemented task, recording pass/fail per gate.
-2. **End of session:** the `close` skill records decisions, learnings, and supported friction through an optional configured recorder/store. The preferred provider-neutral profile is `~/.agents/feedback-store.json`; legacy stores require explicit configuration.
-3. **Periodically:** the `improve` skill reads new observations and unresolved work, clusters supported friction, and stages proposed edits in the configured improvements store — each diff tied to evidence. Observation coverage is distinct from invocation telemetry.
-4. **You review and apply.** The applied edits flow back into the skills that run the next session.
-
-This is ai-kit operating on itself: the skills here are the same skills that propose changes to themselves.
+1. `close` distills session state, durable learnings, open work, and workflow friction.
+2. `improve` reviews recorded observations and unresolved proposals, then stages a backlog for owner review.
+3. `write-skills` creates or refactors focused skills from approved needs.
+4. Repository tests and portability checks validate the resulting skill population before distribution.
 
 ## Install and synchronize
 
