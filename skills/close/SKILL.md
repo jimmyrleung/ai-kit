@@ -17,21 +17,9 @@ Close out a working session:
 
 ## Phase 1 — Retrospective (scan, then categorize)
 
-Execute the steps below sequentially.
+**Execute the steps below sequentially.**
 
-1. Determine an ID for the session:
-
-- Prefer the host's opaque session ID.
-- If not available, generate a unique id Otherwise generate
-
-> The idea is to avoid "top entry" or "same date" as identity so things are mixed up.
-
-2. Inspect the top `SESSION_LOG.md` entry:
-
-- If the top entry has the **same `execution_id`**, there was likely some follow-up prompts after a previous close, so this close should just be appended to that same entry.
-- Else, just prepend a new entry for this close
-
-3. Scan _this session's_ context to find:
+1. Scan _this session's_ context to find:
 
 - **Decisions made**: architectural / design / scoping choices, **with the `why`**
 - **Learnings / surprises / inefficiencies**: gotchas discovered; "this cost me 20 min because X"; a tool/pattern that worked unexpectedly well or badly.
@@ -40,7 +28,7 @@ Execute the steps below sequentially.
 - **References**: external URLs, tickets, dashboards, doc links mentioned this session.
 - **Files touched**: run `git status --short` and `git diff --stat HEAD` (read-only; safe).
 
-4. Build one list per type of finding, then categorize each one into:
+3. Build one list per type of finding, then categorize each one into:
 
 - **(a) → long-term memory**: durable facts that would benefit any agents if they already existed in the `AGENTS.md` or were part of one of the repo rules. Examples are:
   - a confirmed user preference
@@ -57,7 +45,7 @@ Execute the steps below sequentially.
 - **(b) → local skills candidates**: situational things that could be extracted to local skills, like: "where-to-find-X" or "how-to-do-Y"
 - **(c) → decisions**: important decisions made that are candidates to be ingested into a knowledge base, llm wiki, etc.
 - **(d) → observations**: evidence of how a skill/workflow performed (friction, a missing capability, a workflow step that drifted). _Ambiguous_ stuff that needs batch review later, not a snap memory write. These are intended to be used as evidence for the `improve` skill
-- **(d) → SESSION_LOG**: continuation state only: the concrete next step, blockers, dead ends, artifact links. State, not knowledge — if it would still be true in a month, it's (a).
+- **(d) → LOGS**: continuation state only: the concrete next step, blockers, dead ends, artifact links. State, not knowledge — if it would still be true in a month, it's (a).
 - **(e) → session call-out to just say it in chat**: one-off, not worth persisting anywhere.
 
 **IMPORTANT**: If nothing falls into (a), (b) or (c), that's fine — say so and move on. Don't manufacture entries.
@@ -70,18 +58,20 @@ Execute the steps below sequentially.
 
 Guidance for persisting:
 
-- `SESSION_LOG` → follow [SESSION_LOG.md guidance] below
-- `observations` goes into the private `~/agents/observations` repo
-- the rest goes into the local repo `sessions/yyyyMMdd_[slug]/` folder, where `slug` is a meaningful name for the session.
-  - write `sessions/yyyyMMdd_[slug]/long_term_memory.md` for `long-term memory` you think should be added to either `AGENTS.md` or `rules/`
-  - write a draft for each `local skills candidates` into `sessions/yyyyMMdd_[slug]/skills/`
-  - write `decisions` on `sessions/yyyyMMdd_[slug]/decisions`
+- `observations` goes into the private `~/.agents/observations/` repo
+- the rest goes into the local repo: `./sessions/yyyyMMddhhmmss_[slug]/` folder, where `slug` is a meaningful name for the session.
+  - write `LOGS.md` → follow [Session logs guidance] below
+  - write `./sessions/yyyyMMddhhmmss_[slug]/long_term_memory.md` for `long-term memory` you think should be added to either `AGENTS.md` or `rules/`
+  - write a draft for each `local skills candidates` into `./sessions/yyyyMMddhhmmss_[slug]/skills/`
+  - write `decisions` on `./sessions/yyyyMMddhhmmss_[slug]/decisions/`
+
+> Important: the user is responsible for reviewing and deciding if something goes into `AGENTS.md` `rules/` or `skills` - you should just write the drafts within the sessions folder
 
 You can proceed to [Phase 3] once everything is persisted.
 
-#### SESSION_LOG.md guidance
+#### Session logs
 
-Use the following structure for each entry:
+Use the following structure for the session logs:
 
 ```
 ## [YYYY-MM-DD] — <title>
@@ -92,8 +82,6 @@ Use the following structure for each entry:
 **Didn't work:** <abandoned approaches, so they're not re-attempted — or "—">
 **Artifacts:** <links to the main doc(s) / PR / key commits — the things a fresh session opens first>
 ```
-
-If `SESSION_LOG.md` is getting long (~30+ entries / ~1500+ lines), move the _oldest_ half to `SESSION_LOG_ARCHIVE.md` at the same location (a big file degrades agent processing — same reason the handoff pattern archives completed items).
 
 ## Phase 3 — Housekeeping & close
 
