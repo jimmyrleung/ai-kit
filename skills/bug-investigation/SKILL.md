@@ -1,6 +1,6 @@
 ---
 name: bug-investigation
-description: "Diagnoses a reported bug, error, crash, regression, or unexpected behavior from source and runtime evidence, with a minimal-fix proposal or next probe. Use to investigate, debug, or root-cause a failure, including a production incident or outage. Accepts a bug report, issue link, or inline reproduction; Produces `investigations/[slug]/investigation.md`."
+description: "Diagnoses a reported bug, error, crash, regression, or unexpected behavior from source and runtime evidence, with a minimal-fix proposal or next probe. Use to investigate, debug, or root-cause a failure, including a production incident or outage. Accepts a bug report, issue link, or inline reproduction; Produces `investigations/[slug]/investigation.md`. Do not use this for trivial fixes."
 ---
 
 # Bug investigation

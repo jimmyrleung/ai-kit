@@ -49,9 +49,9 @@ Sensors observe the outcome after the agent acts and help with self-correction. 
 
 4. **Perform an adversarial review** with one or more subagents, depending on the size of the scope, to challenge, refine, and polish the draft.
 
-5. **Tell the user when everything is ready to begin the final rule and skill authoring session.** This session should be turn-based and collaborative with the user.
+5. **Write the final proposal for guides and sensors.** Write within `proposed-rules/[slug]/`:
 
-   Once the user gives the OK, begin the process by presenting one candidate at a time in detail. For each proposed rule or skill, explain:
-   - What you recommend
-   - Why the rule or skill is important
-   - Where it will be written
+- `AGENTS.md` - what additions you recommend to the local repo `AGENTS.md`.
+- `skills/[skill-name]/SKILL.md` - what local skills you suggest for the local repo. If it include additional files referenced in the skill, add them to `skills/[skill-name]/references/`
+- `rules/[rule-group-name].md` - what rules you suggest for the repo based on the [Guides] and [Sensors]
+- `SUMMARY.md` - A summary of the process: exploration and conclusions. Also, include a list of everything you recommend high-level and why it is important.
