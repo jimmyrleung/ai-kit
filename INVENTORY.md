@@ -1,10 +1,8 @@
 # ai-kit Inventory (v3)
 
-The live catalog contains 27 skills, with one row per tracked `skills/<name>/SKILL.md`
+The live catalog contains 23 skills, with one row per tracked `skills/<name>/SKILL.md`
 file. The live directory tree is the source of truth. Historical material is preserved under
 [`archive/v1/`](archive/v1/) and [`archive/v2/`](archive/v2/).
-
-`Explicit only` means the skill sets `disable-model-invocation: true`; invoke it by name rather than expecting automatic selection.
 
 ## Skills
 
@@ -42,18 +40,14 @@ file. The live directory tree is the source of truth. Historical material is pre
 | Skill | Invocation | Current role |
 | --- | --- | --- |
 | `triage-learning-content` | Normal | Recommends `TTS`, `TTS_PLUS_REVIEW`, or `READ` for supplied learning content, with scores, review targets, and a 1× listening estimate. |
-| `teach` | Explicit only | Maintains a multi-session teaching workspace with a mission, resources, HTML lessons, reusable assets, glossary, and learning records. |
 | `breakout-session` | Normal | Runs a short Socratic checkpoint in which the user demonstrates previously studied material and receives a scoped go/no-go assessment. |
 
-### Guided decisions and architecture
+### Guided decisions
 
 | Skill | Invocation | Current role |
 | --- | --- | --- |
 | `walkthrough` | Normal | Takes an existing list of questions or findings, presents one item per turn by default, and records each disposition in the owning artifact. |
 | `walkthrough-implementation` | Normal | Explains recently completed owned work in dependency order, including code, rationale, and verification, before commit or shipping. |
-| `grill-me` | Explicit only | Thin wrapper that forwards to a companion `grilling` skill for a rigorous plan/design interview. |
-| `grill-with-docs` | Explicit only | Thin wrapper that combines companion `grilling` and `domain-modeling` skills so the interview also maintains ADR/domain artifacts. |
-| `improve-codebase-architecture` | Explicit only | Scans architecture for module-deepening opportunities, renders a visual HTML report, then uses companion design/grilling skills to explore the selected candidate. |
 
 ### Orchestration, lifecycle, and skill ecosystem
 
@@ -72,13 +66,18 @@ The live tree also includes the support material consumed by individual skills:
 - Output templates for investigations, requirements, workflow docs, QA reports, technical specs, and task sets.
 - Detector rules for `docs-tasks-creator` and Terraform resolution heuristics for `document-terraform`.
 - Skill-local evidence, authorization, feedback, and provider-capability references where required; each copy is maintained with its consuming skill.
-- Teaching workspace formats plus provider metadata under `skills/teach/`.
+
+## External local skills
+
+`grill-me`, `grill-with-docs`, `improve-codebase-architecture`, and `teach` are authored and
+distributed through [Matt Pocock's skills repository](https://github.com/mattpocock/skills).
+They may appear as local links under `skills/`, but they are not tracked, counted, validated, or
+synchronized as ai-kit skills.
 
 ## External and retired dependencies
 
-- `grill-me` expects a companion `grilling` skill that is not bundled in this repository.
-- `grill-with-docs` expects companion `grilling` and `domain-modeling` skills that are not bundled here.
-- `improve-codebase-architecture` expects `codebase-design`, `grilling`, and `domain-modeling`; its referenced `HTML-REPORT.md` scaffold is also not present in the live folder.
+- `breakout-session` can use an external `teach` workspace, but ai-kit does not bundle or install
+  `teach`.
 - `document-workflow` names `document-workflow-loop` as a cc-looper-owned external fork.
 - Some live handoffs still name retired or absent skills: `triage`, `compile-kb`,
   `onboard-me`, `audit-skills`, and `implement-fix`. These names are not live skills and are

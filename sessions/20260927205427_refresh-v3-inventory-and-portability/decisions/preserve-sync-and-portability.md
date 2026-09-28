@@ -13,6 +13,8 @@ with stale test and evaluation fixtures.
 
 - Move the common engine to the repository root as `sync-skills.py`.
 - Keep the Codex and Cursor scripts as thin wrappers around that engine.
+- Enumerate only real, repository-owned directories under `skills/`; ignore symlinks and Windows
+  junctions so local third-party installations are not redistributed as ai-kit content.
 - Keep a three-operating-system GitHub Actions workflow.
 - Limit the workflow to live skill frontmatter/name rules, inventory consistency, local links,
   Python and adapter syntax, and isolated synchronization dry runs.
@@ -27,6 +29,7 @@ skill-quality evaluations.
 ## Consequences
 
 - Installation behavior remains available after removing `scripts/`.
+- Local third-party skill links remain installed without entering the ai-kit sync plan.
 - The workflow has no npm dependency and no eval corpus.
 - The Windows wrappers prefer `py -3` for reliable launcher selection.
 - Final cross-platform confirmation depends on the next pushed GitHub Actions run.

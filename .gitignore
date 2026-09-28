@@ -4,3 +4,9 @@ archive/v1/kit_comparison_2026-08-06/
 node_modules/
 __pycache__/
 *.py[cod]
+
+# Local third-party skill mounts; installed separately and not owned by ai-kit.
+/skills/grill-me
+/skills/grill-with-docs
+/skills/improve-codebase-architecture
+/skills/teach

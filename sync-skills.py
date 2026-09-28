@@ -465,9 +465,9 @@ class SyncEngine:
         for entry in entries:
             child = Path(entry.path)
             try:
+                if is_link(child):
+                    continue
                 is_directory = entry.is_dir(follow_symlinks=False)
-                if not is_directory and is_link(child):
-                    is_directory = child.is_dir()
             except OSError:
                 is_directory = False
             if not is_directory:

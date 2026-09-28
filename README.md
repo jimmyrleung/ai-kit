@@ -4,7 +4,7 @@ A skill-centric kit for AI-assisted engineering across Claude Code, OpenAI Codex
 Cursor CLI. The live catalog covers discovery, requirements, design, implementation, review,
 QA, documentation, learning, walkthroughs, orchestration, and session improvement.
 
-This is the current **v3** skill set. Its source of truth is the 27 tracked skills under
+This is the current **v3** skill set. Its source of truth is the 23 tracked skills under
 [`skills/`](skills/); each skill owns its process and any bundled templates or references.
 The complete v1 kit and material retired during the v3 review remain under
 [`archive/`](archive/).
@@ -13,7 +13,7 @@ The complete v1 kit and material retired during the v3 review remain under
 
 ```
 ai-kit/
-├── skills/          27 live skills, each rooted at skills/<name>/SKILL.md
+├── skills/          23 live skills, each rooted at skills/<name>/SKILL.md
 ├── adapters/        Codex and Cursor compatibility guidance and sync wrappers
 ├── loops/           Small reusable goal prompts
 ├── sync-skills.py   Common skill-link synchronization engine
@@ -56,15 +56,15 @@ Documentation has its own related set: `docs-tasks-creator` inventories handlers
 
 ## Other live capabilities
 
-- **Learning:** `teach`, `breakout-session`, and `triage-learning-content`.
+- **Learning:** `breakout-session` and `triage-learning-content`.
 - **Guided decisions:** `walkthrough` and `walkthrough-implementation`.
 - **Orchestration and maintenance:** `orchestrate`, `close`, `improve`, `write-skills`, and `find-skills`.
-- **Explicit architecture/grilling wrappers:** `grill-me`, `grill-with-docs`, and `improve-codebase-architecture`.
 
-Four skills are explicit-only: `grill-me`, `grill-with-docs`,
-`improve-codebase-architecture`, and `teach`. The three architecture/interview wrappers depend
-on companion skills that are not bundled in this repository. See
-[`INVENTORY.md`](INVENTORY.md) for exact dependencies and remaining retired handoffs.
+Third-party skills installed locally—including `grill-me`, `grill-with-docs`,
+`improve-codebase-architecture`, and `teach` from
+[Matt Pocock's skills repository](https://github.com/mattpocock/skills)—are not part of ai-kit
+and do not count as live skills. Local links under `skills/` are ignored by synchronization and
+portability checks. See [`INVENTORY.md`](INVENTORY.md) for remaining external handoffs.
 
 ## Design principles
 
@@ -88,9 +88,10 @@ on companion skills that are not bundled in this repository. See
 Prerequisites: Git, Python 3.12 or newer, and a supported agent host. Clone or download the
 repository into a stable path and run commands from its root.
 
-The common engine manages per-skill links in `~/.claude/skills/` and
-`~/.agents/skills/`. On Windows it creates directory junctions; on macOS and Linux it creates
-symbolic links. Preview normal-home changes before applying them:
+The common engine manages links for repository-owned, real skill directories in
+`~/.claude/skills/` and `~/.agents/skills/`. It ignores linked directories inside the source
+tree. On Windows it creates directory junctions; on macOS and Linux it creates symbolic links.
+Preview normal-home changes before applying them:
 
 ```bash
 # macOS / Linux
@@ -135,7 +136,7 @@ remain separate from the live skill inventory.
 - [`archive/v2/`](archive/v2/) contains retired v2 skills and the former top-level shared
   documentation sources.
 
-Archived material is historical and does not count toward the 27 live skills.
+Archived material and locally linked third-party skills are not part of the 23 live skills.
 
 ## License
 

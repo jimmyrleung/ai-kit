@@ -5,7 +5,12 @@ These are drafts for owner review. They are not repository rules yet.
 ## Current live surface
 
 - The live v3 catalog is the tracked set of `skills/<name>/SKILL.md` files. At this session it
-  contains 27 skills.
+  contains 23 repository-owned skills.
+- Linked directories under `skills/` are local external installations. They are ignored by the
+  common sync engine and portability workflow and must not be counted or committed as ai-kit
+  content.
+- `grill-me`, `grill-with-docs`, `improve-codebase-architecture`, and `teach` come from Matt
+  Pocock's skills repository. They may be installed locally but are not part of ai-kit.
 - `README.md` and `INVENTORY.md` should derive skill claims from that live tree rather than from
   historical fixtures or archived specifications.
 - Support references required by a skill are maintained within that consuming skill's folder.

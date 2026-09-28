@@ -54,7 +54,15 @@ jobs:
                   return ast.literal_eval(value)
               return value
 
-          skill_dirs = sorted(path for path in skills_root.iterdir() if path.is_dir())
+          def is_linked_directory(path):
+              is_junction = getattr(path, "is_junction", lambda: False)
+              return path.is_symlink() or is_junction()
+
+          skill_dirs = sorted(
+              path
+              for path in skills_root.iterdir()
+              if path.is_dir() and not is_linked_directory(path)
+          )
           live_names = {path.name for path in skill_dirs}
 
           for skill_dir in skill_dirs:
@@ -116,7 +124,8 @@ jobs:
           full_link_files = {root / "README.md", root / "INVENTORY.md"}
           full_link_files.update((root / "adapters").rglob("*.md"))
           markdown_files = list(full_link_files)
-          markdown_files.extend(skills_root.rglob("*.md"))
+          for skill_dir in skill_dirs:
+              markdown_files.extend(skill_dir.rglob("*.md"))
           for source in markdown_files:
               text = source.read_text(encoding="utf-8")
               for raw_target in link_pattern.findall(text):
