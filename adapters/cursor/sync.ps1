@@ -27,14 +27,20 @@ if ($PSBoundParameters.ContainsKey('CursorHome') -or $null -ne $env:CURSOR_HOME)
   exit 2
 }
 
-$python = Get-Command python3 -ErrorAction SilentlyContinue
+$python = $null
+$pythonArgs = @()
+if ($IsWindows) {
+  $python = Get-Command py -ErrorAction SilentlyContinue
+  if ($python) { $pythonArgs = @('-3') }
+}
+if (-not $python) { $python = Get-Command python3 -ErrorAction SilentlyContinue }
 if (-not $python) { $python = Get-Command python -ErrorAction SilentlyContinue }
 if (-not $python) {
-  Write-Error 'Python 3 is required to run scripts/sync-skills.py.'
+  Write-Error 'Python 3 is required to run sync-skills.py.'
   exit 1
 }
 
-$scriptPath = (Resolve-Path (Join-Path $PSScriptRoot '..\..\scripts\sync-skills.py')).Path
+$scriptPath = (Resolve-Path (Join-Path $PSScriptRoot '..\..\sync-skills.py')).Path
 $commonArgs = [System.Collections.Generic.List[string]]::new()
 if ($WhatIf) { $commonArgs.Add('--dry-run') }
 if ($Check) { $commonArgs.Add('--check') }
@@ -54,5 +60,5 @@ if ($PSBoundParameters.ContainsKey('UserHome')) {
   $commonArgs.Add($UserHome)
 }
 
-& $python.Source $scriptPath @commonArgs
+& $python.Source @pythonArgs $scriptPath @commonArgs
 exit $LASTEXITCODE

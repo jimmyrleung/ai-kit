@@ -1,11 +1,11 @@
-# ai-kit → Cursor CLI adapter (v2)
+# ai-kit → Cursor CLI adapter (v3)
 
 Makes the **single canonical ai-kit source** consumable by the **Cursor CLI**
-(`cursor-agent`). The common deployment engine is `../../scripts/sync-skills.py`; this
+(`cursor-agent`). The common deployment engine is `../../sync-skills.py`; this
 adapter supplies only Cursor compatibility and runtime guidance.
 
-> Design + decision record: `../../docs/cursor-portability-assessment.md`
-> (historical; the v2 implementation uses the common engine). Current skill and subagent
+> Historical design record: `../../archive/v2/docs/cursor-portability-assessment.md`.
+> Current skill and subagent
 > mechanics are checked against the [Cursor Agent Skills documentation](https://prod.cursor.com/docs/skills)
 > and [Cursor subagent documentation](https://prod.cursor.com/docs/subagents), accessed 2026-09-01.
 > Cursor is version-sensitive; re-verify claims against the installed CLI.
@@ -19,7 +19,7 @@ adapter supplies only Cursor compatibility and runtime guidance.
 - **No kit-owned fan-out harness.** Use Cursor's native facility when available; the
   capability fallback and reading rules are documented in `AGENTS.md`.
 
-## How it works (v2)
+## How it works (v3)
 
 The common engine enumerates every canonical `skills/<name>/` directory once and manages
 per-skill links in exactly `~/.claude/skills/` and `~/.agents/skills/`. Cursor's current
@@ -32,10 +32,9 @@ The adapter does not generate provider-specific skill copies, command/agent twin
 subagent files. Historical v1 generation details remain in the superseded assessment;
 the common engine's explicit `--prune` behavior applies only to its managed roots.
 
-Each complete skill folder includes generated shared references. Detached copies need no
-manual `docs/` copy and update by replacing the complete folder. Linked installs expose
-checkout edits; shared-rule edits require the maintainer's `npm run build:skill-references`
-step first. Sync itself does not generate references or fetch repository updates.
+Each complete skill folder includes its required references. Detached copies need no manual
+top-level `docs/` copy and update by replacing the complete folder. Linked installs expose
+checkout edits directly. Sync does not generate references or fetch repository updates.
 
 ## Duplicate discovery: source equivalence, no precedence
 
@@ -48,8 +47,8 @@ The root [`README.md`](../../README.md) is the canonical installation guide. Run
 engine from the repository root, previewing the normal home before applying:
 
 ```bash
-python3 scripts/sync-skills.py --dry-run
-python3 scripts/sync-skills.py --check
+python3 sync-skills.py --dry-run
+python3 sync-skills.py --check
 ```
 
 The adapter paths remain compatibility entry points and forward the common switches unchanged:
@@ -100,8 +99,9 @@ may overwrite a private conventions file.
 The kit's public contracts are sufficient for a fresh-user workflow. Private conventions
 can add user preferences, but are not a setup prerequisite. Keep them private and place
 them only where the active host reads instructions. The sync engine never writes them.
-See [provider capabilities](../../docs/provider-capabilities.md) for runtime checks and
-read-only copied-mechanics drift detection, and [feedback](../../docs/contracts/feedback.md)
+See [provider capabilities](../../skills/document-workflow/references/shared/provider-capabilities.md)
+for runtime checks and read-only copied-mechanics drift detection, and
+[feedback](../../skills/document-workflow/references/shared/feedback.md)
 for optional stores and recorder ownership.
 
 ## Runtime verification

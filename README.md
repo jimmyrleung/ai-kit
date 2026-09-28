@@ -1,20 +1,27 @@
 # ai-kit
 
-A skill-centric kit for AI-assisted engineering across Claude Code, OpenAI Codex CLI, and Cursor CLI. The live catalog covers discovery, requirements, design, implementation, review, QA, documentation, knowledge work, learning, walkthroughs, orchestration, and session improvement.
+A skill-centric kit for AI-assisted engineering across Claude Code, OpenAI Codex CLI, and
+Cursor CLI. The live catalog covers discovery, requirements, design, implementation, review,
+QA, documentation, learning, walkthroughs, orchestration, and session improvement.
 
-This is the current **v2** kit. Its source of truth is the 30 skills under [`skills/`](skills/); each skill owns its process and any bundled templates or references. The v1 command/agent/template kit is deprecated and preserved under [`archive/v1/`](archive/v1/).
+This is the current **v3** skill set. Its source of truth is the 27 tracked skills under
+[`skills/`](skills/); each skill owns its process and any bundled templates or references.
+The complete v1 kit and material retired during the v3 review remain under
+[`archive/`](archive/).
 
 ## What's in here
 
 ```
 ai-kit/
-├── skills/     30 live skills — SKILL.md plus any bundled references or assets
-├── docs/       Maintained shared-rule sources + repo rules (docs/rules/)
-├── adapters/   Per-tool adapters (codex/, cursor/) — same canonical source on other CLIs
-└── archive/    v1 kit (deprecated) + retired skills, kept restorable one by one
+├── skills/          27 live skills, each rooted at skills/<name>/SKILL.md
+├── adapters/        Codex and Cursor compatibility guidance and sync wrappers
+├── loops/           Small reusable goal prompts
+├── sync-skills.py   Common skill-link synchronization engine
+└── archive/         The deprecated v1 kit and material retired from v2
 ```
 
-Skill-by-skill listing: [`INVENTORY.md`](INVENTORY.md).
+See [`INVENTORY.md`](INVENTORY.md) for every live skill, its invocation mode, current role,
+and external dependencies.
 
 ## Main engineering workflow
 
@@ -31,7 +38,8 @@ lay-of-the-land (optional reconnaissance)
   → qa-gates
 ```
 
-`triage` can recommend the right entry point when it is unclear. Small, already-defined work can start later in the chain; the individual skill checks its own prerequisites.
+Small, already-defined work can enter later in the chain. Each skill resolves its own target
+and prerequisites.
 
 Bugs and incidents start with evidence-based diagnosis, then join the same delivery path:
 
@@ -48,12 +56,15 @@ Documentation has its own related set: `docs-tasks-creator` inventories handlers
 
 ## Other live capabilities
 
-- **Knowledge and learning:** `compile-kb`, `teach`, `breakout-session`, and `triage-learning-content`.
-- **Guided understanding and decisions:** `onboard-me`, `walkthrough`, and `walkthrough-implementation`.
+- **Learning:** `teach`, `breakout-session`, and `triage-learning-content`.
+- **Guided decisions:** `walkthrough` and `walkthrough-implementation`.
 - **Orchestration and maintenance:** `orchestrate`, `close`, `improve`, `write-skills`, and `find-skills`.
 - **Explicit architecture/grilling wrappers:** `grill-me`, `grill-with-docs`, and `improve-codebase-architecture`.
 
-Four skills set `disable-model-invocation: true` and are intended for explicit invocation: `grill-me`, `grill-with-docs`, `improve-codebase-architecture`, and `teach`. See [`INVENTORY.md`](INVENTORY.md) for exact roles and dependency notes.
+Four skills are explicit-only: `grill-me`, `grill-with-docs`,
+`improve-codebase-architecture`, and `teach`. The three architecture/interview wrappers depend
+on companion skills that are not bundled in this repository. See
+[`INVENTORY.md`](INVENTORY.md) for exact dependencies and remaining retired handoffs.
 
 ## Design principles
 
@@ -70,100 +81,61 @@ Four skills set `disable-model-invocation: true` and are intended for explicit i
 1. `close` distills session state, durable learnings, open work, and workflow friction.
 2. `improve` reviews recorded observations and unresolved proposals, then stages a backlog for owner review.
 3. `write-skills` creates or refactors focused skills from approved needs.
-4. Repository tests and portability checks validate the resulting skill population before distribution.
+4. The portability workflow validates the reviewed skill population before distribution.
 
 ## Install and synchronize
 
-Prerequisites: Git, Python 3.12 or newer, Node 24 with npm, and a supported agent host.
-Clone or download the whole repository into a stable path and run commands from its
-root. Validate with the locked commands below before applying a sync. Provider
-installation, authentication, and account access are separate from the link setup.
-No private instruction, taxonomy, memory, or feedback files are required.
+Prerequisites: Git, Python 3.12 or newer, and a supported agent host. Clone or download the
+repository into a stable path and run commands from its root.
 
-To rehearse without changing your real home, create an empty temporary directory and
-pass its absolute path as `--home` to dry-run, apply, then check. The check follows
-apply on a fresh home. Restart or refresh the host's catalog, inspect the discovered
-canonical skill path, then try a bounded request such as “recommend only: document one
-workflow in this disposable repository.” Record unavailable host execution explicitly;
-a successful link check alone does not prove discovery or task execution.
-
-The link-based installation needs its checkout to remain in place. To install a detached
-skill, copy its complete `skills/<name>/` folder, including references, scripts, and provider
-metadata. Shared supporting documents are already bundled under `references/shared/`;
-their links resolve within that skill folder. No manual copy from `docs/` is needed.
-Other skills explicitly invoked by a workflow and external tools remain separate prerequisites;
-self-contained supporting files do not bundle an entire workflow chain or agent host.
-See [provider capabilities and probes](docs/provider-capabilities.md) and the
-[optional feedback contract](docs/contracts/feedback.md).
-
-The canonical `skills/` tree is the single source. The common engine manages per-skill links in
-`~/.claude/skills/` and `~/.agents/skills/`, records ownership under
-`~/.claude/ownership/ai-kit-skill-sync.json`, and leaves canonical targets unchanged. Preview
-normal-home changes before applying them:
-
-That manifest is internal link-manager state, not the feedback contract's ownership/decision
-store; the preferred feedback profile keeps those records under `~/.agents/ownership/`.
+The common engine manages per-skill links in `~/.claude/skills/` and
+`~/.agents/skills/`. On Windows it creates directory junctions; on macOS and Linux it creates
+symbolic links. Preview normal-home changes before applying them:
 
 ```bash
 # macOS / Linux
-python3 scripts/sync-skills.py --dry-run
-python3 scripts/sync-skills.py
-python3 scripts/sync-skills.py --check
+python3 sync-skills.py --dry-run
+python3 sync-skills.py
+python3 sync-skills.py --check
 ```
 
-On Windows, use `py -3` in place of `python3`. For an isolated home, add
-`--home <isolated-home>` to each command. `--check` is read-only; `--uninstall` restores
-the immutable first-managed baselines, and `--force` / `--prune` remain explicit opt-ins.
-If a managed root already contains an externally owned entry with a canonical skill name, pass
-`--preserve <claude|agents>/<skill-name>` once per entry to dry-run, apply, and check. The entry
-must already exist as a directory or link containing a readable `SKILL.md`, is not recorded as
-ai-kit ownership, and the preserve flag must be repeated for later checks; an unqualified
-invocation refuses the exception.
-The full policy is in [`docs/rules/skill-authoring.md`](docs/rules/skill-authoring.md).
+On Windows, use `py -3` in place of `python3`. To rehearse against an isolated home, add
+`--home <isolated-home>` to each command. `--check` is read-only. Other recovery or exception
+switches are documented by `python3 sync-skills.py --help` and require deliberate use.
 
-Validate the repository surface with the locked Node checker:
+The link-based installation needs the checkout to remain in place. For a detached install,
+copy the complete `skills/<name>/` folder, including its references, scripts, assets, and
+provider metadata. No separate top-level `docs/` copy is required; required live support files
+are bundled with their consuming skills.
 
-```bash
-npm ci
-npm test
-npm run check:portability
-```
+After a sync, restart or refresh the host's skill catalog. A successful link check proves the
+installation shape, not skill discovery or task execution; validate those separately in the
+target host.
 
-## Updating skills and shared rules
+## Portability check
 
-Symlink/junction installs expose edits to the checkout immediately on disk, including
-uncommitted edits. They do not fetch repository updates; pull updates explicitly. Refresh
-or restart the host to avoid relying on previously loaded instructions. Rerun sync after
-adding or renaming skill directories. A detached copy updates only when you replace it
-with a newer complete skill folder; preserve any local customizations first.
-
-Maintainers edit shared rules in `docs/contracts/` and the shared provider/filename references
-in `docs/`, then run:
-
-```bash
-npm run build:skill-references
-npm run check:portability
-```
-
-Generation updates the required copies and their transitive document dependencies for each
-skill. Generated headers identify the maintained source; edit that source instead of the copy.
-Generation leaves unchanged output untouched and retires only unused generated files.
-Include generated copies with source changes when distributing the skills. The normal final
-portability check fails on missing, stale, or unowned generated content and performs no writes.
-The generator is a maintenance step; detached users do not need it to read the bundled rules.
+The GitHub Actions workflow validates the live skill names and frontmatter, local Markdown
+links, Python and adapter syntax, and synchronization dry runs on Linux, macOS, and Windows.
+It uses only Python's standard library and does not define or run skill evaluations.
 
 ## Provider adapters
 
-Provider-specific invocation and runtime mechanics live in thin, additive overlays:
+Provider-specific invocation and runtime mechanics live in thin overlays:
 
-- [Codex adapter mechanics](adapters/codex/README.md) — Codex instruction placement and wrapper details.
-- [Cursor adapter mechanics](adapters/cursor/README.md) — Cursor instruction placement and wrapper details.
+- [Codex adapter mechanics](adapters/codex/README.md)
+- [Cursor adapter mechanics](adapters/cursor/README.md)
 
-These guides refer back to the common engine; they do not define a second installation algorithm.
+Both adapters use the common synchronization engine. Their provider-specific operating notes
+remain separate from the live skill inventory.
 
-## v1 (deprecated)
+## Archive
 
-The complete pre-refactor kit — READMEs, inventories, commands, agents, templates, retired skills — lives under [`archive/v1/`](archive/v1/), marked deprecated in place. A comparison of the two kits over real usage evidence drove the v2 absorptions; retired pieces return individually if genuinely missed.
+- [`archive/v1/`](archive/v1/) contains the complete pre-refactor command, agent, template,
+  and skill kit.
+- [`archive/v2/`](archive/v2/) contains retired v2 skills and the former top-level shared
+  documentation sources.
+
+Archived material is historical and does not count toward the 27 live skills.
 
 ## License
 

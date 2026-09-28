@@ -1,11 +1,11 @@
-# ai-kit → Codex CLI adapter (v2)
+# ai-kit → Codex CLI adapter (v3)
 
 Makes the **single canonical ai-kit source** consumable by **OpenAI Codex CLI**. The common
-deployment engine is `../../scripts/sync-skills.py`; this adapter supplies only Codex
+deployment engine is `../../sync-skills.py`; this adapter supplies only Codex
 compatibility and invocation guidance.
 
-> Design + recorded decision: `../../docs/codex-portability-assessment.md` (§3a Decision, §5,
-> §8 — historical; the v2 implementation uses the common engine). Current skill mechanics are
+> Historical design record: `../../archive/v2/docs/codex-portability-assessment.md` (§3a
+> Decision, §5, §8). Current skill mechanics are
 > checked against the [Codex Agent Skills documentation](https://learn.chatgpt.com/docs/build-skills)
 > and local `codex-cli 0.151.0` (`codex --version`, 2026-09-01). Re-verify after updates.
 
@@ -18,7 +18,7 @@ compatibility and invocation guidance.
 - **No kit-owned fan-out harness.** Use the native Codex facility when available; the
   capability fallback and reading rules are documented in `AGENTS.md`.
 
-## How it works (v2)
+## How it works (v3)
 
 The common engine enumerates canonical `skills/<name>/` directories once and manages per-skill
 links in exactly `~/.claude/skills/` and `~/.agents/skills/`. On POSIX it creates symlinks; on
@@ -27,7 +27,7 @@ Windows it creates directory junctions. Codex's documented user discovery root i
 no transform. See the [Codex skill locations and format](https://learn.chatgpt.com/docs/build-skills).
 
 No provider-specific skill copies, generated command/agent twins, or secondary sync
-implementation are current v2 surfaces. Optional `agents/openai.yaml` metadata is a skill-local
+implementation are current v3 surfaces. Optional `agents/openai.yaml` metadata is a skill-local
 Codex overlay; it does not create another copy of the skill. Historical v1 details remain in
 the superseded assessment.
 
@@ -36,8 +36,8 @@ The root [`README.md`](../../README.md) is the canonical installation guide. Run
 engine from the repository root, previewing the normal home before applying:
 
 ```bash
-python3 scripts/sync-skills.py --dry-run
-python3 scripts/sync-skills.py --check
+python3 sync-skills.py --dry-run
+python3 sync-skills.py --check
 ```
 
 The adapter paths remain compatibility entry points and forward the common switches unchanged:
@@ -81,16 +81,17 @@ private instruction files. Use `--check` for a read-only completeness and owners
 The kit's public contracts are sufficient for a fresh-user workflow. Private conventions
 can add user preferences, but are not a setup prerequisite. Keep them private and place
 them only where the active host reads instructions. The sync engine never writes them.
-See [provider capabilities](../../docs/provider-capabilities.md) for runtime checks and
-read-only copied-mechanics drift detection, and [feedback](../../docs/contracts/feedback.md)
+See [provider capabilities](../../skills/document-workflow/references/shared/provider-capabilities.md)
+for runtime checks and read-only copied-mechanics drift detection, and
+[feedback](../../skills/document-workflow/references/shared/feedback.md)
 for optional stores and recorder ownership.
 
 ## Validation
 
-The repository's `npm test` and `npm run check:portability` are the authoritative common
-validation commands. Codex's optional validator, when present in the installed environment,
-is advisory only; an unavailable or provider-specific validator does not change the common
-checker result. A validator failure is reported for investigation, never fixed by the wrapper.
+The repository's GitHub Actions portability workflow is the authoritative common validation.
+Codex's optional validator, when present in the installed environment, is advisory only; an
+unavailable or provider-specific validator does not change the common checker result. A
+validator failure is reported for investigation, never fixed by the wrapper.
 
 ## Alternative: `skill-installer` (detached copy)
 
@@ -99,10 +100,9 @@ skills/<name>`). It **copies** (download / sparse-checkout), breaking the single
 "edit once" property — hence junction is the chosen mechanism. Use the installer only if you
 deliberately want a frozen, detached snapshot.
 
-Each complete skill folder includes its generated shared references. A detached snapshot
-needs no manual `docs/` copy; update it by replacing the complete folder. For linked installs,
-shared-rule edits become visible after maintainers run `npm run build:skill-references`.
-See the root guide's update procedure; sync itself does not generate references or fetch updates.
+Each complete skill folder includes its required references. A detached snapshot needs no
+manual top-level `docs/` copy; update it by replacing the complete folder. Linked installs
+expose checkout edits directly. Sync does not generate references or fetch repository updates.
 
 ## Two-consumer test debt
 

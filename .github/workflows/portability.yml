@@ -29,16 +29,120 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Set up Node
-        uses: actions/setup-node@v7
-        with:
-          node-version: '24.x'
+      - name: Validate live skill format and links
+        shell: python
+        run: |
+          import ast
+          import json
+          import os
+          import re
+          import sys
+          from pathlib import Path
 
-      - name: Install locked JavaScript dependencies
-        run: npm ci --ignore-scripts
+          root = Path.cwd()
+          skills_root = root / "skills"
+          errors = []
+          name_pattern = re.compile(
+              r"^(?!.*--)[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$"
+          )
+
+          def parse_scalar(value):
+              value = value.strip()
+              if value.startswith('"'):
+                  return json.loads(value)
+              if value.startswith("'"):
+                  return ast.literal_eval(value)
+              return value
+
+          skill_dirs = sorted(path for path in skills_root.iterdir() if path.is_dir())
+          live_names = {path.name for path in skill_dirs}
+
+          for skill_dir in skill_dirs:
+              skill_file = skill_dir / "SKILL.md"
+              if not skill_file.is_file():
+                  errors.append(f"{skill_dir}: missing SKILL.md")
+                  continue
+
+              text = skill_file.read_text(encoding="utf-8")
+              if not text.startswith("---\n") or "\n---\n" not in text[4:]:
+                  errors.append(f"{skill_file}: invalid frontmatter fences")
+                  continue
+
+              end = text.index("\n---\n", 4)
+              fields = {}
+              for line in text[4:end].splitlines():
+                  match = re.match(r"^([A-Za-z0-9_-]+):\s*(.*)$", line)
+                  if match:
+                      fields[match.group(1)] = match.group(2)
+
+              try:
+                  name = parse_scalar(fields["name"])
+                  description = parse_scalar(fields["description"])
+              except (KeyError, ValueError, SyntaxError, json.JSONDecodeError) as exc:
+                  errors.append(f"{skill_file}: invalid required frontmatter: {exc}")
+                  continue
+
+              if not isinstance(name, str) or not name_pattern.fullmatch(name):
+                  errors.append(f"{skill_file}: invalid skill name {name!r}")
+              elif name != skill_dir.name:
+                  errors.append(
+                      f"{skill_file}: name {name!r} does not match directory {skill_dir.name!r}"
+                  )
+
+              if not isinstance(description, str) or not 1 <= len(description) <= 1024:
+                  errors.append(f"{skill_file}: description must contain 1-1024 characters")
+              if not text[end + 5:].strip():
+                  errors.append(f"{skill_file}: instruction body is empty")
+
+          inventory = (root / "INVENTORY.md").read_text(encoding="utf-8")
+          inventory_names = set(
+              re.findall(r"^\| `([a-z0-9-]+)` \|", inventory, flags=re.MULTILINE)
+          )
+          if inventory_names != live_names:
+              errors.append(
+                  "INVENTORY.md skill rows differ from the live directories: "
+                  f"missing={sorted(live_names - inventory_names)}, "
+                  f"extra={sorted(inventory_names - live_names)}"
+              )
+
+          readme = (root / "README.md").read_text(encoding="utf-8")
+          expected_count = len(skill_dirs)
+          if f"{expected_count} live skills" not in readme:
+              errors.append(f"README.md does not state the live count: {expected_count}")
+          if f"contains {expected_count} skills" not in inventory:
+              errors.append(f"INVENTORY.md does not state the live count: {expected_count}")
+
+          link_pattern = re.compile(r"\[[^\]]*\]\(([^)]+)\)")
+          full_link_files = {root / "README.md", root / "INVENTORY.md"}
+          full_link_files.update((root / "adapters").rglob("*.md"))
+          markdown_files = list(full_link_files)
+          markdown_files.extend(skills_root.rglob("*.md"))
+          for source in markdown_files:
+              text = source.read_text(encoding="utf-8")
+              for raw_target in link_pattern.findall(text):
+                  target = raw_target.strip().strip("<>").split("#", 1)[0]
+                  if not target or re.match(r"^[a-z][a-z0-9+.-]*:", target, re.I):
+                      continue
+                  if source not in full_link_files:
+                      if not target.startswith(("./", "../")):
+                          continue
+                  resolved = Path(os.path.abspath(source.parent / target))
+                  try:
+                      resolved.relative_to(root)
+                  except ValueError:
+                      errors.append(f"{source}: link escapes repository: {raw_target}")
+                      continue
+                  if not resolved.exists():
+                      errors.append(f"{source}: missing link target: {raw_target}")
+
+          if errors:
+              print("\n".join(f"ERROR: {error}" for error in errors), file=sys.stderr)
+              raise SystemExit(1)
+
+          print(f"Validated {expected_count} live skills and local Markdown links.")
 
       - name: Check Python syntax
-        run: python -m py_compile scripts/sync-skills.py tests/test_sync_skills.py
+        run: python -m py_compile sync-skills.py
 
       - name: Check POSIX adapter syntax
         if: runner.os != 'Windows'
@@ -66,15 +170,6 @@ jobs:
             }
           }
 
-      - name: Run portability fixtures
-        run: npm test
-
-      - name: Run final portability checker
-        run: npm run check:portability
-
-      - name: Run isolated sync harness
-        run: python tests/test_sync_skills.py
-
       - name: Exercise POSIX adapters with a dry run
         if: runner.os != 'Windows'
         shell: bash
@@ -84,7 +179,6 @@ jobs:
           mkdir -p "$fixture_home"
           bash adapters/codex/sync.sh --dry-run --home "$fixture_home"
           bash adapters/cursor/sync.sh --dry-run --home "$fixture_home"
-          python scripts/sync-skills.py --dry-run --home "$fixture_home"
 
       - name: Exercise PowerShell adapters with a dry run
         if: runner.os == 'Windows'
@@ -94,4 +188,3 @@ jobs:
           New-Item -ItemType Directory -Force -Path $fixtureHome | Out-Null
           pwsh -NoProfile -File adapters/codex/sync.ps1 -WhatIf -UserHome $fixtureHome
           pwsh -NoProfile -File adapters/cursor/sync.ps1 -WhatIf -UserHome $fixtureHome
-          python scripts/sync-skills.py --dry-run --home $fixtureHome
