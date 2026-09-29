@@ -1,6 +1,6 @@
 ---
 name: orchestrate
-description: "Coordinates an ad-hoc parallel fan-out or swarm for analysis, research, review, extraction, or documentation outside a dedicated pipeline skill. Use when orchestrating multiple subagents or background agents, or when a prior fan-out lost results, duplicated work, or wasted budget. Pipeline-specific orchestration stays with its owning skill."
+description: "Coordinates an ad-hoc parallel fan-out or swarm for analysis, research, review, extraction, or documentation outside a dedicated pipeline skill. Use when orchestrating multiple subagents (must be more than a single subagent) or background agents, or when a prior fan-out lost results, duplicated work, or wasted budget. Pipeline-specific orchestration stays with its owning skill; Do not use for single subagent"
 ---
 
 # orchestrate
