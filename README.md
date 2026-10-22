@@ -57,8 +57,8 @@ Documentation has its own related set: `docs-tasks-creator` inventories handlers
 ## Other live capabilities
 
 - **Learning:** `breakout-session` and `triage-learning-content`.
-- **Guided decisions:** `walkthrough` and `walkthrough-implementation`.
-- **Review views:** `render-view` turns a spec folder, a walkthrough decision round or an implementation tour into a generated, local HTML page; the markdown stays the source of truth.
+- **Guided decisions:** `walkthrough` and `walkthrough-implementation`. Both run in chat by default and offer a `render-view` page when a round or change set is large.
+- **Review views:** `render-view` turns a spec folder, a walkthrough decision round or an implementation tour into a generated, local HTML page (standard-library Python, no network requests). The reader answers on the page and pastes a Respond block back; the owning skill writes it into the markdown, which stays the source of truth.
 - **Orchestration and maintenance:** `orchestrate`, `close`, `improve`, `write-skills`, and `find-skills`.
 
 Third-party skills installed locally—including `grill-me`, `grill-with-docs`,
@@ -75,6 +75,7 @@ portability checks. See [`INVENTORY.md`](INVENTORY.md) for remaining external ha
 - **Separate stages.** Reconnaissance, requirements, design, implementation, review, live QA, and final release gates have different owners.
 - **Bounded writes.** Documentation skills separate source roots from documentation roots; review and improvement workflows stage or request approval before broader changes.
 - **Proportional orchestration.** Skills use focused subagents where independent coverage is valuable, while small scopes stay inline.
+- **Markdown is the source; views are build output.** Generated pages are rebuilt from the docs, git-ignored, and never edited or committed.
 - **Archive-first evolution.** Retired material remains under `archive/` rather than being presented as live.
 
 ## The self-improving loop

@@ -46,14 +46,14 @@ file. The live directory tree is the source of truth. Historical material is pre
 
 | Skill | Invocation | Current role |
 | --- | --- | --- |
-| `walkthrough` | Normal | Takes an existing list of questions or findings, presents one item per turn by default, and records each disposition in the owning artifact. |
-| `walkthrough-implementation` | Normal | Explains recently completed owned work in dependency order, including code, rationale, and verification, before commit or shipping. |
+| `walkthrough` | Normal | Takes an existing list of questions or findings, presents one item per turn by default, and records each disposition in the owning artifact. For a large round it first asks whether to answer on a `render-view` decision page instead. |
+| `walkthrough-implementation` | Normal | Explains recently completed owned work in dependency order, including code, rationale, and verification, before commit or shipping. For a large change set it offers a tour doc rendered as a `render-view` page. |
 
 ### Review views
 
 | Skill | Invocation | Current role |
 | --- | --- | --- |
-| `render-view` | Normal | Builds a generated, git-ignored HTML view of a spec folder, a walkthrough decision round or an implementation tour from its markdown, with linked IDs, highlighted code, git-style diffs, repo code excerpts, section comments, a Respond block, and model-drawn diagrams cached per section. |
+| `render-view` | Normal | Builds a generated, git-ignored HTML view from markdown: a spec folder (linked IDs, highlighted code, git-style diffs, repo code excerpts, model-drawn diagrams cached per section), a walkthrough decision round (premise and decision cards with failure walks and bulk accept), or an implementation tour (step diffs from the merge base to the working tree, plus coverage of every changed file). Answers and comments leave the page as a Respond block for the owning skill to apply. |
 
 ### Orchestration, lifecycle, and skill ecosystem
 
