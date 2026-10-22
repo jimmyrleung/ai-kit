@@ -1,6 +1,6 @@
 # ai-kit Inventory (v3)
 
-The live catalog contains 23 skills, with one row per tracked `skills/<name>/SKILL.md`
+The live catalog contains 24 skills, with one row per tracked `skills/<name>/SKILL.md`
 file. The live directory tree is the source of truth. Historical material is preserved under
 [`archive/v1/`](archive/v1/) and [`archive/v2/`](archive/v2/).
 
@@ -49,6 +49,12 @@ file. The live directory tree is the source of truth. Historical material is pre
 | `walkthrough` | Normal | Takes an existing list of questions or findings, presents one item per turn by default, and records each disposition in the owning artifact. |
 | `walkthrough-implementation` | Normal | Explains recently completed owned work in dependency order, including code, rationale, and verification, before commit or shipping. |
 
+### Review views
+
+| Skill | Invocation | Current role |
+| --- | --- | --- |
+| `render-view` | Normal | Builds a generated, git-ignored HTML view of a spec folder from its markdown, with linked IDs, highlighted code, git-style diffs, repo code excerpts, section comments, a Respond block, and model-drawn diagrams cached per section. |
+
 ### Orchestration, lifecycle, and skill ecosystem
 
 | Skill | Invocation | Current role |
@@ -65,6 +71,7 @@ The live tree also includes the support material consumed by individual skills:
 
 - Output templates for investigations, requirements, workflow docs, QA reports, technical specs, and task sets.
 - Detector rules for `docs-tasks-creator` and Terraform resolution heuristics for `document-terraform`.
+- The standard-library view builder, page assets, and exhibit reference for `render-view`.
 - Skill-local evidence, authorization, feedback, and provider-capability references where required; each copy is maintained with its consuming skill.
 
 ## External local skills

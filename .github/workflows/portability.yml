@@ -151,7 +151,7 @@ jobs:
           print(f"Validated {expected_count} live skills and local Markdown links.")
 
       - name: Check Python syntax
-        run: python -m py_compile sync-skills.py
+        run: python -m py_compile sync-skills.py skills/render-view/scripts/render_view.py
 
       - name: Check POSIX adapter syntax
         if: runner.os != 'Windows'

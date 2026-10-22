@@ -4,7 +4,7 @@ A skill-centric kit for AI-assisted engineering across Claude Code, OpenAI Codex
 Cursor CLI. The live catalog covers discovery, requirements, design, implementation, review,
 QA, documentation, learning, walkthroughs, orchestration, and session improvement.
 
-This is the current **v3** skill set. Its source of truth is the 23 tracked skills under
+This is the current **v3** skill set. Its source of truth is the 24 tracked skills under
 [`skills/`](skills/); each skill owns its process and any bundled templates or references.
 The complete v1 kit and material retired during the v3 review remain under
 [`archive/`](archive/).
@@ -13,7 +13,7 @@ The complete v1 kit and material retired during the v3 review remain under
 
 ```
 ai-kit/
-├── skills/          23 live skills, each rooted at skills/<name>/SKILL.md
+├── skills/          24 live skills, each rooted at skills/<name>/SKILL.md
 ├── adapters/        Codex and Cursor compatibility guidance and sync wrappers
 ├── loops/           Small reusable goal prompts
 ├── sync-skills.py   Common skill-link synchronization engine
@@ -58,6 +58,7 @@ Documentation has its own related set: `docs-tasks-creator` inventories handlers
 
 - **Learning:** `breakout-session` and `triage-learning-content`.
 - **Guided decisions:** `walkthrough` and `walkthrough-implementation`.
+- **Review views:** `render-view` turns a spec folder into a generated, local HTML page; the markdown stays the source of truth.
 - **Orchestration and maintenance:** `orchestrate`, `close`, `improve`, `write-skills`, and `find-skills`.
 
 Third-party skills installed locally—including `grill-me`, `grill-with-docs`,
@@ -136,7 +137,7 @@ remain separate from the live skill inventory.
 - [`archive/v2/`](archive/v2/) contains retired v2 skills and the former top-level shared
   documentation sources.
 
-Archived material and locally linked third-party skills are not part of the 23 live skills.
+Archived material and locally linked third-party skills are not part of the 24 live skills.
 
 ## License
 
