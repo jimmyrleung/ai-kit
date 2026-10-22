@@ -58,7 +58,7 @@ Documentation has its own related set: `docs-tasks-creator` inventories handlers
 
 - **Learning:** `breakout-session` and `triage-learning-content`.
 - **Guided decisions:** `walkthrough` and `walkthrough-implementation`.
-- **Review views:** `render-view` turns a spec folder into a generated, local HTML page; the markdown stays the source of truth.
+- **Review views:** `render-view` turns a spec folder, a walkthrough decision round or an implementation tour into a generated, local HTML page; the markdown stays the source of truth.
 - **Orchestration and maintenance:** `orchestrate`, `close`, `improve`, `write-skills`, and `find-skills`.
 
 Third-party skills installed locally—including `grill-me`, `grill-with-docs`,

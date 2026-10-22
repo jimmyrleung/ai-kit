@@ -53,7 +53,7 @@ file. The live directory tree is the source of truth. Historical material is pre
 
 | Skill | Invocation | Current role |
 | --- | --- | --- |
-| `render-view` | Normal | Builds a generated, git-ignored HTML view of a spec folder from its markdown, with linked IDs, highlighted code, git-style diffs, repo code excerpts, section comments, a Respond block, and model-drawn diagrams cached per section. |
+| `render-view` | Normal | Builds a generated, git-ignored HTML view of a spec folder, a walkthrough decision round or an implementation tour from its markdown, with linked IDs, highlighted code, git-style diffs, repo code excerpts, section comments, a Respond block, and model-drawn diagrams cached per section. |
 
 ### Orchestration, lifecycle, and skill ecosystem
 
@@ -71,7 +71,7 @@ The live tree also includes the support material consumed by individual skills:
 
 - Output templates for investigations, requirements, workflow docs, QA reports, technical specs, and task sets.
 - Detector rules for `docs-tasks-creator` and Terraform resolution heuristics for `document-terraform`.
-- The standard-library view builder, page assets, and exhibit reference for `render-view`.
+- The standard-library view builder, page assets, and exhibit, decision-round and tour references for `render-view`.
 - Skill-local evidence, authorization, feedback, and provider-capability references where required; each copy is maintained with its consuming skill.
 
 ## External local skills

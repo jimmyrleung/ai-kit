@@ -15,6 +15,7 @@ section.
 | Parts that call or contain each other, with new / changed / shared parts | A node graph on a grid | `graph` |
 | An ordered exchange between parts (save flow, request, job tick) | A sequence diagram, failure exits in the right column | `sequence` |
 | A lifecycle or mode table whose transitions are spread through prose | A drawn state machine | `states` |
+| Things that happen at set times (day 7, 24 h, a nightly run) | Points on a line | `timeline` |
 | A claim that rests on existing code | The real lines from the repo, with pins | `code` |
 | A change that already exists in git, or a proposed edit | A git-style diff | `diff` |
 | A High risk, or a decision whose reason is non-obvious | A 3-step concrete failure walk (or a `sequence` with a struck line) | `walk` |
@@ -52,7 +53,10 @@ Do not:
 - `anchor`: the heading anchor the exhibit sits under, exactly as `render_view.py plan` lists it, or `top`
   for the start of the doc.
 - `sources`: the anchors whose text the exhibit draws from. Default: `[anchor]` (`top` defaults to the
-  whole doc, which goes stale on any edit, so list real sources for `top`).
+  whole doc, which goes stale on any edit, so list real sources for `top`). A source in another doc of the
+  folder is `file.md#anchor` (or `file.md` for the whole doc).
+- `item` instead of `anchor`: attaches the exhibit to a premise or item of a walkthrough round (`P1`,
+  `D4`); see [rounds.md](rounds.md), which also defines the `decision` type.
 - `stamp`: written by the build. Leave it out of a new file; delete it when you redraw.
 - `title`, `caption`: optional, one line each. Text fields accept inline markdown (code, bold, links).
 - `refs` (inside items): IDs defined in the spec set (`RF1`, `UT-57`, `T6`), `#anchor` in the same doc,
@@ -157,6 +161,13 @@ its first parent (`abc123^1` → `abc123`). `lines` keeps only the rows around t
   { "when": "09:00:02", "text": "The customer pays; #1042 is Paid." },
   { "when": "09:00:05", "text": "The job emails \"Your invoice is unpaid\".", "wrong": true }
 ], "outcome": "The job re-reads the status before each send (D4)." }
+```
+
+`timeline`: points left to right; `tone` is `warn` (a bad or irreversible moment) or `ok`.
+
+```json
+{ "points": [ { "at": "Day 0", "label": "Sent" }, { "at": "Day 7", "label": "Reminder" },
+  { "at": "Day 14", "label": "Overdue notice", "tone": "warn", "detail": "Late fee applies." } ] }
 ```
 
 `flow`: `kind` is `step` (default), `key`, `new`, or `end`; `exit` is the failure branch beside the step.

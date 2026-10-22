@@ -10,9 +10,14 @@ later build can tell which ones went stale and only those need redrawing.
 Standard library only. Code excerpts and diffs read the repository given with
 ``--repo``; git diffs also need ``git`` on PATH.
 
-    render_view.py plan  SPEC_DIR [--all]
-    render_view.py build SPEC_DIR [--repo DIR]... [--out FILE]
-    render_view.py check SPEC_DIR [--out FILE]
+    render_view.py plan  SPEC_DIR|DOC [--all]
+    render_view.py build SPEC_DIR|DOC [--repo DIR]... [--out FILE]
+    render_view.py check SPEC_DIR|DOC [--out FILE]
+
+Given a doc instead of a folder, the view covers the doc's folder and opens on
+that doc. A doc with a ``## Walkthrough — <date> (round N)`` section renders
+its latest round as a decision round: premise cards, one card per item, and
+answers that leave the page through Respond.
 """
 
 from __future__ import annotations
@@ -41,7 +46,9 @@ MANIFEST_VERSION = 1
 SKILL_DIR = Path(__file__).resolve().parent.parent
 ASSETS_DIR = SKILL_DIR / "assets"
 VIEW_DIR = ".views"
-EXHIBIT_TYPES = ("claims", "flow", "tree", "states", "graph", "sequence", "walk", "code", "diff", "decisions")
+EXHIBIT_TYPES = (
+    "claims", "flow", "tree", "states", "graph", "sequence", "walk", "timeline", "code", "diff", "decisions", "decision",
+)
 CODE_EXHIBITS = ("code", "diff")
 DOC_ORDER = ("user_story.md", "requirements.md", "techspec.md", "tasks.md")
 DOC_LABELS = {
@@ -71,7 +78,7 @@ QUOTE_RE = re.compile(r"^\s{0,3}>\s?(.*)$")
 ID_RE = re.compile(r"(?<![\w/.#\-])([A-Z][A-Z0-9]{0,3}(?:-[A-Z]{1,3})?-?\d{1,3}[a-z]?)(?![\w\-])")
 ID_FULL_RE = re.compile(r"^[A-Z][A-Z0-9]{0,3}(?:-[A-Z]{1,3})?-?\d{1,3}[a-z]?$")
 PATH_RE = re.compile(
-    r"^(?P<path>(?:[\w.@-]+/)*[\w.@-]+\.(?:" + "|".join(CODE_EXTENSIONS) + r"))"
+    r"^(?P<path>(?:[a-z][\w-]*:)?(?:[\w.@-]+/)*[\w.@-]+\.(?:" + "|".join(CODE_EXTENSIONS) + r"))"
     r"(?::(?P<line>\d+)(?:-\d+)?)?$"
 )
 IMPL_HEADING_RE = re.compile(
@@ -83,6 +90,16 @@ BEFORE_AFTER_RE = re.compile(r"^\s*(?://|#|--)\s*(before|after)\b", re.I)
 GIT_REF_RE = re.compile(r"^(?!-)[\w./^~@{}-]{1,80}$")
 HUNK_RE = re.compile(r"^@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@(.*)$")
 STATUS_HEADERS = {"status", "disposition", "decision", "result", "outcome"}
+ROUND_RE = re.compile(r"^Walkthrough\s+[—–-]{1,2}\s+(\d{4}-\d{2}-\d{2})\s+\(round\s+(\d+)\)", re.I)
+ROUND_LINE_RE = re.compile(r"^##\s+Walkthrough\s+[—–-]{1,2}\s+\d{4}-\d{2}-\d{2}\s+\(round\s+\d+\)", re.I | re.M)
+PREMISE_RE = re.compile(r"^\s*\*\*\s*([A-Z][A-Z0-9]{0,3}-?\d{1,3}[a-z]?)\s*[—–:-]+\s*(.+?)\s*\*\*\s*(.*)$", re.S)
+PREMISE_STATUS_RE = re.compile(r"\s+→\s+\*\*(?:Confirmed|Corrected)\*\*.*$", re.S)
+ITEM_ANSWER_HEADERS = ("disposition", "decision", "status", "outcome", "result", "answer")
+ITEM_SOURCE_HEADERS = ("source", "sources", "from", "origin")
+OPEN_ANSWERS = {"", "open", "pending", "tbd", "todo", "undecided", "—", "–", "-"}
+STEP_RE = re.compile(r"^(S\d{1,2})\s+[—–-]{1,2}\s+(.+)$")
+TOUR_LINE_RE = re.compile(r"^##\s+Change set\s*$", re.I | re.M)
+WORKING_TREE = "working tree"
 STATUS_CLASSES = (
     ("ok", ("complete", "completed", "done", "keep", "kept", "accepted", "passed", "pass",
             "applied", "approved", "fresh", "yes", "go")),
@@ -156,6 +173,78 @@ class Heading:
 
 
 @dataclass
+class RoundItem:
+    """A premise or an item of a walkthrough round. The hash leaves out the answer, so recording one
+    does not make the item's drawings stale."""
+
+    ident: str
+    kind: str  # "premise" or "item"
+    hash: str
+    text: str
+    title: str = ""
+    fields: list[tuple[str, str]] = field(default_factory=list)
+    source: str = ""
+    answer: str = ""
+    status: str = "open"  # item: open, decided, deferred; premise: open, confirmed, corrected
+    recorded: list[list[dict[str, Any]]] = field(default_factory=list)
+
+
+@dataclass
+class Round:
+    number: int
+    date: str
+    anchor: str
+    premises: list[RoundItem] = field(default_factory=list)
+    items: list[RoundItem] = field(default_factory=list)
+    table: dict[str, Any] | None = None
+    premise_list: dict[str, Any] | None = None
+    premise_heading: dict[str, Any] | None = None
+    premise_anchor: str = ""
+    dispositions_heading: dict[str, Any] | None = None
+
+    def find(self, ident: str) -> RoundItem | None:
+        return next((item for item in self.premises + self.items if item.ident == ident), None)
+
+
+@dataclass
+class ChangedFile:
+    path: str  # relative to the repository root, with forward slashes
+    status: str  # A, M, D, T, or "new" for an untracked file
+    added: int
+    deleted: int
+
+
+@dataclass
+class ChangeRow:
+    """One repository of a tour's change set, compared from the merge base of `base` to `head`."""
+
+    prefix: str
+    path: Path
+    base: str
+    head: str
+    top: Path | None = None
+    merge_base: str = ""
+    files: list[ChangedFile] = field(default_factory=list)
+    fingerprint: str = ""
+    problem: str = ""
+
+    @property
+    def working(self) -> bool:
+        return self.head.lower() in ("", WORKING_TREE, "working-tree", "worktree")
+
+    @property
+    def name(self) -> str:
+        return self.prefix or (self.top or self.path).name
+
+
+@dataclass
+class Tour:
+    rows: list[ChangeRow] = field(default_factory=list)
+    steps: list[tuple[str, str, str]] = field(default_factory=list)  # (id, heading anchor, title)
+    table: dict[str, Any] | None = None
+
+
+@dataclass
 class Doc:
     path: Path
     file: str
@@ -166,11 +255,9 @@ class Doc:
     title: str = ""
     headings: list[Heading] = field(default_factory=list)
     blocks: list[dict[str, Any]] = field(default_factory=list)
-
-    def anchor_hashes(self) -> dict[str, str]:
-        hashes = {h.anchor: h.hash for h in self.headings}
-        hashes["*"] = self.sha
-        return hashes
+    main: bool = False
+    round: Round | None = None
+    tour: Tour | None = None
 
     def heading(self, anchor: str) -> Heading | None:
         return next((h for h in self.headings if h.anchor == anchor), None)
@@ -182,6 +269,7 @@ class Exhibit:
     data: dict[str, Any]
     doc: Doc | None = None
     anchor: str = ""
+    item: str = ""
     status: str = "fresh"
     problems: list[str] = field(default_factory=list)
     code: dict[str, Any] | None = None
@@ -215,6 +303,29 @@ def plain(text: str) -> str:
     return re.sub(r"\s+", " ", text).strip()
 
 
+def shorten(text: str, limit: int = 150) -> str:
+    """Plain text cut at a word boundary, for one-line summaries."""
+    text = plain(text)
+    if len(text) <= limit:
+        return text
+    return text[:limit].rsplit(" ", 1)[0].rstrip(",;:—– ") + "…"
+
+
+def blocks_text(blocks: list[dict[str, Any]]) -> str:
+    """The raw markdown text of parsed blocks, for searching."""
+    parts: list[str] = []
+    for block in blocks:
+        if block["t"] in ("para", "code", "heading"):
+            parts.append(block["text"])
+        elif block["t"] == "quote":
+            parts.append(blocks_text(block["blocks"]))
+        elif block["t"] == "list":
+            parts.extend(blocks_text(item) for item in block["items"])
+        elif block["t"] == "table":
+            parts.extend(" | ".join(row) for row in [block["header"], *block["rows"]])
+    return "\n".join(parts)
+
+
 def slugify(text: str) -> str:
     """GitHub-style heading anchor, so links written in the markdown resolve."""
     text = re.sub(r"!?\[([^\]]*)\]\([^)]*\)", r"\1", text).strip().lower()
@@ -237,6 +348,9 @@ def doc_label_for(file: str) -> str:
     match = re.match(r"task_(\d+)\.md$", file)
     if match:
         return f"Task {match.group(1)}"
+    match = re.match(r"tour[_-](\d{4}-\d{2}-\d{2})\.md$", file)
+    if match:
+        return f"Tour {match.group(1)}"
     return Path(file).stem.replace("_", " ").replace("-", " ").capitalize()
 
 
@@ -496,36 +610,274 @@ def parse_list(lines: list[str], index: int) -> tuple[dict[str, Any], int]:
 # ---------------------------------------------------------------- loading
 
 
-def discover_docs(spec_dir: Path) -> list[Doc]:
+def resolve_target(value: str) -> tuple[Path, str | None]:
+    """A spec folder, or a doc in it: (folder, doc file name or None)."""
+    path = Path(value).expanduser().resolve()
+    if path.is_file():
+        if path.suffix.lower() != ".md":
+            raise ViewError(f"{path} is not a markdown doc")
+        return path.parent, path.name
+    if not path.is_dir():
+        raise ViewError(f"{path} does not exist")
+    return path, None
+
+
+def read_text(path: Path) -> str:
+    return path.read_text(encoding="utf-8").replace("\r\n", "\n").expandtabs(4)
+
+
+def discover_docs(spec_dir: Path, focus: str | None = None) -> list[Doc]:
     files = [name for name in DOC_ORDER if (spec_dir / name).is_file()]
     files += sorted(path.name for path in spec_dir.glob("task_*.md") if path.is_file())
     if (spec_dir / "qa.md").is_file():
         files.append("qa.md")
     if not files:
         files = sorted(path.name for path in spec_dir.glob("*.md") if path.is_file())
+    else:
+        # Walkthrough files (decision rounds) and implementation tours belong with the spec they serve.
+        files += sorted(
+            path.name for path in spec_dir.glob("*.md")
+            if path.is_file() and path.name not in files and is_round_or_tour(read_text(path))
+        )
+    if focus and focus not in files:
+        files.append(focus)
     if not files:
         raise ViewError(f"no markdown docs found in {spec_dir}")
     docs = []
     used_ids: set[str] = set()
     for file in files:
         path = spec_dir / file
-        text = path.read_text(encoding="utf-8").replace("\r\n", "\n").expandtabs(4)
+        text = read_text(path)
         doc_id = doc_id_for(file)
         while doc_id in used_ids:
             doc_id += "-x"
         used_ids.add(doc_id)
-        doc = Doc(path=path, file=file, id=doc_id, label=doc_label_for(file), text=text, sha=short_hash(text))
+        doc = Doc(path=path, file=file, id=doc_id, label=doc_label_for(file), text=text, sha=short_hash(text),
+                  main=file == focus)
         lines = text.split("\n")
         doc.headings = scan_headings(lines)
         doc.blocks = parse_blocks(lines)
         h1 = next((h for h in doc.headings if h.level == 1), None)
         doc.title = plain(h1.text) if h1 else doc.label
+        doc.round = parse_round(doc)
+        doc.tour = parse_tour(doc)
         docs.append(doc)
     return docs
 
 
+def is_round_or_tour(text: str) -> bool:
+    return bool(ROUND_LINE_RE.search(text) or (TOUR_LINE_RE.search(text) and re.search(r"^##\s+S\d", text, re.M)))
+
+
 def main_doc(docs: list[Doc]) -> Doc:
-    return next((doc for doc in docs if doc.file == "techspec.md"), docs[0])
+    return next((doc for doc in docs if doc.main), None) or next((doc for doc in docs if doc.file == "techspec.md"), docs[0])
+
+
+# ---------------------------------------------------------------- walkthrough rounds
+
+
+def answer_status(answer: str) -> str:
+    text = plain(answer).lower().strip(" *_.")
+    if text in OPEN_ANSWERS or text.startswith("open"):
+        return "open"
+    if text.startswith("defer"):
+        return "deferred"
+    return "decided"
+
+
+def premise_from(item: list[dict[str, Any]]) -> RoundItem | None:
+    if not item or item[0]["t"] != "para":
+        return None
+    first = PREMISE_STATUS_RE.sub("", item[0]["text"])
+    match = PREMISE_RE.match(first)
+    if match:
+        ident, title, text = match.group(1), match.group(2).rstrip(" ."), match.group(3)
+    else:
+        ident = leading_id(first)
+        if not ident:
+            return None
+        title = ""
+        text = re.sub(r"^\s*(?:\*\*)?" + re.escape(ident) + r"(?:\*\*)?\s*(?::|—|–|\s-\s)\s*", "", first)
+    marks = item[0]["text"] + "\n" + blocks_text(item[1:])
+    status = "corrected" if "**Corrected**" in marks else "confirmed" if "**Confirmed**" in marks else "open"
+    return RoundItem(ident, "premise", short_hash(first), text.strip(), title=title, status=status,
+                     recorded=[item[1:]] if item[1:] else [])
+
+
+def is_item_table(block: dict[str, Any]) -> bool:
+    return len(block["header"]) >= 2 and any(row and definition_id(row[0]) for row in block["rows"])
+
+
+def items_from(block: dict[str, Any]) -> list[RoundItem]:
+    header = [plain(cell).lower() for cell in block["header"]]
+    answer_col = next((i for i in range(len(header) - 1, 0, -1) if header[i] in ITEM_ANSWER_HEADERS), None)
+    source_col = next((i for i, name in enumerate(header) if i and name in ITEM_SOURCE_HEADERS), None)
+    items = []
+    for row in block["rows"]:
+        ident = definition_id(row[0]) if row else None
+        if not ident:
+            continue
+        cells = row + [""] * (len(header) - len(row))
+        fields = [
+            (block["header"][i], cells[i]) for i in range(1, len(header))
+            if i not in (answer_col, source_col) and plain(cells[i])
+        ]
+        text = max(fields, key=lambda pair: len(plain(pair[1])))[1] if fields else ""
+        answer = cells[answer_col] if answer_col is not None else ""
+        hashed = "\x1f".join(cell for i, cell in enumerate(cells) if i != answer_col)
+        items.append(RoundItem(
+            ident, "item", short_hash(hashed), text, fields=fields,
+            source=cells[source_col] if source_col is not None else "", answer=answer, status=answer_status(answer),
+        ))
+    return items
+
+
+def parse_round(doc: Doc) -> Round | None:
+    """The latest walkthrough round of a doc: its premises, its item table and recorded dispositions."""
+    rounds = [h for h in doc.headings if h.level == 2 and ROUND_RE.match(plain(h.text))]
+    if not rounds:
+        return None
+    active = rounds[-1]
+    match = ROUND_RE.match(plain(active.text))
+    assert match is not None
+    current = Round(int(match.group(2)), match.group(1), active.anchor)
+    headings = iter(doc.headings)
+    inside = False
+    sub = ""
+    entries: dict[str, list[list[dict[str, Any]]]] = {}
+    for block in doc.blocks:
+        if block["t"] == "heading":
+            heading = next(headings, None)
+            if block["level"] <= 2:
+                inside = heading is active
+                sub = ""
+            elif inside and block["level"] == 3:
+                sub = plain(block["text"]).lower()
+                if sub.startswith("premises") and current.premise_heading is None and heading:
+                    current.premise_heading = block
+                    current.premise_anchor = heading.anchor
+                elif sub.startswith("dispositions") and current.dispositions_heading is None:
+                    current.dispositions_heading = block
+            continue
+        if not inside:
+            continue
+        if block["t"] == "list" and sub.startswith("premises") and current.premise_list is None:
+            current.premise_list = block
+            current.premises = [premise for premise in map(premise_from, block["items"]) if premise]
+        elif block["t"] == "table" and current.table is None and not sub.startswith("premises") and is_item_table(block):
+            current.table = block
+            current.items = items_from(block)
+        elif block["t"] == "list" and sub.startswith("dispositions"):
+            for item in block["items"]:
+                ident = leading_id(item[0]["text"]) if item and item[0]["t"] == "para" else None
+                if ident:
+                    entries.setdefault(ident, []).append(item)
+    by_id = {item.ident: item for item in current.items}
+    for ident, recorded in entries.items():
+        # Sub-decisions (D40a) without a row of their own show in their parent's card.
+        target = by_id.get(ident) or by_id.get(re.sub(r"[a-z]+$", "", ident))
+        if target:
+            target.recorded.extend(recorded)
+    return current if current.items or current.premises else None
+
+
+# ---------------------------------------------------------------- implementation tours
+
+
+def parse_tour(doc: Doc) -> Tour | None:
+    """A tour doc: a `## Change set` table (prefix, repo, base, head) and `## S<n> — <layer>` steps."""
+    tour = Tour()
+    for heading in doc.headings:
+        match = STEP_RE.match(plain(heading.text)) if heading.level == 2 else None
+        if match:
+            tour.steps.append((match.group(1), heading.anchor, match.group(2)))
+    headings = iter(doc.headings)
+    inside = False
+    for block in doc.blocks:
+        if block["t"] == "heading":
+            next(headings, None)
+            if block["level"] <= 2:
+                inside = plain(block["text"]).lower() == "change set"
+            continue
+        if not inside or block["t"] != "table" or tour.table is not None:
+            continue
+        header = [plain(cell).lower() for cell in block["header"]]
+        path_col = next((header.index(name) for name in ("repo", "path", "repository") if name in header), None)
+        if "base" not in header or path_col is None:
+            continue
+        tour.table = block
+        prefix_col = header.index("prefix") if "prefix" in header else None
+        head_col = header.index("head") if "head" in header else None
+        for row in block["rows"]:
+            cells = row + [""] * (len(header) - len(row))
+            raw = cells[path_col].strip().strip("`").strip()
+            if not raw:
+                continue
+            path = Path(os.path.expanduser(raw.replace("\\", "/"))).resolve()
+            tour.rows.append(ChangeRow(
+                prefix=plain(cells[prefix_col]) if prefix_col is not None else "",
+                path=path,
+                base=plain(cells[header.index("base")]),
+                head=plain(cells[head_col]) if head_col is not None else WORKING_TREE,
+            ))
+    return tour if tour.rows and tour.steps else None
+
+
+def count_lines(path: Path) -> int:
+    try:
+        data = path.read_bytes()
+    except OSError:
+        return 0
+    if b"\0" in data[:8000]:
+        return 0
+    return data.count(b"\n") + (1 if data and not data.endswith(b"\n") else 0)
+
+
+def load_change(row: ChangeRow, seen: dict[str, str]) -> None:
+    """Fill a change-set row from git: merge base, changed and untracked files, and a fingerprint."""
+    if not row.path.exists():
+        row.problem = f"{row.path.as_posix()} does not exist"
+        return
+    top = git_top(row.path if row.path.is_dir() else row.path.parent)
+    if top is None:
+        row.problem = f"{row.path.as_posix()} is not in a git repository"
+        return
+    key = os.path.normcase(str(top))
+    if key in seen:
+        row.problem = f"same repository as {seen[key]}"
+        return
+    seen[key] = row.name
+    row.top = top
+    try:
+        base = check_ref(row.base or "HEAD", "base")
+        head = None if row.working else check_ref(row.head, "head")
+        row.merge_base = run_git(top, "merge-base", base, head or "HEAD").strip()
+        target = [row.merge_base] + ([head] if head else [])
+        statuses: dict[str, str] = {}
+        parts = run_git(top, "diff", "--name-status", "--no-renames", "-z", *target).split("\0")
+        for status, name in zip(parts[0::2], parts[1::2]):
+            statuses[name] = status[:1]
+        numstat = run_git(top, "diff", "--numstat", "--no-renames", "-z", *target)
+        for entry in numstat.split("\0"):
+            fields = entry.split("\t")
+            if len(fields) != 3:
+                continue
+            added, deleted, name = fields
+            row.files.append(ChangedFile(name, statuses.get(name, "M"),
+                                         int(added) if added.isdigit() else 0, int(deleted) if deleted.isdigit() else 0))
+        fingerprint = [run_git(top, "diff", *target)]
+        if head is None:
+            for name in run_git(top, "ls-files", "--others", "--exclude-standard", "-z").split("\0"):
+                if name:
+                    row.files.append(ChangedFile(name, "new", count_lines(top / name), 0))
+                    try:
+                        fingerprint.append(name + ":" + hashlib.sha256((top / name).read_bytes()).hexdigest())
+                    except OSError:
+                        fingerprint.append(name)
+        row.files.sort(key=lambda changed: changed.path)
+        row.fingerprint = short_hash("\n".join(fingerprint))
+    except ViewError as exc:
+        row.problem = str(exc)
 
 
 def load_config(spec_dir: Path) -> dict[str, Any]:
@@ -570,40 +922,92 @@ def load_exhibits(spec_dir: Path, docs: list[Doc]) -> list[Exhibit]:
             exhibits.append(exhibit)
             continue
         exhibit = Exhibit(path=path, data=data)
-        exhibit.doc = by_file.get(str(data.get("doc") or default.file))
-        exhibit.anchor = str(data.get("anchor") or "top")
+        exhibit.item = str(data.get("item") or "").strip()
+        if exhibit.item and not data.get("doc"):
+            # An item exhibit belongs to the round that lists the item, the main doc's first.
+            exhibit.doc = next(
+                (doc for doc in [default, *docs] if doc.round and doc.round.find(exhibit.item)),
+                next((doc for doc in [default, *docs] if doc.round), None),
+            )
+        else:
+            exhibit.doc = by_file.get(str(data.get("doc") or default.file))
+        exhibit.anchor = "" if exhibit.item else str(data.get("anchor") or "top")
         if exhibit.kind not in EXHIBIT_TYPES:
             exhibit.status = "invalid"
             exhibit.problems.append(f"type must be one of {', '.join(EXHIBIT_TYPES)}")
+        elif exhibit.kind == "decision" and not exhibit.item:
+            exhibit.status = "invalid"
+            exhibit.problems.append("a decision exhibit needs item (the round item it answers, such as D4)")
+        elif exhibit.kind == "decision" and decision_problem(data.get("data") or {}):
+            exhibit.status = "invalid"
+            exhibit.problems.append(decision_problem(data.get("data") or {}))
         elif exhibit.doc is None:
             exhibit.status = "orphan"
-            exhibit.problems.append(f"doc {data.get('doc')!r} is not in this spec folder")
-        elif exhibit.anchor != "top" and exhibit.doc.heading(exhibit.anchor) is None:
+            exhibit.problems.append(
+                f"doc {data.get('doc')!r} is not in this spec folder" if data.get("doc")
+                else "no doc in this folder has a walkthrough round"
+            )
+        elif exhibit.item and (exhibit.doc.round is None or exhibit.doc.round.find(exhibit.item) is None):
+            exhibit.status = "orphan"
+            exhibit.problems.append(f"item {exhibit.item!r} is not in the latest round of {exhibit.doc.file}")
+        elif not exhibit.item and exhibit.anchor != "top" and exhibit.doc.heading(exhibit.anchor) is None:
             exhibit.status = "orphan"
             exhibit.problems.append(f"anchor {exhibit.anchor!r} is not a heading in {exhibit.doc.file}")
         exhibits.append(exhibit)
     return exhibits
 
 
+def decision_problem(data: dict[str, Any]) -> str:
+    options = data.get("options") or []
+    if not isinstance(options, list):
+        return "options must be a list"
+    suggested = sum(1 for option in options if isinstance(option, dict) and option.get("suggested"))
+    if options and suggested != 1:
+        return f"exactly one option needs \"suggested\": true (found {suggested})"
+    return ""
+
+
 def exhibit_sources(exhibit: Exhibit) -> list[str]:
     sources = exhibit.data.get("sources")
     if isinstance(sources, list) and sources:
         return [str(source) for source in sources]
+    if exhibit.item:
+        return [exhibit.item]
     return ["*"] if exhibit.anchor == "top" else [exhibit.anchor]
 
 
-def evaluate_exhibit(exhibit: Exhibit, repo: Repo, *, stamp_new: bool) -> None:
+def source_hash(source: str, doc: Doc, by_file: dict[str, Doc]) -> str | None:
+    """The current hash of one exhibit source: `*`, an anchor, a round item, or `file.md#anchor`."""
+    if source == "*":
+        return doc.sha
+    if "#" in source or source.lower().endswith(".md"):
+        file, _, anchor = source.partition("#")
+        target = by_file.get(Path(file).name) if file else doc
+        if target is None:
+            return None
+        if not anchor:
+            return target.sha
+        heading = target.heading(anchor)
+        return heading.hash if heading else None
+    heading = doc.heading(source)
+    if heading:
+        return heading.hash
+    item = doc.round.find(source) if doc.round else None
+    return item.hash if item else None
+
+
+def evaluate_exhibit(exhibit: Exhibit, repo: Repo, by_file: dict[str, Doc], *, stamp_new: bool) -> None:
     """Compare an exhibit's stamp with its sources (and its code); stamp new ones."""
     if exhibit.status in {"invalid", "orphan"} or exhibit.doc is None:
         return
-    current = exhibit.doc.anchor_hashes()
     sources = exhibit_sources(exhibit)
-    missing = [source for source in sources if source not in current]
+    current = {source: source_hash(source, exhibit.doc, by_file) for source in sources}
+    missing = [source for source, value in current.items() if value is None]
     if missing:
         exhibit.status = "orphan"
-        exhibit.problems.append(f"sources not found in {exhibit.doc.file}: {', '.join(missing)}")
+        exhibit.problems.append(f"sources not found from {exhibit.doc.file}: {', '.join(missing)}")
         return
-    hashes = {source: current[source] for source in sources}
+    hashes: dict[str, str] = {source: value for source, value in current.items() if value is not None}
     if exhibit.kind in CODE_EXHIBITS:
         try:
             exhibit.code = load_code(exhibit.data, repo)
@@ -638,6 +1042,16 @@ class Repo:
         self._files: list[str] | None = None
         self._by_name: dict[str, list[str]] = {}
         self.cache: dict[str, Path | None] = {}
+        self.change_rows: list[ChangeRow] = []
+
+    def change_row(self, path: Path) -> ChangeRow | None:
+        """The tour change-set row whose repository holds path."""
+        target = os.path.normcase(os.path.abspath(path))
+        for row in self.change_rows:
+            top = os.path.normcase(os.path.abspath(row.top)) if row.top else ""
+            if top and target.startswith(top + os.sep):
+                return row
+        return None
 
     def _index(self) -> list[str]:
         if self._files is None:
@@ -662,8 +1076,12 @@ class Repo:
         candidates = [ref]
         for prefix, target in self.aliases:
             if ref.startswith(prefix):
-                candidates.insert(0, target + ref[len(prefix):])
+                candidates[:0] = [target + ref[len(prefix):], ref[len(prefix):]]
                 break
+        else:
+            bare = re.sub(r"^[a-z][\w-]*:", "", ref)
+            if bare != ref:
+                candidates.insert(0, bare)
         for candidate in candidates:
             for root in self.roots:
                 path = root / candidate
@@ -813,16 +1231,40 @@ def load_code(data: dict[str, Any], repo: Repo) -> dict[str, Any]:
                 "text": excerpt, "lang": lang, "at": ref or head_label(resolved), "hash": short_hash(excerpt)}
     if git_top(resolved) is None:
         raise ViewError(f"{reference} is not in a git repository")
-    base = check_ref(spec.get("base") or "HEAD", "base")
-    head = check_ref(spec["head"], "head") if spec.get("head") else None
+    row = repo.change_row(resolved)
+    if spec.get("base"):
+        base = check_ref(spec["base"], "base")
+        head = check_ref(spec["head"], "head") if spec.get("head") else None
+        base_label = base
+    elif row:
+        # In a tour, a diff defaults to the change set: merge base → head (or the working tree).
+        base, head = row.merge_base, None if row.working else row.head
+        base_label = f"{row.base} (merge base {row.merge_base[:7]})"
+    else:
+        base, head, base_label = "HEAD", None, "HEAD"
     context = max(0, min(int(spec.get("context", 3)), 12))
-    args = ["diff", "--no-color", "--no-ext-diff", f"-U{context}", base] + ([head] if head else []) + ["--", resolved.name]
-    diff_text = run_git(resolved.parent, *args)
+    if head is None and not is_tracked(resolved):
+        lines = resolved.read_text(encoding="utf-8", errors="replace").replace("\r\n", "\n").split("\n")
+        if lines and lines[-1] == "":
+            lines.pop()
+        diff_text = f"@@ -0,0 +1,{len(lines)} @@\n" + "\n".join("+" + line for line in lines)
+        base_label = "untracked (new file)"
+    else:
+        args = ["diff", "--no-color", "--no-ext-diff", f"-U{context}", base] + ([head] if head else []) + ["--", resolved.name]
+        diff_text = run_git(resolved.parent, *args)
     if not diff_text.strip():
-        raise ViewError(f"git diff {base} {head or '(working tree)'} shows no change in {reference}")
+        raise ViewError(f"git diff {base_label} {head or '(working tree)'} shows no change in {reference}")
     return {"mode": "git", "path": resolved, "reference": reference, "diff": diff_text, "lang": lang,
-            "base": base, "head": head or "working tree", "window": parse_range(spec.get("lines")),
+            "base": base_label, "head": head or WORKING_TREE, "window": parse_range(spec.get("lines")),
             "hash": short_hash(diff_text)}
+
+
+def is_tracked(path: Path) -> bool:
+    try:
+        run_git(path.parent, "ls-files", "--error-unmatch", "--", path.name)
+        return True
+    except ViewError:
+        return False
 
 
 def parse_unified(diff_text: str) -> list[dict[str, Any]]:
@@ -978,6 +1420,20 @@ def definition_id(text: str) -> str | None:
     return candidate if ID_FULL_RE.match(candidate) else None
 
 
+def item_element_id(doc: Doc, ident: str) -> str:
+    return f"{doc.id}__item-{slugify(ident)}"
+
+
+def item_label(item: RoundItem) -> str:
+    if item.kind == "premise":
+        label = f"{item.ident} · {plain(item.title)} — {plain(item.text)}" if item.title else f"{item.ident} · {plain(item.text)}"
+    else:
+        label = f"{item.ident} · " + " · ".join(f"{plain(name)}: {plain(cell)}" for name, cell in item.fields)
+        if plain(item.answer):
+            label += f" · Disposition: {plain(item.answer)}"
+    return label[:320]
+
+
 def leading_id(text: str) -> str | None:
     match = re.match(r"^\s*(?:\*\*)?([A-Z][A-Z0-9]{0,3}(?:-[A-Z]{1,3})?-?\d{1,3}[a-z]?)(?:\*\*)?\s*(?::|—|–|\s-\s)", text)
     return match.group(1) if match else None
@@ -998,6 +1454,19 @@ class Index:
             self._visit(doc, doc.blocks)
         for task_id, doc in self.task_docs.items():
             self.defs.setdefault(task_id, {"t": doc.id, "l": doc.title, "d": doc.file})
+        for doc in docs:
+            # A round's IDs point at its cards, not at an earlier round's row of the same item.
+            for item in (doc.round.premises + doc.round.items) if doc.round else []:
+                entry = self.defs.get(item.ident)
+                if entry is None or entry["d"] == doc.file:
+                    self.defs[item.ident] = {"t": item_element_id(doc, item.ident), "l": item_label(item), "d": doc.file}
+                    self.assigned.add(item.ident)
+            # A tour's step IDs point at the step headings, not at the roadmap rows.
+            for ident, anchor, title in doc.tour.steps if doc.tour else []:
+                entry = self.defs.get(ident)
+                if entry is None or entry["d"] == doc.file:
+                    self.defs[ident] = {"t": f"{doc.id}__{anchor}", "l": f"{ident} — {plain(title)}", "d": doc.file}
+                    self.assigned.add(ident)
 
     def _add(self, ident: str, doc: Doc, label: str, anchor: str) -> None:
         if ident not in self.defs:
@@ -1073,6 +1542,13 @@ class Renderer:
         self.counts: dict[str, dict[str, int]] = {}
         self.doc: Doc = docs[0]
         self.lint_paths = True
+        self.step: str | None = None  # the tour step being rendered
+        self.cites: dict[str, set[str]] = {}  # file (normalized absolute path) -> tour steps that cite it
+        self.tour_stats: dict[str, dict[str, int]] = {}
+
+    def cite(self, path: Path) -> None:
+        if self.step:
+            self.cites.setdefault(os.path.normcase(os.path.abspath(path)), set()).add(self.step)
 
     # ---- inline
 
@@ -1149,6 +1625,7 @@ class Renderer:
             if "/" in match.group("path") and self.lint_paths:
                 self.lint["unresolved paths"].add(f"{self.doc.file}: {match.group('path')}")
             return inner
+        self.cite(resolved)
         return self.editor_link(resolved, match.group("line") or "1", inner)
 
     def link_target(self, target: str) -> tuple[str, bool]:
@@ -1335,7 +1812,7 @@ class Renderer:
         counts = {"create": 0, "modify": 0, "delete": 0}
         by_anchor: dict[str, list[Exhibit]] = {}
         for exhibit in self.exhibits:
-            if exhibit.doc is doc and exhibit.status not in {"invalid", "orphan"}:
+            if exhibit.doc is doc and exhibit.status not in {"invalid", "orphan"} and not exhibit.item:
                 by_anchor.setdefault(exhibit.anchor, []).append(exhibit)
         headings = iter(doc.headings)
         out: list[str] = []
@@ -1343,14 +1820,40 @@ class Renderer:
         intro: list[str] = []
         notes: list[str] = []
         seen_section = False
+        current = doc.round
+        tour = doc.tour
+        steps = tour.steps if tour else []
+        step_nav = {
+            anchor: (ident, steps[i - 1][1] if i else None, steps[i + 1][1] if i + 1 < len(steps) else None)
+            for i, (ident, anchor, _) in enumerate(steps)
+        }
+        coverage_slot = "\x00coverage\x00"
+        self.step = None
         for block in doc.blocks:
             if block["t"] == "heading":
                 heading = next(headings, None) or Heading(block["level"], block["text"], slugify(block["text"]), 0)
                 if block["level"] == 1 and not seen_section:
                     continue
+                if current and block is current.premise_heading:
+                    continue  # its list is drawn as Round 0 at the top of the round
                 seen_section = True
-                out.append(self.heading(block, heading, stack, counts))
+                if block["level"] <= 2:
+                    nav = step_nav.get(heading.anchor)
+                    self.step = nav[0] if nav else None
+                collapsed = bool(current) and block is current.dispositions_heading
+                step = step_nav.get(heading.anchor) if block["level"] == 2 else None
+                out.append(self.heading(block, heading, stack, counts, collapsed=collapsed, step=step))
                 out.extend(self.exhibit(exhibit) for exhibit in by_anchor.get(heading.anchor, []))
+                continue
+            if current and block is current.premise_list:
+                if current.table is None:
+                    out.append(self.round_panel(doc, current))
+                continue
+            if current and block is current.table:
+                out.append(self.round_panel(doc, current))
+                continue
+            if tour and block is tour.table:
+                out.append(self.block(block) + coverage_slot)
                 continue
             rendered = self.block(block)
             if not seen_section:
@@ -1360,7 +1863,12 @@ class Renderer:
         while stack:
             stack.pop()
             out.append("</div></section>")
+        self.step = None
         self.counts[doc.id] = counts
+        body = "".join(out)
+        if tour:
+            # Rendered last: it marks every changed file with the steps that cited it.
+            body = body.replace(coverage_slot, self.coverage(doc, tour))
         top = "".join(self.exhibit(exhibit) for exhibit in by_anchor.get("top", []))
         notes_html = (
             f'<div class="doc-notes"><div class="label">Notes at the top of this doc</div>{"".join(notes)}</div>'
@@ -1369,11 +1877,12 @@ class Renderer:
         intro_html = f'<div class="doc-intro">{"".join(intro)}</div>' if intro else ""
         article = (
             f'<article class="doc" id="{doc.id}" data-doc="{doc.id}" hidden>{self.doc_head(doc, counts)}'
-            f'{notes_html}{intro_html}{top}{"".join(out)}</article>'
+            f'{notes_html}{intro_html}{top}{body}</article>'
         )
         return article, self.outline(doc, by_anchor)
 
-    def heading(self, block: dict[str, Any], heading: Heading, stack: list[int], counts: dict[str, int]) -> str:
+    def heading(self, block: dict[str, Any], heading: Heading, stack: list[int], counts: dict[str, int],
+                *, collapsed: bool = False, step: tuple[str, str | None, str | None] | None = None) -> str:
         level = block["level"]
         element_id = f"{self.doc.id}__{heading.anchor}"
         text_html = self.heading_text(block["text"], counts)
@@ -1385,13 +1894,25 @@ class Renderer:
             closing.append("</div></section>")
         stack.append(level)
         title = esc(plain(block["text"]))
+        step_attr = step_tools = ""
+        if step:
+            ident, before, after = step
+            step_attr = f' data-step="{esc(ident)}"'
+            links = [
+                f'<a class="tool" href="#{esc(self.doc.id)}__{esc(target)}" aria-label="{label} step">{arrow}</a>'
+                for target, label, arrow in ((before, "Previous", "←"), (after, "Next", "→")) if target
+            ]
+            step_tools = (
+                "".join(links)
+                + f'<button type="button" class="tool" data-action="reviewed" aria-pressed="false">Reviewed</button>'
+            )
         return (
             "".join(closing)
-            + f'<section class="sec lvl{level}" data-anchor="{esc(heading.anchor)}" data-title="{title}">'
+            + f'<section class="sec lvl{level}{" collapsed" if collapsed else ""}" data-anchor="{esc(heading.anchor)}" data-title="{title}"{step_attr}>'
             f'<div class="sec-head"><h{level} id="{esc(element_id)}" class="anchored">{text_html}</h{level}>'
-            f'<div class="sec-tools">'
+            f'<div class="sec-tools">{step_tools}'
             f'<button type="button" class="tool" data-action="comment" aria-label="Comment on {title}">Comment</button>'
-            f'<button type="button" class="tool" data-action="collapse" aria-expanded="true" aria-label="Collapse {title}">'
+            f'<button type="button" class="tool" data-action="collapse" aria-expanded="{"false" if collapsed else "true"}" aria-label="Collapse {title}">'
             f'<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6 L8 10 L12 6"></path></svg></button>'
             f"</div></div><div class=\"sec-body\">"
         )
@@ -1434,6 +1955,16 @@ class Renderer:
         progress = re.search(r"\*\*Overall Progress\*\*:\s*([^\n]+)", doc.text)
         if progress:
             chips.append(esc(plain(progress.group(1))))
+        if doc.round:
+            chips.insert(0, f"Walkthrough · round {doc.round.number} · {esc(doc.round.date)}")
+        stats = self.tour_stats.get(doc.id)
+        if doc.tour and stats:
+            chips[:0] = [
+                f"Tour · {len(doc.tour.steps)} steps",
+                f"{stats['repos']} repos · {stats['files']} files · +{stats['added']} −{stats['deleted']}",
+                f"{stats['cited']} of {stats['files']} files cited",
+                f'<span data-reviewed-count>0</span>&nbsp;of {len(doc.tour.steps)} steps reviewed',
+            ]
         exhibits = sum(1 for exhibit in self.exhibits if exhibit.doc is doc and exhibit.status not in {"invalid", "orphan"})
         if exhibits:
             chips.append(f'<span class="tag">Illustrations</span> {exhibits}')
@@ -1501,8 +2032,18 @@ class Renderer:
     def source_label(self, exhibit: Exhibit) -> str:
         labels = []
         for source in exhibit_sources(exhibit):
-            heading = exhibit.doc.heading(source) if exhibit.doc and source != "*" else None
-            labels.append("whole doc" if source == "*" else "§ " + plain(heading.text if heading else source))
+            if source == "*":
+                labels.append("whole doc")
+                continue
+            file, hash_sign, anchor = source.partition("#")
+            if hash_sign or source.lower().endswith(".md"):
+                target = self.by_file.get(Path(file).name) if file else exhibit.doc
+                heading = target.heading(anchor) if target and anchor else None
+                name = Path(file).name if file else (exhibit.doc.file if exhibit.doc else "")
+                labels.append(name + (f" § {plain(heading.text)}" if heading else f"#{anchor}" if anchor else ""))
+                continue
+            heading = exhibit.doc.heading(source) if exhibit.doc else None
+            labels.append("§ " + plain(heading.text) if heading else source)
         return ", ".join(labels)
 
     def exhibit(self, exhibit: Exhibit) -> str:
@@ -1513,6 +2054,8 @@ class Renderer:
         except (ViewError, KeyError, TypeError, ValueError) as exc:
             self.lint.setdefault("illustrations", set()).add(f"{exhibit.id}: {exc}")
             body = f'<p class="ex-error">This illustration could not be drawn: {esc(str(exc))}</p>'
+        if exhibit.code and exhibit.code.get("path"):
+            self.cite(exhibit.code["path"])
         stamp = data.get("stamp") or {}
         stamp_text = " · ".join(sorted({str(value)[:6] for key, value in stamp.items() if key != "code"})) if isinstance(stamp, dict) else ""
         status = ""
@@ -1580,6 +2123,22 @@ class Renderer:
         outcome = f'<p class="walk-outcome">{self.inline(str(data["outcome"]))}</p>' if data.get("outcome") else ""
         return f'<ol class="walk">{"".join(steps)}</ol>{outcome}'
 
+    def exhibit_timeline(self, exhibit: Exhibit, data: dict[str, Any]) -> str:
+        points = []
+        for point in data.get("points") or []:
+            tone = re.sub(r"[^\w-]", "", str(point.get("tone") or ""))
+            css = f' class="tone-{tone}"' if tone else ""
+            detail = f'<span class="detail">{self.inline(str(point["detail"]))}</span>' if point.get("detail") else ""
+            points.append(
+                f'<li{css}><span class="t-dot" aria-hidden="true"></span>'
+                f'<span class="when">{esc(str(point.get("at", "")))}</span><b>{self.inline(str(point.get("label", "")))}</b>'
+                f'{detail}{self.refs(point.get("refs"))}</li>'
+            )
+        return f'<ol class="timeline">{"".join(points)}</ol>'
+
+    def exhibit_decision(self, exhibit: Exhibit, data: dict[str, Any]) -> str:
+        raise ViewError("a decision exhibit answers an item of the round's table, not a premise")
+
     def exhibit_decisions(self, exhibit: Exhibit, data: dict[str, Any]) -> str:
         fieldsets = []
         for number, item in enumerate(data.get("items") or [], start=1):
@@ -1604,6 +2163,296 @@ class Renderer:
                 f'{"".join(options)}<div class="decision-foot">{confidence}{self.refs(item.get("refs"))}</div></fieldset>'
             )
         return f'<div class="decisions">{"".join(fieldsets)}</div>'
+
+    # ---- walkthrough rounds
+
+    def round_panel(self, doc: Doc, current: Round) -> str:
+        by_item: dict[str, list[Exhibit]] = {}
+        for exhibit in self.exhibits:
+            if exhibit.doc is doc and exhibit.item and exhibit.status not in {"invalid", "orphan"}:
+                by_item.setdefault(exhibit.item, []).append(exhibit)
+        premises = {premise.ident: premise for premise in current.premises}
+        cards: list[str] = []
+        tags: dict[str, int] = {}
+        counts = {"open": 0, "decided": 0, "deferred": 0, "needs": 0}
+        any_suggested = False
+        for item in current.items:
+            card, info = self.item_card(doc, item, by_item.get(item.ident, []), premises)
+            cards.append(card)
+            counts[item.status] += 1
+            counts["needs"] += 1 if info["needs"] else 0
+            any_suggested = any_suggested or info["suggested"]
+            for tag in info["tags"]:
+                tags[tag] = tags.get(tag, 0) + 1
+
+        to_confirm = sum(1 for premise in current.premises if premise.status == "open")
+        chips = [("", f"{len(current.items)} items")]
+        if counts["needs"]:
+            chips.append(("warn", f"{counts['needs']} need you"))
+        chips += [("", f"{counts[key]} {key}") for key in ("open", "decided", "deferred") if counts[key]]
+        if current.premises:
+            chips.append(("", f"{len(current.premises)} premises" + (f", {to_confirm} to confirm" if to_confirm else "")))
+        chip_html = "".join(f'<span class="chip {css}">{esc(text)}</span>' for css, text in chips)
+        head = (
+            f'<div class="round-head"><div class="kicker">Walkthrough · round {current.number} · {esc(current.date)}</div>'
+            f'<div class="chips">{chip_html}</div></div>'
+        )
+
+        premise_html = ""
+        if current.premises:
+            section_id = f' id="{esc(doc.id)}__{esc(current.premise_anchor)}"' if current.premise_anchor else ""
+            premise_html = (
+                f'<section class="round-premises anchored"{section_id}><div class="round-label">Round 0 · Premises</div>'
+                '<p class="muted">Confirm these first. Each decision links to the premises it uses.</p>'
+                '<div class="premise-grid">'
+                + "".join(self.premise_card(doc, premise, by_item.get(premise.ident, [])) for premise in current.premises)
+                + "</div></section>"
+            )
+
+        filters = [("all", "All", len(current.items)), ("needs", "Need you", counts["needs"]),
+                   ("open", "Open", counts["open"]), ("decided", "Decided", counts["decided"]),
+                   ("deferred", "Deferred", counts["deferred"])]
+        filters += [(f"tag:{tag}", tag.replace("-", " ").capitalize(), count) for tag, count in sorted(tags.items())]
+        buttons = "".join(
+            f'<button type="button" class="btn" data-filter="{esc(key)}" aria-pressed="{"true" if key == "all" else "false"}">'
+            f'{esc(label)} <span class="n">{count}</span></button>'
+            for key, label, count in filters if count or key == "all"
+        )
+        bulk = (
+            '<div class="bulk-row"><button type="button" class="btn" data-action="bulk-accept" disabled>'
+            'Accept suggested for <span data-bulk-count>0</span> shown</button></div>'
+            if any_suggested else ""
+        )
+        items_html = (
+            '<section class="round-items"><div class="round-label">Decisions</div>'
+            f'<div class="filters" role="group" aria-label="Filter the items">{buttons}</div>{bulk}'
+            f'<div class="cards">{"".join(cards)}</div>'
+            '<button type="button" class="btn more" data-action="show-more" hidden>Show more</button></section>'
+        )
+        return (
+            f'<div class="round" data-label="{esc(doc.title)}, round {current.number}">'
+            f'<div class="round-main">{head}{premise_html}{items_html}</div>{self.round_side(doc, by_item)}</div>'
+        )
+
+    def round_side(self, doc: Doc, by_item: dict[str, list[Exhibit]]) -> str:
+        used = [doc]
+        for exhibits in by_item.values():
+            for exhibit in exhibits:
+                for source in exhibit_sources(exhibit):
+                    file = source.partition("#")[0]
+                    other = self.by_file.get(Path(file).name) if file.lower().endswith(".md") else None
+                    if other and other not in used:
+                        used.append(other)
+        rows = [f"<dt>{esc(item.file)}</dt><dd>{esc(item.sha[:7])}</dd>" for item in used]
+        for root in self.repo.roots:
+            head = git_head(root)
+            if head:
+                rows.append(f"<dt>{esc(root.name)} (repo)</dt><dd>{esc(head[:7])}</dd>")
+        return (
+            '<aside class="round-side" aria-label="Respond to this round">'
+            '<section class="panel"><h3>Respond</h3><p class="muted small">Your answers go back to the source as '
+            'markdown. Paste them into the session; the walkthrough skill records them.</p>'
+            '<pre class="live" data-live></pre>'
+            '<div class="row-btns"><button type="button" class="btn" data-action="next-open"><span data-open-count>0</span> to answer</button>'
+            '<button type="button" class="btn primary" data-action="copy-live">Copy response</button></div>'
+            '<p class="muted small" data-copied-live hidden>Copied</p>'
+            '<button type="button" class="linkish" data-action="clear-answers">Clear my answers</button></section>'
+            f'<section class="panel"><h3>Built from</h3><dl class="built">{"".join(rows)}</dl>'
+            '<p class="muted small">Rebuild after any source change; edits made on this page are lost on rebuild.</p></section>'
+            "</aside>"
+        )
+
+    def premise_card(self, doc: Doc, premise: RoundItem, exhibits: list[Exhibit]) -> str:
+        chip = {
+            "open": '<span class="chip neutral">Not confirmed</span>',
+            "confirmed": '<span class="chip ok">Confirmed</span>',
+            "corrected": '<span class="chip warn">Corrected</span>',
+        }[premise.status]
+        title = f'<span class="p-title">{self.inline(premise.title)}</span>' if premise.title else ""
+        drawn = "".join(self.exhibit(exhibit) for exhibit in exhibits)
+        recorded = "".join(f'<div class="p-recorded">{self.blocks(blocks)}</div>' for blocks in premise.recorded)
+        actions = ""
+        if premise.status == "open":
+            actions = (
+                '<button type="button" class="btn" data-action="premise" data-value="correct" aria-pressed="false">Needs correction</button>'
+                '<button type="button" class="btn" data-action="premise" data-value="confirm" aria-pressed="false">Confirm</button>'
+            )
+        name = plain(premise.title) or shorten(premise.text, 60)
+        return (
+            f'<article class="premise" id="{esc(item_element_id(doc, premise.ident))}" data-ckey="{esc(doc.id)}#item:{esc(premise.ident)}" '
+            f'data-item="{esc(premise.ident)}" data-status="{premise.status}" data-ctitle="{esc(premise.ident)} · {esc(name)}">'
+            f'<div class="p-head"><span class="pid">{esc(premise.ident)}</span>{title}{chip}</div>'
+            f'<p class="p-text">{self.inline(premise.text)}</p>{drawn}{recorded}'
+            '<div class="p-foot"><button type="button" class="tool" data-action="comment">Comment</button>'
+            f'<div class="p-actions">{actions}</div></div><div class="comment-slot"></div></article>'
+        )
+
+    def item_card(self, doc: Doc, item: RoundItem, exhibits: list[Exhibit],
+                  premises: dict[str, RoundItem]) -> tuple[str, dict[str, Any]]:
+        decision = next((exhibit for exhibit in exhibits if exhibit.kind == "decision"), None)
+        data = (decision.data.get("data") or {}) if decision else {}
+        others = [exhibit for exhibit in exhibits if exhibit is not decision]
+        is_open = item.status == "open"
+        needs = bool(data.get("needs")) and is_open
+        tags = [slug for slug in (re.sub(r"[^\w]+", "-", str(tag).lower()).strip("-") for tag in data.get("tags") or []) if slug]
+        uses = [str(ident) for ident in data.get("uses") or []]
+        options = [option for option in data.get("options") or [] if isinstance(option, dict)]
+        suggested = next((option for option in options if option.get("suggested")), None)
+        headline = plain(str(data["headline"])) if data.get("headline") else shorten(item.text)
+
+        state = []
+        if is_open:
+            state.append('<span class="chip warn">Needs you</span>' if needs else '<span class="chip neutral">Open</span>')
+            if suggested:
+                state.append(f'<span class="c-suggest">Suggested: {esc(plain(str(suggested.get("label", ""))))}</span>')
+        else:
+            css = "info" if item.status == "deferred" else "ok"
+            state.append(f'<span class="chip {css}">{esc(shorten(item.answer, 48))}</span>')
+        state.append('<span class="chip info" data-answer-chip hidden></span>')
+        tag_html = "".join(f'<span class="tag">{esc(tag.replace("-", " "))}</span>' for tag in tags)
+
+        meta = [f"<span>Source {self.inline(item.source)}</span>"] if plain(item.source) else []
+        if decision:
+            stamp = decision.data.get("stamp") or {}
+            stamp_text = " · ".join(sorted({str(value)[:6] for value in stamp.values()})) if isinstance(stamp, dict) else ""
+            meta.append(f'<span class="muted">Headline, options and walk: model-drawn{" · " + esc(stamp_text) if stamp_text else ""}</span>')
+            if decision.status == "stale":
+                meta.append(f'<span class="chip warn">Stale: {esc("; ".join(decision.problems) or "the row changed")}</span>')
+        fields = "".join(
+            f'<div class="c-field"><div class="label">{self.inline(name)}</div><div>{self.inline(cell)}</div></div>'
+            for name, cell in item.fields
+        )
+        uses_html = ""
+        if uses:
+            links = []
+            for ident in uses:
+                premise = premises.get(ident)
+                if premise:
+                    name = plain(premise.title) or shorten(premise.text, 40)
+                    links.append(f'<a href="#{esc(item_element_id(doc, ident))}">{esc(ident)} · {esc(name)}</a>')
+                else:
+                    self.lint["unresolved refs"].add(f"{doc.file}: {item.ident} uses {ident}, not a premise of this round")
+                    links.append(f"<span>{esc(ident)}</span>")
+            uses_html = (
+                f'<div class="c-uses"><span class="muted">Uses</span><span class="refs">{"".join(links)}</span>'
+                '<span class="chip warn" data-premise-flag hidden>Rests on a premise marked for correction</span></div>'
+            )
+        walk_html = ""
+        if decision and isinstance(data.get("walk"), dict):
+            walk_html = (
+                f'<div class="c-block"><div class="label">Failure walk · illustration</div>'
+                f'{self.exhibit_walk(decision, data["walk"])}</div>'
+            )
+        drawn = "".join(self.exhibit(exhibit) for exhibit in others)
+        recorded = ""
+        if not is_open or item.recorded:
+            answer = f'<p class="c-answer-cell">{self.inline(item.answer)}</p>' if plain(item.answer) else ""
+            entries = "".join(f'<div class="c-entry">{self.blocks(blocks)}</div>' for blocks in item.recorded)
+            recorded = f'<div class="c-recorded"><div class="label">Recorded</div>{answer}{entries}</div>'
+        form = ""
+        if is_open and options:
+            name = f"rd-{doc.id}-{slugify(item.ident)}"
+            choices = []
+            for option in options:
+                is_suggested = bool(option.get("suggested"))
+                note = f'<span class="note">{self.inline(str(option["note"]))}</span>' if option.get("note") else ""
+                marker = '<span class="chip info">suggested</span>' if is_suggested else ""
+                choices.append(
+                    f'<label class="opt"><input type="radio" name="{esc(name)}" value="{esc(str(option.get("value", "")))}" '
+                    f'data-label="{esc(plain(str(option.get("label", ""))))}"{" data-suggested" if is_suggested else ""}>'
+                    f'<span><span class="opt-label">{self.inline(str(option.get("label", "")))}{marker}</span>{note}</span></label>'
+                )
+            confidence = (
+                f'<span class="muted">Recommendation confidence {esc(str(data["confidence"]))}%</span>'
+                if data.get("confidence") else ""
+            )
+            form = (
+                f'<fieldset class="rdecision"><legend class="label">Your decision</legend>{"".join(choices)}'
+                f'<div class="decision-foot">{confidence}</div></fieldset>'
+            )
+        elif is_open:
+            form = '<p class="muted small">No options are drawn for this item yet. Answer it with a comment.</p>'
+        card = (
+            f'<details class="card" id="{esc(item_element_id(doc, item.ident))}" data-ckey="{esc(doc.id)}#item:{esc(item.ident)}" '
+            f'data-item="{esc(item.ident)}" data-status="{item.status}" data-needs="{"1" if needs else ""}" '
+            f'data-tags="{esc(" ".join(tags))}" data-uses="{esc(" ".join(uses))}" '
+            f'data-ctitle="{esc(item.ident)} · {esc(shorten(headline, 90))}" data-recorded="{esc(shorten(item.answer, 80))}"'
+            f'{" open" if needs else ""}>'
+            f'<summary><span class="cid">{esc(item.ident)}</span><span class="c-headline">{esc(headline)}</span>'
+            f'<span class="c-state">{tag_html}{"".join(state)}</span></summary>'
+            f'<div class="c-body"><div class="c-meta">{"".join(meta)}</div>{fields}{uses_html}{walk_html}{drawn}{recorded}{form}'
+            f'<div class="c-foot"><button type="button" class="tool" data-action="comment">Comment on {esc(item.ident)}</button></div>'
+            '<div class="comment-slot"></div></div></details>'
+        )
+        return card, {"needs": needs, "tags": tags, "suggested": bool(suggested) and is_open}
+
+    # ---- implementation tours
+
+    def coverage(self, doc: Doc, tour: Tour) -> str:
+        """Every changed file of the change set, by repository and folder, with the steps that cite it."""
+        order = {ident: index for index, (ident, _, _) in enumerate(tour.steps)}
+        anchors = {ident: anchor for ident, anchor, _ in tour.steps}
+        statuses = {"A": ("A", "added"), "M": ("M", "modified"), "D": ("D", "deleted"),
+                    "T": ("T", "type changed"), "new": ("N", "new, untracked")}
+        totals = {"repos": 0, "files": 0, "added": 0, "deleted": 0, "cited": 0}
+        repos = []
+        for row in tour.rows:
+            if row.problem or row.top is None:
+                repos.append(f'<p class="ex-error">{esc(row.name)}: {esc(row.problem or "not loaded")}</p>')
+                continue
+            totals["repos"] += 1
+            folders: dict[str, list[str]] = {}
+            folder_stats: dict[str, list[int]] = {}
+            for changed in row.files:
+                absolute = row.top / changed.path
+                steps = sorted(self.cites.get(os.path.normcase(os.path.abspath(absolute)), set()),
+                               key=lambda ident: order.get(ident, len(order)))
+                folder, _, name = changed.path.rpartition("/")
+                folder = folder or "."
+                short, label = statuses.get(changed.status, (changed.status, changed.status))
+                inner = f"<code>{esc(name)}</code>"
+                link = self.editor_link(absolute, 1, inner) if changed.status != "D" and absolute.is_file() else inner
+                step_links = "".join(f'<a href="#{esc(doc.id)}__{esc(anchors[ident])}">{esc(ident)}</a>' for ident in steps)
+                folders.setdefault(folder, []).append(
+                    f'<tr data-cited="{"1" if steps else ""}"><td><span class="st st-{esc(short)}" title="{esc(label)}">{esc(short)}</span></td>'
+                    f'<td>{link}</td><td class="num add">+{changed.added}</td><td class="num del">−{changed.deleted}</td>'
+                    f'<td><span class="refs">{step_links}</span></td></tr>'
+                )
+                stats = folder_stats.setdefault(folder, [0, 0, 0, 0])
+                stats[0] += 1
+                stats[1] += changed.added
+                stats[2] += changed.deleted
+                stats[3] += 0 if steps else 1
+                totals["cited"] += 1 if steps else 0
+            files = sum(stats[0] for stats in folder_stats.values())
+            added = sum(stats[1] for stats in folder_stats.values())
+            deleted = sum(stats[2] for stats in folder_stats.values())
+            totals["files"] += files
+            totals["added"] += added
+            totals["deleted"] += deleted
+            groups = "".join(
+                f'<details class="cov-dir" data-uncited="{stats[3]}"><summary><code>{esc(folder)}/</code>'
+                f'<span class="muted">{stats[0]} files · +{stats[1]} −{stats[2]}'
+                f'{f" · {stats[3]} not in a step" if stats[3] else ""}</span></summary>'
+                f'<div class="tbl"><table class="cov"><tbody>{"".join(folders[folder])}</tbody></table></div></details>'
+                for folder, stats in sorted(folder_stats.items())
+            )
+            head = row.head if not row.working else WORKING_TREE
+            repos.append(
+                f'<div class="cov-repo"><div class="cov-head"><b>{esc(row.prefix or row.top.name)}</b> <code>{esc(row.top.name)}</code>'
+                f'<span class="muted">{esc(row.base)} → {esc(head)} · merge base {esc(row.merge_base[:7])} · '
+                f'{files} files · +{added} −{deleted}</span></div>{groups}</div>'
+            )
+        self.tour_stats[doc.id] = totals
+        uncited = totals["files"] - totals["cited"]
+        filters = (
+            f'<button type="button" class="btn" data-cov-filter="all" aria-pressed="true">All files <span class="n">{totals["files"]}</span></button>'
+            f'<button type="button" class="btn" data-cov-filter="uncited" aria-pressed="false">Not in any step <span class="n">{uncited}</span></button>'
+        )
+        return (
+            '<div class="coverage" data-coverage><div class="label">Every changed file, from git</div>'
+            f'<div class="filters">{filters}</div>{"".join(repos)}</div>'
+        )
 
     # ---- code exhibits
 
@@ -1958,6 +2807,7 @@ def build_page(spec_dir: Path, docs: list[Doc], exhibits: list[Exhibit], repo: R
             for exhibit in exhibits
         ],
         "defs": renderer.index.defs,
+        "tours": tour_fingerprints(docs),
     }
     manifest_json = json.dumps(manifest, ensure_ascii=False).replace("</", "<\\/")
     title = f"{spec_dir.name} · {primary.label} view"
@@ -2018,7 +2868,32 @@ def repo_for(spec_dir: Path, docs: list[Doc], repo_args: list[str] | None, *, pe
     missing = [root for root in roots if not Path(root).is_dir()]
     if missing:
         print(f"warning: repo roots not found: {', '.join(missing)}", file=sys.stderr)
-    return Repo([Path(root) for root in roots], collect_aliases(docs))
+    paths = [Path(root) for root in roots]
+    aliases = collect_aliases(docs)
+    # A tour's change set names its repositories, so they need no --repo.
+    rows = [row for doc in docs if doc.tour for row in doc.tour.rows]
+    seen: dict[str, str] = {}
+    for row in rows:
+        load_change(row, seen)
+        if row.path.is_dir() and all(os.path.normcase(str(row.path)) != os.path.normcase(str(path)) for path in paths):
+            paths.append(row.path)
+        if row.prefix:
+            aliases.append((row.prefix, row.path.as_posix().rstrip("/") + "/"))
+    repo = Repo(paths, aliases)
+    repo.change_rows = [row for row in rows if row.top]
+    return repo
+
+
+def load_view(target: str, repo_args: list[str] | None = None, *, persist: bool = False,
+              stamp_new: bool = False) -> tuple[Path, list[Doc], Repo, list[Exhibit]]:
+    spec_dir, focus = resolve_target(target)
+    docs = discover_docs(spec_dir, focus)
+    repo = repo_for(spec_dir, docs, repo_args, persist=persist)
+    exhibits = load_exhibits(spec_dir, docs)
+    by_file = {doc.file: doc for doc in docs}
+    for exhibit in exhibits:
+        evaluate_exhibit(exhibit, repo, by_file, stamp_new=stamp_new)
+    return spec_dir, docs, repo, exhibits
 
 
 def describe_exhibits(exhibits: list[Exhibit]) -> None:
@@ -2026,18 +2901,62 @@ def describe_exhibits(exhibits: list[Exhibit]) -> None:
     if not exhibits:
         print("  none")
     for exhibit in exhibits:
-        location = f"{exhibit.doc.file if exhibit.doc else exhibit.data.get('doc')}#{exhibit.anchor}"
+        file = exhibit.doc.file if exhibit.doc else exhibit.data.get("doc")
+        location = f"{file} item {exhibit.item}" if exhibit.item else f"{file}#{exhibit.anchor}"
         problems = f"  ({'; '.join(exhibit.problems)})" if exhibit.problems else ""
         print(f"  {exhibit.id:<28} {exhibit.kind:<9} {location:<44} {exhibit.status}{problems}")
 
 
+def describe_round(doc: Doc) -> None:
+    current = doc.round
+    assert current is not None
+    counts: dict[str, int] = {}
+    for item in current.items:
+        counts[item.status] = counts.get(item.status, 0) + 1
+    summary = ", ".join(f"{count} {status}" for status, count in sorted(counts.items()))
+    print(f"\nRound {current.number} ({current.date}) of {doc.file}: {len(current.items)} items ({summary}), "
+          f"{len(current.premises)} premises  (id, kind, status, hash, text; exhibits attach with \"item\")")
+    for item in current.premises + current.items:
+        text = f"{plain(item.title)}: {item.text}" if item.title else item.text
+        print(f"  {item.ident:<7} {item.kind:<8} {item.status:<9} {item.hash}  {shorten(text, 90)}")
+
+
+def describe_tour(doc: Doc, show_files: bool) -> None:
+    tour = doc.tour
+    assert tour is not None
+    print(f"\nTour {doc.file}: {len(tour.steps)} steps  (exhibits anchor to a step heading)")
+    for ident, anchor, title in tour.steps:
+        print(f"  {ident:<4} {anchor:<56} {shorten(title, 60)}")
+    for row in tour.rows:
+        if row.problem or row.top is None:
+            print(f"\n  {row.name}: {row.problem}")
+            continue
+        head = WORKING_TREE if row.working else row.head
+        print(f"\n  {row.name} {row.top.as_posix()}  {row.base} → {head}, merge base {row.merge_base[:9]}: "
+              f"{len(row.files)} files, +{sum(f.added for f in row.files)} −{sum(f.deleted for f in row.files)}")
+        folders: dict[str, list[int]] = {}
+        for changed in row.files:
+            stats = folders.setdefault(changed.path.rpartition("/")[0] or ".", [0, 0, 0])
+            stats[0] += 1
+            stats[1] += changed.added
+            stats[2] += changed.deleted
+        for folder, (count, added, deleted) in sorted(folders.items()):
+            print(f"    {folder + '/':<70} {count:>4} files  +{added} −{deleted}")
+            if show_files:
+                for changed in row.files:
+                    if (changed.path.rpartition("/")[0] or ".") == folder:
+                        print(f"      {changed.status:<4} {changed.path.rpartition('/')[2]:<60} +{changed.added} −{changed.deleted}")
+
+
+def tour_fingerprints(docs: list[Doc]) -> dict[str, dict[str, str]]:
+    return {
+        doc.file: {row.name: row.fingerprint for row in doc.tour.rows if row.fingerprint}
+        for doc in docs if doc.tour
+    }
+
+
 def command_plan(args: argparse.Namespace) -> int:
-    spec_dir = Path(args.spec).expanduser().resolve()
-    docs = discover_docs(spec_dir)
-    repo = repo_for(spec_dir, docs, None, persist=False)
-    exhibits = load_exhibits(spec_dir, docs)
-    for exhibit in exhibits:
-        evaluate_exhibit(exhibit, repo, stamp_new=False)
+    spec_dir, docs, repo, exhibits = load_view(args.spec)
     primary = main_doc(docs)
     print(f"Spec: {spec_dir.as_posix()}  (main doc: {primary.file})")
     print("Repo roots: " + (", ".join(root.as_posix() for root in repo.roots) or "none (code and diff exhibits need build --repo)"))
@@ -2055,18 +2974,17 @@ def command_plan(args: argparse.Namespace) -> int:
             indent = "  " * (heading.level - 2)
             marker = " *" if has_diagram else ""
             print(f"  {indent}{heading.anchor:<{56 - len(indent)}} {heading.hash}  {heading.end - heading.line:>4}{marker}")
+    for doc in sorted((doc for doc in docs if doc.round), key=lambda doc: doc is not primary):
+        describe_round(doc)
+    for doc in sorted((doc for doc in docs if doc.tour), key=lambda doc: doc is not primary):
+        describe_tour(doc, args.all)
     describe_exhibits(exhibits)
     return EXIT_OK
 
 
 def command_build(args: argparse.Namespace) -> int:
-    spec_dir = Path(args.spec).expanduser().resolve()
-    docs = discover_docs(spec_dir)
+    spec_dir, docs, repo, exhibits = load_view(args.spec, args.repo, persist=True, stamp_new=True)
     view_dir = ensure_view_dir(spec_dir)
-    repo = repo_for(spec_dir, docs, args.repo, persist=True)
-    exhibits = load_exhibits(spec_dir, docs)
-    for exhibit in exhibits:
-        evaluate_exhibit(exhibit, repo, stamp_new=True)
     page, renderer = build_page(spec_dir, docs, exhibits, repo)
     out = Path(args.out).expanduser().resolve() if args.out else view_dir / "view.html"
     out.write_text(page, encoding="utf-8")
@@ -2101,27 +3019,29 @@ def read_manifest(view: Path) -> dict[str, Any]:
 
 
 def command_check(args: argparse.Namespace) -> int:
-    spec_dir = Path(args.spec).expanduser().resolve()
+    spec_dir, docs, repo, exhibits = load_view(args.spec)
     view = Path(args.out).expanduser().resolve() if args.out else spec_dir / VIEW_DIR / "view.html"
     manifest = read_manifest(view)
-    docs = discover_docs(spec_dir)
     built = {entry["file"]: entry["sha"] for entry in manifest.get("docs", [])}
     current = {doc.file: doc.sha for doc in docs}
     changed = sorted(file for file in current if file in built and built[file] != current[file])
     added = sorted(set(current) - set(built))
     removed = sorted(set(built) - set(current))
-    repo = repo_for(spec_dir, docs, None, persist=False)
-    exhibits = load_exhibits(spec_dir, docs)
-    for exhibit in exhibits:
-        evaluate_exhibit(exhibit, repo, stamp_new=False)
     stale = [exhibit for exhibit in exhibits if exhibit.status in {"stale", "orphan", "invalid", "unstamped"}]
+    built_tours = manifest.get("tours") or {}
+    code_changed = [
+        f"{file} {name}" for file, rows in tour_fingerprints(docs).items()
+        for name, fingerprint in rows.items() if (built_tours.get(file) or {}).get(name) != fingerprint
+    ]
     print(f"View built {manifest.get('builtAt')} for {spec_dir.as_posix()}")
     for label, files in (("changed", changed), ("new", added), ("removed", removed)):
         if files:
             print(f"Docs {label} since the build: {', '.join(files)}")
+    for entry in code_changed:
+        print(f"Code changed since the build (tour {entry}): re-read the steps that cite it")
     for exhibit in stale:
         print(f"Exhibit {exhibit.id}: {exhibit.status}" + (f" ({'; '.join(exhibit.problems)})" if exhibit.problems else ""))
-    if changed or added or removed or stale:
+    if changed or added or removed or stale or code_changed:
         print("Stale: rebuild (and redraw the exhibits listed above).")
         return EXIT_STALE
     print("Fresh: the view matches its sources.")
@@ -2133,19 +3053,19 @@ def parser() -> argparse.ArgumentParser:
     commands = root.add_subparsers(dest="command", required=True)
 
     plan = commands.add_parser("plan", help="List docs, section anchors and hashes, and exhibit status.")
-    plan.add_argument("spec", help="spec folder, for example specs/<slug>")
+    plan.add_argument("spec", help="spec folder (specs/<slug>), or a doc in it to open first")
     plan.add_argument("--all", action="store_true", help="list sections of every doc, not only the main doc")
     plan.set_defaults(handler=command_plan)
 
     build = commands.add_parser("build", help="Stamp new exhibits and write .views/view.html.")
-    build.add_argument("spec", help="spec folder, for example specs/<slug>")
+    build.add_argument("spec", help="spec folder (specs/<slug>), or a doc in it to open first")
     build.add_argument("--repo", action="append", help="code root for code links, excerpts and diffs (repeatable; remembered)")
     build.add_argument("--out", help="output file (default: SPEC/.views/view.html)")
     build.add_argument("--max-report", type=int, default=15, help="report lines per lint kind (default 15)")
     build.set_defaults(handler=command_build)
 
     check = commands.add_parser("check", help="Exit 1 when the view or an exhibit is stale.")
-    check.add_argument("spec", help="spec folder, for example specs/<slug>")
+    check.add_argument("spec", help="spec folder (specs/<slug>), or a doc in it")
     check.add_argument("--out", help="view file to check (default: SPEC/.views/view.html)")
     check.set_defaults(handler=command_check)
     return root

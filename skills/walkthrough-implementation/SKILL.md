@@ -38,6 +38,13 @@ Goal: guide the user through work just built:
 2. **Publish a roadmap before step 1.** N steps (4–7 for a feature-sized change; ~4–6 files per
    step as a guide, not a rule), each a coherent layer, in a small table. The user redirects
    here — before you invest in the wrong order.
+   **Large change set → offer a tour page.** With more than ~20 changed files or several
+   repositories, offer a tour page through the `render-view` skill; on a yes, write
+   `<spec>/tour_<YYYY-MM-DD>.md` per its tours reference: the change-set table, the roadmap, one
+   `## S<n> — <layer>` section per step (why, what to notice, not done, verified vs inferred,
+   `prefix:path:line` citations), and a `## Not toured` section. The page carries the whole tour at
+   once and the owner sets the pace; a pasted Respond block's comments are questions or change
+   requests, handled under steps 6–7.
 3. **Order by dependency, never by file or task number.** (Lived example: token format → auth +
    wiring → read path → write paths → HTTP surface → issuance.) Task order scatters related code.
 4. **Each step = code + why + what to notice.** Trim code to the load-bearing lines, cite
@@ -78,5 +85,6 @@ Goal: guide the user through work just built:
 
 ## Output file
 
-No new artifact. Changes and rationale land in the feature's existing techspec/tasks docs; follow-up
+No new artifact, except the tour doc (`tour_<YYYY-MM-DD>.md` in the spec folder) when the owner
+takes a tour page. Changes and rationale land in the feature's existing techspec/tasks docs; follow-up
 work becomes a proper task in the tasks doc, written cold-start for a fresh session.
