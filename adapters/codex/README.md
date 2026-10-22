@@ -63,7 +63,7 @@ layer) must sit at an instruction-cascade location to be read. The verified glob
 is `~/.codex/AGENTS.md` — but that file is typically your **private conventions layer**
 (see below), so do **not** plain-copy over it: paste the kit file's contents at your private
 file's include point (between its `kit-mechanics` markers). Refresh that copied block manually after
-adapter edits; no repository script or sync wrapper writes private conventions. Per-project placement
+adapter edits; sync never writes `~/.codex/AGENTS.md`. Per-project placement
 (copy into the repo you run Codex from) also works. Combined
 cap `project_doc_max_bytes` = 32 KiB; `AGENTS.override.md` in the home dir takes precedence.
 
@@ -73,14 +73,16 @@ close stdin for automation (`codex exec … </dev/null` on POSIX or `< NUL` on W
 that appended input is intentional. Confirm the installed build's help before scripting.
 
 The common engine is **idempotent** and safety-gated: it never changes a non-kit entry or
-link target, and it records ownership/baselines before mutation. The wrappers do not write
-private instruction files. Use `--check` for a read-only completeness and ownership check.
+link target (a `root/` link replaces only a byte-identical file), and it records
+ownership/baselines before mutation. The wrappers do not write private instruction files.
+Use `--check` for a read-only completeness and ownership check.
 
 ## Optional personal conventions
 
-The kit's public contracts are sufficient for a fresh-user workflow. Private conventions
-can add user preferences, but are not a setup prerequisite. Keep them private and place
-them only where the active host reads instructions. The sync engine never writes them.
+The kit's public contracts are sufficient for a fresh-user workflow. Personal conventions
+can add user preferences, but are not a setup prerequisite. The sync engine links
+`root/AGENTS.md` to `~/.agents/AGENTS.md` and `~/.claude/CLAUDE.md` (see the root
+[`README.md`](../../README.md)); it writes no other instruction file.
 See [provider capabilities](../../skills/document-workflow/references/shared/provider-capabilities.md)
 for runtime checks and read-only copied-mechanics drift detection, and
 [feedback](../../skills/document-workflow/references/shared/feedback.md)

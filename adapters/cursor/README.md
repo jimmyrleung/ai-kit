@@ -70,8 +70,9 @@ They reject `CURSOR_HOME` / `-CursorHome` for sync-root selection; use `--home` 
 only for an isolated common user base. Restart `cursor-agent` after a sync.
 
 The common engine is **idempotent** and safety-gated: it never changes a non-kit entry or
-link target, and it records ownership/baselines before mutation. The wrappers do not write
-private instruction files; `--check` is read-only.
+link target (a `root/` link replaces only a byte-identical file), and it records
+ownership/baselines before mutation. The wrappers do not write private instruction files;
+`--check` is read-only.
 
 > **Same-home rule.** Cursor reads user-level skills on the machine where the agent runs.
 > Run the common sync in the same OS/user-home context as `cursor-agent`: a WSL run writes
@@ -96,9 +97,10 @@ may overwrite a private conventions file.
 
 ## Optional personal conventions
 
-The kit's public contracts are sufficient for a fresh-user workflow. Private conventions
-can add user preferences, but are not a setup prerequisite. Keep them private and place
-them only where the active host reads instructions. The sync engine never writes them.
+The kit's public contracts are sufficient for a fresh-user workflow. Personal conventions
+can add user preferences, but are not a setup prerequisite. The sync engine links
+`root/AGENTS.md` to `~/.agents/AGENTS.md` and `~/.claude/CLAUDE.md` (see the root
+[`README.md`](../../README.md)); it writes no other instruction file.
 See [provider capabilities](../../skills/document-workflow/references/shared/provider-capabilities.md)
 for runtime checks and read-only copied-mechanics drift detection, and
 [feedback](../../skills/document-workflow/references/shared/feedback.md)

@@ -3,7 +3,8 @@
 
 The adapter scripts are deliberately only compatibility entry points.  This
 module owns enumeration, link classification, preflight, ownership evidence,
-prepared transactions, recovery, and baseline-preserving rollback.
+prepared transactions, recovery, and baseline-preserving rollback.  It also
+symlinks the files under root/ to their user-home paths (see ROOT_FILES).
 """
 
 from __future__ import annotations
@@ -29,6 +30,10 @@ SKILL_NAME_RE = re.compile(r"^(?!.*--)[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$")
 TRANSACTION_PHASE = "prepared"
 ACTION_PROGRESS_PENDING = "pending"
 ACTION_PROGRESS_REPLACEMENT_AUTHORIZED = "replacement-authorized"
+# Files under root/, each symlinked to these paths relative to the user home.
+ROOT_FILES = {
+    "AGENTS.md": (Path(".agents", "AGENTS.md"), Path(".claude", "CLAUDE.md")),
+}
 
 
 class SyncError(Exception):
@@ -432,12 +437,39 @@ def remove_link(path: Path) -> None:
         raise SyncError(f"cannot remove link {path}: {exc}") from exc
 
 
+def replace_with_file_link(path: Path, target: Path) -> None:
+    """Swap a temporary symlink into place, so a failed link leaves path unchanged."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_name(f".{path.name}.{os.getpid()}.tmp")
+    try:
+        temporary.symlink_to(target)
+    except OSError as exc:
+        hint = " On Windows, turn on Developer Mode (Settings > System > For developers)." if os.name == "nt" else ""
+        raise SyncError(f"cannot create symlink {path}: {exc.strerror or exc}.{hint}") from exc
+    try:
+        os.replace(temporary, path)
+    except OSError as exc:
+        temporary.unlink(missing_ok=True)
+        raise SyncError(f"cannot replace {path}: {exc}") from exc
+
+
+def replace_link_with_copy(path: Path) -> None:
+    temporary = path.with_name(f".{path.name}.{os.getpid()}.tmp")
+    try:
+        temporary.write_bytes(path.read_bytes())
+        os.replace(temporary, path)
+    except OSError as exc:
+        temporary.unlink(missing_ok=True)
+        raise SyncError(f"cannot replace link {path} with a copy: {exc}") from exc
+
+
 class SyncEngine:
     def __init__(self, repo_root: Path, home: Path, preserve_specs: Iterable[str] = ()) -> None:
         self.repo_root = repo_root.resolve(strict=False)
         self.home = home.resolve(strict=False)
         self.skills_source = self.repo_root / "skills"
-        self.roots = [self.home / ".claude" / "skills", self.home / ".agents" / "skills"]
+        self.root_source = self.repo_root / "root"
+        self.roots =[self.home / ".claude" / "skills", self.home / ".agents" / "skills"]
         self.manifest_path = self.home / ".claude" / "ownership" / "ai-kit-skill-sync.json"
         self.preserve_specs = list(preserve_specs)
         self.preserved: dict[str, set[str]] = {}
@@ -583,6 +615,69 @@ class SyncEngine:
             state = entry_state(path)
             if state["state"] == "link" and state["resolved_target"].startswith(canonical_root + os.sep):
                 conflicts.append(f"unowned-ai-kit-entry: {path} resolves into the canonical skills tree")
+
+    def root_links(self) -> list[tuple[Path, Path]]:
+        return [(self.root_source / name, self.home / relative) for name, paths in ROOT_FILES.items() for relative in paths]
+
+    def is_root_link(self, path: Path, source: Path) -> bool:
+        live = entry_state(path)
+        return live["state"] == "link" and paths_equal(live["resolved_target"], source)
+
+    def root_file_plan(self) -> list[dict[str, Any]]:
+        """Plan root-file links; a real file is replaced only when its bytes match the source."""
+        plan: list[dict[str, Any]] = []
+        conflicts: list[str] = []
+        for source, path in self.root_links():
+            if is_link(source) or not source.is_file():
+                conflicts.append(f"root-file-missing: {source} is not a regular file")
+                continue
+            live = entry_state(path)
+            if live["state"] == "absent":
+                action = "create"
+            elif self.is_root_link(path, source):
+                action = "leave"
+            elif live["state"] == "file" and path.read_bytes() == source.read_bytes():
+                action = "replace"
+            elif live["state"] == "file":
+                conflicts.append(f"root-file-conflict: {path} differs from {source}; merge it into the repository file, then move it away")
+                continue
+            elif live["state"] == "link":
+                conflicts.append(f"root-file-conflict: {path} points to {live['resolved_target']}")
+                continue
+            else:
+                conflicts.append(f"root-file-conflict: {path} is a real {live['state']}")
+                continue
+            plan.append({"action": action, "path": path, "source": source})
+        if conflicts:
+            raise PlanConflict(conflicts)
+        return plan
+
+    def root_file_detach_plan(self) -> list[dict[str, Any]]:
+        return [
+            {"action": "detach", "path": path, "source": source}
+            for source, path in self.root_links()
+            if self.is_root_link(path, source)
+        ]
+
+    def apply_root_files(self, plan: list[dict[str, Any]]) -> str:
+        counts: dict[str, int] = {}
+        for item in plan:
+            counts[item["action"]] = counts.get(item["action"], 0) + 1
+            if item["action"] == "leave":
+                continue
+            if item["action"] == "detach":
+                replace_link_with_copy(item["path"])
+            else:
+                replace_with_file_link(item["path"], item["source"])
+            self.state_changed = True
+        count_text = ", ".join(f"{key}={counts[key]}" for key in sorted(counts)) or "none"
+        return f"OK — root-file links: {count_text}."
+
+    def print_root_plan(self, plan: list[dict[str, Any]]) -> None:
+        print("Root files:")
+        for item in plan:
+            suffix = {"leave": " (current)", "replace": " (identical file)", "detach": " (becomes a copy)"}.get(item["action"], "")
+            print(f"  {item['action']:<9} {item['path']} -> {item['source']}{suffix}")
 
     def apply_plan(self, *, force: bool) -> tuple[dict[str, Any], list[dict[str, Any]], list[dict[str, Any]], list[str]]:
         root_conflicts = self.inspect_roots()
@@ -784,6 +879,9 @@ class SyncEngine:
                     conflicts.append(f"incomplete: {key}/{name} does not resolve to the current canonical skill")
                 if not paths_equal(record["managed_target"], target):
                     conflicts.append(f"incomplete: {key}/{name} managed_target is stale")
+        for source, path in self.root_links():
+            if not self.is_root_link(path, source):
+                conflicts.append(f"incomplete: {path} is not a symlink to {source}")
         if conflicts:
             raise PlanConflict(conflicts)
         preserved_count = self.preserved_count()
@@ -795,6 +893,7 @@ class SyncEngine:
             )
         else:
             print(f"OK — {len(self.skills)} canonical skills resolve from both managed roots ({len(self.skills) * 2} links total).")
+        print(f"OK — {len(self.root_links())} root-file links resolve into {self.root_source}.")
 
     def print_plan(self, transaction: dict[str, Any], *, label: str) -> None:
         print("ai-kit common skill sync")
@@ -939,14 +1038,19 @@ class SyncEngine:
                 raise SyncError("incomplete: prepared transaction exists; dry-run cannot recover it")
             self.recover_transaction()
         transaction, _, _, _ = self.apply_plan(force=force)
+        root_plan = self.root_file_plan()
         if dry_run:
             self.print_plan(transaction, label="DRY RUN (no filesystem or manifest changes)")
+            self.print_root_plan(root_plan)
             return EXIT_OK
+        # Root files go first: a missing Windows symlink privilege then fails before any skill change.
+        root_summary = self.apply_root_files(root_plan)
         current = self.manifest
         if current is not None and current["transaction"] is None:
             candidate = json_manifest(transaction["repo_root"], transaction["records_after"], None)
             if candidate == current and all(a["before"] == a["after"] for a in transaction["actions"]):
-                print(f"OK — {len(self.skills)} canonical skills already current; no changes made.")
+                print(f"OK — {len(self.skills)} canonical skills already current; no skill links changed.")
+                print(root_summary)
                 return EXIT_OK
         prepared = json_manifest(transaction["repo_root"], transaction["records_after"], transaction)
         atomic_write_json(self.manifest_path, prepared)
@@ -959,6 +1063,7 @@ class SyncEngine:
             print(f"OK — applied {len(self.skills)} canonical names with {self.preserved_count()} explicitly preserved external skills.")
         else:
             print(f"OK — applied {len(self.skills)} canonical skills to both managed roots.")
+        print(root_summary)
         return EXIT_OK
 
     def run_uninstall(self, *, dry_run: bool) -> int:
@@ -967,8 +1072,10 @@ class SyncEngine:
                 raise SyncError("incomplete: prepared transaction exists; dry-run cannot recover it")
             self.recover_transaction()
         transaction = self.uninstall_plan()
+        root_plan = self.root_file_detach_plan()
         if dry_run:
             self.print_plan(transaction, label="DRY RUN UNINSTALL (no filesystem or manifest changes)")
+            self.print_root_plan(root_plan)
             return EXIT_OK
         if not transaction["actions"] and self.manifest is None:
             print("OK — no ai-kit ownership manifest exists; nothing to uninstall.")
@@ -980,7 +1087,9 @@ class SyncEngine:
         self.maybe_fail("AI_KIT_SYNC_FAIL_AFTER_PREPARE")
         self.execute_transaction(transaction)
         self.finalize_transaction(transaction)
+        root_summary = self.apply_root_files(root_plan)
         print("OK — restored each managed entry to its first-managed baseline.")
+        print(root_summary)
         return EXIT_OK
 
     def run_prune(self, *, dry_run: bool, force: bool) -> int:
@@ -1014,7 +1123,10 @@ class SyncEngine:
 
 def parser() -> argparse.ArgumentParser:
     result = argparse.ArgumentParser(
-        description="Synchronize canonical ai-kit skills into ~/.claude/skills and ~/.agents/skills."
+        description=(
+            "Synchronize canonical ai-kit skills into ~/.claude/skills and ~/.agents/skills, "
+            "and symlink root/AGENTS.md to ~/.agents/AGENTS.md and ~/.claude/CLAUDE.md."
+        )
     )
     result.add_argument("--dry-run", action="store_true", help="print the complete plan without changing state")
     result.add_argument("--check", action="store_true", help="read-only completeness and ownership check")

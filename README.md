@@ -14,6 +14,7 @@ The complete v1 kit and material retired during the v3 review remain under
 ```
 ai-kit/
 ├── skills/          24 live skills, each rooted at skills/<name>/SKILL.md
+├── root/            Global agent instructions (AGENTS.md) symlinked into the user home
 ├── adapters/        Codex and Cursor compatibility guidance and sync wrappers
 ├── loops/           Small reusable goal prompts
 ├── sync-skills.py   Common skill-link synchronization engine
@@ -105,6 +106,13 @@ python3 sync-skills.py --check
 On Windows, use `py -3` in place of `python3`. To rehearse against an isolated home, add
 `--home <isolated-home>` to each command. `--check` is read-only. Other recovery or exception
 switches are documented by `python3 sync-skills.py --help` and require deliberate use.
+
+The same run symlinks [`root/AGENTS.md`](root/AGENTS.md), the owner's global agent
+instructions, to `~/.agents/AGENTS.md` and `~/.claude/CLAUDE.md`, so an edit or a pull in the
+checkout takes effect at once. If you fork the kit, replace that file with your own first.
+Sync replaces an existing file at either path only when its bytes match `root/AGENTS.md`;
+any other file is a conflict to merge by hand. `--uninstall` turns the links into plain copies.
+Windows needs Developer Mode (Settings > System > For developers) to create file symlinks.
 
 The link-based installation needs the checkout to remain in place. For a detached install,
 copy the complete `skills/<name>/` folder, including its references, scripts, assets, and
