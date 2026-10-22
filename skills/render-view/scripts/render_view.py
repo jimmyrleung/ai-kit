@@ -704,8 +704,24 @@ def premise_from(item: list[dict[str, Any]]) -> RoundItem | None:
                      recorded=[item[1:]] if item[1:] else [])
 
 
+def item_id(cell: str) -> str | None:
+    """A round item's ID: a spec-style ID (`D4`) or an item number (`12`, `12a`)."""
+    text = plain(cell).strip(" *#.")
+    return text if re.fullmatch(r"\d{1,3}[a-z]?", text) else definition_id(cell)
+
+
+def entry_id(text: str) -> str | None:
+    """The item a disposition entry is about: `**D4 — Keep…**` or `**12 — Now…**` (also `Item 12`, `#12`)."""
+    match = re.match(r"^\s*(?:\*\*)?(?:Item\s+|#)?(\d{1,3}[a-z]?)(?:\*\*)?\s*(?::|—|–|\.|\s-\s)", text)
+    return match.group(1) if match else leading_id(text)
+
+
+def display_id(ident: str) -> str:
+    return f"#{ident}" if ident[:1].isdigit() else ident
+
+
 def is_item_table(block: dict[str, Any]) -> bool:
-    return len(block["header"]) >= 2 and any(row and definition_id(row[0]) for row in block["rows"])
+    return len(block["header"]) >= 2 and any(row and item_id(row[0]) for row in block["rows"])
 
 
 def items_from(block: dict[str, Any]) -> list[RoundItem]:
@@ -714,7 +730,7 @@ def items_from(block: dict[str, Any]) -> list[RoundItem]:
     source_col = next((i for i, name in enumerate(header) if i and name in ITEM_SOURCE_HEADERS), None)
     items = []
     for row in block["rows"]:
-        ident = definition_id(row[0]) if row else None
+        ident = item_id(row[0]) if row else None
         if not ident:
             continue
         cells = row + [""] * (len(header) - len(row))
@@ -769,7 +785,7 @@ def parse_round(doc: Doc) -> Round | None:
             current.items = items_from(block)
         elif block["t"] == "list" and sub.startswith("dispositions"):
             for item in block["items"]:
-                ident = leading_id(item[0]["text"]) if item and item[0]["t"] == "para" else None
+                ident = entry_id(item[0]["text"]) if item and item[0]["t"] == "para" else None
                 if ident:
                     entries.setdefault(ident, []).append(item)
     by_id = {item.ident: item for item in current.items}
@@ -2202,9 +2218,11 @@ class Renderer:
         if current.premises:
             section_id = f' id="{esc(doc.id)}__{esc(current.premise_anchor)}"' if current.premise_anchor else ""
             premise_html = (
-                f'<section class="round-premises anchored"{section_id}><div class="round-label">Round 0 · Premises</div>'
+                f'<section class="round-premises anchored"{section_id}><div class="round-label-row">'
+                '<div class="round-label">Round 0 · Premises</div>'
+                '<button type="button" class="linkish" data-action="expand-cards">Expand all</button></div>'
                 '<p class="muted">Confirm these first. Each decision links to the premises it uses.</p>'
-                '<div class="premise-grid">'
+                '<div class="cards">'
                 + "".join(self.premise_card(doc, premise, by_item.get(premise.ident, [])) for premise in current.premises)
                 + "</div></section>"
             )
@@ -2224,7 +2242,8 @@ class Renderer:
             if any_suggested else ""
         )
         items_html = (
-            '<section class="round-items"><div class="round-label">Decisions</div>'
+            '<section class="round-items"><div class="round-label-row"><div class="round-label">Decisions</div>'
+            '<button type="button" class="linkish" data-action="expand-cards">Expand all</button></div>'
             f'<div class="filters" role="group" aria-label="Filter the items">{buttons}</div>{bulk}'
             f'<div class="cards">{"".join(cards)}</div>'
             '<button type="button" class="btn more" data-action="show-more" hidden>Show more</button></section>'
@@ -2268,23 +2287,25 @@ class Renderer:
             "confirmed": '<span class="chip ok">Confirmed</span>',
             "corrected": '<span class="chip warn">Corrected</span>',
         }[premise.status]
-        title = f'<span class="p-title">{self.inline(premise.title)}</span>' if premise.title else ""
+        title = f"<b>{esc(plain(premise.title))}</b> · " if premise.title else ""
         drawn = "".join(self.exhibit(exhibit) for exhibit in exhibits)
-        recorded = "".join(f'<div class="p-recorded">{self.blocks(blocks)}</div>' for blocks in premise.recorded)
+        recorded = "".join(f'<div class="c-recorded">{self.blocks(blocks)}</div>' for blocks in premise.recorded)
         actions = ""
         if premise.status == "open":
             actions = (
+                '<div class="p-actions">'
                 '<button type="button" class="btn" data-action="premise" data-value="correct" aria-pressed="false">Needs correction</button>'
-                '<button type="button" class="btn" data-action="premise" data-value="confirm" aria-pressed="false">Confirm</button>'
+                '<button type="button" class="btn" data-action="premise" data-value="confirm" aria-pressed="false">Confirm</button></div>'
             )
         name = plain(premise.title) or shorten(premise.text, 60)
         return (
-            f'<article class="premise" id="{esc(item_element_id(doc, premise.ident))}" data-ckey="{esc(doc.id)}#item:{esc(premise.ident)}" '
+            f'<details class="card premise" id="{esc(item_element_id(doc, premise.ident))}" data-ckey="{esc(doc.id)}#item:{esc(premise.ident)}" '
             f'data-item="{esc(premise.ident)}" data-status="{premise.status}" data-ctitle="{esc(premise.ident)} · {esc(name)}">'
-            f'<div class="p-head"><span class="pid">{esc(premise.ident)}</span>{title}{chip}</div>'
-            f'<p class="p-text">{self.inline(premise.text)}</p>{drawn}{recorded}'
-            '<div class="p-foot"><button type="button" class="tool" data-action="comment">Comment</button>'
-            f'<div class="p-actions">{actions}</div></div><div class="comment-slot"></div></article>'
+            f'<summary><span class="cid">{esc(premise.ident)}</span><span class="c-headline">{title}{esc(shorten(premise.text, 120))}</span>'
+            f'<span class="c-state">{chip}<span class="chip info" data-premise-chip hidden></span></span></summary>'
+            f'<div class="c-body"><p class="p-text">{self.inline(premise.text)}</p>{drawn}{recorded}'
+            f'<div class="c-foot"><button type="button" class="tool" data-action="comment">Comment on {esc(premise.ident)}</button>{actions}</div>'
+            '<div class="comment-slot"></div></div></details>'
         )
 
     def item_card(self, doc: Doc, item: RoundItem, exhibits: list[Exhibit],
@@ -2376,12 +2397,12 @@ class Renderer:
             f'<details class="card" id="{esc(item_element_id(doc, item.ident))}" data-ckey="{esc(doc.id)}#item:{esc(item.ident)}" '
             f'data-item="{esc(item.ident)}" data-status="{item.status}" data-needs="{"1" if needs else ""}" '
             f'data-tags="{esc(" ".join(tags))}" data-uses="{esc(" ".join(uses))}" '
-            f'data-ctitle="{esc(item.ident)} · {esc(shorten(headline, 90))}" data-recorded="{esc(shorten(item.answer, 80))}"'
+            f'data-ctitle="{esc(display_id(item.ident))} · {esc(shorten(headline, 90))}" data-recorded="{esc(shorten(item.answer, 80))}"'
             f'{" open" if needs else ""}>'
-            f'<summary><span class="cid">{esc(item.ident)}</span><span class="c-headline">{esc(headline)}</span>'
+            f'<summary><span class="cid">{esc(display_id(item.ident))}</span><span class="c-headline">{esc(headline)}</span>'
             f'<span class="c-state">{tag_html}{"".join(state)}</span></summary>'
             f'<div class="c-body"><div class="c-meta">{"".join(meta)}</div>{fields}{uses_html}{walk_html}{drawn}{recorded}{form}'
-            f'<div class="c-foot"><button type="button" class="tool" data-action="comment">Comment on {esc(item.ident)}</button></div>'
+            f'<div class="c-foot"><button type="button" class="tool" data-action="comment">Comment on {esc(display_id(item.ident))}</button></div>'
             '<div class="comment-slot"></div></div></details>'
         )
         return card, {"needs": needs, "tags": tags, "suggested": bool(suggested) and is_open}

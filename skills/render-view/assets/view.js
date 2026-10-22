@@ -8,6 +8,7 @@
   var state = { comments: {}, touched: {}, answers: {}, bulk: {}, premises: {}, reviewed: {} };
   var current = null;
   var CARD_LIMIT = 12;
+  var ITEMS = ".card[data-ckey]:not(.premise)";  // decision cards; premises are cards too
 
   try {
     var saved = JSON.parse(window.localStorage.getItem(manifest.viewKey) || "null");
@@ -189,7 +190,7 @@
 
   document.addEventListener("change", function (event) {
     var input = event.target;
-    var card = input.closest && input.closest(".card[data-ckey]");
+    var card = input.closest && input.closest(ITEMS);
     if (card && input.type === "radio") {
       state.answers[card.dataset.ckey] = input.value;
       delete state.bulk[card.dataset.ckey];
@@ -203,7 +204,7 @@
     refresh();
   });
 
-  all(".card[data-ckey]").forEach(function (card) {
+  all(ITEMS).forEach(function (card) {
     var value = state.answers[card.dataset.ckey];
     if (value === undefined) return;
     var radio = all("input[type=radio]", card).filter(function (input) { return input.value === value; })[0];
@@ -244,7 +245,7 @@
     var expanded = round.dataset.expanded === "1";
     var shown = 0;
     var rest = 0;
-    all(".card", round).forEach(function (card) {
+    all(ITEMS, round).forEach(function (card) {
       var hit = matches(card, filter);
       card.hidden = !hit || (!expanded && shown >= CARD_LIMIT);
       if (hit && card.hidden) rest += 1;
@@ -262,7 +263,7 @@
   }
 
   function bulkTargets(round) {
-    return all(".card", round).filter(function (card) {
+    return all(ITEMS, round).filter(function (card) {
       return !card.hidden && isOpenUnanswered(card) && card.querySelector("input[data-suggested]");
     });
   }
@@ -306,7 +307,7 @@
   function nextOpen(round) {
     var target = all(".premise[data-ckey]", round).filter(function (card) {
       return card.dataset.status === "open" && !state.premises[card.dataset.ckey];
-    })[0] || all(".card", round).filter(isOpenUnanswered)[0];
+    })[0] || all(ITEMS, round).filter(isOpenUnanswered)[0];
     if (!target) return;
     reveal(target);
     target.scrollIntoView({ block: "start" });
@@ -401,7 +402,7 @@
     var itemLines = [];
     var unanswered = [];
     var number = 0;
-    all(".card[data-ckey]", round).forEach(function (card) {
+    all(ITEMS, round).forEach(function (card) {
       var key = card.dataset.ckey;
       var checked = answerOf(card);
       var comment = state.comments[key] || "";
@@ -509,9 +510,14 @@
       all("[data-action='premise']", card).forEach(function (button) {
         button.setAttribute("aria-pressed", String(button.dataset.value === answer));
       });
+      var chip = card.querySelector("[data-premise-chip]");
+      if (chip) {
+        chip.hidden = !answer;
+        chip.textContent = answer === "confirm" ? "You: confirmed" : answer === "correct" ? "You: needs correction" : "";
+      }
     });
     var open = 0;
-    all(".card[data-ckey]", round).forEach(function (card) {
+    all(ITEMS, round).forEach(function (card) {
       var flagged = (card.dataset.uses || "").split(" ").some(function (ident) { return wrong[ident]; });
       card.classList.toggle("uses-wrong", flagged);
       var flag = card.querySelector("[data-premise-flag]");
@@ -685,6 +691,11 @@
       clearAnswers(button);
     } else if (action === "reviewed" && section) {
       toggleReviewed(section);
+    } else if (action === "expand-cards") {
+      var cards = all(".cards > .card", button.closest("section")).filter(function (card) { return !card.hidden; });
+      var expand = cards.some(function (card) { return !card.open; });
+      cards.forEach(function (card) { card.open = expand; });
+      button.textContent = expand ? "Collapse all" : "Expand all";
     }
   });
 

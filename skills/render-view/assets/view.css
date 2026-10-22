@@ -323,17 +323,12 @@ a.code-ref:hover code { background: var(--blue-bg); }
 .round-head .chips { margin-top: 6px; }
 .round-label { font: 500 11.5px/16px var(--mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
 .round-premises > p { margin: 0 0 10px; }
-.premise-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); gap: 12px; }
-.premise { display: flex; flex-direction: column; gap: 10px; min-width: 0; padding: 16px; background: var(--panel); border: 1px solid var(--rule); border-radius: 12px; scroll-margin-top: 72px; }
+.round-label-row { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px; }
+.round-label-row .linkish { margin: 0; }
 .premise.is-wrong { border: 1.5px solid var(--amber-line); }
 .premise .exhibit { margin: 0; }
-.p-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
-.pid, .cid { font: 600 13px var(--mono); flex: none; }
-.p-title { font-weight: 600; font-size: 16.5px; }
-.p-text { margin: 0; }
-.p-recorded { font-size: 14px; color: var(--ink2); }
-.p-recorded > :first-child { margin-top: 0; }
-.p-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; padding-top: 10px; border-top: 1px solid var(--rule2); }
+.cid { font: 600 13px var(--mono); flex: none; }
+.p-text { margin: 12px 0 0; }
 .p-actions { display: flex; flex-wrap: wrap; gap: 8px; }
 .btn[aria-pressed="true"] { background: var(--ink); color: var(--panel); border-color: var(--ink); }
 .btn:disabled { opacity: 0.55; cursor: default; }
@@ -365,7 +360,7 @@ a.code-ref:hover code { background: var(--blue-bg); }
 .rdecision { margin: 0; padding: 0; border: none; min-width: 0; }
 .rdecision legend { padding: 0; }
 .c-foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; }
-.card.has-comment [data-action="comment"], .premise.has-comment [data-action="comment"] { background: var(--ink); color: var(--panel); border-color: var(--ink); }
+.card.has-comment [data-action="comment"] { background: var(--ink); color: var(--panel); border-color: var(--ink); }
 .btn.more { align-self: flex-start; margin-top: 10px; }
 .live { margin: 8px 0; max-height: 46vh; overflow: auto; padding: 12px; background: var(--code-bg); color: var(--code-ink); border-radius: 8px; font: 12px/1.5 var(--mono); white-space: pre-wrap; overflow-wrap: anywhere; }
 .row-btns { display: flex; flex-wrap: wrap; gap: 8px; }

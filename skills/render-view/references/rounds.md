@@ -29,15 +29,17 @@ folder build also picks up any doc with a round heading.
 - **D7 — Keep (owner, 2026-10-22).** Why: the locale is already on the customer record.
 ```
 
-- **Items:** the first table in the round whose first column holds IDs. The last column named
+- **Items:** the first table in the round whose first column holds IDs (`D4`) or item numbers (`12`,
+  shown as `#12`). The last column named
   Disposition, Decision, Status, Outcome, Result or Answer is the answer: empty or "open" is open, a value
   starting with "Defer" is deferred, anything else is decided. A Source column shows as the card's source;
   the other columns show as the card's fields.
 - **Premises:** the list under `### Premises`, one `**P<n> — Title.** statement` item each. A nested
   `**Confirmed**` or `**Corrected**` line sets its status. A corrected premise strikes the old statement
   (`~~old~~`) and writes the new one in the same first line, so its drawing goes stale.
-- **Dispositions:** entries under `### Dispositions` whose bold lead starts with an ID fold into that
-  item's card under "Recorded"; sub-decisions (`D40a`) fold into their parent (`D40`).
+- **Dispositions:** entries under `### Dispositions` whose bold lead starts with an ID or number
+  (`**D4 — Keep…**`, `**12 — Now…**`) fold into that item's card under "Recorded"; sub-decisions
+  (`D40a`) fold into their parent (`D40`).
 
 Hashes leave the answer out: recording a disposition in the row or confirming a premise on its nested
 line does not make the item's drawings stale. Editing the row's other cells or the premise's first line
