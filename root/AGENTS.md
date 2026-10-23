@@ -37,6 +37,17 @@ I create branches and commit manually, because I review the code changes first.
 - If the work needs separate PRs or a branch, tell me what to put where; I do it myself.
 - Do this unless I ask for a commit or a branch in the current session.
 
+## Code comments
+
+I add comments myself at review time.
+
+- Do not add comments when implementing: no line comments, no XML doc comments, no section
+  banners, and no comments in SQL, scripts, or config files.
+- Never reference specs, task IDs, decision IDs, or test IDs (for example IT-15, TR-12, D41a) in code.
+  The code must make sense without the spec.
+- Do not add or edit comments in code you only touch. Keep existing comments as they are.
+- If a comment looks necessary, say so in your reply and I decide. Do not add it.
+
 ## Anti-overengineering
 
 This is a mandatory guidance you should follow when designing the solution. Identify the following:
