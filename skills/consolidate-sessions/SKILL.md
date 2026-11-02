@@ -55,6 +55,7 @@ For each weekly folder:
 3. For each `long_term_memory.md` file generated throughout the week, extract each memory into a separate `[slug]_memory.md` and add it to the `long_term_memory/` folder. `[slug]` is a meaningful name that helps identify the long term memory suggestion. The idea is that we can review each memory individually, one by one.
 
 4. Add skill drafts into the `skills/[slug]/` folder, where `[slug]` is the meaningful name for the skill. Rename the `[skill_draft].md` to `SKILL.md` as it will have its own folder within `skills`.
+- When doing specific work that spans multiple sessions, or even by coincidence, there's a chance different sessions suggest the same skill with the same name. In that case, you should read all versions and consolidate into a final version of it.
 
 5. Decisions generated throughout the week should be copied into `decisions/[decision].md` as is.
 
