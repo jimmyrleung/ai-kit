@@ -4,7 +4,7 @@ A skill-centric kit for AI-assisted engineering across Claude Code, OpenAI Codex
 Cursor CLI. The live catalog covers discovery, requirements, design, implementation, review,
 QA, documentation, learning, walkthroughs, orchestration, and session improvement.
 
-This is the current **v3** skill set. Its source of truth is the 24 tracked skills under
+This is the current **v3** skill set. Its source of truth is the 25 tracked skills under
 [`skills/`](skills/); each skill owns its process and any bundled templates or references.
 The complete v1 kit and material retired during the v3 review remain under
 [`archive/`](archive/).
@@ -13,7 +13,7 @@ The complete v1 kit and material retired during the v3 review remain under
 
 ```
 ai-kit/
-├── skills/          24 live skills, each rooted at skills/<name>/SKILL.md
+├── skills/          25 live skills, each rooted at skills/<name>/SKILL.md
 ├── root/            Global agent instructions (AGENTS.md) symlinked into the user home
 ├── adapters/        Codex and Cursor compatibility guidance and sync wrappers
 ├── loops/           Small reusable goal prompts
@@ -60,7 +60,7 @@ Documentation has its own related set: `docs-tasks-creator` inventories handlers
 - **Learning:** `breakout-session` and `triage-learning-content`.
 - **Guided decisions:** `walkthrough` and `walkthrough-implementation`. Both run in chat by default and offer a `render-view` page when a round or change set is large.
 - **Review views:** `render-view` turns a spec folder, a walkthrough decision round or an implementation tour into a generated, local HTML page (standard-library Python, no network requests). The reader answers on the page and pastes a Respond block back; the owning skill writes it into the markdown, which stays the source of truth.
-- **Orchestration and maintenance:** `orchestrate`, `close`, `improve`, `write-skills`, and `find-skills`.
+- **Orchestration and maintenance:** `orchestrate`, `close`, `consolidate-sessions`, `improve`, `write-skills`, and `find-skills`.
 
 Third-party skills installed locally—including `grill-me`, `grill-with-docs`,
 `improve-codebase-architecture`, and `teach` from
@@ -146,7 +146,7 @@ remain separate from the live skill inventory.
 - [`archive/v2/`](archive/v2/) contains retired v2 skills and the former top-level shared
   documentation sources.
 
-Archived material and locally linked third-party skills are not part of the 24 live skills.
+Archived material and locally linked third-party skills are not part of the 25 live skills.
 
 ## License
 

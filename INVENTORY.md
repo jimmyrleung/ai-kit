@@ -1,6 +1,6 @@
 # ai-kit Inventory (v3)
 
-The live catalog contains 24 skills, with one row per tracked `skills/<name>/SKILL.md`
+The live catalog contains 25 skills, with one row per tracked `skills/<name>/SKILL.md`
 file. The live directory tree is the source of truth. Historical material is preserved under
 [`archive/v1/`](archive/v1/) and [`archive/v2/`](archive/v2/).
 
@@ -61,6 +61,7 @@ file. The live directory tree is the source of truth. Historical material is pre
 | --- | --- | --- |
 | `orchestrate` | Normal | Coordinates an ad-hoc multi-agent fan-out, persists worker outputs as they arrive, and consolidates an evidence-backed result. |
 | `close` | Normal | Distills a session into continuation state plus optional durable decisions, learnings, observations, and skill candidates; asks before commits or pushes. |
+| `consolidate-sessions` | Normal | Moves `close` session logs older than the current Sunday-to-Saturday week into weekly folders after the user approves the plan, and keeps current-week sessions and links into `sessions/` intact. |
 | `improve` | Normal | Reviews recorded workflow friction and the improvement backlog, then stages supported proposals for owner disposition instead of directly editing live skills. |
 | `write-skills` | Normal | Authors a focused global or repository-local skill, or refactors a skill that does not trigger reliably. |
 | `find-skills` | Normal | Searches for installable third-party skills, inspects candidates before recommending them, and installs only with authorized scope and destination. |

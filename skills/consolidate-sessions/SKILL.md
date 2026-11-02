@@ -7,17 +7,17 @@ description: "Consolidate older /close sessions in a single weekly sessions fold
 
 ## Goal
 
-Consolidate sessions older than the current week (sunday to saturday) into a weekly sessions folder.
+Consolidate sessions older than the current week (Sunday to Saturday) into a weekly sessions folder.
 
 ## Process
 
 1. Read the `close` skill, especially the [Local repo] section, to understand what is persisted.
 
-2. Identify the current week dates (sunday to monday).
+2. Identify the current week dates (Sunday to Saturday).
 
 3. Read the local repo `sessions/` folder to see what needs to be consolidated:
   - Sessions for the current week should stay the same
-  - Sessions older than the current week should be consolidate into weekly folders
+  - Sessions older than the current week should be consolidated into weekly folders
   - Sessions already consolidated into weekly folders should stay the same
 
 4. Build a consolidation plan following the [Consolidation guidance] below, and confirm it with the user before starting.
@@ -49,7 +49,7 @@ For each weekly folder:
 
   ---
 
-  [older session for the week]
+  [oldest session for the week]
   ```
 
 3. For each `long_term_memory.md` file generated throughout the week, extract each memory into a separate `[slug]_memory.md` and add it to the `long_term_memory/` folder. `[slug]` is a meaningful name that helps identify the long term memory suggestion. The idea is that we can review each memory individually, one by one.
