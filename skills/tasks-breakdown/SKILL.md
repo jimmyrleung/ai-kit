@@ -3,7 +3,7 @@ name: tasks-breakdown
 description: "Turns an approved and reviewed spec or plan into ordered implementation tasks with dependencies, files, tests, and acceptance criteria. Use to break work into tasks or create a tasks doc/list for a new implementation. Produces tasks.md and sequential tasks documents (task_01.md, task_02.md, ...). A deliberate spec-carrying path embeds design decisions when the user chooses to skip a separate techspec."
 ---
 
-# tasks-brakdown - ordered implementation tasks
+# tasks-breakdown - ordered implementation tasks
 
 ## Goal
 
