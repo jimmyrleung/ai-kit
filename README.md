@@ -4,7 +4,7 @@ A skill-centric kit for AI-assisted engineering across Claude Code, OpenAI Codex
 Cursor CLI. The live catalog covers discovery, requirements, design, implementation, review,
 QA, documentation, learning, walkthroughs, orchestration, and session improvement.
 
-This is the current **v3** skill set. Its source of truth is the 25 tracked skills under
+This is the current **v3** skill set. Its source of truth is the 26 tracked skills under
 [`skills/`](skills/); each skill owns its process and any bundled templates or references.
 The complete v1 kit and material retired during the v3 review remain under
 [`archive/`](archive/).
@@ -13,7 +13,7 @@ The complete v1 kit and material retired during the v3 review remain under
 
 ```
 ai-kit/
-├── skills/          25 live skills, each rooted at skills/<name>/SKILL.md
+├── skills/          26 live skills, each rooted at skills/<name>/SKILL.md
 ├── root/            Global agent instructions (AGENTS.md) symlinked into the user home
 ├── adapters/        Codex and Cursor compatibility guidance and sync wrappers
 ├── loops/           Small reusable goal prompts
@@ -40,7 +40,8 @@ lay-of-the-land (optional reconnaissance)
 ```
 
 Small, already-defined work can enter later in the chain. Each skill resolves its own target
-and prerequisites.
+and prerequisites. `create-implementation-tasks` can replace the `techspec` → `tasks-breakdown`
+pair with one pass that writes the techspec and the task files together.
 
 Bugs and incidents start with evidence-based diagnosis, then join the same delivery path:
 
@@ -146,7 +147,7 @@ remain separate from the live skill inventory.
 - [`archive/v2/`](archive/v2/) contains retired v2 skills and the former top-level shared
   documentation sources.
 
-Archived material and locally linked third-party skills are not part of the 25 live skills.
+Archived material and locally linked third-party skills are not part of the 26 live skills.
 
 ## License
 

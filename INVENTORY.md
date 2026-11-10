@@ -1,6 +1,6 @@
 # ai-kit Inventory (v3)
 
-The live catalog contains 25 skills, with one row per tracked `skills/<name>/SKILL.md`
+The live catalog contains 26 skills, with one row per tracked `skills/<name>/SKILL.md`
 file. The live directory tree is the source of truth. Historical material is preserved under
 [`archive/v1/`](archive/v1/) and [`archive/v2/`](archive/v2/).
 
@@ -15,6 +15,7 @@ file. The live directory tree is the source of truth. Historical material is pre
 | `bug-investigation` | Normal | Diagnoses a bug or incident from source and runtime evidence, then records the chosen minimal fix or next probe in `investigations/<slug>/investigation.md`. |
 | `techspec` | Normal | Designs the implementation blueprint for feature, greenfield, refactor, bug-fix, hotfix, or incident-remediation work. Produces `specs/<slug>/techspec.md`. |
 | `tasks-breakdown` | Normal | Converts an approved spec or plan into ordered `tasks.md` and `task_NN.md` files with dependencies, tests, and acceptance criteria. |
+| `create-implementation-tasks` | Normal | Designs the techspec and breaks it into ordered tasks in one pass, with a user checkpoint before the task files are written. Produces `specs/<slug>/techspec.md`, `tasks.md`, and `task_NN.md` files. |
 
 ### Implementation, review, and QA
 
