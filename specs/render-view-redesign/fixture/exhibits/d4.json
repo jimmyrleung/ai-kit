@@ -1,0 +1,50 @@
+{
+  "id": "d4",
+  "doc": "decisions_walkthrough.md",
+  "item": "D4",
+  "type": "decision",
+  "data": {
+    "headline": "A customer who pays during the 09:00 run can still get the unpaid reminder.",
+    "tags": [
+      "money",
+      "timing"
+    ],
+    "uses": [
+      "P1",
+      "P2"
+    ],
+    "needs": true,
+    "confidence": 88,
+    "walk": {
+      "steps": [
+        {
+          "when": "09:00:00",
+          "text": "The job reads invoice #1042 as Sent."
+        },
+        {
+          "when": "09:00:02",
+          "text": "The customer pays; #1042 is Paid."
+        },
+        {
+          "when": "09:00:05",
+          "text": "The job emails \"Your invoice is unpaid\".",
+          "wrong": true
+        }
+      ],
+      "outcome": "Re-reading the status before each send closes the gap."
+    },
+    "options": [
+      {
+        "value": "reread",
+        "label": "Read the status again before each send",
+        "note": "One extra read per email.",
+        "suggested": true
+      },
+      {
+        "value": "keep",
+        "label": "Keep as built",
+        "note": "A rare wrong reminder."
+      }
+    ]
+  }
+}

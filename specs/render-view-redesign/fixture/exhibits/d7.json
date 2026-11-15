@@ -1,0 +1,34 @@
+{
+  "id": "d7",
+  "doc": "decisions_walkthrough.md",
+  "item": "D7",
+  "type": "decision",
+  "data": {
+    "headline": "The email shows the due date in UTC, not in the customer's timezone.",
+    "tags": [
+      "timing"
+    ],
+    "uses": [
+      "P2"
+    ],
+    "confidence": 70,
+    "options": [
+      {
+        "value": "utc",
+        "label": "Keep UTC",
+        "note": "Same for all customers.",
+        "suggested": true
+      },
+      {
+        "value": "local",
+        "label": "Use the customer timezone",
+        "note": "Needs a profile field."
+      },
+      {
+        "value": "both",
+        "label": "Show both",
+        "note": "A longer email."
+      }
+    ]
+  }
+}

@@ -1,0 +1,69 @@
+{
+  "id": "save-flow",
+  "doc": "techspec.md",
+  "anchor": "data-flow",
+  "sources": [
+    "data-flow",
+    "key-decisions"
+  ],
+  "type": "sequence",
+  "title": "One run, step by step",
+  "caption": "A failure stops the send and is logged.",
+  "data": {
+    "participants": [
+      {
+        "id": "job",
+        "label": "ReminderJob"
+      },
+      {
+        "id": "db",
+        "label": "Invoices"
+      },
+      {
+        "id": "mail",
+        "label": "Mailer"
+      }
+    ],
+    "steps": [
+      {
+        "from": "job",
+        "to": "db",
+        "text": "read batch"
+      },
+      {
+        "from": "db",
+        "to": "job",
+        "text": "invoices",
+        "kind": "reply"
+      },
+      {
+        "divider": "per invoice"
+      },
+      {
+        "from": "job",
+        "to": "db",
+        "text": "re-read status",
+        "mark": "new"
+      },
+      {
+        "note": "Paid or Void: skip",
+        "over": [
+          "job"
+        ]
+      },
+      {
+        "from": "job",
+        "to": "mail",
+        "text": "send reminder",
+        "fail": "bounce: log failed, retry once"
+      },
+      {
+        "from": "job",
+        "to": "mail",
+        "text": "send without re-read",
+        "mark": "removed",
+        "kind": "lost"
+      }
+    ]
+  }
+}

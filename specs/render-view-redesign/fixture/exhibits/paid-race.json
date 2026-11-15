@@ -1,0 +1,25 @@
+{
+  "id": "paid-race",
+  "doc": "techspec.md",
+  "anchor": "key-decisions",
+  "type": "walk",
+  "title": "A customer pays during the run",
+  "data": {
+    "steps": [
+      {
+        "when": "09:00:00",
+        "text": "The job reads invoice #1042 as Sent."
+      },
+      {
+        "when": "09:00:02",
+        "text": "The customer pays; #1042 is Paid."
+      },
+      {
+        "when": "09:00:05",
+        "text": "The job emails \"Your invoice is unpaid\".",
+        "wrong": true
+      }
+    ],
+    "outcome": "The job re-reads the status before each send (D1)."
+  }
+}

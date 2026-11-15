@@ -1,0 +1,52 @@
+{
+  "id": "files",
+  "doc": "techspec.md",
+  "anchor": "reminderjob--create",
+  "sources": [
+    "reminderjob--create",
+    "invoicestore--modify"
+  ],
+  "type": "tree",
+  "title": "Files touched",
+  "data": {
+    "nodes": [
+      {
+        "label": "src/",
+        "children": [
+          {
+            "label": "jobs/",
+            "children": [
+              {
+                "label": "ReminderJob.ts",
+                "mark": "new",
+                "detail": "the daily loop",
+                "refs": [
+                  "D1"
+                ]
+              }
+            ]
+          },
+          {
+            "label": "store/",
+            "children": [
+              {
+                "label": "InvoiceStore.ts",
+                "mark": "changed",
+                "detail": "adds statusOf()"
+              }
+            ]
+          },
+          {
+            "label": "scripts/",
+            "children": [
+              {
+                "label": "manual-remind.sh",
+                "mark": "removed"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

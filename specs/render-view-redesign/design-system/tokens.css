@@ -1,0 +1,94 @@
+:root {
+  color-scheme: light dark;
+
+  --font-sans: "Geist", system-ui, "Segoe UI", -apple-system, Roboto, Arial, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, "Cascadia Mono", Consolas, "SF Mono", Menlo, monospace;
+
+  --text-h1: 600 1.875rem/1.2 var(--font-sans);
+  --text-h2: 600 1.375rem/1.3 var(--font-sans);
+  --text-h3: 600 1.125rem/1.35 var(--font-sans);
+  --text-h4: 600 1rem/1.5 var(--font-sans);
+  --text-body: 400 1rem/1.6 var(--font-sans);
+  --text-ui: 400 0.875rem/1.4 var(--font-sans);
+  --text-small: 400 0.8125rem/1.45 var(--font-sans);
+  --text-code: 400 0.84375rem/1.6 var(--font-mono);
+  --code-inline-size: 0.88em;
+  --tracking-heading: -0.015em;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 88px;
+
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+
+  --bar-height: 56px;
+  --nav-width: 208px;
+  --outline-width: 208px;
+  --shell-gap: 72px;
+  --shell-max: 1440px;
+  --measure: 66ch;
+  --wide: 54rem;
+
+  --duration: 150ms;
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+
+  --bg: light-dark(#fafafa, #0e0f11);
+  --bg-raised: light-dark(#ffffff, #16171a);
+  --bg-sunken: light-dark(#f0f0f1, #191a1d);
+  --ink: light-dark(#16171a, #ededee);
+  --ink-2: light-dark(#55575e, #a3a5ab);
+  --ink-3: light-dark(#6b6d75, #8b8d95);
+  --rule: light-dark(#e6e6e8, #232428);
+  --border-control: light-dark(#82848c, #6f717a);
+
+  --signal: light-dark(#b93a0a, #ff9466);
+  --signal-bg: light-dark(#fde9df, #3a2015);
+  --highlight: light-dark(#fdf1ea, #2a1d16);
+
+  --ok: light-dark(#1a6b3c, #7fd3a2);
+  --ok-bg: light-dark(#e2f3e8, #1a3226);
+  --info: light-dark(#1d4f9c, #9cc0f5);
+  --info-bg: light-dark(#e3ecfa, #1c2a44);
+  --warn: light-dark(#8a4a0b, #f0b77e);
+  --warn-bg: light-dark(#fbebd8, #3a2a1a);
+  --danger: light-dark(#b42318, #f6a39b);
+  --danger-bg: light-dark(#fde8e6, #3a1f1c);
+
+  --syntax-keyword: light-dark(#cf222e, #ff7b72);
+  --syntax-string: light-dark(#0a3069, #a5d6ff);
+  --syntax-comment: light-dark(#59636e, #9198a1);
+  --syntax-number: light-dark(#0550ae, #79c0ff);
+  --syntax-function: light-dark(#6639ba, #d2a8ff);
+  --syntax-type: light-dark(#953800, #ffa657);
+  --code-line-number: light-dark(#55575e, #b4b6bc);
+
+  --diff-add-bg: light-dark(#dafbe1, #12261e);
+  --diff-add-gutter: light-dark(#aceebb, #1c4428);
+  --diff-del-bg: light-dark(#ffebe9, #25181c);
+  --diff-del-gutter: light-dark(#ffcecb, #542426);
+  --diff-hunk-bg: var(--info-bg);
+}
+
+:root[data-theme="light"] { color-scheme: light; }
+:root[data-theme="dark"] { color-scheme: dark; }
+
+@media (prefers-contrast: more) {
+  :root {
+    --ink-2: light-dark(#3c3e44, #c4c6cb);
+    --ink-3: light-dark(#55575e, #a3a5ab);
+    --rule: light-dark(#b9bbc1, #4a4c53);
+    --border-control: light-dark(#55575e, #a3a5ab);
+  }
+}
+
+@media print {
+  :root, :root[data-theme] { color-scheme: light; }
+}

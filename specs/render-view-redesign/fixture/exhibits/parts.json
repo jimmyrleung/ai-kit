@@ -1,0 +1,85 @@
+{
+  "id": "parts",
+  "doc": "techspec.md",
+  "anchor": "design",
+  "sources": [
+    "design",
+    "implementation-map"
+  ],
+  "type": "graph",
+  "title": "Parts of the job",
+  "caption": "One new job, one changed store.",
+  "data": {
+    "grid": [
+      [
+        null,
+        "job",
+        null,
+        "sched"
+      ],
+      [
+        "store",
+        "mailer",
+        "log",
+        "legacy"
+      ]
+    ],
+    "nodes": [
+      {
+        "id": "job",
+        "label": "ReminderJob",
+        "sub": "daily batch",
+        "mark": "new"
+      },
+      {
+        "id": "sched",
+        "label": "Scheduler",
+        "sub": "09:00 UTC",
+        "mark": "same"
+      },
+      {
+        "id": "store",
+        "label": "InvoiceStore",
+        "sub": "dueForReminder()",
+        "mark": "changed"
+      },
+      {
+        "id": "mailer",
+        "label": "Mailer",
+        "sub": "send()",
+        "mark": "shared"
+      },
+      {
+        "id": "log",
+        "label": "reminder_log",
+        "sub": "new table",
+        "mark": "new"
+      },
+      {
+        "id": "legacy",
+        "label": "ManualRemind",
+        "sub": "old script",
+        "mark": "removed"
+      }
+    ],
+    "edges": [
+      {
+        "from": "sched",
+        "to": "job"
+      },
+      {
+        "from": "job",
+        "to": "store"
+      },
+      {
+        "from": "job",
+        "to": "mailer"
+      },
+      {
+        "from": "job",
+        "to": "log",
+        "dashed": true
+      }
+    ]
+  }
+}

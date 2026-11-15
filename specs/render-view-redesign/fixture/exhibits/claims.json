@@ -1,0 +1,47 @@
+{
+  "id": "claims",
+  "doc": "techspec.md",
+  "anchor": "top",
+  "sources": [
+    "context",
+    "key-decisions"
+  ],
+  "type": "claims",
+  "title": "What the design promises",
+  "data": {
+    "items": [
+      {
+        "text": "A customer with an unpaid invoice gets an email on day 7 and day 14.",
+        "refs": [
+          "R1"
+        ]
+      },
+      {
+        "text": "An invoice that is paid or void never gets a reminder.",
+        "refs": [
+          "R2",
+          "D1"
+        ]
+      },
+      {
+        "text": "The job reads the status again just before each send.",
+        "refs": [
+          "D1"
+        ]
+      },
+      {
+        "text": "A bounced email is retried once, one hour later.",
+        "refs": [
+          "R3",
+          "D2"
+        ]
+      },
+      {
+        "text": "A run that starts late still sends the same day's emails.",
+        "refs": [
+          "#constraints"
+        ]
+      }
+    ]
+  }
+}

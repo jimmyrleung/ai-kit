@@ -1,0 +1,40 @@
+{
+  "id": "known-sets",
+  "doc": "techspec.md",
+  "anchor": "invoicestore--modify",
+  "type": "code",
+  "title": "Existing constants in the script",
+  "caption": "Real lines from the kit, one pin per tone.",
+  "data": {
+    "path": "skills/render-view/scripts/render_view.py",
+    "ref": "a3ed724",
+    "lines": "60-72",
+    "highlight": "61,65-68",
+    "pins": [
+      {
+        "line": 61,
+        "tone": "info",
+        "title": "Pruned folders",
+        "text": "The scan skips these folders."
+      },
+      {
+        "line": 65,
+        "tone": "ok",
+        "title": "Extensions",
+        "text": "Cited paths use this list."
+      },
+      {
+        "line": 70,
+        "tone": "warn",
+        "title": "Limit",
+        "text": "An excerpt shows at most 60 lines."
+      },
+      {
+        "line": 72,
+        "tone": "risk",
+        "title": "Pattern",
+        "text": "A change of the fence format breaks the match."
+      }
+    ]
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "id": "p2",
+  "doc": "decisions_walkthrough.md",
+  "item": "P2",
+  "type": "timeline",
+  "title": "Reminder timeline",
+  "data": {
+    "points": [
+      {
+        "at": "09:00 UTC",
+        "label": "Daily run"
+      },
+      {
+        "at": "Day 7",
+        "label": "Reminder",
+        "tone": "ok"
+      },
+      {
+        "at": "Day 14",
+        "label": "Overdue notice",
+        "tone": "warn"
+      }
+    ]
+  }
+}

@@ -20,7 +20,7 @@ Redesign the HTML page that the `render-view` skill generates (`<spec>/.views/vi
 | End point | The components library. Applying the design to the skill's files is a later task |
 | Output folder | `specs/render-view-redesign/` |
 
-## What the page is today
+## What the page was before the redesign
 
 Source files, all in `skills/render-view/`:
 
@@ -79,17 +79,29 @@ Seen on three real built views (a spec view, a decision round and a tour; privat
 - Pages reach 1–4 MB with 150–200 sections and 70–360 tables, so the design must stay light to render.
 - This repo is public: artifacts here use synthetic sample content only.
 
-## Open items
+## Applied to the skill
 
-- The current page was checked at one desktop width and in light theme only. Dark theme and narrow
-  widths are checked during the design system step.
+The design was applied to `skills/render-view/` on 2026-11-15, in the ten tasks of [tasks.md](tasks.md)
+(`task_01.md` to `task_10.md`). `assets/view.css` is now the live stylesheet (`tokens.css` followed by
+`components.css`, plus a few rules added while applying); `components/components.css` stays as the design
+record. The fonts are read from `assets/fonts.css` at build time, with the two licence texts beside it.
+
+Decided by the owner on 2026-11-15 (see "Decided points" in `COMPONENTS.md`): Respond is always open on a
+decision round at 1200px and wider, and on demand below that and on other pages; a round shows all its
+cards (no "Show N more"); bulk accept applies at once and has an "Undo". The prose measure stays `66ch`
+(700px in Geist, about 90–95 characters).
+
+Checked on the synthetic fixture in `fixture/` (see its `README.md`). Print, reduced motion, forced colours and
+"more contrast" were checked as screen rules in a browser, not in the real modes; the "Checked" column of the
+modes table in `COMPONENTS.md` says so for each row.
 
 ## Step log
 
 | Step | Status | Result |
 |---|---|---|
 | 1. Context | Done 2026-11-15 | This file |
-| 2. Research | Plan sent for approval | — |
+| 2. Research | Done 2026-11-15 (five agents, Opus 5.5) | [research.md](research.md) and five `collect_*.md` reports |
 | 3. Branding | Agreed: not needed, small visual identity only | — |
-| 4. Design system | — | — |
-| 5. Components library | — | — |
+| 4. Design system | Approved by the owner 2026-11-15 (emphasis keeps the browser slant). Direction chosen by the owner: "Quiet Studio" with a small amount of signal orange (C2) | [design-system/DESIGN.md](design-system/DESIGN.md), `tokens.css`, `index.html`, `fonts/`, [directions/](design-system/directions/README.md) |
+| 5. Components library | Approved by the owner 2026-11-15; the three open points were decided the same day | [components/COMPONENTS.md](components/COMPONENTS.md), `index.html`, `page.html`, `components.css` |
+| 6. Applied to the skill | Done 2026-11-15 (ten tasks) | `skills/render-view/` (`assets/view.css`, `assets/fonts.css`, `assets/view.js`, `scripts/render_view.py`), [fixture/](fixture/README.md) |

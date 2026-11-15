@@ -1,0 +1,29 @@
+{
+  "id": "d5",
+  "doc": "decisions_walkthrough.md",
+  "item": "D5",
+  "type": "decision",
+  "data": {
+    "headline": "A voided invoice keeps its queued reminders until the next run.",
+    "tags": [
+      "money"
+    ],
+    "uses": [
+      "P1"
+    ],
+    "confidence": 76,
+    "options": [
+      {
+        "value": "drop",
+        "label": "Drop queued reminders at once",
+        "note": "Needs a hook on void.",
+        "suggested": true
+      },
+      {
+        "value": "keep",
+        "label": "Keep as built",
+        "note": "At most one stale email."
+      }
+    ]
+  }
+}

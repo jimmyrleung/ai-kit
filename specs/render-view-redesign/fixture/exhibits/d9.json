@@ -1,0 +1,49 @@
+{
+  "id": "d9",
+  "doc": "decisions_walkthrough.md",
+  "item": "D9",
+  "type": "decision",
+  "data": {
+    "headline": "A run that fails halfway starts again from the first invoice.",
+    "tags": [
+      "money",
+      "hygiene"
+    ],
+    "uses": [
+      "P2"
+    ],
+    "needs": true,
+    "confidence": 60,
+    "walk": {
+      "steps": [
+        {
+          "when": "09:12:00",
+          "text": "The job has sent 1,800 reminders."
+        },
+        {
+          "when": "09:12:01",
+          "text": "The database restarts and the run stops."
+        },
+        {
+          "when": "09:30:00",
+          "text": "The restart sends the first 1,800 reminders again.",
+          "wrong": true
+        }
+      ],
+      "outcome": "A resume marker per invoice avoids the double send."
+    },
+    "options": [
+      {
+        "value": "marker",
+        "label": "Skip invoices that have a send marker today",
+        "note": "One extra column.",
+        "suggested": true
+      },
+      {
+        "value": "keep",
+        "label": "Keep as built",
+        "note": "Double emails after a crash."
+      }
+    ]
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "id": "open-qs",
+  "doc": "techspec.md",
+  "anchor": "open-questions",
+  "type": "decisions",
+  "title": "Open questions",
+  "data": {
+    "items": [
+      {
+        "id": "Q1",
+        "question": "Does a credit note count as payment?",
+        "confidence": 80,
+        "refs": [
+          "R2"
+        ],
+        "options": [
+          {
+            "value": "yes",
+            "label": "Yes",
+            "note": "the invoice is then Paid",
+            "suggested": true
+          },
+          {
+            "value": "no",
+            "label": "No",
+            "note": "only a payment counts"
+          }
+        ]
+      },
+      {
+        "id": "Q2",
+        "question": "Which timezone shows in the email?",
+        "confidence": 65,
+        "options": [
+          {
+            "value": "customer",
+            "label": "Customer timezone",
+            "note": "needs a profile field"
+          },
+          {
+            "value": "utc",
+            "label": "UTC",
+            "note": "same for all",
+            "suggested": true
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "schedule",
+  "doc": "techspec.md",
+  "anchor": "constraints",
+  "type": "timeline",
+  "title": "Reminder schedule",
+  "data": {
+    "points": [
+      {
+        "at": "Day 0",
+        "label": "Invoice sent"
+      },
+      {
+        "at": "Day 7",
+        "label": "Reminder",
+        "tone": "ok"
+      },
+      {
+        "at": "Day 14",
+        "label": "Overdue notice",
+        "tone": "warn",
+        "detail": "Late fee applies."
+      }
+    ]
+  }
+}

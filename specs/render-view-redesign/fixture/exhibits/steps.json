@@ -1,0 +1,33 @@
+{
+  "id": "steps",
+  "doc": "techspec.md",
+  "anchor": "implementation-map",
+  "type": "flow",
+  "title": "Order of the work",
+  "data": {
+    "steps": [
+      {
+        "label": "Add statusOf() to the store",
+        "kind": "new",
+        "refs": [
+          "T1"
+        ]
+      },
+      {
+        "label": "Write the job loop",
+        "kind": "key",
+        "exit": "Paid or Void: skip and log",
+        "refs": [
+          "#implementation-map"
+        ]
+      },
+      {
+        "label": "Send and log the result"
+      },
+      {
+        "label": "Alert the owner on a failed run",
+        "kind": "end"
+      }
+    ]
+  }
+}

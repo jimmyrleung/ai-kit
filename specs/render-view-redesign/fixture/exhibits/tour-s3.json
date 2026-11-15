@@ -1,0 +1,21 @@
+{
+  "id": "tour-s3",
+  "doc": "tour_2026-11-15.md",
+  "anchor": "s3--rename-of-the-refactor-guide",
+  "type": "code",
+  "title": "The renamed guide",
+  "data": {
+    "path": "skills/create-implementation-tasks/references/refactor-techdebt-guidance.md",
+    "ref": "a3ed724",
+    "lines": "1-9",
+    "highlight": "1",
+    "pins": [
+      {
+        "line": 1,
+        "tone": "info",
+        "title": "Renamed",
+        "text": "The file name lost its typo."
+      }
+    ]
+  }
+}

@@ -1,0 +1,79 @@
+{
+  "id": "lifecycle",
+  "doc": "techspec.md",
+  "anchor": "context",
+  "type": "states",
+  "title": "Invoice lifecycle",
+  "caption": "Paid and Void are final.",
+  "data": {
+    "initial": "draft",
+    "grid": [
+      [
+        "draft",
+        "sent",
+        "paid"
+      ],
+      [
+        null,
+        "overdue",
+        "void"
+      ]
+    ],
+    "states": [
+      {
+        "id": "draft",
+        "detail": "Created, not sent."
+      },
+      {
+        "id": "sent",
+        "detail": "Sent to the customer."
+      },
+      {
+        "id": "overdue",
+        "detail": "Day 14 passed without payment."
+      },
+      {
+        "id": "paid",
+        "final": true,
+        "detail": "Final."
+      },
+      {
+        "id": "void",
+        "final": true,
+        "detail": "Final."
+      }
+    ],
+    "transitions": [
+      {
+        "from": "draft",
+        "to": "sent",
+        "label": "send"
+      },
+      {
+        "from": "sent",
+        "to": "paid",
+        "label": "payment"
+      },
+      {
+        "from": "sent",
+        "to": "overdue",
+        "label": "day 14"
+      },
+      {
+        "from": "overdue",
+        "to": "paid",
+        "label": "payment"
+      },
+      {
+        "from": "draft",
+        "to": "void",
+        "label": "cancel"
+      },
+      {
+        "from": "sent",
+        "to": "void",
+        "label": "cancel"
+      }
+    ]
+  }
+}

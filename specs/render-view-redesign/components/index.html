@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>render-view components</title>
+<script>try{var t=localStorage.getItem('rv-theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
+<link rel="stylesheet" href="../design-system/fonts/fonts.css">
+<link rel="stylesheet" href="../design-system/tokens.css">
+<link rel="stylesheet" href="components.css">
+<style>
+.lib { max-width: 62rem; margin: 0 auto; padding: var(--space-7) var(--space-5) var(--space-9); }
+.lib > h1 { margin: 0; font: var(--text-h1); letter-spacing: var(--tracking-heading); }
+.lib > .sec > .sec-body > .demo { max-width: var(--wide); margin-top: var(--space-5); }
+.demo-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
+.demo-label { margin: var(--space-5) 0 var(--space-2); font: var(--text-small); color: var(--ink-3); }
+.demo-nav { display: grid; grid-template-columns: repeat(auto-fit, 208px); gap: var(--space-5) var(--space-7); font: var(--text-ui); }
+@media (max-width: 859px) { .topbar a.tool { display: none; } }
+.demo .popover { position: static; }
+.demo .respond-panel { display: block; position: static; max-width: 320px; max-height: none; padding: 0; }
+.toc { display: flex; flex-wrap: wrap; gap: 4px var(--space-4); margin-top: var(--space-4); font: var(--text-ui); }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="spec"><b>render-view components</b><span class="muted">Draft, 2026-11-15</span></div>
+  <a class="tool" href="page.html">Full test page</a>
+  <a class="tool" href="../design-system/index.html">Design system</a>
+  <fieldset class="theme" aria-label="Theme">
+    <label><input type="radio" name="theme" value="system" checked><span>System</span></label>
+    <label><input type="radio" name="theme" value="light"><span>Light</span></label>
+    <label><input type="radio" name="theme" value="dark"><span>Dark</span></label>
+  </fieldset>
+</header>
+<div class="lib">
+  <h1>Components</h1>
+  <p class="muted">Every part of the generated page, built on the design system tokens. Sample content is made up. Hover, focus with the Tab key and switch the theme to see the states.</p>
+  <nav class="toc" aria-label="Components"><a href="#actions">Actions</a><a href="#tags">Tags</a><a href="#links">Links</a><a href="#nav">Navigation</a><a href="#head">Document head</a><a href="#section">Section</a><a href="#prose">Prose</a><a href="#tables">Tables</a><a href="#code">Code and diff</a><a href="#figures">Figures</a><a href="#lists">Illustration lists</a><a href="#cards">Cards</a><a href="#respond">Respond</a><a href="#tour">Tour</a><a href="#foot">Footer</a></nav>
+
+  <section class="sec lvl2" id="actions">
+    <div class="sec-head"><h2>Actions</h2></div>
+    <div class="sec-body">
+      <p>One primary button per page: Respond. Other actions are secondary buttons or tools. A tool is text only and is always visible.</p>
+      <div class="demo">
+        <div class="demo-label">Buttons: primary, secondary, pressed, disabled</div>
+        <div class="demo-row">
+          <button type="button" class="btn primary">Respond <span class="count">2</span></button>
+          <button type="button" class="btn">Copy response</button>
+          <button type="button" class="btn" aria-pressed="true">Confirm</button>
+          <button type="button" class="btn" disabled>Accept suggested for 0 shown</button>
+        </div>
+        <div class="demo-label">Tools: text, icon, pressed</div>
+        <div class="demo-row">
+          <button type="button" class="tool">Comment</button>
+          <button type="button" class="tool" aria-expanded="true" aria-label="Collapse section"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg></button>
+          <button type="button" class="tool" aria-expanded="false" aria-label="Expand section"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg></button>
+          <button type="button" class="tool" aria-pressed="true"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3.2 3L13 4.5"/></svg>Reviewed</button>
+          <button type="button" class="tool">Expand all</button>
+        </div>
+        <div class="demo-label">Segmented control (one view at a time) and tag filters (any number)</div>
+        <div class="filters">
+          <div class="seg" role="group" aria-label="Show"><button type="button" aria-pressed="true">All <span class="n">21</span></button><button type="button" aria-pressed="false">Need you <span class="n">15</span></button><button type="button" aria-pressed="false">Open <span class="n">18</span></button><button type="button" aria-pressed="false">Decided <span class="n">3</span></button></div>
+          <button type="button" class="btn" aria-pressed="true">Money <span class="n mono">2</span></button>
+          <button type="button" class="btn" aria-pressed="false">Timing <span class="n mono">7</span></button>
+          <span class="status" role="status">Showing 2 of 21</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec lvl2" id="tags">
+    <div class="sec-head"><h2>Tags</h2></div>
+    <div class="sec-body">
+      <p>A tag shows a status with a word. It is never a button. Topic tags have an outline and no colour.</p>
+      <div class="demo demo-row">
+        <span class="tag ok">Done</span><span class="tag info">In progress</span><span class="tag warn">Needs you</span><span class="tag danger">Failed</span><span class="tag">Not started</span><span class="tag topic">money</span><span class="tag topic">timing</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec lvl2" id="links">
+    <div class="sec-head"><h2>Links</h2></div>
+    <div class="sec-body">
+      <p>A <a href="#links">plain link</a>, an ID link such as <a class="idref" href="#links">RF3</a> with its definition in a popover, and a path link to the editor: <a class="code-ref" href="#links"><code>src/reminders/ReminderJob.ts:42</code></a>.</p>
+      <div class="demo"><div class="popover" role="tooltip">RF3 · Never send to an invoice that is Paid or Void at send time · Task: T3 · Tests: UT-03, IT-06<div class="pop-src">requirements.md</div></div></div>
+    </div>
+  </section>
+
+  <section class="sec lvl2" id="nav">
+    <div class="sec-head"><h2>Navigation</h2></div>
+    <div class="sec-body">
+      <p>Documents on the left, the outline of the open document on the right. The orange mark shows the section in view; a ring marks a section with an illustration, and a dashed ring a stale one.</p>
+      <div class="demo demo-nav">
+        <nav aria-label="Documents"><div class="nav-title">Documents</div>
+          <ul class="docs">
+            <li><a class="doclink" href="#nav">Requirements</a></li>
+            <li><a class="doclink" href="#nav" aria-current="page">Techspec</a></li>
+            <li><a class="doclink" href="#nav">Implementation decisions walkthrough</a></li>
+            <li><details open><summary>Task files <span class="n">8</span></summary><ul><li><a class="doclink" href="#nav">Task 01</a></li><li><a class="doclink" href="#nav">Task 02</a></li></ul></details></li>
+          </ul>
+        </nav>
+        <nav aria-label="On this page"><div class="nav-title">On this page</div>
+          <ol class="outline">
+            <li class="lvl2"><a href="#nav" aria-current="location">Summary</a></li>
+            <li class="lvl2"><a href="#nav">Invoice lifecycle<span class="dot" title="Illustration"></span></a></li>
+            <li class="lvl2"><a href="#nav">The reminder job<span class="dot stale" title="Stale illustration"></span></a></li>
+            <li class="lvl3"><a href="#nav">Status read before each send</a></li>
+          </ol>
+          <button type="button" class="tool">Collapse all</button>
+        </nav>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec lvl2" id="head">
+    <div class="sec-head"><h2>Document head</h2></div>
+    <div class="sec-body">
+      <p>Title, one line of metadata, and the notes from the top of the doc. No label above the title and no chip row.</p>
+      <div class="demo">
+        <header class="doc-head">
+          <h1>Invoice reminders: daily job and overdue notice</h1>
+          <p class="doc-meta"><span class="mono">techspec.md</span><span>Feature integration</span><span>Confidence 92%</span><span>11 files: 4 new, 7 changed</span><span>3 illustrations</span></p>
+          <aside class="note"><p><strong>Amendment, 2026-11-12.</strong> The retry for bounced emails moved from the job to the mailer. Sections written before that date keep their original scope.</p></aside>
+        </header>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec lvl2" id="section">
+    <div class="sec-head"><h2>Section</h2></div>
+    <div class="sec-body">
+      <p>A heading with its tools at the right. A comment opens under the heading; the Comment tool turns orange when the section has one.</p>
+      <div class="demo">
+        <section class="sec lvl2 has-comment" style="margin-top:0">
+          <div class="sec-head"><h2>The reminder job</h2><div class="sec-tools"><button type="button" class="tool" data-action="comment">Comment</button><button type="button" class="tool" aria-expanded="true" aria-label="Collapse The reminder job"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg></button></div></div>
+          <div class="comment-box"><label for="c1">Comment on § The reminder job</label><textarea id="c1">Why log skipped invoices at all?</textarea></div>
+          <div class="sec-body"><p>The job reads its batch once, then reads each invoice status again before the send.</p>
+            <section class="sec lvl3"><div class="sec-head"><h3><span class="impl"><span class="mark create" aria-label="Create">+</span>1. <a class="code-ref" href="#section"><code>src/reminders/ReminderJob.ts</code></a><span class="impl-action">Create</span></span></h3><div class="sec-tools"><button type="button" class="tool">Comment</button></div></div><div class="sec-body"><p>Implementation headings carry a mark: <span class="mark create">+</span> create, <span class="mark modify">~</span> modify, <span class="mark delete">−</span> delete.</p></div></section>
+          </div>
+        </section>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec lvl2" id="prose">
+    <div class="sec-head"><h2>Prose</h2></div>
+    <div class="sec-body">
+      <p>Body text stays within the measure: 66ch, which is 700px in Geist. Inline code such as <code>reminder_log</code> sits on a faint chip. An <em>emphasised phrase</em> is slanted; a <strong>strong phrase</strong> is weight 600.</p>
+      <ul><li>A list item with a nested list<ul><li>Nested item</li></ul></li><li>A second item</li></ul>
+      <blockquote><p>A quoted block from the doc sits on the sunken surface.</p></blockquote>
+      <h4>A fourth-level heading</h4>
+      <p>Headings below level three have no tools and no collapse.</p>
+      <hr>
+    </div>
+  </section>
+
+  <section class="sec lvl2" id="tables">
+    <div class="sec-head"><h2>Tables</h2></div>
+    <div class="sec-body">
+      <p>Horizontal lines only. Numbers are tabular and right-aligned. A status column becomes tags. A wide table scrolls inside its own block.</p>
+      <div class="tbl"><table>
+        <thead><tr><th>ID</th><th>Requirement</th><th>Tests</th><th class="num">Files</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">RF1</td><td>Send a reminder on day 7 for an invoice that is still unpaid</td><td class="mono">UT-02, IT-05</td><td class="num">4</td><td><span class="tag ok">Done</span></td></tr>
+          <tr class="flash"><td class="mono">RF2</td><td>Send an overdue notice on day 14 (this row shows the flash after a jump)</td><td class="mono">UT-07</td><td class="num">3</td><td><span class="tag info">In progress</span></td></tr>
+          <tr><td class="mono">RF3</td><td>Never send to an invoice that is Paid or Void at send time</td><td class="mono">UT-03</td><td class="num">12</td><td><span class="tag warn">Blocked</span></td></tr>
+        </tbody>
+      </table></div>
+      <h4>Confidence table</h4>
+      <div class="confidence"><div class="conf-total">Total <strong>92%</strong></div>
+        <div class="conf-row"><div class="conf-label">Documentation clarity <span class="muted">· 30%</span></div><div class="conf-score">28 / 30</div><div class="conf-bar" role="img" aria-label="93% of the weight"><span style="width:93%"></span></div><div class="conf-evidence">All four requirements map to a task and a test.</div></div>
+        <div class="conf-row"><div class="conf-label">Similar patterns found <span class="muted">· 25%</span></div><div class="conf-score">22 / 25</div><div class="conf-bar" role="img" aria-label="88% of the weight"><span style="width:88%"></span></div><div class="conf-evidence">The digest job uses the same batch loop.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec lvl2" id="code">
+    <div class="sec-head"><h2>Code and diff</h2></div>
+    <div class="sec-body">
+      <p>Light blocks in the light theme. A highlighted line has a faint tint and an orange bar. A pin is a note in the text font under its line.</p>
+      <figure class="codeblock"><figcaption><a class="code-ref" href="#code"><code>src/reminders/ReminderJob.ts</code></a><span>lines 41–46 · working tree at 4c1e9a2</span></figcaption><pre class="code"><code><span class="cl"><span class="ln" aria-hidden="true">41</span><span class="lc"><span class="tk-kw">for</span> (<span class="tk-kw">const</span> invoice <span class="tk-kw">of</span> batch) {</span></span><span class="cl hl"><span class="ln" aria-hidden="true">42</span><span class="lc">  <span class="tk-kw">const</span> status = <span class="tk-kw">await</span> <span class="tk-kw">this</span>.store.<span class="tk-fn">statusOf</span>(invoice.id);</span></span><span class="pin tone-risk"><b>Risk</b>One extra read per email; about 4,000 reads in the largest batch.</span><span class="cl"><span class="ln" aria-hidden="true">43</span><span class="lc">  <span class="tk-kw">if</span> (status !== <span class="tk-str">"Sent"</span>) <span class="tk-kw">continue</span>; <span class="tk-com">// Paid or Void</span></span></span><span class="pin tone-ok"><b>Checked</b>The store tests cover both final states.</span><span class="cl"><span class="ln" aria-hidden="true">44</span><span class="lc">  <span class="tk-kw">await</span> <span class="tk-kw">this</span>.mailer.<span class="tk-fn">send</span>(<span class="tk-ty">Reminder</span>.<span class="tk-fn">for</span>(invoice), { retries: <span class="tk-num">1</span> });</span></span><span class="cl"><span class="ln" aria-hidden="true">45</span><span class="lc">}</span></span></code></pre></figure>
+      <figure class="codeblock diffblock"><figcaption><a class="code-ref" href="#code"><code>src/store/InvoiceStore.ts</code></a><span>main → working tree</span><span class="diffstat"><span class="add">+3</span><span class="del">−2</span></span></figcaption><pre class="diff"><code><span class="dl hunk"><span class="lc">@@ lines 18–22 · class InvoiceStore</span></span><span class="dl ctx"><span class="ln" aria-hidden="true">18</span><span class="ln" aria-hidden="true">18</span><span class="sg"></span><span class="lc">  <span class="tk-kw">async</span> <span class="tk-fn">dueForReminder</span>(day: <span class="tk-ty">number</span>) {</span></span><span class="dl del"><span class="ln" aria-hidden="true">19</span><span class="ln" aria-hidden="true"></span><span class="sg">-</span><span class="lc">    <span class="tk-kw">return</span> <span class="tk-kw">this</span>.db.<span class="tk-fn">query</span>(<span class="tk-str">"select * from invoices"</span>);</span></span><span class="dl del"><span class="ln" aria-hidden="true">20</span><span class="ln" aria-hidden="true"></span><span class="sg">-</span><span class="lc">  }</span></span><span class="dl add"><span class="ln" aria-hidden="true"></span><span class="ln" aria-hidden="true">19</span><span class="sg">+</span><span class="lc">    <span class="tk-kw">return</span> <span class="tk-kw">this</span>.db.<span class="tk-fn">query</span>(DUE_SQL, [day, MIN_AMOUNT]);</span></span><span class="dl add"><span class="ln" aria-hidden="true"></span><span class="ln" aria-hidden="true">20</span><span class="sg">+</span><span class="lc">  }</span></span><span class="dl add"><span class="ln" aria-hidden="true"></span><span class="ln" aria-hidden="true">21</span><span class="sg">+</span><span class="lc">  <span class="tk-kw">async</span> <span class="tk-fn">statusOf</span>(id: <span class="tk-ty">InvoiceId</span>) {</span></span></code></pre></figure>
+      <figure class="codeblock diagram"><figcaption><span>text diagram</span></figcaption><pre><code>src/
+├── reminders/
+│   ├── ReminderJob.ts   ──► InvoiceStore
+│   └── Reminder.ts
+└── store/</code></pre></figure>
+    </div>
+  </section>
+
+  <section class="sec lvl2" id="figures">
+    <div class="sec-head"><h2>Figures</h2></div>
+    <div class="sec-body">
+      <p>A diagram sits on the page with a numbered caption. Lines are neutral; orange marks what changed. New, shared and removed parts differ by line style and by a word in the legend, not only by colour. Hover or focus a node to light its outgoing lines.</p>
+      <figure class="exhibit ex-states"><div class="ex-title">Invoice states</div>
+        <div class="dg-wrap"><svg class="dg dg-states" width="640" height="180" viewBox="0 0 640 180" role="img" aria-label="State diagram: Draft, Sent, Overdue, Paid, Void"><defs><marker id="s-head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="dg-head" d="M0 0L10 5L0 10z"/></marker></defs>
+          <g class="edge"><path d="M24 42H58" marker-end="url(#s-head)"/></g><g class="edge"><path d="M150 42H218" marker-end="url(#s-head)"/></g><g class="edge hl"><path d="M310 42H378" marker-end="url(#s-head)"/></g><g class="edge"><path d="M470 42H538" marker-end="url(#s-head)"/></g><g class="edge"><path d="M265 60V128" marker-end="url(#s-head)"/></g>
+          <circle class="init" cx="18" cy="42" r="5"/>
+          <g class="node" tabindex="0"><rect x="60" y="24" width="90" height="36" rx="8"/><text class="sname" x="105" y="47" text-anchor="middle">Draft</text></g>
+          <g class="node" tabindex="0"><rect x="220" y="24" width="90" height="36" rx="8"/><text class="sname" x="265" y="47" text-anchor="middle">Sent</text></g>
+          <g class="node m-changed" tabindex="0"><rect x="380" y="24" width="90" height="36" rx="8"/><text class="sname" x="425" y="47" text-anchor="middle">Overdue</text></g>
+          <g class="node final" tabindex="0"><rect x="540" y="24" width="90" height="36" rx="8"/><rect class="inner" x="544" y="28" width="82" height="28" rx="5"/><text class="sname" x="585" y="47" text-anchor="middle">Paid</text></g>
+          <g class="node final" tabindex="0"><rect x="220" y="130" width="90" height="36" rx="8"/><rect class="inner" x="224" y="134" width="82" height="28" rx="5"/><text class="sname" x="265" y="153" text-anchor="middle">Void</text></g>
+          <g class="elabel"><rect x="166" y="14" width="36" height="18" rx="4"/><text x="184" y="27" text-anchor="middle">send</text></g><g class="elabel"><rect x="322" y="14" width="44" height="18" rx="4"/><text x="344" y="27" text-anchor="middle">day 14</text></g><g class="elabel"><rect x="476" y="14" width="56" height="18" rx="4"/><text x="504" y="27" text-anchor="middle">payment</text></g><g class="elabel"><rect x="272" y="86" width="34" height="18" rx="4"/><text x="276" y="99">void</text></g>
+        </svg></div>
+        <dl class="dg-notes"><dt>Overdue</dt><dd>The state this spec changes. The overdue notice is sent on entry.</dd></dl>
+        <details class="dg-text"><summary>As text</summary><ul><li><b>Draft</b> → <b>Sent</b>: send</li><li><b>Sent</b> → <b>Overdue</b>: day 14</li></ul></details>
+        <figcaption class="ex-caption"><b>Figure 1.</b> A double border marks a final state.<span class="ex-meta">Model-drawn from § Invoice lifecycle · 3f9a1c</span></figcaption>
+      </figure>
+      <figure class="exhibit ex-graph is-stale"><div class="ex-title">What is new, changed or shared</div>
+        <div class="dg-wrap"><svg class="dg dg-graph" width="560" height="170" viewBox="0 0 560 170" role="img" aria-label="Diagram: ReminderJob, InvoiceStore, Mailer, reminder_log, LegacyCron"><defs><marker id="g-head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="dg-head" d="M0 0L10 5L0 10z"/></marker></defs>
+          <g class="edge"><path d="M210 64V86H80V107" marker-end="url(#g-head)"/></g><g class="edge"><path d="M210 64V107" marker-end="url(#g-head)"/></g><g class="edge dashed"><path d="M210 64V86H340V107" marker-end="url(#g-head)"/></g>
+          <g class="node m-new" tabindex="0"><rect x="140" y="18" width="140" height="46" rx="8"/><text class="nlabel" x="210" y="38" text-anchor="middle">ReminderJob</text><text class="sub" x="210" y="54" text-anchor="middle">daily batch</text></g>
+          <g class="node m-changed" tabindex="0"><rect x="16" y="108" width="128" height="46" rx="8"/><text class="nlabel" x="80" y="128" text-anchor="middle">InvoiceStore</text><text class="sub" x="80" y="144" text-anchor="middle">statusOf()</text></g>
+          <g class="node m-shared" tabindex="0"><rect x="156" y="108" width="108" height="46" rx="8"/><text class="nlabel" x="210" y="128" text-anchor="middle">Mailer</text><text class="sub" x="210" y="144" text-anchor="middle">retry added</text></g>
+          <g class="node m-same" tabindex="0"><rect x="276" y="108" width="128" height="46" rx="8"/><text class="nlabel" x="340" y="128" text-anchor="middle">reminder_log</text><text class="sub" x="340" y="144" text-anchor="middle">table</text></g>
+          <g class="node m-removed" tabindex="0"><rect x="420" y="108" width="124" height="46" rx="8"/><text class="nlabel" x="482" y="136" text-anchor="middle">LegacyCron</text></g>
+        </svg></div>
+        <div class="dg-legend"><span class="lg m-new"><i></i>new</span><span class="lg m-changed"><i></i>changed</span><span class="lg m-shared"><i></i>shared</span><span class="lg m-removed"><i></i>removed</span></div>
+        <figcaption class="ex-caption"><span class="tag warn">Stale</span><b>Figure 2.</b> A stale illustration keeps its place and says what changed: § Components.<span class="ex-meta">Model-drawn from § Components · c0bec8</span></figcaption>
+      </figure>
+      <figure class="exhibit ex-sequence"><div class="ex-title">One invoice, step by step</div>
+        <div class="dg-wrap"><svg class="dg dg-sequence" width="620" height="226" viewBox="0 0 620 226" role="img" aria-label="Sequence: ReminderJob, Invoices, Mailer"><defs><marker id="q-head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="dg-head" d="M0 0L10 5L0 10z"/></marker><marker id="q-head-new" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="dg-head new" d="M0 0L10 5L0 10z"/></marker></defs>
+          <line class="life" x1="80" y1="34" x2="80" y2="220"/><line class="life" x1="230" y1="34" x2="230" y2="220"/><line class="life" x1="380" y1="34" x2="380" y2="220"/>
+          <g class="actor"><rect x="18" y="4" width="124" height="30" rx="8"/><text x="80" y="24" text-anchor="middle">ReminderJob</text></g><g class="actor"><rect x="168" y="4" width="124" height="30" rx="8"/><text x="230" y="24" text-anchor="middle">Invoices</text></g><g class="actor"><rect x="318" y="4" width="124" height="30" rx="8"/><text x="380" y="24" text-anchor="middle">Mailer</text></g>
+          <g class="msg"><line x1="80" y1="70" x2="228" y2="70" marker-end="url(#q-head)"/><text x="155" y="63" text-anchor="middle">read batch</text></g>
+          <g class="divider"><line x1="14" y1="100" x2="446" y2="100"/></g><g class="dlabel"><rect x="194" y="91" width="72" height="18" rx="4"/><text x="230" y="104" text-anchor="middle">per invoice</text></g>
+          <g class="msg m-new"><line x1="80" y1="136" x2="228" y2="136" marker-end="url(#q-head-new)"/><text x="155" y="129" text-anchor="middle">+ re-read status</text></g>
+          <g class="msg reply"><line x1="230" y1="168" x2="82" y2="168" marker-end="url(#q-head)"/><text x="155" y="161" text-anchor="middle">Sent</text></g>
+          <g class="msg"><line x1="80" y1="204" x2="378" y2="204" marker-end="url(#q-head)"/><text x="230" y="197" text-anchor="middle">send reminder</text></g>
+          <text class="fail" x="456" y="208">↳ bounce: retry once</text>
+        </svg></div>
+        <figcaption class="ex-caption"><b>Figure 3.</b> A new message is green and starts with a plus sign; a failure exit is written at the right.<span class="ex-meta">Model-drawn from § Data flow · 71b513</span></figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="sec lvl2" id="lists">
+    <div class="sec-head"><h2>Illustration lists</h2></div>
+    <div class="sec-body">
+      <p>The illustration types that are not drawings: claims, flow, tree, failure walk and timeline.</p>
+      <figure class="exhibit ex-claims"><div class="ex-title">What changes, in three claims</div>
+        <ol class="claims"><li><span class="n">1</span><span class="t">A customer with an unpaid invoice gets an email on day 7 and day 14.</span><span class="refs"><a href="#lists">RF1</a><a href="#lists">UT-02</a></span></li><li><span class="n">2</span><span class="t">A customer who pays during the run gets no reminder.</span><span class="refs"><a href="#lists">RF3</a></span></li><li><span class="n">3</span><span class="t">Every email leaves one row in the log.</span><span class="refs"><span>RF9</span></span></li></ol>
+        <figcaption class="ex-caption"><b>Figure 4.</b> Claims a reader can judge without code.<span class="ex-meta">Model-drawn from § Summary · 58b429</span></figcaption></figure>
+      <figure class="exhibit ex-flow"><div class="ex-title">Send checklist</div>
+        <ol class="flow"><li class="step"><div class="box"><b>Read the batch for the day</b><span class="detail">One query at 09:00 UTC.</span></div></li><li class="step k-key"><div class="box"><b>Read the invoice status again</b></div><div class="exit"><span aria-hidden="true">↳</span>Paid or Void: skip and log</div></li><li class="step k-new"><div class="box"><b>Send the email</b></div><div class="exit"><span aria-hidden="true">↳</span>Bounce: retry once</div></li><li class="step k-end"><div class="box"><b>Write the log row</b></div></li></ol></figure>
+      <figure class="exhibit ex-tree"><div class="ex-title">Files</div>
+        <div class="tree"><ul><li><div class="node m-same"><span class="mark-chip">same</span><b>src/</b></div><ul><li><div class="node m-new"><span class="mark-chip">new</span><b>reminders/ReminderJob.ts</b><span class="detail">The daily loop</span></div></li><li><div class="node m-changed"><span class="mark-chip">changed</span><b>store/InvoiceStore.ts</b></div></li><li><div class="node m-shared"><span class="mark-chip">shared</span><b>mail/Mailer.ts</b></div></li><li><div class="node m-removed"><span class="mark-chip">removed</span><b>cron/legacy.ts</b></div></li></ul></li></ul></div></figure>
+      <figure class="exhibit ex-walk"><div class="ex-title">Failure walk</div>
+        <ol class="walk"><li><span class="when">09:00:00</span><span>The job reads invoice #1042 as Sent.</span></li><li><span class="when">09:00:02</span><span>The customer pays; #1042 is Paid.</span></li><li class="wrong"><span class="when">09:00:05</span><span><b>Wrong outcome.</b> The job emails "Your invoice is unpaid".</span></li></ol>
+        <p class="walk-outcome">The job reads the status again before each send.</p></figure>
+      <figure class="exhibit ex-timeline"><div class="ex-title">Timeline</div>
+        <ol class="timeline"><li><span class="t-dot" aria-hidden="true"></span><span class="when">Day 0</span><b>Sent</b></li><li class="tone-ok"><span class="t-dot" aria-hidden="true"></span><span class="when">Day 7</span><b>Reminder</b></li><li class="tone-warn"><span class="t-dot" aria-hidden="true"></span><span class="when">Day 14</span><b>Overdue notice</b><span class="detail">Late fee from day 15.</span></li></ol></figure>
+    </div>
+  </section>
+
+  <section class="sec lvl2" id="cards">
+    <div class="sec-head"><h2>Cards</h2></div>
+    <div class="sec-body">
+      <p>Premises and decisions are full-width rows that open in place. Only "Needs you" is a coloured tag. An answer is plain text with a check. Nothing is preselected, and "Suggested" is a plain word.</p>
+      <div class="round" style="max-width:var(--wide)">
+        <div class="round-label-row"><div class="round-label" style="margin-top:0">Premises</div><button type="button" class="tool" style="margin-top:0">Expand all</button></div>
+        <div class="cards">
+          <details class="card premise" open>
+            <summary><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 4l4 4-4 4"/></svg><span class="cid">P1</span><span class="c-headline">Invoice lifecycle: Paid and Void are final</span><span class="c-state"><span class="tag">Not confirmed</span></span></summary>
+            <div class="c-body"><p>Paid and Void are final; Void is allowed from Draft or Sent.</p>
+              <div class="c-foot"><button type="button" class="tool">Comment on P1</button><div class="p-actions"><button type="button" class="btn" aria-pressed="false">Needs correction</button><button type="button" class="btn" aria-pressed="true">Confirm</button></div></div></div>
+          </details>
+          <details class="card premise"><summary><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 4l4 4-4 4"/></svg><span class="cid">P2</span><span class="c-headline">Reminder timeline: daily run at 09:00 UTC</span><span class="c-state"><span class="c-answer"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3.2 3L13 4.5"/></svg>Confirmed</span></span></summary><div class="c-body"><p>Daily run at 09:00 UTC; reminder on day 7, overdue notice on day 14.</p></div></details>
+        </div>
+        <div class="round-label-row"><div class="round-label">Decisions</div></div>
+        <div class="cards">
+          <details class="card" open>
+            <summary><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 4l4 4-4 4"/></svg><span class="cid">D4</span><span class="c-headline">A customer who pays during the 09:00 run can still get the unpaid reminder</span><span class="c-state"><span class="tag topic">money</span><span class="tag warn">Needs you</span></span></summary>
+            <div class="c-body">
+              <dl class="c-fields"><dt>Source</dt><dd><span class="mono">T6-2</span></dd><dt>As built</dt><dd>The job reads the batch at 09:00 and sends later, without reading the status again.</dd><dt>Uses</dt><dd><a class="idref" href="#cards">P1 · Invoice lifecycle</a></dd></dl>
+              <ol class="walk" aria-label="Failure walk"><li><span class="when">09:00:00</span><span>The job reads invoice #1042 as Sent.</span></li><li><span class="when">09:00:02</span><span>The customer pays; #1042 is Paid.</span></li><li class="wrong"><span class="when">09:00:05</span><span><b>Wrong outcome.</b> The job emails "Your invoice is unpaid".</span></li></ol>
+              <fieldset class="rdecision"><legend>Your decision</legend>
+                <label class="opt"><input type="radio" name="lib-d4"><span><span class="opt-label">Read the status again before each send</span><span class="suggested">Suggested</span><span class="hint">One extra read per email</span></span></label>
+                <label class="opt"><input type="radio" name="lib-d4"><span><span class="opt-label">Keep as built</span><span class="hint">A rare wrong reminder</span></span></label>
+              </fieldset>
+              <div class="c-foot"><span>Recommendation confidence 88% · model-drawn · 5cba1c</span><button type="button" class="tool">Comment on D4</button></div>
+            </div>
+          </details>
+          <details class="card"><summary><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 4l4 4-4 4"/></svg><span class="cid">D6</span><span class="c-headline">A voided invoice keeps its queued reminders until the next run</span><span class="c-state"><span class="c-answer yours"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3.2 3L13 4.5"/></svg>Your answer: Drop queued reminders</span></span></summary><div class="c-body"><p>A card the reader has answered on this page.</p></div></details>
+          <details class="card" open><summary><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 4l4 4-4 4"/></svg><span class="cid">D7</span><span class="c-headline">Reminders use the customer's locale, and English when there is none</span><span class="c-state"><span class="c-answer"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3.2 3L13 4.5"/></svg>Keep · 2026-11-14</span></span></summary>
+            <div class="c-body"><div class="c-recorded"><div class="c-label">Recorded</div><p><strong>D7 — Keep (owner, 2026-11-14).</strong> Why: the locale is already on the customer record.</p></div></div></details>
+        </div>
+      </div>
+      <h4>Decisions inside a spec section</h4>
+      <p>The same option style, for questions a doc lists as open. Here the doc's recommendation is preselected, as today.</p>
+      <fieldset class="decision wide" style="margin-top:var(--space-3)"><legend>Q2 · Retry a bounced email once, one hour later?</legend>
+        <label class="opt"><input type="radio" name="lib-q2" checked><span><span class="opt-label">Keep</span><span class="suggested">Suggested</span><span class="hint">One extra job path</span></span></label>
+        <label class="opt"><input type="radio" name="lib-q2"><span><span class="opt-label">Remove</span><span class="hint">A bounce is logged as failed</span></span></label>
+        <div class="decision-foot" style="margin-top:var(--space-2)"><span>Recommendation confidence 80%</span><span class="refs"><a href="#cards">R2</a></span></div>
+      </fieldset>
+    </div>
+  </section>
+
+  <section class="sec lvl2" id="respond">
+    <div class="sec-head"><h2>Respond</h2></div>
+    <div class="sec-body">
+      <p>One place for the reader's answers and comments. It takes the outline's column; the outline moves to the Contents menu while it is open. See it working on the <a href="page.html">full test page</a>.</p>
+      <div class="demo"><aside class="respond-panel" aria-label="Respond">
+        <div class="respond-head"><h2>Respond</h2><button type="button" class="tool" aria-label="Close"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg></button></div>
+        <p class="respond-progress">2 of 5 answered · 1 comment</p>
+        <div class="respond-actions"><button type="button" class="btn">Next unanswered</button><button type="button" class="btn">Copy response</button></div>
+        <p class="respond-status" role="status">Copied</p>
+        <pre class="live"># Re: Invoice reminders
+## Round 1 — decisions
+1. [D6] A voided invoice keeps its queued reminders
+   → **Drop queued reminders** `drop`
+
+Still open, not answered: D4, D8, D12.</pre>
+        <div class="confirm"><span>Clear every answer and comment?</span><button type="button" class="btn">Cancel</button><button type="button" class="btn">Clear</button></div>
+        <h3>Built from</h3>
+        <dl class="built"><dt>decisions_walkthrough.md</dt><dd>760f2e1</dd><dt>billing (repo)</dt><dd>4c1e9a2</dd></dl>
+      </aside></div>
+    </div>
+  </section>
+
+  <section class="sec lvl2" id="tour">
+    <div class="sec-head"><h2>Tour</h2></div>
+    <div class="sec-body">
+      <p>A tour step is a section with three more tools: previous, next and Reviewed. A reviewed step has a grey title. The coverage panel lists every changed file.</p>
+      <div class="demo">
+        <section class="sec lvl2 is-reviewed" style="margin-top:0"><div class="sec-head"><h2><a class="idref" href="#tour">S1</a> — Store reads</h2><div class="sec-tools"><a class="tool" href="#tour" aria-label="Next step">→</a><button type="button" class="tool" aria-pressed="true"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3.2 3L13 4.5"/></svg>Reviewed</button><button type="button" class="tool">Comment</button><button type="button" class="tool" aria-expanded="true" aria-label="Collapse S1"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg></button></div></div></section>
+        <div class="coverage"><div class="filters" style="margin-top:var(--space-4)"><div class="seg" role="group" aria-label="Files"><button type="button" aria-pressed="true">All files <span class="n">6</span></button><button type="button" aria-pressed="false">Not in any step <span class="n">1</span></button></div></div>
+          <div class="cov-repo"><div class="cov-head"><b>app:</b><code>billing</code><span class="muted">main → working tree · merge base 17ef6cc · 6 files · +182 −24</span></div>
+            <details class="cov-dir" open><summary><code>src/store/</code><span class="muted">3 files · +61 −12 · 1 not in a step</span></summary>
+              <div class="tbl"><table class="cov"><tbody>
+                <tr><td><span class="st st-M" title="modified">M</span></td><td><a class="code-ref" href="#tour"><code>InvoiceStore.ts</code></a></td><td class="num add">+18</td><td class="num del">−11</td><td><span class="refs"><a href="#tour">S1</a><a href="#tour">S2</a></span></td></tr>
+                <tr><td><span class="st st-A" title="added">A</span></td><td><a class="code-ref" href="#tour"><code>statusSql.ts</code></a></td><td class="num add">+43</td><td class="num del">−0</td><td><span class="refs"><a href="#tour">S1</a></span></td></tr>
+                <tr><td><span class="st st-D" title="deleted">D</span></td><td><code>legacyQuery.ts</code></td><td class="num add">+0</td><td class="num del">−1</td><td></td></tr>
+              </tbody></table></div></details>
+            <details class="cov-dir"><summary><code>src/reminders/</code><span class="muted">3 files · +121 −12</span></summary></details>
+          </div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec lvl2" id="foot">
+    <div class="sec-head"><h2>Footer</h2></div>
+    <div class="sec-body">
+      <p>The "generated" notice and the build report move from the top bar and the sidebar to the end of the page.</p>
+      <footer class="doc-foot" style="margin-top:var(--space-4)">Generated from <span class="mono">specs/invoice-reminders/</span> on 2026-11-15 09:12 · 5 documents · vault at 73db603. This page is build output: edit the markdown, then rebuild.
+        <details><summary>Build report · 2 notes</summary><ul><li>Unresolved links: techspec.md: #data-model</li><li>Illustrations: save-flow (stale): changed since drawn: data-flow</li></ul></details></footer>
+    </div>
+  </section>
+</div>
+<script>(function(){var root=document.documentElement;
+document.querySelectorAll('input[name=theme]').forEach(function(r){
+r.checked=(root.dataset.theme||'system')===r.value;
+r.addEventListener('change',function(){
+if(r.value==='system')delete root.dataset.theme;else root.dataset.theme=r.value;
+try{if(r.value==='system')localStorage.removeItem('rv-theme');else localStorage.setItem('rv-theme',r.value)}catch(e){}
+});});})();</script>
+</body>
+</html>

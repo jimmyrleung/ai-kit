@@ -1,0 +1,60 @@
+{
+  "id": "p1",
+  "doc": "decisions_walkthrough.md",
+  "item": "P1",
+  "type": "states",
+  "title": "Invoice lifecycle",
+  "data": {
+    "initial": "draft",
+    "grid": [
+      [
+        "draft",
+        "sent",
+        "paid"
+      ],
+      [
+        null,
+        null,
+        "void"
+      ]
+    ],
+    "states": [
+      {
+        "id": "draft"
+      },
+      {
+        "id": "sent"
+      },
+      {
+        "id": "paid",
+        "final": true
+      },
+      {
+        "id": "void",
+        "final": true
+      }
+    ],
+    "transitions": [
+      {
+        "from": "draft",
+        "to": "sent",
+        "label": "send"
+      },
+      {
+        "from": "sent",
+        "to": "paid",
+        "label": "payment"
+      },
+      {
+        "from": "draft",
+        "to": "void",
+        "label": "cancel"
+      },
+      {
+        "from": "sent",
+        "to": "void",
+        "label": "cancel"
+      }
+    ]
+  }
+}

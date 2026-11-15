@@ -1,0 +1,14 @@
+{
+  "id": "retry-text",
+  "doc": "techspec.md",
+  "anchor": "reminderjob--create",
+  "type": "diff",
+  "title": "Proposed retry",
+  "caption": "Inferred from D2.",
+  "data": {
+    "lang": "ts",
+    "label": "proposed retry",
+    "before": "send(email)",
+    "after": "await send(email)\nif (bounced) retryOnce(email)"
+  }
+}

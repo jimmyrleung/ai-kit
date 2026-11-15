@@ -1,0 +1,33 @@
+{
+  "id": "tour-s2",
+  "doc": "tour_2026-11-15.md",
+  "anchor": "s2--spec-docs",
+  "type": "graph",
+  "title": "Where the context is used",
+  "data": {
+    "grid": [
+      [
+        "ctx",
+        "tasks"
+      ]
+    ],
+    "nodes": [
+      {
+        "id": "ctx",
+        "label": "context.md",
+        "mark": "new"
+      },
+      {
+        "id": "tasks",
+        "label": "later tasks",
+        "mark": "same"
+      }
+    ],
+    "edges": [
+      {
+        "from": "ctx",
+        "to": "tasks"
+      }
+    ]
+  }
+}

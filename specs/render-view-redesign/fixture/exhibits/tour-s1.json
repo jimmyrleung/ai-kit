@@ -1,0 +1,11 @@
+{
+  "id": "tour-s1",
+  "doc": "tour_2026-11-15.md",
+  "anchor": "s1--skill-doc",
+  "type": "diff",
+  "title": "The new skill front page",
+  "data": {
+    "path": "skills/ui-process/SKILL.md",
+    "lines": "1-30"
+  }
+}

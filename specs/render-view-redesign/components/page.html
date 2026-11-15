@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>invoice-reminders · test page</title>
+<script>try{var t=localStorage.getItem('rv-theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
+<link rel="stylesheet" href="../design-system/fonts/fonts.css">
+<link rel="stylesheet" href="../design-system/tokens.css">
+<link rel="stylesheet" href="components.css">
+<style>
+.test-bar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); padding: var(--space-2) var(--space-5); background: var(--bg-sunken); font: var(--text-small); color: var(--ink-2); }
+.test-bar label { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+</style>
+</head>
+<body>
+<div class="test-bar" role="group" aria-label="Test controls"><b>Test controls (not part of the design)</b><span>Respond panel:</span>
+  <label><input type="radio" name="respond-mode" value="demand" checked>Opens on demand</label>
+  <label><input type="radio" name="respond-mode" value="always">Always open on a decision round</label>
+  <a href="index.html">Component library</a>
+</div>
+<header class="topbar">
+  <div class="spec"><b>invoice-reminders</b><span class="muted">5 documents</span></div>
+  <details class="menu"><summary class="btn">Contents</summary>
+    <div class="menu-body">
+      <ul class="docs"><li><a class="doclink" href="#">Requirements</a></li><li><a class="doclink" href="#" aria-current="page">Decisions walkthrough</a></li><li><a class="doclink" href="#">Techspec</a></li></ul>
+      <div class="nav-title">On this page</div>
+      <ol class="outline"><li class="lvl2"><a href="#context">Context</a></li><li class="lvl2"><a href="#round" aria-current="location">Walkthrough, round 1</a></li><li class="lvl2"><a href="#dispositions">Dispositions</a></li></ol>
+    </div>
+  </details>
+  <fieldset class="theme" aria-label="Theme">
+    <label><input type="radio" name="theme" value="system" checked><span>System</span></label>
+    <label><input type="radio" name="theme" value="light"><span>Light</span></label>
+    <label><input type="radio" name="theme" value="dark"><span>Dark</span></label>
+  </fieldset>
+  <button type="button" class="btn primary" data-action="respond" aria-expanded="false">Respond <span class="count">2</span></button>
+</header>
+
+<div class="layout">
+  <nav class="side" aria-label="Documents">
+    <div class="nav-title">Documents</div>
+    <ul class="docs">
+      <li><a class="doclink" href="#">User story</a></li>
+      <li><a class="doclink" href="#">Requirements</a></li>
+      <li><a class="doclink" href="#">Techspec</a></li>
+      <li><a class="doclink" href="#" aria-current="page">Decisions walkthrough</a></li>
+      <li><a class="doclink" href="#">Tour 2026-11-14</a></li>
+      <li><details><summary>Task files <span class="n">8</span></summary><ul><li><a class="doclink" href="#">Task 01</a></li><li><a class="doclink" href="#">Task 02</a></li><li><a class="doclink" href="#">Task 03</a></li></ul></details></li>
+    </ul>
+  </nav>
+
+  <main>
+    <header class="doc-head">
+      <h1>Invoice reminders: decisions as built</h1>
+      <p class="doc-meta"><span class="mono">decisions_walkthrough.md</span><span>Walkthrough, round 1</span><span>2026-11-14</span><span>5 items: 3 need you, 1 answered here, 1 decided</span></p>
+    </header>
+
+    <section class="sec lvl2" id="context">
+      <div class="sec-head"><h2>Context</h2><div class="sec-tools"><button type="button" class="tool">Comment</button><button type="button" class="tool" aria-expanded="true" aria-label="Collapse Context"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg></button></div></div>
+      <div class="sec-body">
+        <p>These are the decisions made while building tasks <a class="idref" href="#">T3</a> to <a class="idref" href="#">T6</a> that the techspec did not cover. Each row is the behaviour as built today. Confirm the premises first: every decision names the premises it rests on.</p>
+        <div class="tbl"><table>
+          <thead><tr><th>Task</th><th>Area</th><th class="num">Decisions</th><th>Status</th></tr></thead>
+          <tbody><tr><td class="mono">T3</td><td>Reminder job loop</td><td class="num">2</td><td><span class="tag ok">Done</span></td></tr><tr><td class="mono">T6</td><td>Queue and voided invoices</td><td class="num">3</td><td><span class="tag info">In progress</span></td></tr></tbody>
+        </table></div>
+      </div>
+    </section>
+
+    <section class="sec lvl2" id="round">
+      <div class="sec-head"><h2>Walkthrough, round 1</h2><div class="sec-tools"><button type="button" class="tool">Comment</button><button type="button" class="tool" aria-expanded="true" aria-label="Collapse Walkthrough"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg></button></div></div>
+      <div class="sec-body">
+        <div class="round">
+          <div class="round-label-row"><div class="round-label" style="margin-top:var(--space-4)">Premises</div><button type="button" class="tool" style="margin-top:var(--space-4)">Expand all</button></div>
+          <div class="round-premises"><p>Confirm these first. Each decision links to the premises it uses.</p></div>
+          <div class="cards">
+            <details class="card premise"><summary><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 4l4 4-4 4"/></svg><span class="cid">P1</span><span class="c-headline">Invoice lifecycle: Paid and Void are final</span><span class="c-state"><span class="tag">Not confirmed</span></span></summary>
+              <div class="c-body"><p>Paid and Void are final; Void is allowed from Draft or Sent.</p><div class="c-foot"><button type="button" class="tool">Comment on P1</button><div class="p-actions"><button type="button" class="btn" aria-pressed="false">Needs correction</button><button type="button" class="btn" aria-pressed="false">Confirm</button></div></div></div></details>
+            <details class="card premise"><summary><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 4l4 4-4 4"/></svg><span class="cid">P2</span><span class="c-headline">Reminder timeline: daily run at 09:00 UTC, day 7 and day 14</span><span class="c-state"><span class="c-answer"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3.2 3L13 4.5"/></svg>Confirmed</span></span></summary>
+              <div class="c-body"><p>Daily run at 09:00 UTC; reminder on day 7, overdue notice on day 14.</p></div></details>
+          </div>
+
+          <div class="round-label-row"><div class="round-label">Decisions</div><button type="button" class="tool">Expand all</button></div>
+          <div class="filters">
+            <div class="seg" role="group" aria-label="Show"><button type="button" aria-pressed="true">All <span class="n">5</span></button><button type="button" aria-pressed="false">Need you <span class="n">3</span></button><button type="button" aria-pressed="false">Decided <span class="n">1</span></button></div>
+            <button type="button" class="btn" aria-pressed="false">Money <span class="n mono">2</span></button>
+            <button type="button" class="btn" aria-pressed="false">Timing <span class="n mono">3</span></button>
+            <button type="button" class="btn">Accept suggested for 3 shown</button>
+            <span class="status" role="status">Showing 5 of 5</span>
+          </div>
+          <div class="cards">
+            <details class="card" open>
+              <summary><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 4l4 4-4 4"/></svg><span class="cid">D4</span><span class="c-headline">A customer who pays during the 09:00 run can still get the unpaid reminder</span><span class="c-state"><span class="tag topic">money</span><span class="tag warn">Needs you</span></span></summary>
+              <div class="c-body">
+                <dl class="c-fields"><dt>Source</dt><dd><span class="mono">T6-2</span></dd><dt>As built</dt><dd>The job reads the batch at 09:00 and sends later, without reading the status again.</dd><dt>Uses</dt><dd><a class="idref" href="#">P1 · Invoice lifecycle</a>, <a class="idref" href="#">P2 · Reminder timeline</a></dd></dl>
+                <ol class="walk" aria-label="Failure walk"><li><span class="when">09:00:00</span><span>The job reads invoice #1042 as Sent.</span></li><li><span class="when">09:00:02</span><span>The customer pays; #1042 is Paid.</span></li><li class="wrong"><span class="when">09:00:05</span><span><b>Wrong outcome.</b> The job emails "Your invoice is unpaid".</span></li></ol>
+                <figure class="codeblock"><figcaption><a class="code-ref" href="#"><code>src/reminders/ReminderJob.ts</code></a><span>lines 41–43 · working tree at 4c1e9a2</span></figcaption><pre class="code"><code><span class="cl"><span class="ln" aria-hidden="true">41</span><span class="lc"><span class="tk-kw">for</span> (<span class="tk-kw">const</span> invoice <span class="tk-kw">of</span> batch) {</span></span><span class="cl hl"><span class="ln" aria-hidden="true">42</span><span class="lc">  <span class="tk-kw">await</span> <span class="tk-kw">this</span>.mailer.<span class="tk-fn">send</span>(<span class="tk-ty">Reminder</span>.<span class="tk-fn">for</span>(invoice));</span></span><span class="cl"><span class="ln" aria-hidden="true">43</span><span class="lc">}</span></span></code></pre></figure>
+                <fieldset class="rdecision"><legend>Your decision</legend>
+                  <label class="opt"><input type="radio" name="d4"><span><span class="opt-label">Read the status again before each send</span><span class="suggested">Suggested</span><span class="hint">One extra read per email</span></span></label>
+                  <label class="opt"><input type="radio" name="d4"><span><span class="opt-label">Keep as built</span><span class="hint">A rare wrong reminder</span></span></label>
+                </fieldset>
+                <div class="c-foot"><span>Recommendation confidence 88% · model-drawn · 5cba1c</span><button type="button" class="tool">Comment on D4</button></div>
+              </div>
+            </details>
+            <details class="card"><summary><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 4l4 4-4 4"/></svg><span class="cid">D5</span><span class="c-headline">The overdue notice is sent even when a reminder bounced on day 7</span><span class="c-state"><span class="tag topic">timing</span><span class="tag warn">Needs you</span></span></summary><div class="c-body"><p>Closed on this test page.</p></div></details>
+            <details class="card"><summary><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 4l4 4-4 4"/></svg><span class="cid">D6</span><span class="c-headline">A voided invoice keeps its queued reminders until the next run</span><span class="c-state"><span class="c-answer yours"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3.2 3L13 4.5"/></svg>Your answer: Drop queued reminders</span></span></summary><div class="c-body"><p>Closed on this test page.</p></div></details>
+            <details class="card"><summary><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 4l4 4-4 4"/></svg><span class="cid">D7</span><span class="c-headline">Reminders use the customer's locale, and English when there is none</span><span class="c-state"><span class="c-answer"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3.2 3L13 4.5"/></svg>Keep · 2026-11-14</span></span></summary><div class="c-body"><div class="c-recorded"><div class="c-label">Recorded</div><p><strong>D7 — Keep (owner, 2026-11-14).</strong> Why: the locale is already on the customer record.</p></div></div></details>
+            <details class="card"><summary><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 4l4 4-4 4"/></svg><span class="cid">D8</span><span class="c-headline">Invoices under 5.00 are skipped by the SQL filter, with no log row</span><span class="c-state"><span class="tag topic">money</span><span class="tag warn">Needs you</span></span></summary><div class="c-body"><p>Closed on this test page.</p></div></details>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sec lvl2 collapsed" id="dispositions">
+      <div class="sec-head"><h2>Dispositions</h2><div class="sec-tools"><button type="button" class="tool">Comment</button><button type="button" class="tool" aria-expanded="false" aria-label="Expand Dispositions"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg></button></div></div>
+      <div class="sec-body"><p>Collapsed on this test page.</p></div>
+    </section>
+
+    <footer class="doc-foot">Generated from <span class="mono">specs/invoice-reminders/</span> on 2026-11-15 09:12 · 5 documents. This page is build output: edit the markdown, then rebuild.</footer>
+  </main>
+
+  <nav class="rail" aria-label="On this page">
+    <div class="nav-title">On this page</div>
+    <ol class="outline">
+      <li class="lvl2"><a href="#context">Context</a></li>
+      <li class="lvl2"><a href="#round" aria-current="location">Walkthrough, round 1</a></li>
+      <li class="lvl2"><a href="#dispositions">Dispositions</a></li>
+    </ol>
+    <button type="button" class="tool">Collapse all</button>
+  </nav>
+
+  <aside class="respond-panel" id="respond" aria-label="Respond">
+    <div class="respond-head"><h2>Respond</h2><button type="button" class="tool" data-action="close-respond" aria-label="Close"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg></button></div>
+    <p class="respond-progress">1 of 5 answered · 1 premise to confirm</p>
+    <div class="respond-actions"><button type="button" class="btn">Next unanswered</button><button type="button" class="btn">Copy response</button></div>
+    <p class="respond-status" role="status"></p>
+    <pre class="live"># Re: Invoice reminders: decisions as built
+View of `invoice-reminders/`, built 2026-11-15T09:12 from decisions_walkthrough.md@760f2e1.
+
+## Round 1 — premises
+Not confirmed yet: P1.
+
+## Round 1 — decisions
+1. [D6] A voided invoice keeps its queued reminders until the next run.
+   → **Drop queued reminders** `drop` _(suggested)_
+
+Still open, not answered: D4, D5, D8.</pre>
+    <button type="button" class="tool" style="margin-top:var(--space-2)">Clear my answers</button>
+    <h3>Built from</h3>
+    <dl class="built"><dt>decisions_walkthrough.md</dt><dd>760f2e1</dd><dt>techspec.md</dt><dd>3f9a1c2</dd><dt>billing (repo)</dt><dd>4c1e9a2</dd></dl>
+  </aside>
+</div>
+<script>(function(){var root=document.documentElement,body=document.body;
+document.querySelectorAll('input[name=theme]').forEach(function(r){
+r.checked=(root.dataset.theme||'system')===r.value;
+r.addEventListener('change',function(){
+if(r.value==='system')delete root.dataset.theme;else root.dataset.theme=r.value;
+try{if(r.value==='system')localStorage.removeItem('rv-theme');else localStorage.setItem('rv-theme',r.value)}catch(e){}
+});});
+var open=document.querySelector('[data-action=respond]'),close=document.querySelector('[data-action=close-respond]');
+function set(on){body.classList.toggle('respond-open',on);open.setAttribute('aria-expanded',String(on));}
+open.addEventListener('click',function(){set(!body.classList.contains('respond-open'));});
+close.addEventListener('click',function(){set(false);});
+document.querySelectorAll('input[name=respond-mode]').forEach(function(r){
+r.addEventListener('change',function(){var always=r.value==='always';set(always);close.hidden=always;});});
+})();</script>
+</body>
+</html>
