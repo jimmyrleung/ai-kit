@@ -1,6 +1,6 @@
 # ai-kit Inventory (v3)
 
-The live catalog contains 26 skills, with one row per tracked `skills/<name>/SKILL.md`
+The live catalog contains 27 skills, with one row per tracked `skills/<name>/SKILL.md`
 file. The live directory tree is the source of truth. Historical material is preserved under
 [`archive/v1/`](archive/v1/) and [`archive/v2/`](archive/v2/).
 
@@ -16,6 +16,12 @@ file. The live directory tree is the source of truth. Historical material is pre
 | `techspec` | Normal | Designs the implementation blueprint for feature, greenfield, refactor, bug-fix, hotfix, or incident-remediation work. Produces `specs/<slug>/techspec.md`. |
 | `tasks-breakdown` | Normal | Converts an approved spec or plan into ordered `tasks.md` and `task_NN.md` files with dependencies, tests, and acceptance criteria. |
 | `create-implementation-tasks` | Normal | Designs the techspec and breaks it into ordered tasks in one pass, with a user checkpoint before the task files are written. Produces `specs/<slug>/techspec.md`, `tasks.md`, and `task_NN.md` files. |
+
+### UI design
+
+| Skill | Invocation | Current role |
+| --- | --- | --- |
+| `ui-process` | Normal | Builds a new UI or redesigns one in gated steps: user interview, research of authoritative references, branding alignment, design system, then components library. Produces context, research, branding, design system, and components library artifacts that later prototyping tools use as the source of truth. |
 
 ### Implementation, review, and QA
 
@@ -88,6 +94,8 @@ synchronized as ai-kit skills.
 - `breakout-session` can use an external `teach` workspace, but ai-kit does not bundle or install
   `teach`.
 - `document-workflow` names `document-workflow-loop` as a cc-looper-owned external fork.
+- `ui-process` recommends the external `taste-skill` and `impeccable` skills for its design
+  system and components library steps, but ai-kit does not bundle or install them.
 - Some live handoffs still name retired or absent skills: `triage`, `compile-kb`,
   `onboard-me`, `audit-skills`, and `implement-fix`. These names are not live skills and are
   not included in the count above.
