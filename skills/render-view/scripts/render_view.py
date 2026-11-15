@@ -1556,11 +1556,13 @@ class Renderer:
         self.index = Index(docs)
         self.lint: dict[str, set[str]] = {"unresolved paths": set(), "unresolved links": set(), "unresolved refs": set()}
         self.counts: dict[str, dict[str, int]] = {}
+        self.figure = 0
         self.doc: Doc = docs[0]
         self.lint_paths = True
         self.step: str | None = None  # the tour step being rendered
         self.cites: dict[str, set[str]] = {}  # file (normalized absolute path) -> tour steps that cite it
         self.tour_stats: dict[str, dict[str, int]] = {}
+        self.round_stats: dict[str, list[str]] = {}
 
     def cite(self, path: Path) -> None:
         if self.step:
@@ -1708,14 +1710,14 @@ class Renderer:
         is_diagram = (not lang or lang in {"text", "txt", "plain"}) and bool(TEXT_DIAGRAM_RE.search(text))
         if is_diagram:
             return (
-                '<figure class="codeblock diagram"><figcaption><span class="cap">text diagram</span></figcaption>'
+                '<figure class="codeblock diagram"><figcaption><span>text diagram</span></figcaption>'
                 f"<pre><code>{esc(text)}</code></pre></figure>"
             )
         split = split_before_after(text) if lang_family(lang) else None
         if split:
             rows = text_diff_rows(split[0], split[1], lang)
             return self.diff_figure(rows, f"{esc(lang)} · before → after, from the spec")
-        return self.code_figure(highlight_lines(text, lang), f'<span class="cap">{esc(lang or "text")}</span>')
+        return self.code_figure(highlight_lines(text, lang), f'<span>{esc(lang or "text")}</span>')
 
     def code_figure(self, lines_html: list[str], caption: str, *, start: int = 1,
                     highlight: set[int] | None = None, pins: dict[int, list[str]] | None = None) -> str:
@@ -1726,11 +1728,11 @@ class Renderer:
             number = start + offset
             css = "cl hl" if number in highlight else "cl"
             rows.append(f'<span class="{css}"><span class="ln" aria-hidden="true">{number}</span>'
-                        f'<span class="lc">{line_html or " "}</span></span>')
+                        f'<span>{line_html or " "}</span></span>')
             rows.extend(pins.get(number, []))
         return (
             f'<figure class="codeblock"><figcaption>{caption}</figcaption>'
-            f'<pre class="code"><code>{"".join(rows)}</code></pre></figure>'
+            f'<pre><code>{"".join(rows)}</code></pre></figure>'
         )
 
     def diff_figure(self, rows: list[tuple[str, int | None, int | None, str]], caption: str) -> str:
@@ -1739,18 +1741,18 @@ class Renderer:
         body = []
         for sign, old, new, line_html in rows:
             if sign == "@":
-                body.append(f'<span class="dl hunk"><span class="lc">{line_html}</span></span>')
+                body.append(f'<span class="dl hunk"><span>{line_html}</span></span>')
                 continue
             css = {"+": "add", "-": "del", " ": "ctx"}[sign]
             body.append(
                 f'<span class="dl {css}"><span class="ln" aria-hidden="true">{old or ""}</span>'
                 f'<span class="ln" aria-hidden="true">{new or ""}</span>'
-                f'<span class="sg">{"" if sign == " " else sign}</span><span class="lc">{line_html or " "}</span></span>'
+                f'<span class="sg">{"" if sign == " " else sign}</span><span>{line_html or " "}</span></span>'
             )
         return (
-            f'<figure class="codeblock diffblock"><figcaption><span class="cap">{caption}</span>'
+            f'<figure class="codeblock"><figcaption><span>{caption}</span>'
             f'<span class="diffstat"><span class="add">+{adds}</span><span class="del">−{dels}</span></span></figcaption>'
-            f'<pre class="diff"><code>{"".join(body)}</code></pre></figure>'
+            f'<pre><code>{"".join(body)}</code></pre></figure>'
         )
 
     def table(self, block: dict[str, Any]) -> str:
@@ -1776,7 +1778,8 @@ class Renderer:
                 if i in status_columns:
                     css = status_class(cell)
                     if css:
-                        content = f'<span class="chip {css}">{content}</span>'
+                        tag_class = "tag" if css == "neutral" else f"tag {css}"
+                        content = f'<span class="{tag_class}">{content}</span>'
                 cells.append(f"<td{self.align(aligns, i)}>{content}</td>")
             rows.append(f"<tr{attr}>{''.join(cells)}</tr>")
         return (
@@ -1786,7 +1789,11 @@ class Renderer:
 
     @staticmethod
     def align(aligns: list[str], index: int) -> str:
-        return f' style="text-align:{aligns[index]}"' if index < len(aligns) and aligns[index] else ""
+        if index >= len(aligns) or not aligns[index]:
+            return ""
+        if aligns[index] == "right":
+            return ' class="num"'
+        return f' style="text-align:{aligns[index]}"'
 
     def confidence(self, block: dict[str, Any], lowered: list[str]) -> str:
         weight_col = lowered.index("weight")
@@ -1830,6 +1837,8 @@ class Renderer:
         for exhibit in self.exhibits:
             if exhibit.doc is doc and exhibit.status not in {"invalid", "orphan"} and not exhibit.item:
                 by_anchor.setdefault(exhibit.anchor, []).append(exhibit)
+        self.figure = 0
+        top = "".join(self.exhibit(exhibit) for exhibit in by_anchor.get("top", []))
         headings = iter(doc.headings)
         out: list[str] = []
         stack: list[int] = []
@@ -1871,9 +1880,12 @@ class Renderer:
             if tour and block is tour.table:
                 out.append(self.block(block) + coverage_slot)
                 continue
+            if not seen_section and block["t"] == "quote":
+                notes.append(self.blocks(block["blocks"]))
+                continue
             rendered = self.block(block)
             if not seen_section:
-                (notes if block["t"] == "quote" else intro).append(rendered)
+                intro.append(rendered)
             else:
                 out.append(rendered)
         while stack:
@@ -1885,11 +1897,7 @@ class Renderer:
         if tour:
             # Rendered last: it marks every changed file with the steps that cited it.
             body = body.replace(coverage_slot, self.coverage(doc, tour))
-        top = "".join(self.exhibit(exhibit) for exhibit in by_anchor.get("top", []))
-        notes_html = (
-            f'<div class="doc-notes"><div class="label">Notes at the top of this doc</div>{"".join(notes)}</div>'
-            if notes else ""
-        )
+        notes_html = f'<aside class="note">{"".join(notes)}</aside>' if notes else ""
         intro_html = f'<div class="doc-intro">{"".join(intro)}</div>' if intro else ""
         article = (
             f'<article class="doc" id="{doc.id}" data-doc="{doc.id}" hidden>{self.doc_head(doc, counts)}'
@@ -1903,7 +1911,7 @@ class Renderer:
         element_id = f"{self.doc.id}__{heading.anchor}"
         text_html = self.heading_text(block["text"], counts)
         if level > 3:
-            return f'<h{level} id="{esc(element_id)}" class="anchored">{text_html}</h{level}>'
+            return f'<h{level} id="{esc(element_id)}">{text_html}</h{level}>'
         closing = []
         while stack and stack[-1] >= level:
             stack.pop()
@@ -1914,22 +1922,26 @@ class Renderer:
         if step:
             ident, before, after = step
             step_attr = f' data-step="{esc(ident)}"'
+            arrows = {
+                "Previous": '<svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M13 8H3m4-4L3 8l4 4"/></svg>',
+                "Next": '<svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4"/></svg>',
+            }
             links = [
-                f'<a class="tool" href="#{esc(self.doc.id)}__{esc(target)}" aria-label="{label} step">{arrow}</a>'
-                for target, label, arrow in ((before, "Previous", "←"), (after, "Next", "→")) if target
+                f'<a class="tool" href="#{esc(self.doc.id)}__{esc(target)}" aria-label="{label} step">{arrows[label]}</a>'
+                for target, label in ((before, "Previous"), (after, "Next")) if target
             ]
             step_tools = (
                 "".join(links)
-                + f'<button type="button" class="tool" data-action="reviewed" aria-pressed="false">Reviewed</button>'
+                + f'<button type="button" class="tool" data-action="reviewed" aria-pressed="false">{self.check_icon()}Reviewed</button>'
             )
         return (
             "".join(closing)
             + f'<section class="sec lvl{level}{" collapsed" if collapsed else ""}" data-anchor="{esc(heading.anchor)}" data-title="{title}"{step_attr}>'
-            f'<div class="sec-head"><h{level} id="{esc(element_id)}" class="anchored">{text_html}</h{level}>'
+            f'<div class="sec-head"><h{level} id="{esc(element_id)}">{text_html}</h{level}>'
             f'<div class="sec-tools">{step_tools}'
             f'<button type="button" class="tool" data-action="comment" aria-label="Comment on {title}">Comment</button>'
             f'<button type="button" class="tool" data-action="collapse" aria-expanded="{"false" if collapsed else "true"}" aria-label="Collapse {title}">'
-            f'<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6 L8 10 L12 6"></path></svg></button>'
+            f'<svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6 L8 10 L12 6"></path></svg></button>'
             f"</div></div><div class=\"sec-body\">"
         )
 
@@ -1972,7 +1984,7 @@ class Renderer:
         if progress:
             chips.append(esc(plain(progress.group(1))))
         if doc.round:
-            chips.insert(0, f"Walkthrough · round {doc.round.number} · {esc(doc.round.date)}")
+            chips[:0] = [f"Walkthrough, round {doc.round.number}", esc(doc.round.date)] + [esc(text) for text in self.round_stats.get(doc.id, [])]
         stats = self.tour_stats.get(doc.id)
         if doc.tour and stats:
             chips[:0] = [
@@ -1983,12 +1995,11 @@ class Renderer:
             ]
         exhibits = sum(1 for exhibit in self.exhibits if exhibit.doc is doc and exhibit.status not in {"invalid", "orphan"})
         if exhibits:
-            chips.append(f'<span class="tag">Illustrations</span> {exhibits}')
-        chip_html = "".join(f'<span class="chip">{chip}</span>' for chip in chips)
+            chips.append(f"{exhibits} {'illustration' if exhibits == 1 else 'illustrations'}")
+        meta_html = f'<span class="mono">{esc(doc.file)}</span>' + "".join(f"<span>{chip}</span>" for chip in chips)
         return (
-            f'<header class="doc-head"><div class="kicker">{esc(doc.file)}</div>'
-            f"<h1>{esc(doc.title)}</h1>"
-            f'<div class="chips">{chip_html}</div></header>'
+            f'<header class="doc-head"><h1>{esc(doc.title)}</h1>'
+            f'<p class="doc-meta">{meta_html}</p></header>'
         )
 
     @staticmethod
@@ -2076,14 +2087,14 @@ class Renderer:
         stamp_text = " · ".join(sorted({str(value)[:6] for key, value in stamp.items() if key != "code"})) if isinstance(stamp, dict) else ""
         status = ""
         if exhibit.status == "stale":
-            status = f'<span class="chip warn">Stale: {esc("; ".join(exhibit.problems) or "a source changed")}</span>'
+            status = f'<span class="tag warn">Stale: {esc("; ".join(exhibit.problems) or "a source changed")}</span>'
         title = f'<div class="ex-title">{self.inline(str(data["title"]))}</div>' if data.get("title") else ""
-        caption = f'<p class="ex-caption">{self.inline(str(data["caption"]))}</p>' if data.get("caption") else ""
+        self.figure += 1
+        caption = f" {self.inline(str(data['caption']))}" if data.get("caption") else ""
+        meta = f'<span class="ex-meta">model-drawn · from {esc(self.source_label(exhibit))}{" · " + esc(stamp_text) if stamp_text else ""}</span>'
         return (
             f'<figure class="exhibit ex-{kind}{" is-stale" if exhibit.status == "stale" else ""}" data-exhibit="{esc(exhibit.id)}">'
-            f'<div class="ex-head"><span class="tag">Illustration</span>'
-            f'<span class="ex-meta">model-drawn · from {esc(self.source_label(exhibit))}{" · " + esc(stamp_text) if stamp_text else ""}</span>'
-            f"{status}</div>{title}{body}{caption}</figure>"
+            f'{title}{body}<figcaption class="ex-caption">{status}<b>Figure {self.figure}.</b>{caption}{meta}</figcaption></figure>'
         )
 
     def exhibit_claims(self, exhibit: Exhibit, data: dict[str, Any]) -> str:
@@ -2101,7 +2112,7 @@ class Renderer:
             kind = str(step.get("kind") or "step")
             detail = f'<span class="detail">{self.inline(str(step["detail"]))}</span>' if step.get("detail") else ""
             exit_html = (
-                f'<div class="exit"><span class="exit-arrow" aria-hidden="true">↳</span>{self.inline(str(step["exit"]))}</div>'
+                f'<div class="exit"><span aria-hidden="true">↳</span>{self.inline(str(step["exit"]))}</div>'
                 if step.get("exit") else ""
             )
             steps.append(
@@ -2132,12 +2143,13 @@ class Renderer:
         for number, step in enumerate(data.get("steps") or [], start=1):
             wrong = bool(step.get("wrong"))
             when = esc(str(step.get("when") or number))
+            lead = "<b>Wrong outcome.</b> " if wrong else ""
             steps.append(
-                f'<li class="{"wrong" if wrong else ""}"><span class="when">{when}'
-                f'{" · wrong outcome" if wrong else ""}</span><span>{self.inline(str(step.get("text", "")))}</span></li>'
+                f'<li class="{"wrong" if wrong else ""}"><span class="when">{when}</span>'
+                f'<span>{lead}{self.inline(str(step.get("text", "")))}</span></li>'
             )
         outcome = f'<p class="walk-outcome">{self.inline(str(data["outcome"]))}</p>' if data.get("outcome") else ""
-        return f'<ol class="walk">{"".join(steps)}</ol>{outcome}'
+        return f'<ol class="walk" aria-label="Failure walk">{"".join(steps)}</ol>{outcome}'
 
     def exhibit_timeline(self, exhibit: Exhibit, data: dict[str, Any]) -> str:
         points = []
@@ -2163,8 +2175,8 @@ class Renderer:
             options = []
             for option in item.get("options") or []:
                 suggested = bool(option.get("suggested"))
-                note = f'<span class="note">{self.inline(str(option["note"]))}</span>' if option.get("note") else ""
-                tag = '<span class="chip info">suggested</span>' if suggested else ""
+                note = f'<span class="hint">{self.inline(str(option["note"]))}</span>' if option.get("note") else ""
+                tag = '<span class="suggested">Suggested</span>' if suggested else ""
                 options.append(
                     f'<label class="opt"><input type="radio" name="{esc(name)}" value="{esc(str(option.get("value", "")))}"'
                     f'{" checked" if suggested else ""} data-label="{esc(plain(str(option.get("label", ""))))}"'
@@ -2178,7 +2190,7 @@ class Renderer:
                 f'<legend>{esc(item_id)} · {self.inline(str(item.get("question", "")))}</legend>'
                 f'{"".join(options)}<div class="decision-foot">{confidence}{self.refs(item.get("refs"))}</div></fieldset>'
             )
-        return f'<div class="decisions">{"".join(fieldsets)}</div>'
+        return f"<div>{''.join(fieldsets)}</div>"
 
     # ---- walkthrough rounds
 
@@ -2202,94 +2214,76 @@ class Renderer:
                 tags[tag] = tags.get(tag, 0) + 1
 
         to_confirm = sum(1 for premise in current.premises if premise.status == "open")
-        chips = [("", f"{len(current.items)} items")]
-        if counts["needs"]:
-            chips.append(("warn", f"{counts['needs']} need you"))
-        chips += [("", f"{counts[key]} {key}") for key in ("open", "decided", "deferred") if counts[key]]
+        item_parts = [f"{counts['needs']} need you"] if counts["needs"] else []
+        item_parts += [f"{counts[key]} {key}" for key in ("open", "decided", "deferred") if counts[key]]
+        stats = [f"{len(current.items)} items" + (": " + ", ".join(item_parts) if item_parts else "")]
         if current.premises:
-            chips.append(("", f"{len(current.premises)} premises" + (f", {to_confirm} to confirm" if to_confirm else "")))
-        chip_html = "".join(f'<span class="chip {css}">{esc(text)}</span>' for css, text in chips)
-        head = (
-            f'<div class="round-head"><div class="kicker">Walkthrough · round {current.number} · {esc(current.date)}</div>'
-            f'<div class="chips">{chip_html}</div></div>'
-        )
+            stats.append(f"{len(current.premises)} premises" + (f", {to_confirm} to confirm" if to_confirm else ""))
+        self.round_stats[doc.id] = stats
 
         premise_html = ""
         if current.premises:
             section_id = f' id="{esc(doc.id)}__{esc(current.premise_anchor)}"' if current.premise_anchor else ""
             premise_html = (
-                f'<section class="round-premises anchored"{section_id}><div class="round-label-row">'
-                '<div class="round-label">Round 0 · Premises</div>'
-                '<button type="button" class="linkish" data-action="expand-cards">Expand all</button></div>'
-                '<p class="muted">Confirm these first. Each decision links to the premises it uses.</p>'
+                f'<section class="round-premises"{section_id}><div class="round-label-row">'
+                '<div class="round-label">Premises</div>'
+                '<button type="button" class="tool" data-action="expand-cards">Expand all</button></div>'
+                '<p>Confirm these first. Each decision links to the premises it uses.</p>'
                 '<div class="cards">'
                 + "".join(self.premise_card(doc, premise, by_item.get(premise.ident, [])) for premise in current.premises)
                 + "</div></section>"
             )
 
-        filters = [("all", "All", len(current.items)), ("needs", "Need you", counts["needs"]),
-                   ("open", "Open", counts["open"]), ("decided", "Decided", counts["decided"]),
-                   ("deferred", "Deferred", counts["deferred"])]
-        filters += [(f"tag:{tag}", tag.replace("-", " ").capitalize(), count) for tag, count in sorted(tags.items())]
-        buttons = "".join(
-            f'<button type="button" class="btn" data-filter="{esc(key)}" aria-pressed="{"true" if key == "all" else "false"}">'
+        states = [("all", "All", len(current.items)), ("needs", "Need you", counts["needs"]),
+                  ("open", "Open", counts["open"]), ("decided", "Decided", counts["decided"]),
+                  ("deferred", "Deferred", counts["deferred"])]
+        state_buttons = "".join(
+            f'<button type="button" data-filter="{esc(key)}" aria-pressed="{"true" if key == "all" else "false"}">'
             f'{esc(label)} <span class="n">{count}</span></button>'
-            for key, label, count in filters if count or key == "all"
+            for key, label, count in states if count or key == "all"
+        )
+        topic_buttons = "".join(
+            f'<button type="button" class="btn" data-topic="{esc(tag)}" aria-pressed="false">'
+            f'{esc(tag.replace("-", " ").capitalize())} <span class="n">{count}</span></button>'
+            for tag, count in sorted(tags.items())
         )
         bulk = (
-            '<div class="bulk-row"><button type="button" class="btn" data-action="bulk-accept" disabled>'
-            'Accept suggested for <span data-bulk-count>0</span> shown</button></div>'
+            '<button type="button" class="btn" data-action="bulk-accept" disabled>'
+            'Accept suggested for <span data-bulk-count>0</span> shown</button>'
             if any_suggested else ""
         )
         items_html = (
             '<section class="round-items"><div class="round-label-row"><div class="round-label">Decisions</div>'
-            '<button type="button" class="linkish" data-action="expand-cards">Expand all</button></div>'
-            f'<div class="filters" role="group" aria-label="Filter the items">{buttons}</div>{bulk}'
-            f'<div class="cards">{"".join(cards)}</div>'
-            '<button type="button" class="btn more" data-action="show-more" hidden>Show more</button></section>'
+            '<button type="button" class="tool" data-action="expand-cards">Expand all</button></div>'
+            f'<div class="filters"><div class="seg" role="group" aria-label="Show">{state_buttons}</div>'
+            f'{topic_buttons}{bulk}<span class="status" role="status" data-showing></span></div>'
+            f'<div class="cards">{"".join(cards)}</div></section>'
         )
         return (
             f'<div class="round" data-label="{esc(doc.title)}, round {current.number}">'
-            f'<div class="round-main">{head}{premise_html}{items_html}</div>{self.round_side(doc, by_item)}</div>'
+            f'{premise_html}{items_html}</div>'
         )
 
-    def round_side(self, doc: Doc, by_item: dict[str, list[Exhibit]]) -> str:
-        used = [doc]
-        for exhibits in by_item.values():
-            for exhibit in exhibits:
-                for source in exhibit_sources(exhibit):
-                    file = source.partition("#")[0]
-                    other = self.by_file.get(Path(file).name) if file.lower().endswith(".md") else None
-                    if other and other not in used:
-                        used.append(other)
-        rows = [f"<dt>{esc(item.file)}</dt><dd>{esc(item.sha[:7])}</dd>" for item in used]
-        for root in self.repo.roots:
-            head = git_head(root)
-            if head:
-                rows.append(f"<dt>{esc(root.name)} (repo)</dt><dd>{esc(head[:7])}</dd>")
-        return (
-            '<aside class="round-side" aria-label="Respond to this round">'
-            '<section class="panel"><h3>Respond</h3><p class="muted small">Your answers go back to the source as '
-            'markdown. Paste them into the session; the walkthrough skill records them.</p>'
-            '<pre class="live" data-live></pre>'
-            '<div class="row-btns"><button type="button" class="btn" data-action="next-open"><span data-open-count>0</span> to answer</button>'
-            '<button type="button" class="btn primary" data-action="copy-live">Copy response</button></div>'
-            '<p class="muted small" data-copied-live hidden>Copied</p>'
-            '<button type="button" class="linkish" data-action="clear-answers">Clear my answers</button></section>'
-            f'<section class="panel"><h3>Built from</h3><dl class="built">{"".join(rows)}</dl>'
-            '<p class="muted small">Rebuild after any source change; edits made on this page are lost on rebuild.</p></section>'
-            "</aside>"
-        )
+    @staticmethod
+    def caret_icon() -> str:
+        return '<svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 4l4 4-4 4"/></svg>'
+
+    @staticmethod
+    def check_icon() -> str:
+        return '<svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3.2 3L13 4.5"/></svg>'
 
     def premise_card(self, doc: Doc, premise: RoundItem, exhibits: list[Exhibit]) -> str:
-        chip = {
-            "open": '<span class="chip neutral">Not confirmed</span>',
-            "confirmed": '<span class="chip ok">Confirmed</span>',
-            "corrected": '<span class="chip warn">Corrected</span>',
+        state = {
+            "open": '<span class="tag">Not confirmed</span>',
+            "confirmed": f'<span class="c-answer">{self.check_icon()}Confirmed</span>',
+            "corrected": '<span class="tag warn">Corrected</span>',
         }[premise.status]
-        title = f"<b>{esc(plain(premise.title))}</b> · " if premise.title else ""
+        title = f"{esc(plain(premise.title))}: " if premise.title else ""
         drawn = "".join(self.exhibit(exhibit) for exhibit in exhibits)
-        recorded = "".join(f'<div class="c-recorded">{self.blocks(blocks)}</div>' for blocks in premise.recorded)
+        recorded = ""
+        if premise.recorded:
+            entries = "".join(self.blocks(blocks) for blocks in premise.recorded)
+            recorded = f'<div class="c-recorded"><div class="c-label">Recorded</div>{entries}</div>'
         actions = ""
         if premise.status == "open":
             actions = (
@@ -2301,9 +2295,10 @@ class Renderer:
         return (
             f'<details class="card premise" id="{esc(item_element_id(doc, premise.ident))}" data-ckey="{esc(doc.id)}#item:{esc(premise.ident)}" '
             f'data-item="{esc(premise.ident)}" data-status="{premise.status}" data-ctitle="{esc(premise.ident)} · {esc(name)}">'
-            f'<summary><span class="cid">{esc(premise.ident)}</span><span class="c-headline">{title}{esc(shorten(premise.text, 120))}</span>'
-            f'<span class="c-state">{chip}<span class="chip info" data-premise-chip hidden></span></span></summary>'
-            f'<div class="c-body"><p class="p-text">{self.inline(premise.text)}</p>{drawn}{recorded}'
+            f'<summary>{self.caret_icon()}<span class="cid">{esc(premise.ident)}</span>'
+            f'<span class="c-headline">{title}{esc(shorten(premise.text, 120))}</span>'
+            f'<span class="c-state">{state}<span class="c-answer yours" data-premise-chip hidden>{self.check_icon()}<span></span></span></span></summary>'
+            f'<div class="c-body"><p>{self.inline(premise.text)}</p>{drawn}{recorded}'
             f'<div class="c-foot"><button type="button" class="tool" data-action="comment">Comment on {esc(premise.ident)}</button>{actions}</div>'
             '<div class="comment-slot"></div></div></details>'
         )
@@ -2321,29 +2316,17 @@ class Renderer:
         suggested = next((option for option in options if option.get("suggested")), None)
         headline = plain(str(data["headline"])) if data.get("headline") else shorten(item.text)
 
-        state = []
+        state = [f'<span class="tag topic">{esc(tag.replace("-", " "))}</span>' for tag in tags[:2]]
         if is_open:
-            state.append('<span class="chip warn">Needs you</span>' if needs else '<span class="chip neutral">Open</span>')
-            if suggested:
-                state.append(f'<span class="c-suggest">Suggested: {esc(plain(str(suggested.get("label", ""))))}</span>')
+            state.append('<span class="tag warn">Needs you</span>' if needs else '<span class="tag">Open</span>')
         else:
-            css = "info" if item.status == "deferred" else "ok"
-            state.append(f'<span class="chip {css}">{esc(shorten(item.answer, 48))}</span>')
-        state.append('<span class="chip info" data-answer-chip hidden></span>')
-        tag_html = "".join(f'<span class="tag">{esc(tag.replace("-", " "))}</span>' for tag in tags)
+            state.append(f'<span class="c-answer">{self.check_icon()}{esc(shorten(item.answer, 48))}</span>')
+        state.append(f'<span class="c-answer yours" data-answer-chip hidden>{self.check_icon()}<span></span></span>')
 
-        meta = [f"<span>Source {self.inline(item.source)}</span>"] if plain(item.source) else []
-        if decision:
-            stamp = decision.data.get("stamp") or {}
-            stamp_text = " · ".join(sorted({str(value)[:6] for value in stamp.values()})) if isinstance(stamp, dict) else ""
-            meta.append(f'<span class="muted">Headline, options and walk: model-drawn{" · " + esc(stamp_text) if stamp_text else ""}</span>')
-            if decision.status == "stale":
-                meta.append(f'<span class="chip warn">Stale: {esc("; ".join(decision.problems) or "the row changed")}</span>')
-        fields = "".join(
-            f'<div class="c-field"><div class="label">{self.inline(name)}</div><div>{self.inline(cell)}</div></div>'
-            for name, cell in item.fields
-        )
-        uses_html = ""
+        rows = []
+        if plain(item.source):
+            rows.append(f"<dt>Source</dt><dd>{self.inline(item.source)}</dd>")
+        rows += [f"<dt>{self.inline(name)}</dt><dd>{self.inline(cell)}</dd>" for name, cell in item.fields]
         if uses:
             links = []
             for ident in uses:
@@ -2354,55 +2337,58 @@ class Renderer:
                 else:
                     self.lint["unresolved refs"].add(f"{doc.file}: {item.ident} uses {ident}, not a premise of this round")
                     links.append(f"<span>{esc(ident)}</span>")
-            uses_html = (
-                f'<div class="c-uses"><span class="muted">Uses</span><span class="refs">{"".join(links)}</span>'
-                '<span class="chip warn" data-premise-flag hidden>Rests on a premise marked for correction</span></div>'
+            rows.append(
+                f'<dt>Uses</dt><dd>{", ".join(links)} '
+                '<span class="tag warn" data-premise-flag hidden>Rests on a premise marked for correction</span></dd>'
             )
-        walk_html = ""
-        if decision and isinstance(data.get("walk"), dict):
-            walk_html = (
-                f'<div class="c-block"><div class="label">Failure walk · illustration</div>'
-                f'{self.exhibit_walk(decision, data["walk"])}</div>'
-            )
+        fields_html = f'<dl class="c-fields">{"".join(rows)}</dl>' if rows else ""
+        walk_html = self.exhibit_walk(decision, data["walk"]) if decision and isinstance(data.get("walk"), dict) else ""
         drawn = "".join(self.exhibit(exhibit) for exhibit in others)
         recorded = ""
         if not is_open or item.recorded:
-            answer = f'<p class="c-answer-cell">{self.inline(item.answer)}</p>' if plain(item.answer) else ""
-            entries = "".join(f'<div class="c-entry">{self.blocks(blocks)}</div>' for blocks in item.recorded)
-            recorded = f'<div class="c-recorded"><div class="label">Recorded</div>{answer}{entries}</div>'
+            if item.recorded:
+                content = "".join(self.blocks(blocks) for blocks in item.recorded)
+            else:
+                content = f"<p>{self.inline(item.answer)}</p>" if plain(item.answer) else ""
+            recorded = f'<div class="c-recorded"><div class="c-label">Recorded</div>{content}</div>'
         form = ""
         if is_open and options:
             name = f"rd-{doc.id}-{slugify(item.ident)}"
             choices = []
             for option in options:
                 is_suggested = bool(option.get("suggested"))
-                note = f'<span class="note">{self.inline(str(option["note"]))}</span>' if option.get("note") else ""
-                marker = '<span class="chip info">suggested</span>' if is_suggested else ""
+                note = f'<span class="hint">{self.inline(str(option["note"]))}</span>' if option.get("note") else ""
+                marker = '<span class="suggested">Suggested</span>' if is_suggested else ""
                 choices.append(
                     f'<label class="opt"><input type="radio" name="{esc(name)}" value="{esc(str(option.get("value", "")))}" '
                     f'data-label="{esc(plain(str(option.get("label", ""))))}"{" data-suggested" if is_suggested else ""}>'
-                    f'<span><span class="opt-label">{self.inline(str(option.get("label", "")))}{marker}</span>{note}</span></label>'
+                    f'<span><span class="opt-label">{self.inline(str(option.get("label", "")))}</span>{marker}{note}</span></label>'
                 )
-            confidence = (
-                f'<span class="muted">Recommendation confidence {esc(str(data["confidence"]))}%</span>'
-                if data.get("confidence") else ""
-            )
-            form = (
-                f'<fieldset class="rdecision"><legend class="label">Your decision</legend>{"".join(choices)}'
-                f'<div class="decision-foot">{confidence}</div></fieldset>'
-            )
+            form = f'<fieldset class="rdecision"><legend>Your decision</legend>{"".join(choices)}</fieldset>'
         elif is_open:
-            form = '<p class="muted small">No options are drawn for this item yet. Answer it with a comment.</p>'
+            form = '<p class="muted">No options are drawn for this item yet. Answer it with a comment.</p>'
+        foot = []
+        if data.get("confidence"):
+            foot.append(f"Recommendation confidence {esc(str(data['confidence']))}%")
+        if decision:
+            stamp = decision.data.get("stamp") or {}
+            stamp_text = " · ".join(sorted({str(value)[:6] for value in stamp.values()})) if isinstance(stamp, dict) else ""
+            foot.append("model-drawn" + (f" · {esc(stamp_text)}" if stamp_text else ""))
+        stale = (
+            f'<span class="tag warn">Stale: {esc("; ".join(decision.problems) or "the row changed")}</span> '
+            if decision and decision.status == "stale" else ""
+        )
+        foot_html = f'<span>{stale}{" · ".join(foot)}</span>' if foot or stale else ""
         card = (
             f'<details class="card" id="{esc(item_element_id(doc, item.ident))}" data-ckey="{esc(doc.id)}#item:{esc(item.ident)}" '
             f'data-item="{esc(item.ident)}" data-status="{item.status}" data-needs="{"1" if needs else ""}" '
             f'data-tags="{esc(" ".join(tags))}" data-uses="{esc(" ".join(uses))}" '
             f'data-ctitle="{esc(display_id(item.ident))} · {esc(shorten(headline, 90))}" data-recorded="{esc(shorten(item.answer, 80))}"'
             f'{" open" if needs else ""}>'
-            f'<summary><span class="cid">{esc(display_id(item.ident))}</span><span class="c-headline">{esc(headline)}</span>'
-            f'<span class="c-state">{tag_html}{"".join(state)}</span></summary>'
-            f'<div class="c-body"><div class="c-meta">{"".join(meta)}</div>{fields}{uses_html}{walk_html}{drawn}{recorded}{form}'
-            f'<div class="c-foot"><button type="button" class="tool" data-action="comment">Comment on {esc(display_id(item.ident))}</button></div>'
+            f'<summary>{self.caret_icon()}<span class="cid">{esc(display_id(item.ident))}</span>'
+            f'<span class="c-headline">{esc(headline)}</span><span class="c-state">{"".join(state)}</span></summary>'
+            f'<div class="c-body">{fields_html}{walk_html}{drawn}{recorded}{form}'
+            f'<div class="c-foot">{foot_html}<button type="button" class="tool" data-action="comment">Comment on {esc(display_id(item.ident))}</button></div>'
             '<div class="comment-slot"></div></div></details>'
         )
         return card, {"needs": needs, "tags": tags, "suggested": bool(suggested) and is_open}
@@ -2467,12 +2453,12 @@ class Renderer:
         self.tour_stats[doc.id] = totals
         uncited = totals["files"] - totals["cited"]
         filters = (
-            f'<button type="button" class="btn" data-cov-filter="all" aria-pressed="true">All files <span class="n">{totals["files"]}</span></button>'
-            f'<button type="button" class="btn" data-cov-filter="uncited" aria-pressed="false">Not in any step <span class="n">{uncited}</span></button>'
+            f'<button type="button" data-cov-filter="all" aria-pressed="true">All files <span class="n">{totals["files"]}</span></button>'
+            f'<button type="button" data-cov-filter="uncited" aria-pressed="false">Not in any step <span class="n">{uncited}</span></button>'
         )
         return (
-            '<div class="coverage" data-coverage><div class="label">Every changed file, from git</div>'
-            f'<div class="filters">{filters}</div>{"".join(repos)}</div>'
+            '<div class="coverage" data-coverage><p class="muted">Every changed file, from git</p>'
+            f'<div class="filters"><div class="seg" role="group" aria-label="Files">{filters}</div></div>{"".join(repos)}</div>'
         )
 
     # ---- code exhibits
@@ -2489,7 +2475,7 @@ class Renderer:
             text = self.inline(str(pin.get("text", "")))
             pins.setdefault(line, []).append(f'<span class="pin tone-{esc(tone)}">{title}{text}</span>')
         where = self.editor_link(code["path"], code["start"], f"<code>{esc(code['reference'])}</code>")
-        caption = f'<span class="cap">{where} · lines {code["start"]}–{code["end"]} · {esc(code["at"])}</span>'
+        caption = f'<span>{where} · lines {code["start"]}–{code["end"]} · {esc(code["at"])}</span>'
         return self.code_figure(
             highlight_lines(code["text"], code["lang"]), caption,
             start=code["start"], highlight=parse_line_set(data.get("highlight")), pins=pins,
@@ -2606,7 +2592,7 @@ class Renderer:
         col_w = [120.0] * cols
         for ident, (_, col) in positions.items():
             node = info[ident]
-            need = max(text_width(str(node.get("label") or ident), 13.5) * 1.08, text_width(str(node.get("sub") or ""), 12)) + 30
+            need = max(text_width(str(node.get("label") or ident), 14) * 1.08, text_width(str(node.get("sub") or ""), 12)) + 30
             col_w[col] = max(col_w[col], need)
         gap_x, gap_y, pad = 52, 58, 18
         col_left = []
@@ -2679,7 +2665,7 @@ class Renderer:
         parts = [part for part in data.get("participants") or [] if part.get("id")]
         ids = [str(part["id"]) for part in parts]
         labels = {str(part["id"]): str(part.get("label") or part["id"]) for part in parts}
-        lane_w = max([150.0] + [text_width(labels[i], 13.5) + 40 for i in ids])
+        lane_w = max([150.0] + [text_width(labels[i], 14) + 40 for i in ids])
         pad = 14
         xs = {ident: pad + index * lane_w + lane_w / 2 for index, ident in enumerate(ids)}
         steps = data.get("steps") or []
@@ -2714,7 +2700,8 @@ class Renderer:
             source, target = str(step.get("from")), str(step.get("to"))
             if source not in xs or target not in xs:
                 continue
-            text = str(step.get("text") or "")
+            raw = str(step.get("text") or "")
+            text = ("+ " if str(step.get("mark") or "") == "new" else "") + raw
             kind = str(step.get("kind") or "call")
             mark = str(step.get("mark") or "")
             css = "msg" + (f" {kind}" if kind != "call" else "") + (f" m-{mark}" if mark else "")
@@ -2736,8 +2723,8 @@ class Renderer:
                 shape += f'<text x="{(x1 + x2) / 2:.1f}" y="{y - 7:.1f}" text-anchor="middle">{esc(text)}</text>'
                 y_step = 42
             body.append(f'<g class="{css}">{shape}</g>' + fail_svg)
-            arrow = {"reply": "⇠", "lost": "✕"}.get(kind, "→")
-            text_items.append(f"{esc(labels[source])} {arrow} {esc(labels[target])}: {esc(text)}"
+            arrow = "→" + (f" ({esc(kind)})" if kind != "call" else "")
+            text_items.append(f"{esc(labels[source])} {arrow} {esc(labels[target])}: {esc(raw)}"
                               + (f" ({esc(mark)})" if mark else "") + (f" — {esc(fail)}" if fail else ""))
             y += y_step
         height = y + 6
@@ -2785,15 +2772,21 @@ def build_page(spec_dir: Path, docs: list[Doc], exhibits: list[Exhibit], repo: R
     task_items = []
     for doc in docs:
         button = (
-            f'<li><a class="doclink" href="#{doc.id}" data-doc="{doc.id}">'
-            f'<span>{esc(doc.label)}</span><span class="muted">{esc(doc.file)}</span></a></li>'
+            f'<li><a class="doclink" href="#{doc.id}" data-doc="{doc.id}">{esc(doc.label)}</a></li>'
         )
         (task_items if doc.file.startswith("task_") else nav_docs).append(button)
     if task_items:
         nav_docs.append(
-            f'<li class="group"><details><summary>Task files <span class="muted">{len(task_items)}</span></summary>'
+            f'<li class="group"><details><summary>Task files <span class="n">{len(task_items)}</span></summary>'
             f'<ul>{"".join(task_items)}</ul></details></li>'
         )
+    docs_html = f'<ul class="docs">{"".join(nav_docs)}</ul>'
+    built_rows = [f"<dt>{esc(doc.file)}</dt><dd>{esc(doc.sha[:7])}</dd>" for doc in docs]
+    for root in repo.roots:
+        head = git_head(root)
+        if head:
+            built_rows.append(f"<dt>{esc(root.name)} (repo)</dt><dd>{esc(head[:7])}</dd>")
+    built_html = "".join(built_rows)
 
     report = []
     for kind, entries in renderer.lint.items():
@@ -2809,8 +2802,8 @@ def build_page(spec_dir: Path, docs: list[Doc], exhibits: list[Exhibit], repo: R
         report.append(f"<h3>Illustrations · {len(exhibit_problems)}</h3><ul>{''.join(exhibit_problems)}</ul>")
     notes = sum(len(v) for v in renderer.lint.values()) + len(exhibit_problems)
     report_html = (
-        f'<details class="report"><summary>Build report · {notes} notes</summary>{"".join(report)}</details>'
-        if report else '<p class="muted small">Build report: no unresolved links, paths or refs.</p>'
+        f'<details><summary>Build report · {notes} notes</summary>{"".join(report)}</details>'
+        if report else '<p>Build report: no unresolved links, paths or refs.</p>'
     )
 
     manifest = {
@@ -2839,31 +2832,58 @@ def build_page(spec_dir: Path, docs: list[Doc], exhibits: list[Exhibit], repo: R
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
 <meta name="generator" content="ai-kit render-view">
 <title>{esc(title)}</title>
+<script>try{{var t=localStorage.getItem('rv-theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}}catch(e){{}}</script>
+<style>{read_asset("fonts.css")}</style>
 <style>{read_asset("view.css")}</style>
 </head>
 <body>
 <header class="topbar">
-  <span class="badge">GENERATED VIEW · DO NOT EDIT</span>
-  <span class="build">Built {esc(built_text)} from <b>{esc(spec_dir.name)}/</b> · {len(docs)} docs{git_text}</span>
-  <span class="spacer"></span>
-  <button type="button" class="btn" data-action="collapse-all">Collapse all</button>
+  <div class="spec"><b>{esc(spec_dir.name)}</b><span class="muted">{len(docs)} documents</span></div>
+  <details class="menu"><summary class="btn">Contents</summary>
+    <div class="menu-body">
+      {docs_html}
+      <div class="nav-title">On this page</div>
+      {"".join(outlines)}
+      <button type="button" class="tool" data-action="collapse-all">Collapse all</button>
+    </div>
+  </details>
+  <fieldset class="theme" aria-label="Theme">
+    <label><input type="radio" name="theme" value="system" checked><span>System</span></label>
+    <label><input type="radio" name="theme" value="light"><span>Light</span></label>
+    <label><input type="radio" name="theme" value="dark"><span>Dark</span></label>
+  </fieldset>
   <button type="button" class="btn primary" data-action="respond">Respond <span class="count" data-count>0</span></button>
 </header>
 <div class="layout">
   <nav class="side" aria-label="Documents">
-    <div class="panel"><div class="label">Documents</div><ul class="docs">{"".join(nav_docs)}</ul></div>
-    <div class="panel outline-panel"><div class="label">Outline</div>{"".join(outlines)}</div>
-    <div class="panel small">{report_html}<p class="muted">Rebuild after any source change; edits to this page are lost. Check freshness with <code>render_view.py check</code>.</p></div>
+    <div class="nav-title">Documents</div>
+    {docs_html}
   </nav>
-  <main id="main">{"".join(articles)}</main>
-</div>
-<div class="respond" id="respond" role="dialog" aria-modal="false" aria-labelledby="respond-title" hidden>
-  <div class="respond-head"><h2 id="respond-title">Respond</h2><button type="button" class="btn" data-action="close-respond">Close</button></div>
-  <p class="muted">Your decisions and comments, as markdown for the session. The owning skill writes them into the source docs; this page keeps nothing.</p>
-  <textarea id="respond-text" readonly rows="16" aria-label="Response markdown"></textarea>
-  <div class="respond-actions"><button type="button" class="btn primary" data-action="copy">Copy response</button><span class="muted" data-copied hidden>Copied</span></div>
+  <main id="main">{"".join(articles)}
+    <footer class="doc-foot">
+      <p>Generated from <code>{esc(spec_dir.name)}/</code> on {esc(built_text)} · {len(docs)} documents{git_text}. This page is build output: edit the markdown, then rebuild.</p>
+      {report_html}
+    </footer>
+  </main>
+  <nav class="rail" aria-label="On this page">
+    <div class="nav-title">On this page</div>
+    {"".join(outlines)}
+    <button type="button" class="tool" data-action="collapse-all">Collapse all</button>
+  </nav>
+  <aside class="respond-panel" id="respond" aria-label="Respond">
+    <div class="respond-head"><h2>Respond</h2><button type="button" class="tool" data-action="close-respond" aria-label="Close"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg></button></div>
+    <p class="respond-progress" data-progress></p>
+    <div class="respond-actions"><button type="button" class="btn" data-action="next-open" hidden>Next unanswered</button><button type="button" class="btn" data-action="copy">Copy response</button></div>
+    <p class="respond-status" role="status"></p>
+    <pre class="live" data-live></pre>
+    <button type="button" class="tool" data-action="clear-answers">Clear my answers</button>
+    <div class="confirm" data-confirm hidden><span>Clear every answer and comment?</span><button type="button" class="btn" data-action="cancel-clear">Cancel</button><button type="button" class="btn" data-action="confirm-clear">Clear</button></div>
+    <h3>Built from</h3>
+    <dl class="built">{built_html}</dl>
+  </aside>
 </div>
 <div class="popover" id="popover" role="tooltip" hidden></div>
 <script type="application/json" id="view-manifest">{manifest_json}</script>

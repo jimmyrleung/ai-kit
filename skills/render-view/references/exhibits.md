@@ -58,7 +58,9 @@ Do not:
 - `item` instead of `anchor`: attaches the exhibit to a premise or item of a walkthrough round (`P1`,
   `D4`); see [rounds.md](rounds.md), which also defines the `decision` type.
 - `stamp`: written by the build. Leave it out of a new file; delete it when you redraw.
-- `title`, `caption`: optional, one line each. Text fields accept inline markdown (code, bold, links).
+- `title`, `caption`: optional, one line each. Text fields accept inline markdown (code, bold, links). The page
+  draws each exhibit as a figure and writes a caption below it that starts with "Figure N." (counted per doc),
+  then the `caption` text, then the sources.
 - `refs` (inside items): IDs defined in the spec set (`RF1`, `UT-57`, `T6`), `#anchor` in the same doc,
   or `file.md#anchor`. Unresolved refs show in the build report.
 
@@ -103,8 +105,8 @@ tree. `dashed: true` for optional or async links.
 
 `sequence`: a step is a message (`from`, `to`, `text`), a `note` (with `over`: participant ids), or a
 `divider`. Message `kind` is `call` (default), `reply` (dashed) or `lost` (ends in ✕). `mark` is `new`
-(green) or `removed` (red, struck). `fail` on a message or note writes its failure exit in the right
-column.
+(green, and its text starts with "+") or `removed` (red, struck). `fail` on a message or note writes its
+failure exit in the right column.
 
 ```json
 { "participants": [ { "id": "job", "label": "ReminderJob" }, { "id": "db", "label": "Invoices" }, { "id": "mail", "label": "Mailer" } ],

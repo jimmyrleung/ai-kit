@@ -7,7 +7,7 @@
   var KEPT = ["comments", "answers", "bulk", "premises", "reviewed"];
   var state = { comments: {}, touched: {}, answers: {}, bulk: {}, premises: {}, reviewed: {} };
   var current = null;
-  var CARD_LIMIT = 12;
+  var lastBulk = null;
   var ITEMS = ".card[data-ckey]:not(.premise)";  // decision cards; premises are cards too
 
   try {
@@ -45,10 +45,9 @@
     all("ol.outline").forEach(function (outline) { outline.hidden = outline.dataset.doc !== id; });
     all(".doclink").forEach(function (link) {
       var active = link.dataset.doc === id;
-      link.classList.toggle("active", active);
       if (active) {
         link.setAttribute("aria-current", "page");
-        var group = link.closest("details");
+        var group = link.closest("li.group details");
         if (group) group.open = true;
       } else {
         link.removeAttribute("aria-current");
@@ -56,6 +55,8 @@
     });
     current = id;
     observeHeadings(article);
+    setPanel();
+    updatePanel();
     return true;
   }
 
@@ -92,7 +93,7 @@
     if (element.classList.contains("card") && element.hidden) {
       var round = element.closest(".round");
       round.dataset.filter = "all";
-      round.dataset.expanded = "1";
+      round.dataset.topic = "";
       applyFilter(round);
     }
   }
@@ -104,7 +105,8 @@
 
   function markOutline(target) {
     all("ol.outline a").forEach(function (link) {
-      link.classList.toggle("active", link.getAttribute("href") === "#" + target);
+      if (link.getAttribute("href") === "#" + target) link.setAttribute("aria-current", "location");
+      else link.removeAttribute("aria-current");
     });
   }
 
@@ -192,6 +194,7 @@
     var input = event.target;
     var card = input.closest && input.closest(ITEMS);
     if (card && input.type === "radio") {
+      dropUndo();
       state.answers[card.dataset.ckey] = input.value;
       delete state.bulk[card.dataset.ckey];
       persist();
@@ -226,6 +229,7 @@
 
   function setPremise(card, value) {
     var key = card.dataset.ckey;
+    dropUndo();
     if (state.premises[key] === value) delete state.premises[key];
     else state.premises[key] = value;
     if (state.premises[key] === "correct") openComment(card, true);
@@ -233,32 +237,29 @@
     refresh();
   }
 
-  function matches(card, filter) {
-    if (filter === "all") return true;
-    if (filter === "needs") return card.dataset.needs === "1";
-    if (filter.indexOf("tag:") === 0) return (" " + card.dataset.tags + " ").indexOf(" " + filter.slice(4) + " ") >= 0;
-    return card.dataset.status === filter;
+  function matches(card, filter, topic) {
+    var inState = filter === "all" || (filter === "needs" ? card.dataset.needs === "1" : card.dataset.status === filter);
+    var inTopic = !topic || (" " + card.dataset.tags + " ").indexOf(" " + topic + " ") >= 0;
+    return inState && inTopic;
   }
 
   function applyFilter(round) {
     var filter = round.dataset.filter || "all";
-    var expanded = round.dataset.expanded === "1";
+    var topic = round.dataset.topic || "";
+    var cards = all(ITEMS, round);
     var shown = 0;
-    var rest = 0;
-    all(ITEMS, round).forEach(function (card) {
-      var hit = matches(card, filter);
-      card.hidden = !hit || (!expanded && shown >= CARD_LIMIT);
-      if (hit && card.hidden) rest += 1;
+    cards.forEach(function (card) {
+      card.hidden = !matches(card, filter, topic);
       if (!card.hidden) shown += 1;
     });
-    all("[data-filter]", round).forEach(function (button) {
+    all("button[data-filter]", round).forEach(function (button) {
       button.setAttribute("aria-pressed", String(button.dataset.filter === filter));
     });
-    var more = round.querySelector("[data-action='show-more']");
-    if (more) {
-      more.hidden = rest === 0;
-      more.textContent = "Show " + rest + " more";
-    }
+    all("button[data-topic]", round).forEach(function (button) {
+      button.setAttribute("aria-pressed", String(button.dataset.topic === topic));
+    });
+    var line = round.querySelector("[data-showing]");
+    if (line) line.textContent = "Showing " + shown + " of " + cards.length;
     refreshRound(round);
   }
 
@@ -268,27 +269,59 @@
     });
   }
 
+  function respondStatus() {
+    return document.querySelector(".respond-status");
+  }
+
+  function dropUndo() {
+    if (!lastBulk) return;
+    lastBulk = null;
+    respondStatus().textContent = "";
+  }
+
   function bulkAccept(round) {
-    bulkTargets(round).forEach(function (card) {
+    var targets = bulkTargets(round);
+    dropUndo();
+    lastBulk = [];
+    targets.forEach(function (card) {
       var radio = card.querySelector("input[data-suggested]");
       radio.checked = true;
       state.answers[card.dataset.ckey] = radio.value;
       state.bulk[card.dataset.ckey] = true;
+      lastBulk.push(card.dataset.ckey);
     });
+    persist();
+    refresh();
+    if (!lastBulk.length) {
+      lastBulk = null;
+      return;
+    }
+    var status = respondStatus();
+    status.textContent = "Accepted " + lastBulk.length + (lastBulk.length === 1 ? " suggestion. " : " suggestions. ");
+    var undo = document.createElement("button");
+    undo.type = "button";
+    undo.className = "tool";
+    undo.dataset.action = "undo-bulk";
+    undo.textContent = "Undo";
+    status.appendChild(undo);
+  }
+
+  function undoBulk() {
+    if (!lastBulk) return;
+    lastBulk.forEach(function (key) {
+      delete state.answers[key];
+      delete state.bulk[key];
+      var card = document.querySelector(".card[data-ckey='" + CSS.escape(key) + "']");
+      if (card) all("input[type=radio]:checked", card).forEach(function (input) { input.checked = false; });
+    });
+    lastBulk = null;
+    respondStatus().textContent = "";
     persist();
     refresh();
   }
 
-  function clearAnswers(button) {
-    if (button.dataset.armed !== "1") {
-      button.dataset.armed = "1";
-      button.textContent = "Click again to clear every answer and comment";
-      window.setTimeout(function () {
-        button.dataset.armed = "";
-        button.textContent = "Clear my answers";
-      }, 4000);
-      return;
-    }
+  function clearAnswers() {
+    dropUndo();
     state.comments = {};
     state.answers = {};
     state.bulk = {};
@@ -298,8 +331,6 @@
     all(".card input[type=radio]:checked").forEach(function (input) { input.checked = false; });
     all(".comment-box textarea").forEach(function (input) { input.value = ""; });
     all(".has-comment").forEach(function (host) { host.classList.remove("has-comment"); });
-    button.dataset.armed = "";
-    button.textContent = "Clear my answers";
     persist();
     refresh();
   }
@@ -513,10 +544,9 @@
       var chip = card.querySelector("[data-premise-chip]");
       if (chip) {
         chip.hidden = !answer;
-        chip.textContent = answer === "confirm" ? "You: confirmed" : answer === "correct" ? "You: needs correction" : "";
+        chip.lastElementChild.textContent = answer === "confirm" ? "You: confirmed" : answer === "correct" ? "You: needs correction" : "";
       }
     });
-    var open = 0;
     all(ITEMS, round).forEach(function (card) {
       var flagged = (card.dataset.uses || "").split(" ").some(function (ident) { return wrong[ident]; });
       card.classList.toggle("uses-wrong", flagged);
@@ -526,16 +556,39 @@
       var checked = answerOf(card);
       if (chip) {
         chip.hidden = !checked;
-        chip.textContent = checked ? (state.bulk[card.dataset.ckey] ? "Bulk: " : "Answer: ") + checked.dataset.label : "";
+        chip.lastElementChild.textContent = checked ? (state.bulk[card.dataset.ckey] ? "Bulk: " : "Your answer: ") + checked.dataset.label : "";
       }
-      if (isOpenUnanswered(card)) open += 1;
     });
-    all(".premise[data-ckey]", round).forEach(function (card) {
-      if (card.dataset.status === "open" && !state.premises[card.dataset.ckey]) open += 1;
-    });
-    all("[data-open-count]", round).forEach(function (badge) { badge.textContent = String(open); });
-    var live = round.querySelector("[data-live]");
-    if (live) live.textContent = compose();
+  }
+
+  function progressLine(article) {
+    var round = article.querySelector(".round");
+    if (round) {
+      var items = all(ITEMS, round).filter(function (card) { return card.dataset.status === "open"; });
+      var answered = items.filter(answerOf).length;
+      var toConfirm = all(".premise[data-ckey]", round).filter(function (card) {
+        return card.dataset.status === "open" && !state.premises[card.dataset.ckey];
+      }).length;
+      return answered + " of " + items.length + " answered" +
+        (toConfirm ? " · " + toConfirm + (toConfirm === 1 ? " premise" : " premises") + " to confirm" : "");
+    }
+    var answers = Object.keys(state.answers).length + Object.keys(state.touched).length + Object.keys(state.premises).length;
+    var comments = Object.keys(state.comments).length;
+    var reviewed = Object.keys(state.reviewed).length;
+    var parts = [];
+    if (answers) parts.push(answers + (answers === 1 ? " answer" : " answers"));
+    if (comments) parts.push(comments + (comments === 1 ? " comment" : " comments"));
+    if (reviewed) parts.push(reviewed + (reviewed === 1 ? " step reviewed" : " steps reviewed"));
+    return parts.length ? parts.join(" · ") : "Nothing to send yet";
+  }
+
+  function updatePanel() {
+    var article = current && document.getElementById(current);
+    if (!article) return;
+    var text = compose();
+    all("[data-live]").forEach(function (live) { live.textContent = text; });
+    all("[data-progress]").forEach(function (line) { line.textContent = progressLine(article); });
+    all("[data-action='next-open']").forEach(function (button) { button.hidden = !article.querySelector(".round"); });
   }
 
   function refresh() {
@@ -544,25 +597,43 @@
     all("[data-count]").forEach(function (badge) { badge.textContent = String(count); });
     refreshTours();
     all(".round").forEach(refreshRound);
+    updatePanel();
   }
 
-  function openRespond() {
-    var panel = document.getElementById("respond");
-    var text = document.getElementById("respond-text");
-    text.value = compose();
-    panel.hidden = false;
-    text.focus();
-    text.select();
+  var wide = window.matchMedia("(min-width: 1200px)");
+  var panelWanted = false;
+
+  function panelForced() {
+    var article = current && document.getElementById(current);
+    return Boolean(article && article.querySelector(".round") && wide.matches);
+  }
+
+  function setPanel() {
+    var forced = panelForced();
+    var open = forced || panelWanted;
+    document.body.classList.toggle("respond-open", open);
+    all("[data-action='respond']").forEach(function (button) { button.setAttribute("aria-expanded", String(open)); });
+    all("[data-action='close-respond']").forEach(function (button) { button.hidden = forced; });
+  }
+
+  wide.addEventListener("change", setPanel);
+
+  function toggleRespond() {
+    if (panelForced()) return;
+    panelWanted = !panelWanted;
+    setPanel();
   }
 
   function closeRespond() {
-    document.getElementById("respond").hidden = true;
+    if (panelForced() || !panelWanted) return;
+    panelWanted = false;
+    setPanel();
   }
 
-  function copyText(value, copied, fallbackField) {
+  function copyText(value, status, fallbackField) {
     function done() {
-      copied.hidden = false;
-      window.setTimeout(function () { copied.hidden = true; }, 1600);
+      status.textContent = "Copied";
+      window.setTimeout(function () { status.textContent = ""; }, 1600);
     }
     function fallback() {
       if (!fallbackField) return;
@@ -607,18 +678,51 @@
     popover.style.left = Math.max(8, left) + "px";
     link.setAttribute("aria-describedby", "popover");
   }
+  var showTimer = null;
+  var hideTimer = null;
+  var popLink = null;
+  function stopTimers() {
+    window.clearTimeout(showTimer);
+    window.clearTimeout(hideTimer);
+    showTimer = null;
+    hideTimer = null;
+  }
   function hidePopover() {
+    stopTimers();
     popover.hidden = true;
+    popLink = null;
   }
   document.addEventListener("mouseover", function (event) {
-    var link = event.target.closest && event.target.closest("a.idref");
-    if (link) showPopover(link);
-    else hidePopover();
+    var target = event.target;
+    var link = target.closest && target.closest("a.idref");
+    if (link) {
+      window.clearTimeout(hideTimer);
+      hideTimer = null;
+      if (popLink === link && !popover.hidden) return;
+      window.clearTimeout(showTimer);
+      showTimer = window.setTimeout(function () {
+        showTimer = null;
+        popLink = link;
+        showPopover(link);
+      }, 400);
+    } else if (target.closest && target.closest("#popover")) {
+      window.clearTimeout(hideTimer);
+      hideTimer = null;
+    } else {
+      window.clearTimeout(showTimer);
+      showTimer = null;
+      if (!popover.hidden && !hideTimer) hideTimer = window.setTimeout(hidePopover, 200);
+    }
   });
   document.addEventListener("focusin", function (event) {
     var link = event.target.closest && event.target.closest("a.idref");
-    if (link) showPopover(link);
-    else hidePopover();
+    stopTimers();
+    if (link) {
+      popLink = link;
+      showPopover(link);
+    } else {
+      hidePopover();
+    }
   });
   window.addEventListener("scroll", hidePopover, { passive: true });
 
@@ -642,11 +746,11 @@
       filterCoverage(coverageButton);
       return;
     }
-    var filterButton = event.target.closest && event.target.closest("button[data-filter]");
+    var filterButton = event.target.closest && event.target.closest("button[data-filter], button[data-topic]");
     if (filterButton) {
       var filtered = filterButton.closest(".round");
-      filtered.dataset.filter = filterButton.dataset.filter;
-      filtered.dataset.expanded = "";
+      if (filterButton.dataset.filter) filtered.dataset.filter = filterButton.dataset.filter;
+      else filtered.dataset.topic = filtered.dataset.topic === filterButton.dataset.topic ? "" : filterButton.dataset.topic;
       applyFilter(filtered);
       return;
     }
@@ -665,30 +769,34 @@
       var sections = all(".sec.lvl2", article);
       var anyOpen = sections.some(function (item) { return !item.classList.contains("collapsed"); });
       sections.forEach(function (item) { setCollapsed(item, anyOpen); });
-      button.textContent = anyOpen ? "Expand all" : "Collapse all";
+      all("[data-action='collapse-all']").forEach(function (item) {
+        item.textContent = anyOpen ? "Expand all" : "Collapse all";
+      });
     } else if (action === "respond") {
-      openRespond();
+      toggleRespond();
     } else if (action === "close-respond") {
       closeRespond();
     } else if (action === "copy") {
-      var text = document.getElementById("respond-text");
-      text.value = compose();
-      copyText(text.value, document.querySelector("[data-copied]"), text);
-    } else if (action === "copy-live" && round) {
-      var live = round.querySelector("[data-live]");
+      var live = document.querySelector("[data-live]");
+      dropUndo();
       live.textContent = compose();
-      copyText(live.textContent, round.querySelector("[data-copied-live]"), live);
+      copyText(live.textContent, document.querySelector(".respond-status"), live);
     } else if (action === "premise") {
       setPremise(button.closest(".premise"), button.dataset.value);
     } else if (action === "bulk-accept" && round) {
       bulkAccept(round);
-    } else if (action === "show-more" && round) {
-      round.dataset.expanded = "1";
-      applyFilter(round);
-    } else if (action === "next-open" && round) {
-      nextOpen(round);
+    } else if (action === "undo-bulk") {
+      undoBulk();
+    } else if (action === "next-open") {
+      var openRound = document.getElementById(current).querySelector(".round");
+      if (openRound) nextOpen(openRound);
     } else if (action === "clear-answers") {
-      clearAnswers(button);
+      document.querySelector("[data-confirm]").hidden = false;
+    } else if (action === "cancel-clear") {
+      document.querySelector("[data-confirm]").hidden = true;
+    } else if (action === "confirm-clear") {
+      clearAnswers();
+      document.querySelector("[data-confirm]").hidden = true;
     } else if (action === "reviewed" && section) {
       toggleReviewed(section);
     } else if (action === "expand-cards") {
@@ -699,11 +807,48 @@
     }
   });
 
+  var printOpened = [];
+  window.addEventListener("beforeprint", function () {
+    printOpened = all("details:not([open])");
+    printOpened.forEach(function (item) { item.open = true; });
+  });
+  window.addEventListener("afterprint", function () {
+    printOpened.forEach(function (item) { item.open = false; });
+    printOpened = [];
+  });
+
+  function closeMenu() {
+    var menu = document.querySelector("details.menu");
+    if (menu) menu.open = false;
+  }
+
+  document.addEventListener("click", function (event) {
+    var menu = document.querySelector("details.menu");
+    if (!menu || !menu.open) return;
+    var link = event.target.closest && event.target.closest("a");
+    if (!menu.contains(event.target) || (link && menu.contains(link))) closeMenu();
+  });
+
   document.addEventListener("keydown", function (event) {
     if (event.key === "Escape") {
       hidePopover();
       closeRespond();
+      closeMenu();
     }
+  });
+
+  var themeRadios = all("input[name='theme']");
+  var activeTheme = document.documentElement.dataset.theme || "system";
+  themeRadios.forEach(function (radio) { radio.checked = radio.value === activeTheme; });
+  document.addEventListener("change", function (event) {
+    var input = event.target;
+    if (!input.matches || !input.matches("input[name='theme']")) return;
+    if (input.value === "system") delete document.documentElement.dataset.theme;
+    else document.documentElement.dataset.theme = input.value;
+    try {
+      if (input.value === "system") window.localStorage.removeItem("rv-theme");
+      else window.localStorage.setItem("rv-theme", input.value);
+    } catch (error) { }
   });
 
   all(".round").forEach(applyFilter);

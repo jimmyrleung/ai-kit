@@ -1,7 +1,8 @@
 # Decision rounds — a walkthrough file as a page
 
 A doc with a `## Walkthrough — <YYYY-MM-DD> (round N)` heading renders its latest round as a decision
-round: Round 0 premise cards, then one card per item with filters, and a Respond column. Earlier rounds
+round: premise cards, then one card per item (all of them, with a state filter and topic filters), and the
+Respond panel, which is always open on a round at 1200px and wider and opens on demand below that. Earlier rounds
 render as plain markdown. The `walkthrough` skill owns the file and the conversation; render-view only
 draws and builds.
 
@@ -87,8 +88,10 @@ other docs' sections (`"techspec.md#lifecycle"`) so the drawing goes stale when 
 ## What comes back
 
 Nothing is pre-selected: an untouched card stays open. "Accept suggested for N shown" selects the
-suggestion on each shown open card, and each one is still listed separately. Respond (the live column or
-the top-bar button) produces:
+suggestion on each shown open card at once, and each one is still listed separately. The Respond status
+line then offers "Undo", which makes those cards unanswered again; the offer goes away at the next answer,
+at "Copy response" and at "Clear my answers". The Respond panel (opened by the top-bar button, or open
+already on a round at 1200px and wider) shows this text live and produces:
 
 ```markdown
 ## Invoice reminders: decisions, round 1 — premises
