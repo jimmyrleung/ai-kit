@@ -36,7 +36,8 @@ render-view along the way:
 - A spec folder (`specs/<slug>/`), or a doc in it, which the page then opens on. The script reads
   `user_story.md`, `requirements.md`, `techspec.md`, `tasks.md`, `task_NN.md`, `qa.md`, any doc with a
   `## Walkthrough — <date> (round N)` heading, and any tour doc (`## Change set` plus `## S<n> — …`
-  steps); a folder without the spec docs renders every `*.md`.
+  steps); a folder without the spec docs renders every `*.md`. Other docs of the folder are added by
+  listing their file names under `docs` in `.views/config.json`.
 - Optional code roots (`--repo`, repeatable; remembered in `.views/config.json`) for editor links, code
   excerpts and diffs; git diffs also need `git`. A `| Prefix | Path |` table in the docs is applied to
   cited paths (`prefix:path/File.cs:12`). A tour's change-set table adds its repositories on its own.

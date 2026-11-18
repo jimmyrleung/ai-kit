@@ -639,6 +639,10 @@ def discover_docs(spec_dir: Path, focus: str | None = None) -> list[Doc]:
             path.name for path in spec_dir.glob("*.md")
             if path.is_file() and path.name not in files and is_round_or_tour(read_text(path))
         )
+    files += [
+        name for name in load_config(spec_dir).get("docs", [])
+        if name not in files and name != focus and (spec_dir / name).is_file()
+    ]
     if focus and focus not in files:
         files.append(focus)
     if not files:
