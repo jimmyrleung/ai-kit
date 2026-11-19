@@ -1803,7 +1803,7 @@ class Renderer:
         weight_col = lowered.index("weight")
         score_col = lowered.index("score")
         evidence_col = next((i for i, name in enumerate(lowered) if name in {"evidence", "notes", "why"}), None)
-        rows = []
+        factors = []
         total = ""
         for row in block["rows"]:
             if len(row) <= max(weight_col, score_col):
@@ -1815,20 +1815,31 @@ class Renderer:
                 continue
             if not weight or not score:
                 continue
-            weight_value = float(weight.group(1))
-            percent = max(0.0, min(100.0, 100.0 * float(score.group(1)) / weight_value)) if weight_value else 0.0
+            factors.append((row, weight.group(1), score.group(1)))
+        if not factors:
+            return ""
+        as_percent = any(float(score) > float(weight) or "%" in row[score_col] for row, weight, score in factors)
+        rows = []
+        for row, weight, score in factors:
+            weight_value = float(weight)
+            if as_percent:
+                percent = max(0.0, min(100.0, float(score)))
+                score_text = f"{score}%"
+                bar_label = f"{percent:.0f}%"
+            else:
+                percent = max(0.0, min(100.0, 100.0 * float(score) / weight_value)) if weight_value else 0.0
+                score_text = f"{score} / {weight}"
+                bar_label = f"{percent:.0f}% of the weight"
             evidence = ""
             if evidence_col is not None and evidence_col < len(row) and plain(row[evidence_col]):
                 evidence = f'<div class="conf-evidence">{self.inline(row[evidence_col])}</div>'
             rows.append(
                 f'<div class="conf-row"><div class="conf-label">{self.inline(row[0])}'
                 f' <span class="muted">· {esc(plain(row[weight_col]))}</span></div>'
-                f'<div class="conf-score">{score.group(1)} / {weight.group(1)}</div>'
-                f'<div class="conf-bar" role="img" aria-label="{percent:.0f}% of the weight">'
+                f'<div class="conf-score">{score_text}</div>'
+                f'<div class="conf-bar" role="img" aria-label="{bar_label}">'
                 f'<span style="width:{percent:.0f}%"></span></div>{evidence}</div>'
             )
-        if not rows:
-            return ""
         total_html = f'<div class="conf-total">Total <strong>{esc(total)}</strong></div>' if total else ""
         return f'<div class="confidence">{total_html}{"".join(rows)}</div>'
 
